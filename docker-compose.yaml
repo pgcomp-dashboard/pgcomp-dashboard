@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  php:
+    build: &phpBuild
+      context: devops/docker/php
+      target: develop
+      args: &phpBuildArgs
+        - UID=${UID-1000}
+        - GID=${GID-1000}
+    volumes: &phpVolumes
+      - ./backend:/var/www/html
+      - ./devops/docker/php/dev.ini:/usr/local/etc/php/conf.d/dev.ini
+    working_dir: /var/www/html
+    depends_on:
+      - mysql
+      - redis
+  mysql:
+    build:
+      context: devops/docker/mysql
+      args: *phpBuildArgs
+    volumes:
+      - ./devops/docker/mysql/dbdata:/var/lib/mysql
+      - ./devops/docker/mysql/my.cnf:/etc/my.cnf
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --disable-log-bin
+    ports:
+      - '3306:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=laravel
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-p$$MYSQL_ROOT_PASSWORD" ]
+      retries: 3
+      timeout: 5s
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      retries: 3
+      timeout: 5s
+  node:
+    image: node:16.14-slim
+    user: node
+    volumes:
+      - ./frontend:/home/node/frontend
+    working_dir: /home/node/frontend
+    entrypoint: tail -f /dev/null
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./backend:/var/www/html
+      - ./devops/docker/nginx/dev.nginx:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    ports:
+      - '8000:80'
