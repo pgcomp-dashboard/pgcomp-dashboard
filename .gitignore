@@ -49,6 +49,9 @@ chrome-user-data
 *.swp
 *.swo
 
+package-lock.json
+yarn.lock
+
 packages/react-devtools-core/dist
 packages/react-devtools-extensions/chrome/build
 packages/react-devtools-extensions/chrome/*.crx
