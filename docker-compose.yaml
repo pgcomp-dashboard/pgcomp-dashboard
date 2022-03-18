@@ -41,8 +41,8 @@ services:
     image: node:16.14-slim
     user: node
     volumes:
-      - ./frontend:/home/node/frontend
-    working_dir: /home/node/frontend
+      - .:/home/node/project
+    working_dir: /home/node/project/frontend
     entrypoint: tail -f /dev/null
     ports:
       - '3000:3000'
