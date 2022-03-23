@@ -6,7 +6,9 @@ https://docs.docker.com/desktop/windows/wsl/
 #### Ubuntu
 `bash devops/docker-install-ubuntu.bash`
 
-### 2 - Gitflow Init
+### 2 - Configurar o Gitflow
+`sudo apt-get update`\
+`sudo apt-get install git-flow`\
 `git flow init -d -t v`
 
 ### 3 - Iniciar Feature
