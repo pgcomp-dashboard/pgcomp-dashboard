@@ -15,7 +15,7 @@ class SigaaScraping extends Command
      *
      * @var string
      */
-    protected $signature = 'sigaa:scraping';
+    protected $signature = 'sigaa:scraping {courseId=1820 : ID do curso no site SIGAA}';
 
     /**
      * The console command description.
@@ -30,18 +30,25 @@ class SigaaScraping extends Command
      */
     public function handle(): int
     {
+        // @see https://sigaa.ufba.br/sigaa/public/programa/lista.jsf
+        $courseId = $this->argument('courseId');
+        if (! is_numeric($courseId) || $courseId <= 0) {
+            $this->error('Informe um ID de curso válido');
+            return 1;
+        }
+
         $teacherScraping = new TeacherScraping();
         try {
-            $teachers = $teacherScraping->scrapingByCourse(1820); // 1820 PGCOMP
-            Storage::put('teachers.json', json_encode($teachers));
+            $teachers = $teacherScraping->scrapingByCourse((int)$courseId);
+            Storage::put("teachers-{$courseId}.json", json_encode($teachers));
         } catch (Exception $e) {
             $this->error($e->getMessage());
         }
 
         $studentScraping = new StudentScraping();
         try {
-            $students = $studentScraping->scrapingByCourse(1820); // 1820 PGCOMP
-            Storage::put('students.json', json_encode($students));
+            $students = $studentScraping->scrapingByCourse((int)$courseId);
+            Storage::put("students-{$courseId}.json", json_encode($students));
         } catch (Exception $e) {
             $this->error($e->getMessage());
         }

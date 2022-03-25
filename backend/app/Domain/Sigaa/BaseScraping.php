@@ -30,18 +30,19 @@ abstract class BaseScraping
         return html5qp($html);
     }
 
-    protected function getSiapeId(string $text): ?int
+    protected function getSiapeIdFromUrl(?string $text): ?int
     {
-        $url = parse_url($text);
-        $query = explode('&', $url['query']);
-
-        $params = [];
-        foreach ($query as $item) {
-            [$key, $value] = explode('=', $item);
-            $params[$key] = $value;
+        if (empty($text)) {
+            return null;
         }
 
-        if (!empty($params['siape'])) {
+        $url = parse_url($text);
+        if (empty($url['query'])) {
+            return null;
+        }
+
+        parse_str($url['query'], $params);
+        if (isset($params['siape']) && is_numeric($params['siape'])) {
             return (int)$params['siape'];
         }
 

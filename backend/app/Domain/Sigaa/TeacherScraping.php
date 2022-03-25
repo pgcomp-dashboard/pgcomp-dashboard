@@ -9,6 +9,8 @@ use QueryPath\DOMQuery;
 class TeacherScraping extends BaseScraping
 {
     /**
+     * Realiza o web scraping de professores no site SIGAA
+     *
      * @throws Exception
      */
     public function scrapingByCourse(int $courseId): array
@@ -27,35 +29,43 @@ class TeacherScraping extends BaseScraping
     }
 
     /**
+     * Extrai os dados de professor da linha da tabela HTML.
+     *
      * @param DOMQuery $item
      * @return array{name: string, siape: string, relation: string, level: string, telephone: string, lattes: string, email: string}
      */
     private function extractTeacher(DOMQuery $item): array
     {
         $nameQp = $item->find('td')->eq(0);
-        $name = Str::replace([' ', ','], '', $nameQp->text());
-        $siape = $this->getSiapeId($nameQp->find('a')->first()->attr('href'));
+        $name = $nameQp->text();
+        $name = Str::of($name)->replace([' ', ','], '')->trim()->title()->value();
+
+        $siapeUrl = $nameQp->find('a')->first()->attr('href');
+        $siape = $this->getSiapeIdFromUrl($siapeUrl);
 
         $relation = $item->find('td')->eq(1)->text();
+        $relation = Str::of($relation)->trim()->title()->value();
+
         $level = $item->find('td')->eq(2)->text();
+        $level = Str::of($level)->trim()->title()->value();
+
         $telephone = $item->find('td')->eq(3)->text();
+        $telephone = Str::of($telephone)->trim()->value();
 
         $lattes = $item->find('td')
             ->eq(4)
             ->find('a')
             ->first()
             ->attr('href');
+        $lattes = Str::of($lattes)->trim()->lower()->value();
+
         $email = $item->find('td')
             ->eq(5)
             ->find('a')
             ->first()
             ->attr('href');
-        $email = Str::replace('mailto:', '', $email);
+        $email = Str::of($email)->trim()->lower()->after('mailto:')->value();
 
-        $data = compact('name', 'relation', 'level', 'telephone', 'lattes', 'email');
-        $data = array_map('trim', $data);
-        $data['siape'] = $siape;
-
-        return $data;
+        return compact('name', 'relation', 'level', 'telephone', 'lattes', 'email', 'siape');
     }
 }

@@ -9,6 +9,8 @@ use QueryPath\DOMQuery;
 class StudentScraping extends BaseScraping
 {
     /**
+     * Extrai os dados de discentes do site SIGAA.
+     *
      * @throws Exception
      */
     public function scrapingByCourse(int $courseId): array
@@ -27,30 +29,34 @@ class StudentScraping extends BaseScraping
         return $students;
     }
 
+    /**
+     * Extrai os dados do discente da linha da tabela HTML.
+     *
+     * @param DOMQuery $item
+     * @return array{registration: string, name: string, course: string, teachers: array{siape: int, name: string, type: string}}
+     */
     private function extractStudent(DOMQuery $item): array
     {
-        $registration = (int)trim($item->find('td')->eq(0)->text());
+        $registration = $item->find('td')->eq(0)->text();
+        $registration = (int)trim($registration);
 
         $course = $item->parent('div#listagem_tabela')->children('div#group_lt')->text();
-        $course = Str::before($course, '(');
-        $course = trim($course);
+        $course = Str::of($course)->before('(')->trim()->value();
 
         $td1Element = $item->find('td')->eq(1);
         $teachers = [];
         foreach ($td1Element->find('a')->getIterator() as $teacherElement) {
             $teachers[] = [
-                'siape' => $this->getSiapeId($teacherElement->attr('href')),
-                'name' => Str::before(trim($teacherElement->text()), '('),
-                'type' => Str::between($teacherElement->text(), '(', ')'),
+                'siape' => $this->getSiapeIdFromUrl($teacherElement->attr('href')),
+                'name' => Str::of($teacherElement->text())->before('(')->trim()->title()->value(),
+                'type' => Str::of($teacherElement->text())->between('(', ')')->trim()->title()->value(),
             ];
         }
 
         $separator = '********';
         [$name] = explode($separator, $td1Element->childrenText($separator));
-        $name = Str::replace([' ', ','], '', $name);
-        $name = trim($name);
+        $name = Str::of($name)->replace([' ', ','], '')->trim()->title()->value();
 
         return compact('registration', 'name', 'teachers', 'course');
     }
-
 }
