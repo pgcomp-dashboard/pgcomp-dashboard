@@ -1,0 +1,21 @@
+.footer__ufba { 
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #0B3665;
+    color: white;
+    height: 15vh;
+    padding: 10px;
+}
+
+.footer__left {
+    margin-left: 15%;
+    float: left;
+}
+
+.footer__right {
+    margin-right: 15%;
+    margin-top: 3vh;
+    float: right;
+}
