@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use \App\Models\Course;
+use \App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +16,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    $user = new User;
+    $course = new Course;
+    $arr = ['registration' => 218220310, 'name' => 'Adeilson Antonio Da Silva','teachers' => ['siape' => 4], 'course' => 'Mestrado'];
+    //return $arr['teachers'][0];
+    //return $user->saveNewStudentUser($arr);
+    //return $user->saveNewProfessorUser(['siape' => 4, 'name' => 'teste']);
+    //return $course->saveNewCourse(['sigaa_id' => 1, 'name' => 'Mestrado']);
+    return $user->findNumberOfStudentsForEachProfessor();
 });
