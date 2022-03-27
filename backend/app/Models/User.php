@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class User extends Model
+class User extends Authenticatable
 {
+
+    use HasApiTokens, HasFactory, Notifiable;
+
     protected const PROFESSOR = 'docente';
     protected const STUDENT = 'discente';
 
@@ -13,7 +16,14 @@ class User extends Model
     protected $table = 'users';
 
     protected $primaryKey = 'id';
-    protected $fillable = ['registration', 'siape', 'name', 'type', 'area', 'advisor_id', 'course_id'];
+    protected $fillable = ['registration', 'siape', 'name', 'type', 'area', 'email', 'password','advisor_id', 'course_id'];
+
+    protected $hidden = ['password', 'remember_token'];
+
+    protected $casts = ['email_verified_at' => 'datetime', 'is_admin' => 'bool'];
+
+    protected $attributes = ['is_admin' => false];
+
 
     public function isAdvisoredBy() {
         return $this->hasMany(User::class, 'advisor_id');

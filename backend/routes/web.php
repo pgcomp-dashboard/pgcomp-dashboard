@@ -22,6 +22,8 @@ Route::get('/', function () {
     //return $arr['teachers'][0];
     //return $user->saveNewStudentUser($arr);
     //return $user->saveNewProfessorUser(['siape' => 4, 'name' => 'teste']);
-    //return $course->saveNewCourse(['sigaa_id' => 1, 'name' => 'Mestrado']);
-    return $user->findNumberOfStudentsForEachProfessor();
+    //return $course->saveNewCourse(['sigaa_id' => 2, 'name' => 'Mestrado']);
+    //return $course->deleteCourse(2);
+    //return $user->findNumberOfStudentsForEachProfessor();
+    //return empty($arr['reg']);
 });

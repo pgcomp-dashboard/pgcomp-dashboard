@@ -20,10 +20,14 @@ return new class extends Migration
             $table->string('name');
             $table->string('type');
             $table->string('area')->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->boolean('is_admin')->default(false);
             $table->unsignedBigInteger('advisor_id')->nullable();
             $table->integer('course_id')->nullable();
 
-            
+            $table->rememberToken();
             $table->timestamps();
         });
 
