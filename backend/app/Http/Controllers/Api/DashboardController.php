@@ -12,12 +12,12 @@ class DashboardController extends Controller
     {
         $attributes = ['id', 'name'];
         $data = User::where('type', UserType::PROFESSOR)
-            //->whereHas('adviseees')
-            ->withCount('adviseees')
+            //->whereHas('advisedes')
+            ->withCount('advisedes')
             ->get($attributes);
 
         return $data->transform(function ($item) use ($attributes) {
-            return $item->only([...$attributes, 'adviseees_count']);
+            return $item->only([...$attributes, 'advisedes_count']);
         });
     }
 }
