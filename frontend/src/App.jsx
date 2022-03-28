@@ -17,8 +17,8 @@ export function App() {
             <div className={styles.cards__container}>
 
                 <DataCard title="Alunos por docente"
-                    minWidth="400"
-                    minHeight="200"
+                    minWidth="500px"
+                    minHeight="300px"
                     icon={AssessmentIcon}
                     chart={HorizontalBarChart} />
 

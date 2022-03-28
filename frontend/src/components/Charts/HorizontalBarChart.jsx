@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import axios from 'axios';
 import { map } from 'lodash';
+import { useEffect, useState } from 'react';
 
 ChartJS.register(
     CategoryScale,
@@ -20,7 +21,23 @@ ChartJS.register(
     Legend
 );
 
+function generateColorsArray(numberOfColors) {
+    const colorsArray = [];
+    let r, g, b;
+    for (let i = 0; i < numberOfColors; i++) {
+        r = Math.floor(Math.random() * 255);
+        g = Math.floor(Math.random() * 255);
+        b = Math.floor(Math.random() * 255);
+        colorsArray.push("rgb(" + r + "," + g + "," + b + ")");
+    }
+
+    return colorsArray;
+}
+
 function HorizontalBarChart(props) {
+    const [chartData, setChartData] = useState(null);
+    const NUMBER_OF_ITEMS = 8;
+
     const options = {
         indexAxis: 'y',
         elements: {
@@ -34,51 +51,35 @@ function HorizontalBarChart(props) {
                 display: false,
             },
             title: {
-                display: false,
-                text: 'Chart.js Horizontal Bar Chart',
+                display: false
             },
         }
     }
 
-    axios.get('http://localhost:8000/api/dashboard').then(({data}) => {
-        console.log(data);
-        console.log(map(data, 'name'));
-        console.log(map(data, 'adviseees_count'));
-    })
+    useEffect(() => {
+        axios.get('http://localhost:8000/api/dashboard').then(({ data }) => {
+            const slicedData = data.slice(0, NUMBER_OF_ITEMS);
 
-    const labels = [
-        //'Antonio Lopes Apolinario Junior',
-        'Cassio V. S. Prazeres',
-        'Christina V. F. G. Chavez',
-        'Claudio N. Sant\'Anna',
-        'Frederico Araujo Durao',
-        // 'Daniela Barreiro Claro', 'Danilo Barbosa Coimbra', 'Ecivaldo De Souza Matos', 'Eduardo Santana De Almeida', 'Fabiola Goncalves Pereira Greve', 'Frederico Araujo Durao', 'Gecynalda Soares Da Silva Gomes', 'George Marconi De Araujo Lima', 'Gustavo Bittencourt Figueiredo', 'Ivan Do Carmo Machado', 'Lais Do Nascimento Salvador', 'Leobino Nascimento Sampaio', 'Luciano Reboucas De Oliveira', 'Manoel Gomes De Mendonca Neto', 'Marcos Ennes Barreto', 'Marlo Vieira Dos Santos E Souza', 'Maycon Leone Maciel Peixoto', 'Rafael Augusto De Melo', 'Ricardo Araujo Rios', 'Rita Suzana Pitangueira Maciel', 'Steffen Lewitzka', 'Tatiane Nogueira Rios', 'Tiago De Oliveira Januario', 'Vaninha Vieira Dos Santos', 'Vinicius Tavares Petrucci', 'Mauricio Pamplona Segundo', 'Marcelo Magalhaes Taddeo', 'Aline Maria Santos Andrade', 'Karl Philips Apaza Aguero', 'Rodrigo Rocha Gomes E Souza', 'Michelle Larissa Luciano Carvalho', 'Debora Abdalla Santos', 'Raimundo Jose De Araujo Macedo', 'Patricia Ramos Cury', 'Lynn Rosalina Gama Alves', 'Veronica Maria Cadena Lima'
-    ];
+            const labels = map(slicedData, 'name');
 
-    const data = {
-        labels,
-        datasets: [
-            {
-                label: 'Dataset teste',
-                data: [
-                    // 4,
-                    10,
-                    11,
-                    5,
-                    //  8, 6, 5, 8, 11, 9, 3, 3, 13, 9, 9, 12, 3, 14, 11, 2, 13, 2, 5, 17, 1, 3, 2, 10, 5, 2, 0, 3, 1, 3, 0, 2, 2, 0, 0, 0
-                    9, //Fred - duplicado - remover
-                ],
-                backgroundColor: [
-                    'rgba(53, 162, 235, 0.5)',
-                    'rgb(255, 137, 0)',
-                    'rgb(142, 137, 0)',
-                    'rgb(186, 217, 187)',
-                ]
-            }]
-    }
+            const teachersData = {
+                labels,
+                datasets: [
+                    {
+                        label: 'Número de alunos',
+                        data: map(slicedData, 'adviseees_count'),
+                        backgroundColor: generateColorsArray(NUMBER_OF_ITEMS)
+                    }]
+            };
+
+            setChartData(teachersData);
+        });
+
+    }, []);
 
     return (
-        <Bar options={options} data={data}/>
+        chartData ? <Bar options={options} data={chartData} /> : null
+
     )
 }
 
