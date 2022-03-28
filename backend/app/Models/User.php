@@ -34,6 +34,9 @@ class User extends BaseModel
         'password',
         'remember_token',
         'is_admin',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
+        'email_verified_at',
     ];
 
     protected $casts = [
@@ -151,9 +154,21 @@ class User extends BaseModel
             ->wherePivot('relation_type', UserRelationType::ADVISOR->value);
     }
 
+    public function adviseees(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
+            ->wherePivot('relation_type', UserRelationType::ADVISOR->value);
+    }
+
     public function coadvisors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
+            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR->value);
+    }
+
+    public function coadviseees(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
             ->wherePivot('relation_type', UserRelationType::CO_ADVISOR->value);
     }
 
