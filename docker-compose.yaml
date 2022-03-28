@@ -1,12 +1,13 @@
 version: '3.8'
 services:
   php:
-    build: &phpBuild
-      context: devops/docker/php
-      target: develop
-      args: &phpBuildArgs
-        - UID=${UID-1000}
-        - GID=${GID-1000}
+    image: litiano/php-mate85
+#    build: &phpBuild
+#      context: devops/docker/php
+#      target: develop
+#      args: &phpBuildArgs
+#        - UID=${UID-1000}
+#        - GID=${GID-1000}
     volumes: &phpVolumes
       - ./backend:/var/www/html
       - ./devops/docker/php/dev.ini:/usr/local/etc/php/conf.d/dev.ini
@@ -17,7 +18,9 @@ services:
   mysql:
     build:
       context: devops/docker/mysql
-      args: *phpBuildArgs
+      args:
+        - UID=${UID-1000}
+        - GID=${GID-1000}
     volumes:
       - ./devops/docker/mysql/dbdata:/var/lib/mysql
       - ./devops/docker/mysql/my.cnf:/etc/my.cnf

@@ -16,14 +16,5 @@ use \App\Models\User;
 */
 
 Route::get('/', function () {
-    $user = new User;
-    $course = new Course;
-    $arr = ['registration' => 218220310, 'name' => 'Adeilson Antonio Da Silva','teachers' => ['siape' => 4], 'course' => 'Mestrado'];
-    //return $arr['teachers'][0];
-    //return $user->saveNewStudentUser($arr);
-    //return $user->saveNewProfessorUser(['siape' => 4, 'name' => 'teste']);
-    //return $course->saveNewCourse(['sigaa_id' => 2, 'name' => 'Mestrado']);
-    //return $course->deleteCourse(2);
-    //return $user->findNumberOfStudentsForEachProfessor();
-    //return empty($arr['reg']);
+
 });
