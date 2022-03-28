@@ -47,9 +47,9 @@ function HorizontalBarChart(props) {
                 label: 'Dataset teste',
                 data: [10, 32, 23, 54],
                 backgroundColor: ['rgba(53, 162, 235, 0.5)',
-                'rgb(255, 137, 0)',
-                'rgb(142, 137, 0)',
-                'rgb(186, 217, 187)']
+                    'rgb(255, 137, 0)',
+                    'rgb(142, 137, 0)',
+                    'rgb(186, 217, 187)']
             }]
     }
 

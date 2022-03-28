@@ -1,6 +1,10 @@
 .cards__container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%;
+}
+.cards__container__horizontal{
+    display: flex;
+    column-gap: 50px;
 }
