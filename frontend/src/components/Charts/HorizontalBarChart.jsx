@@ -20,7 +20,7 @@ ChartJS.register(
     Legend
 );
 
-function HorizontalBarChart(props) {
+async function HorizontalBarChart(props) {
     const options = {
         indexAxis: 'y',
         elements: {
