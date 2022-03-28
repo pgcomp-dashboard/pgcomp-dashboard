@@ -14,13 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('courses', function (Blueprint $table) {
-            $table->integer('sigaa_id');
+            $table->id();
+            $table->unsignedBigInteger('sigaa_id')->unique()->nullable();
             $table->string('name');
-
-            $table->primary('sigaa_id');
+            $table->longText('description')->nullable();
             $table->timestamps();
         });
-
     }
 
     /**

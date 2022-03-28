@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('user_user', function (Blueprint $table) {
             $table->foreignId('professor_user_id')->constrained('users');
             $table->foreignId('student_user_id')->constrained('users');
+            $table->enum('relation_type', \App\Enums\UserRelationType::values());
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('table_user_use');
+        Schema::dropIfExists('user_user');
     }
 };

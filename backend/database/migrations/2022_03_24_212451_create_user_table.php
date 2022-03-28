@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id('id');
-            $table->integer('registration')->nullable();
+            $table->id();
+            $table->integer('registration')->unique()->nullable();
             $table->integer('siape')->unique()->nullable();
             $table->string('name');
             $table->string('type');
@@ -24,16 +24,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('is_admin')->default(false);
-            //$table->unsignedBigInteger('advisor_id')->nullable();
-            $table->integer('course_id')->nullable();
-
+            $table->foreignId('course_id')->nullable()->constrained();
+            $table->string('lattes_url')->nullable();
             $table->rememberToken();
             $table->timestamps();
-        });
-
-        Schema::table('users', function (Blueprint $table) {
-            //$table->foreign('advisor_id')->references('id')->on('users');
-            $table->foreign('course_id')->references('sigaa_id')->on('courses');
         });
     }
 
@@ -46,6 +40,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('users');
     }
-
-    
 };

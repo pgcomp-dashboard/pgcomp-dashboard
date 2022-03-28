@@ -2,134 +2,184 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Enums\UserRelationType;
+use App\Enums\UserType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
+use Laravel\Fortify\Rules\Password;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends BaseModel
 {
-
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected const PROFESSOR = 'docente';
-    protected const STUDENT = 'discente';
+    protected $fillable = [
+        'registration',
+        'siape',
+        'name',
+        'type',
+        'area',
+        'email',
+        'password',
+        'course_id',
+        'lattes_url',
+    ];
 
-    //table name
-    protected $table = 'users';
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'is_admin',
+    ];
 
-    protected $primaryKey = 'id';
-    protected $fillable = ['registration', 'siape', 'name', 'type', 'area', 'email', 'password', 'course_id'];
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'is_admin' => 'bool',
+        'type' => UserType::class,
+        'siape' => 'int',
+        'course_id' => 'int',
+    ];
 
-    protected $hidden = ['password', 'remember_token'];
-
-    protected $casts = ['email_verified_at' => 'datetime', 'is_admin' => 'bool'];
-
-    protected $attributes = ['is_admin' => false];
+    protected $attributes = [
+        'is_admin' => false,
+    ];
 
 
-    public function isAdvisoredBy() {
+    public function isAdvisoredBy()
+    {
         return $this->belongsToMany(User::class);
     }
 
-    public function belongsToTheCourse() {
+    public function belongsToTheCourse()
+    {
         return $this->hasOne(Course::class, 'course_id');
     }
-   
-    public function saveNewProfessorUser($newUser){
-        $user = new User();
-        if(is_null(User::findProfessorBySiape($newUser['siape']))){
-            $user = User::fillProfessorUserFields($user, $newUser); 
-            $user->save();
-            return true;
-        }
-        return false;
-    }
-   
-    public function saveNewStudentUser($newUser){
-        $user = new User();
-        if(is_null(User::findStudentByRegistration([$newUser['registration']]))){
-            $user = user::fillStudentUserFields($user, $newUser); 
-            $user->save();
-            return true;
-        }
-        return false;
-    }
 
-    public function editUser($oldSigaaId, $User){
-        $editableUser = User::checkIfUserAlreadyExist($oldSigaaId);
-        if(is_null($editableUser)){
-            return false;
-        }
-        $editableUser = User::fillUserFields($editableUser, $User);
-        $editableUser->save();
-        return true;
-    }
-
-    public function deleteUser($sigaaId){
+    public function deleteUser($sigaaId)
+    {
         $user = new User();
         $user = User::checkIfUserAlreadyExist($sigaaId);
         $user = User::checkIfUserWasFound($user);
         $user->delete();
     }
 
-    public function findUserByName($UserName){
+    public function findUserByName($UserName)
+    {
         $user = new User();
         $user = User::where('name', $UserName)->first();
         return User::checkIfUserWasFound($user);
     }
 
-    public function findProfessorBySiape($siape){
+    public function findProfessorBySiape($siape)
+    {
         $user = new User();
         $user = User::where('siape', $siape)->first();
         return User::checkIfUserWasFound($user);
-        
+
     }
 
-    public function findStudentByRegistration($registration){
+    public function findStudentByRegistration($registration)
+    {
         $user = new User();
         $user = User::where('registration', $registration);
         return User::checkIfUserWasFound($user);
     }
 
-    public function findAllUsers(){
+    public function findAllUsers()
+    {
         return User::all();
     }
 
     //nao terminado
-    public function findNumberOfStudentsForEachProfessor(){
+    public function findNumberOfStudentsForEachProfessor()
+    {
         $allProfessor = User::all('name', 'siape')->whereNotNull('siape')->count();
         return $allProfessor;
     }
 
-    protected function checkIfUserAlreadyExist($sigaaId){
+    protected function checkIfUserAlreadyExist($sigaaId)
+    {
         return User::find($sigaaId);
     }
 
-    protected function checkIfUserWasFound($user){
-        if(is_null($user)){
+    protected function checkIfUserWasFound($user)
+    {
+        if (is_null($user)) {
             return 'error';
         }
         return $user;
     }
 
-    protected function fillProfessorUserFields($professor, $professorArray){
-        $professor->name = $professorArray['name'];
-        $professor->siape = $professorArray['siape'];
-        $professor->type = User::PROFESSOR;
-        return $professor;
+    public static function creationRules(): array
+    {
+        return [
+            'registration' => 'nullable|int|required_if:type,'.UserType::STUDENT->value,
+            'siape' => 'nullable|int|required_if:type,'.UserType::PROFESSOR->value,
+            'name' => 'required|string|max:255',
+            'type' => ['required', new Enum(UserType::class)],
+            'area' => 'nullable|string|max:255',
+            'email' => [
+                'nullable',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique(User::class),
+            ],
+            'password' => ['required', 'string', new Password, 'confirmed'],
+            'course_id' => 'nullable|int|exists:courses,id',
+            'lattes_url' => 'nullable|string|max:255',
+        ];
     }
 
-    protected function fillStudentUserFields($student, $studentArray){
-        $professor = new User();
-        $siapeCode = $studentArray['teachers']['siape'];
-        $professor = $professor->findProfessorBySiape($siapeCode);
+    public static function updateRules(): array
+    {
+        return [
+            'name' => 'string|max:255',
+            'area' => 'nullable|string|max:255',
+            'course_id' => 'nullable|int|exists:courses,id',
+            'lattes_url' => 'nullable|string|max:255',
+        ];
+    }
 
-        $course = new Course();
-        $course = $course->findCourseByName($studentArray['course']);
+    public function advisors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
+            ->wherePivot('relation_type', UserRelationType::ADVISOR->value);
+    }
 
-        $student->registration = $studentArray['registration'];
-        $student->name = $studentArray['name'];
-        $student->type = User::STUDENT;
-        //$student->advisor_id = $professor->id;
-        $student->course_id = $course->sigaa_id;
-        return $student;
+    public function coadvisors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
+            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR->value);
+    }
+
+    public static function createOrUpdateStudent(array $data): User
+    {
+        $data['type'] = UserType::STUDENT->value;
+        $password = Hash::make(Str::random(12));
+        $data['password'] = $password;
+        $data['password_confirmation'] = $password;
+
+        return User::updateOrCreateModel(
+            Arr::only($data, ['registration']),
+            $data
+        );
+    }
+
+    public static function createOrUpdateTeacher(array $data): User
+    {
+        $data['type'] = UserType::PROFESSOR->value;
+        $password = Hash::make(Str::random(12));
+        $data['password'] = $password;
+        $data['password_confirmation'] = $password;
+
+        return User::updateOrCreateModel(
+            Arr::only($data, ['siape']),
+            $data
+        );
     }
 }
