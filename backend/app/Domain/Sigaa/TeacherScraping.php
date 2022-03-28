@@ -16,6 +16,7 @@ class TeacherScraping extends BaseScraping
     public function scrapingByCourse(int $courseId): array
     {
         $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/equipe.jsf', ['id' => $courseId]);
+        $course = $this->getCourse($courseId, $dom);
         $items = $dom->find('div#listagem_tabela table#table_lt tr')->getIterator();
         $teachers = [];
         foreach ($items as $item) {
@@ -25,7 +26,13 @@ class TeacherScraping extends BaseScraping
             $teachers[] = $this->extractTeacher($item);
         }
 
-        return $teachers;
+        return array_map(
+            function ($item) use ($course) {
+                $item['course_id'] = $course->id;
+                return $item;
+            },
+            $teachers
+        );
     }
 
     /**
@@ -44,28 +51,28 @@ class TeacherScraping extends BaseScraping
         $siape = $this->getSiapeIdFromUrl($siapeUrl);
 
         $relation = $item->find('td')->eq(1)->text();
-        $relation = Str::of($relation)->trim()->title()->value();
+        $relation = Str::of($relation)->trim()->title()->value() ?: null;
 
         $level = $item->find('td')->eq(2)->text();
-        $level = Str::of($level)->trim()->title()->value();
+        $level = Str::of($level)->trim()->title()->value() ?: null;
 
         $telephone = $item->find('td')->eq(3)->text();
-        $telephone = Str::of($telephone)->trim()->value();
+        $telephone = Str::of($telephone)->trim()->value() ?: null;
 
-        $lattes = $item->find('td')
+        $lattes_url = $item->find('td')
             ->eq(4)
             ->find('a')
             ->first()
             ->attr('href');
-        $lattes = Str::of($lattes)->trim()->lower()->value();
+        $lattes_url = Str::of($lattes_url)->trim()->lower()->value() ?: null;
 
         $email = $item->find('td')
             ->eq(5)
             ->find('a')
             ->first()
             ->attr('href');
-        $email = Str::of($email)->trim()->lower()->after('mailto:')->value();
+        $email = Str::of($email)->trim()->lower()->after('mailto:')->value() ?: null;
 
-        return compact('name', 'relation', 'level', 'telephone', 'lattes', 'email', 'siape');
+        return compact('name', 'relation', 'level', 'telephone', 'lattes_url', 'email', 'siape');
     }
 }
