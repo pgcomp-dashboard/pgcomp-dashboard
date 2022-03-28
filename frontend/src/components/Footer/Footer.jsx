@@ -1,4 +1,7 @@
 import styles from './Footer.module.css'
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
 
 function Footer() {
     return (
@@ -10,7 +13,7 @@ function Footer() {
             </div>
 
             <div className={styles.footer__right}>
-                <h2>Instagram - Facebook - Twitter</h2>
+                <h2><LinkedInIcon color="primary" fontSize='large' />  <FacebookIcon color="primary" fontSize='large' />  <TwitterIcon color="primary" fontSize='large' /></h2>
             </div>
 
         </div>
