@@ -2,6 +2,7 @@
 
 namespace App\Domain\Sigaa;
 
+use App\Enums\UserRelationType;
 use Exception;
 use Illuminate\Support\Str;
 use QueryPath\DOMQuery;
@@ -34,6 +35,7 @@ class StudentScraping extends BaseScraping
      *
      * @param DOMQuery $item
      * @return array{registration: string, name: string, course: string, teachers: array{siape: int, name: string, type: string}}
+     * @throws Exception
      */
     private function extractStudent(DOMQuery $item): array
     {
@@ -46,10 +48,16 @@ class StudentScraping extends BaseScraping
         $td1Element = $item->find('td')->eq(1);
         $teachers = [];
         foreach ($td1Element->find('a')->getIterator() as $teacherElement) {
+            $typeStr = Str::of($teacherElement->text())->between('(', ')')->trim()->lower()->value();
+            $type = match ($typeStr) {
+                'orientador' => UserRelationType::ADVISOR->value,
+                'coorientador' => UserRelationType::CO_ADVISOR->value,
+                default => throw new Exception("Unknow relation type {$typeStr}")
+            };
             $teachers[] = [
                 'siape' => $this->getSiapeIdFromUrl($teacherElement->attr('href')),
                 'name' => Str::of($teacherElement->text())->before('(')->trim()->title()->value(),
-                'type' => Str::of($teacherElement->text())->between('(', ')')->trim()->title()->value(),
+                'relation_type' => $type,
             ];
         }
 
