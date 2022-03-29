@@ -2,7 +2,7 @@
 
 namespace App\Domain\Sigaa;
 
-use App\Models\Course;
+use App\Models\Program;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -51,7 +51,7 @@ abstract class BaseScraping
         return null;
     }
 
-    public function getCourse(int $sigaaId, DOMQuery $dom): Course
+    public function getProgram(int $sigaaId, DOMQuery $dom): Program
     {
         $data = [
             'sigaa_id' => $sigaaId,
@@ -59,9 +59,9 @@ abstract class BaseScraping
             'description' => Str::of($dom->find('span.nome_programa')->first()->text())->trim()->value(),
         ];
 
-        $course = Course::where('sigaa_id', $sigaaId)->first();
+        $course = Program::where('sigaa_id', $sigaaId)->first();
         if (empty($course)) {
-            $course = Course::createModel($data);
+            $course = Program::createModel($data);
         }
         return $course;
     }

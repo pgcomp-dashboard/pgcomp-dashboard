@@ -3,6 +3,7 @@
 namespace App\Domain\Sigaa;
 
 use App\Enums\UserRelationType;
+use App\Models\Course;
 use Exception;
 use Illuminate\Support\Str;
 use QueryPath\DOMQuery;
@@ -18,13 +19,14 @@ class StudentScraping extends BaseScraping
     {
         $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/alunos.jsf', ['id' => $courseId]);
         $items = $dom->find('div#listagem_tabela table#table_lt tr')->getIterator();
+        $program = $this->getProgram($courseId, $dom);
 
         $students = [];
         foreach ($items as $item) {
             if ($item->hasClass('campos')) {
                 continue;
             }
-            $students[] = $this->extractStudent($item);
+            $students[] = $this->extractStudent($item, $program->id);
         }
 
         return $students;
@@ -37,13 +39,14 @@ class StudentScraping extends BaseScraping
      * @return array{registration: string, name: string, course: string, teachers: array{siape: int, name: string, type: string}}
      * @throws Exception
      */
-    private function extractStudent(DOMQuery $item): array
+    private function extractStudent(DOMQuery $item, int $program_id): array
     {
         $registration = $item->find('td')->eq(0)->text();
         $registration = (int)trim($registration);
 
         $course = $item->parent('div#listagem_tabela')->children('div#group_lt')->text();
-        $course = Str::of($course)->before('(')->trim()->value();
+        $course = Str::of($course)->before('(')->trim()->title()->value();
+        $course_id = $this->getCourseId($course);
 
         $td1Element = $item->find('td')->eq(1);
         $teachers = [];
@@ -58,6 +61,7 @@ class StudentScraping extends BaseScraping
                 'siape' => $this->getSiapeIdFromUrl($teacherElement->attr('href')),
                 'name' => Str::of($teacherElement->text())->before('(')->trim()->title()->value(),
                 'relation_type' => $type,
+                'program_id' => $program_id,
             ];
         }
 
@@ -65,6 +69,16 @@ class StudentScraping extends BaseScraping
         [$name] = explode($separator, $td1Element->childrenText($separator));
         $name = Str::of($name)->replace([' ', ','], '')->trim()->title()->value();
 
-        return compact('registration', 'name', 'teachers', 'course');
+        return compact('registration', 'name', 'teachers', 'course', 'course_id', 'program_id');
+    }
+
+    private function getCourseId(string $name): int
+    {
+        $course = Course::where('name', $name)->first(['id']);
+        if (empty($course)) {
+            $course = Course::createModel(['name' => $name]);
+        }
+
+        return $course->id;
     }
 }
