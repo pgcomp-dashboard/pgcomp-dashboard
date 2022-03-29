@@ -13,10 +13,10 @@ class TeacherScraping extends BaseScraping
      *
      * @throws Exception
      */
-    public function scrapingByCourse(int $courseId): array
+    public function scrapingByProgram(int $programId): array
     {
-        $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/equipe.jsf', ['id' => $courseId]);
-        $program = $this->getProgram($courseId, $dom);
+        $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/equipe.jsf', ['id' => $programId]);
+        $program = $this->getProgram($programId, $dom);
         $items = $dom->find('div#listagem_tabela table#table_lt tr')->getIterator();
         $teachers = [];
         foreach ($items as $item) {

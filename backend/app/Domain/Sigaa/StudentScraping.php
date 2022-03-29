@@ -15,11 +15,11 @@ class StudentScraping extends BaseScraping
      *
      * @throws Exception
      */
-    public function scrapingByCourse(int $courseId): array
+    public function scrapingByProgram(int $programId): array
     {
-        $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/alunos.jsf', ['id' => $courseId]);
+        $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/alunos.jsf', ['id' => $programId]);
         $items = $dom->find('div#listagem_tabela table#table_lt tr')->getIterator();
-        $program = $this->getProgram($courseId, $dom);
+        $program = $this->getProgram($programId, $dom);
 
         $students = [];
         foreach ($items as $item) {
@@ -36,6 +36,7 @@ class StudentScraping extends BaseScraping
      * Extrai os dados do discente da linha da tabela HTML.
      *
      * @param DOMQuery $item
+     * @param int $program_id
      * @return array{registration: string, name: string, course: string, teachers: array{siape: int, name: string, type: string}}
      * @throws Exception
      */

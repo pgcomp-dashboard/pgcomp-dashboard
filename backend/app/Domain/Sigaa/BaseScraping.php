@@ -12,7 +12,7 @@ use QueryPath\DOMQuery;
 
 abstract class BaseScraping
 {
-    abstract public function scrapingByCourse(int $courseId): array;
+    abstract public function scrapingByProgram(int $programId): array;
 
     /**
      * @throws Exception
