@@ -13,26 +13,20 @@ class TeacherScraping extends BaseScraping
      *
      * @throws Exception
      */
-    public function scrapingByCourse(int $courseId): array
+    public function scrapingByProgram(int $programId): array
     {
-        $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/equipe.jsf', ['id' => $courseId]);
-        $course = $this->getCourse($courseId, $dom);
+        $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/equipe.jsf', ['id' => $programId]);
+        $program = $this->getProgram($programId, $dom);
         $items = $dom->find('div#listagem_tabela table#table_lt tr')->getIterator();
         $teachers = [];
         foreach ($items as $item) {
             if ($item->hasClass('campos')) {
                 continue;
             }
-            $teachers[] = $this->extractTeacher($item);
+            $teachers[] = $this->extractTeacher($item, $program->id);
         }
 
-        return array_map(
-            function ($item) use ($course) {
-                $item['course_id'] = $course->id;
-                return $item;
-            },
-            $teachers
-        );
+        return $teachers;
     }
 
     /**
@@ -41,7 +35,7 @@ class TeacherScraping extends BaseScraping
      * @param DOMQuery $item
      * @return array{name: string, siape: string, relation: string, level: string, telephone: string, lattes: string, email: string}
      */
-    private function extractTeacher(DOMQuery $item): array
+    private function extractTeacher(DOMQuery $item, int $program_id): array
     {
         $nameQp = $item->find('td')->eq(0);
         $name = $nameQp->text();
@@ -73,6 +67,6 @@ class TeacherScraping extends BaseScraping
             ->attr('href');
         $email = Str::of($email)->trim()->lower()->after('mailto:')->value() ?: null;
 
-        return compact('name', 'relation', 'level', 'telephone', 'lattes_url', 'email', 'siape');
+        return compact('name', 'relation', 'level', 'telephone', 'lattes_url', 'email', 'siape', 'program_id');
     }
 }

@@ -27,6 +27,7 @@ class User extends BaseModel
         'email',
         'password',
         'course_id',
+        'program_id',
         'lattes_url',
     ];
 
@@ -59,7 +60,7 @@ class User extends BaseModel
 
     public function belongsToTheCourse()
     {
-        return $this->hasOne(Course::class, 'course_id');
+        return $this->hasOne(Program::class, 'course_id');
     }
 
     public function deleteUser($sigaaId)
@@ -133,7 +134,18 @@ class User extends BaseModel
                 Rule::unique(User::class),
             ],
             'password' => ['required', 'string', new Password, 'confirmed'],
-            'course_id' => 'nullable|int|exists:courses,id',
+            'course_id' => [
+                'nullable',
+                'int',
+                Rule::exists(Course::class, 'id'),
+                'required_if:type,'.UserType::STUDENT->value,
+            ],
+            'program_id' => [
+                'nullable',
+                'int',
+                Rule::exists(Program::class, 'id'),
+                'required',
+            ],
             'lattes_url' => 'nullable|string|max:255',
         ];
     }
@@ -143,7 +155,18 @@ class User extends BaseModel
         return [
             'name' => 'string|max:255',
             'area' => 'nullable|string|max:255',
-            'course_id' => 'nullable|int|exists:courses,id',
+            'course_id' => [
+                'nullable',
+                'int',
+                Rule::exists(Course::class, 'id'),
+                'required_if:type,'.UserType::STUDENT->value,
+            ],
+            'program_id' => [
+                'nullable',
+                'int',
+                Rule::exists(Program::class, 'id'),
+                'required',
+            ],
             'lattes_url' => 'nullable|string|max:255',
         ];
     }
@@ -151,25 +174,25 @@ class User extends BaseModel
     public function advisors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
-            ->wherePivot('relation_type', UserRelationType::ADVISOR->value);
+            ->wherePivot('relation_type', UserRelationType::ADVISOR);
     }
 
     public function advisedes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
-            ->wherePivot('relation_type', UserRelationType::ADVISOR->value);
+            ->wherePivot('relation_type', UserRelationType::ADVISOR);
     }
 
     public function coadvisors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
-            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR->value);
+            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
     }
 
     public function coadviseees(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
-            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR->value);
+            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
     }
 
     public static function createOrUpdateStudent(array $data): User
