@@ -27,7 +27,6 @@ function StudentsPerTeacherChart(props) {
     const NUMBER_OF_ITEMS = 8;
 
     const options = {
-        indexAxis: 'y',
         elements: {
             bar: {
                 borderWidth: 2,

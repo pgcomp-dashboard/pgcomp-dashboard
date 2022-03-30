@@ -23,9 +23,9 @@ export function App() {
                     chart={QualisChart} />
 
                 <DataCard title="Alunos por docente"
-                    minWidth="500px"
+                    minWidth="1000px"
                     minHeight="300px"
-                    icon={AssessmentIcon}
+                     icon={AssessmentIcon}
                     chart={StudentsPerTeacherChart} />
             </div>
 
