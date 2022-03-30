@@ -6,6 +6,7 @@ import StudentsPerTeacherChart from "./components/Charts/StudentsPerTeacherChart
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import Footer from "./components/Footer/Footer";
 import QualisChart from "./components/Charts/QualisChart";
+import ProductionPerStudentChart from "./components/Charts/ProductionPerStudentChart";
 
 export function App() {
     return (
@@ -16,16 +17,23 @@ export function App() {
             <Title />
 
             <div className={styles.cards__container}>
+
                 <DataCard title="Qualis"
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
                     chart={QualisChart} />
 
+                <DataCard title="Produção por discentes"
+                    minWidth="1000px"
+                    minHeight="300px"
+                    icon={AssessmentIcon}
+                    chart={ProductionPerStudentChart} />
+
                 <DataCard title="Alunos por docente"
                     minWidth="1000px"
                     minHeight="300px"
-                     icon={AssessmentIcon}
+                    icon={AssessmentIcon}
                     chart={StudentsPerTeacherChart} />
             </div>
 
