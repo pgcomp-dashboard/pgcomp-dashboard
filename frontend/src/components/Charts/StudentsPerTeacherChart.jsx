@@ -11,6 +11,7 @@ import {
 import axios from 'axios';
 import { map } from 'lodash';
 import { useEffect, useState } from 'react';
+import generateColorsArray from '../../Utils.js'
 
 ChartJS.register(
     CategoryScale,
@@ -21,20 +22,7 @@ ChartJS.register(
     Legend
 );
 
-function generateColorsArray(numberOfColors) {
-    const colorsArray = [];
-    let r, g, b;
-    for (let i = 0; i < numberOfColors; i++) {
-        r = Math.floor(Math.random() * 255);
-        g = Math.floor(Math.random() * 255);
-        b = Math.floor(Math.random() * 255);
-        colorsArray.push("rgb(" + r + "," + g + "," + b + ")");
-    }
-
-    return colorsArray;
-}
-
-function HorizontalBarChart(props) {
+function StudentsPerTeacherChart(props) {
     const [chartData, setChartData] = useState(null);
     const NUMBER_OF_ITEMS = 8;
 
@@ -60,6 +48,8 @@ function HorizontalBarChart(props) {
         axios.get('http://localhost:8000/api/dashboard').then(({ data }) => {
             const slicedData = data.slice(0, NUMBER_OF_ITEMS);
 
+            console.log(data);
+
             const labels = map(slicedData, 'name');
 
             const teachersData = {
@@ -67,7 +57,7 @@ function HorizontalBarChart(props) {
                 datasets: [
                     {
                         label: 'Número de alunos',
-                        data: map(slicedData, 'adviseees_count'),
+                        data: map(slicedData, 'advisedes_count'),
                         backgroundColor: generateColorsArray(NUMBER_OF_ITEMS)
                     }]
             };
@@ -83,4 +73,4 @@ function HorizontalBarChart(props) {
     )
 }
 
-export default HorizontalBarChart
+export default StudentsPerTeacherChart
