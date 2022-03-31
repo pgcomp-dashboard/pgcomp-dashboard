@@ -2,15 +2,17 @@
 
 namespace App\Domain\Sigaa;
 
+use App\Models\Program;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Str;
 use Log;
 use QueryPath\DOMQuery;
 
 abstract class BaseScraping
 {
-    abstract public function scrapingByCourse(int $courseId): array;
+    abstract public function scrapingByProgram(int $programId): array;
 
     /**
      * @throws Exception
@@ -47,5 +49,20 @@ abstract class BaseScraping
         }
 
         return null;
+    }
+
+    public function getProgram(int $sigaaId, DOMQuery $dom): Program
+    {
+        $data = [
+            'sigaa_id' => $sigaaId,
+            'name' => Str::of($dom->find('span.sigla')->first()->text())->trim()->value(),
+            'description' => Str::of($dom->find('span.nome_programa')->first()->text())->trim()->value(),
+        ];
+
+        $course = Program::where('sigaa_id', $sigaaId)->first();
+        if (empty($course)) {
+            $course = Program::createModel($data);
+        }
+        return $course;
     }
 }

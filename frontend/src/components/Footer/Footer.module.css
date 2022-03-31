@@ -1,11 +1,11 @@
 .footer__ufba { 
-    position: fixed;
+    position: static;
     left: 0;
     bottom: 0;
     width: 100%;
     background-color: #0B3665;
     color: white;
-    height: 15vh;
+    height: 18vh;
     padding: 10px;
 }
 

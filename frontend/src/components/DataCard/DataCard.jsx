@@ -11,7 +11,11 @@ function DataCard(props) {
                 avatar={
                     <props.icon color="primary" />
                 } 
-                title={props.title} />
+                title={props.title}
+                // action={
+                //     'Filtro'
+                // }
+                 />
                 <CardContent>
                     <props.chart />
                 </CardContent>

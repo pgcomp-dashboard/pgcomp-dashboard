@@ -15,3 +15,5 @@ yarn-error.log
 /.vscode
 /public/docs
 /.scribe
+/.phpstorm.meta.php
+/_ide_helper.php
