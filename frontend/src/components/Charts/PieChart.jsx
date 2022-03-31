@@ -13,7 +13,7 @@ function PieChart(props) {
         responsive: true,
         plugins: {
             legend: {
-                display: false,
+                display: true,
             },
             title: {
                 display: false,
@@ -23,7 +23,7 @@ function PieChart(props) {
     }
 
     const data = {
-        labels: ['Computação Gráfica', 'Análise de Dados', 'Inteligência Artificial',],
+        labels: ['CG', 'Análise de Dados', 'I.A',],
         datasets: [
             {
                 label: '# of Votes',
