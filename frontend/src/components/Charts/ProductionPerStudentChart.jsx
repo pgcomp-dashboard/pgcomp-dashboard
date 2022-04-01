@@ -30,7 +30,7 @@ const generateValues = (numberOfValues) => {
     return values;
 }
 
-function ProductionPerStudentChart(props) {
+function ProductionPerStudentChart({ filter }) {
     const [chartData, setChartData] = useState(null);
     const NUMBER_OF_ITEMS = 19;
 
@@ -78,6 +78,10 @@ function ProductionPerStudentChart(props) {
         setChartData(productionStudentData);
 
     }, []);
+
+    useEffect(() => {
+        console.log('Filtro atualizado: ' + filter);
+    }, [filter]);
 
     return (
         chartData ? <Bar options={options} data={chartData} /> : null

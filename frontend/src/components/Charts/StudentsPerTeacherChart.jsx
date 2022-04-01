@@ -22,7 +22,7 @@ ChartJS.register(
     Legend
 );
 
-function StudentsPerTeacherChart(props) {
+function StudentsPerTeacherChart({ filter }) {
     const [chartData, setChartData] = useState(null);
     const NUMBER_OF_ITEMS = 8;
 
@@ -65,6 +65,10 @@ function StudentsPerTeacherChart(props) {
         });
 
     }, []);
+
+    useEffect(() => {
+        console.log('Filtro atualizado: ' + filter);
+    }, [filter]);
 
     return (
         chartData ? <Bar options={options} data={chartData} /> : null
