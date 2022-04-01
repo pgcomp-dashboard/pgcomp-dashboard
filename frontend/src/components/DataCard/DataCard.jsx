@@ -6,7 +6,7 @@ import CardContent from '@mui/material/CardContent';
 function DataCard(props) {
     return (
         <div className={styles.data__card}>
-            <Card sx={{ minWidth: props.minWidth, minHeight: props.minHeight }}>
+            <Card sx={{ minWidth: props.minWidth, minHeight: props.minHeight, height: props.height, }}>
                 <CardHeader
                 avatar={
                     <props.icon color="primary" />
