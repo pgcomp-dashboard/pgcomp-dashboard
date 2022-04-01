@@ -8,7 +8,8 @@ function Footer() {
         <div className={styles.footer__ufba}>
             <div className={styles.footer__left}>
                 <h2>Universidade Federal da Bahia</h2>
-                <h5>Rua Augusto Viana, s\n - Palácio da Reitoria, Canela, Salvador - CEP: 40110-909</h5>
+                <h5>Avenida Milton Santos, s\n - Campus de Ondina, PAF 2 <br /> CEP: 40.170-110 Salvador-Bahia </h5>
+
                 <h3>Site Oficial | Contato | Sobre a UFBA</h3>
             </div>
 
