@@ -17,13 +17,4 @@ use App\Models\Journal;
 |
 */
 
-Route::get('/test', function () {
-    $s = new StratumQualis();
-    $u = new User();
-    $p = new Production();
-    $j = new Journal();
-    //return $p->createOrUpdateProduction(['title' => 'A', 'year' => 2019, 'journals_id' => 1]);
-    //return $j->createOrUpdateJournal(['name'=> 'A', 'stratum_qualis_id' => 1]);
-    //return $s->createOrUpdateStratumQualis(['code' => 'A2', 'score' => 8]);
-    //return $s->findAll();
-});
+Route::get('/test', function () {});

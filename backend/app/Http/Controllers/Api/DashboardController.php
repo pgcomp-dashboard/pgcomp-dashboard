@@ -15,9 +15,11 @@ class DashboardController extends Controller
             //->whereHas('advisedes')
             ->withCount('advisedes')
             ->get($attributes);
-
+    
         return $data->transform(function ($item) use ($attributes) {
             return $item->only([...$attributes, 'advisedes_count']);
         });
     }
+
+    //public function productions(){}
 }
