@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
+use Laravel\Fortify\Rules\Password;
+use Laravel\Sanctum\HasApiTokens;
+
+class StratumQualis extends BaseModel
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'code',
+        'score',
+    ];
+
+    public static function creationRules(): array
+    {
+        return [
+            'code' => 'required|string|max:2',
+            'score' => 'required|int',
+        ];
+    }
+
+    public static function updateRules(): array
+    {
+        return [
+            'code' => 'string|max:2',
+            'score' => 'int',
+        ];
+    }
+
+    public function findAll() {
+        return StratumQualis::all();
+    }
+
+    public function deleteStratumQualis($code)
+    {
+        $stratum = new StratumQualis();
+        $stratum = StratumQualis::where('code', $code)->first();
+        if(empty($stratum)){
+            return 'error';
+        }
+        $stratum->delete();
+    }
+
+
+    public static function createOrUpdateStratumQualis(array $data): StratumQualis
+    {
+        return StratumQualis::updateOrCreateModel(
+            Arr::only($data, ['code']),
+            $data
+        );
+    }
+}
