@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Domain\Sigaa\DefenseScraping;
 use App\Domain\Sigaa\StudentScraping;
 use App\Domain\Sigaa\TeacherScraping;
+use App\Enums\UserType;
 use App\Models\User;
 use Exception;
 use Illuminate\Console\Command;
@@ -54,6 +56,15 @@ class SigaaScraping extends Command
             $students = $studentScraping->scrapingByProgram((int)$programId);
             Storage::put("students-{$programId}.json", json_encode($students));
             $this->createOrUpdateStudents($students);
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
+        }
+
+        $defenseScraping = new DefenseScraping();
+        try {
+            $data = $defenseScraping->scrapingByProgram((int)$programId);
+            Storage::put("defenses-{$programId}.json", json_encode($data));
+            $this->updateDefended($data);
         } catch (Exception $e) {
             $this->error($e->getMessage());
         }
@@ -113,5 +124,20 @@ class SigaaScraping extends Command
         }
 
         return $advisorIds;
+    }
+
+    private function updateDefended(array $data)
+    {
+        foreach ($data as $item) {
+            $user = User::where('type', UserType::STUDENT->value)
+                ->where('name', $item['student'])
+                ->where('program_id', $item['programId'])
+                ->first();
+            if ($user) {
+                $user->defended_at = $data['date'];
+                $user->save();
+                $this->info("{$user->name} atualizado!\n");
+            }
+        }
     }
 }

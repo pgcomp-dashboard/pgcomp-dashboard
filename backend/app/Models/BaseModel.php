@@ -20,7 +20,7 @@ abstract class BaseModel extends Model
             throw new ValidationException($validator);
         }
 
-        return parent::create($validator->validated());
+        return static::create($validator->validated());
     }
 
     public static function updateModel(int $id, array $attributes = [], array $options = []): static
