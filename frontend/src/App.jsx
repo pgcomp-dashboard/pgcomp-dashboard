@@ -9,6 +9,7 @@ import Footer from "./components/Footer/Footer";
 import PieChart from "./components/Charts/PieChart";
 import QualisChart from "./components/Charts/QualisChart";
 import ProductionPerStudentChart from "./components/Charts/ProductionPerStudentChart";
+import ProductionsAmountChart from "./components/Charts/ProductionsAmountChart";
 
 export function App() {
     return (
@@ -19,11 +20,17 @@ export function App() {
             <Title />
 
             <div className={styles.cards__container}>
-                <DataCard title="Qualis"
+                <DataCard title="Quantidade de produções"
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
                     chart={QualisChart} />
+
+                <DataCard title="Qualis"
+                    minWidth="1000px"
+                    minHeight="300px"
+                    icon={AssessmentIcon}
+                    chart={ProductionsAmountChart} />
 
                 <DataCard title="Produção por discentes"
                     minWidth="1000px"
