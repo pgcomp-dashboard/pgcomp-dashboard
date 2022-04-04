@@ -55,7 +55,7 @@ class Subarea extends BaseModel
 
     public static function createOrUpdateSubarea(array $data): Subarea
     { 
-        return User::updateOrCreateModel(
+        return Subarea::updateOrCreateModel(
             Arr::only($data, ['subarea_name']),
             $data
         );

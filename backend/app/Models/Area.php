@@ -55,7 +55,7 @@ class Area extends BaseModel
 
     public static function createOrUpdateArea(array $data): Area
     { 
-        return User::updateOrCreateModel(
+        return Area::updateOrCreateModel(
             Arr::only($data, ['area_name']),
             $data
         );
