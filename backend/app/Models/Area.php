@@ -60,4 +60,20 @@ class Area extends BaseModel
             $data
         );
     }
+
+    public function findAreaByName($name){
+        $area = Area::where('area_name', $name)->firtst();
+        if(empty($area)){
+            return "error";
+        }
+        return $area;
+    }
+
+    public function deleteAreaByName($name){
+        $area = Area::where('area_name', $name)->firtst();
+        if(empty($area)){
+            return "error";
+        }
+        $area-delete();
+    }
 }

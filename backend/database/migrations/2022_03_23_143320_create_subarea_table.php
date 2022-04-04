@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('subarea', function (Blueprint $table) {
+        Schema::create('subareas', function (Blueprint $table) {
             $table->id();
-            $table->string('subareas_name');
+            $table->string('subarea_name');
             $table->foreignId('area_id')->constrained();
             $table->timestamps();
         });

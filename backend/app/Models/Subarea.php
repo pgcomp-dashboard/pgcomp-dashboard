@@ -60,4 +60,20 @@ class Subarea extends BaseModel
             $data
         );
     }
+
+    public function findSubareaByName($name){
+        $subarea = Area::where('subarea_name', $name)->firtst();
+        if(empty($subarea)){
+            return "error";
+        }
+        return $subarea;
+    }
+
+    public function deleteSubareaByName($name){
+        $subarea = Area::where('subarea_name', $name)->firtst();
+        if(empty($subarea)){
+            return "error";
+        }
+    }
+     
 }
