@@ -31,7 +31,7 @@ const generateValues = (numberOfValues) => {
     return values;
 }
 
-function QualisChart(props) {
+function QualisChart({ filter }) {
     const [chartData, setChartData] = useState(null);
     const NUMBER_OF_ITEMS = 19;
 
@@ -104,6 +104,10 @@ function QualisChart(props) {
         setChartData(qualisData);
 
     }, []);
+
+    useEffect(() => {
+        console.log('Filtro atualizado: ' + filter);
+    }, [filter]);
 
     return (
         chartData ? <Bar options={options} data={chartData} /> : null

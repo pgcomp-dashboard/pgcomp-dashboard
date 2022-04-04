@@ -14,6 +14,68 @@ use Illuminate\Validation\Rules\Enum;
 use Laravel\Fortify\Rules\Password;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * App\Models\User
+ *
+ * @property int $id
+ * @property int|null $registration
+ * @property int|null $siape
+ * @property string $name
+ * @property UserType $type
+ * @property string|null $area
+ * @property string|null $email
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string $password
+ * @property string|null $two_factor_secret
+ * @property string|null $two_factor_recovery_codes
+ * @property bool $is_admin
+ * @property int|null $program_id
+ * @property int|null $course_id
+ * @property string|null $lattes_url
+ * @property string|null $remember_token
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $defended_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $advisedes
+ * @property-read int|null $advisedes_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $advisors
+ * @property-read int|null $advisors_count
+ * @property-read \App\Models\Program|null $belongsToTheCourse
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $coadviseees
+ * @property-read int|null $coadviseees_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $coadvisors
+ * @property-read int|null $coadvisors_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $isAdvisoredBy
+ * @property-read int|null $is_advisored_by_count
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
+ * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
+ * @property-read int|null $tokens_count
+ * @method static \Database\Factories\UserFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereArea($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCourseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereIsAdmin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereLattesUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereProgramId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRegistration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereSiape($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorRecoveryCodes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereDefendedAt($value)
+ * @mixin \Eloquent
+ */
 class User extends BaseModel
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -185,7 +247,8 @@ class User extends BaseModel
     public function advisedes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
-            ->wherePivot('relation_type', UserRelationType::ADVISOR);
+            ->wherePivot('relation_type', UserRelationType::ADVISOR)
+            ->whereNull('defended_at');
     }
 
     public function coadvisors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -197,7 +260,8 @@ class User extends BaseModel
     public function coadviseees(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
-            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
+            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR)
+            ->whereNull('defended_at');
     }
 
     public static function createOrUpdateStudent(array $data): User

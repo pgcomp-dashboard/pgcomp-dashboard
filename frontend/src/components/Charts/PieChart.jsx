@@ -1,10 +1,11 @@
 import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
+import { useEffect, useState } from 'react';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-function PieChart(props) {
+function PieChart({ filter }) {
     const options = {
         labels: {
             render: 'label'
@@ -42,6 +43,12 @@ function PieChart(props) {
             },
         ],
     };
+
+
+    useEffect(() => {
+        console.log('Filtro atualizado: ' + filter);
+    }, [filter]);
+
     return <Pie options={options} data={data} />;
 }
 
