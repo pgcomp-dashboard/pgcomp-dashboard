@@ -120,6 +120,11 @@ class User extends BaseModel
         return $this->belongsToMany(User::class);
     }
 
+    public function writerOf()
+    {
+        return $this->belongsToMany(Production::class);
+    }
+
     public function belongsToTheCourse()
     {
         return $this->hasOne(Program::class, 'course_id');

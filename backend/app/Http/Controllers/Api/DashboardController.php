@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Production;
 
 class DashboardController extends Controller
 {
@@ -15,9 +17,11 @@ class DashboardController extends Controller
             //->whereHas('advisedes')
             ->withCount('advisedes')
             ->get($attributes);
-
+    
         return $data->transform(function ($item) use ($attributes) {
             return $item->only([...$attributes, 'advisedes_count']);
         });
     }
+
+    
 }
