@@ -33,17 +33,16 @@ const generateValues = (numberOfValues) => {
 
 function ProductionsAmountChart({ filter }) {
     const [chartData, setChartData] = useState(null);
-    const NUMBER_OF_ITEMS = 19;
 
     const options = {
         type: 'line',
         responsive: true,
         plugins: {
             legend: {
-                position: 'top',
+                display: false,
             },
             title: {
-                display: true,
+                display: false,
                 text: 'Chart.js Line Chart'
             }
         },

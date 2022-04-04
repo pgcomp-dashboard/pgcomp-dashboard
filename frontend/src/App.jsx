@@ -24,13 +24,13 @@ export function App() {
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
-                    chart={QualisChart} />
+                    chart={ProductionsAmountChart} />
 
                 <DataCard title="Qualis"
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
-                    chart={ProductionsAmountChart} />
+                    chart={QualisChart} />
 
                 <DataCard title="Produção por discentes"
                     minWidth="1000px"
