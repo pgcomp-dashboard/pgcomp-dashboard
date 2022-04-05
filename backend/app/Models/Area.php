@@ -62,7 +62,7 @@ class Area extends BaseModel
     }
 
     public function findAreaByName($name){
-        $area = Area::where('area_name', $name)->firtst();
+        $area = Area::where('area_name', $name)->firstOrFail();
         if(empty($area)){
             return "error";
         }
@@ -70,7 +70,7 @@ class Area extends BaseModel
     }
 
     public function deleteAreaByName($name){
-        $area = Area::where('area_name', $name)->firtst();
+        $area = Area::where('area_name', $name)->firstOrFail();
         if(empty($area)){
             return "error";
         }

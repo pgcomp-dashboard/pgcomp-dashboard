@@ -66,7 +66,7 @@ class Production extends BaseModel
     public function deleteProduction($title)
     {
         $production = new Production();
-        $production = Production::where('title', $title)->first();
+        $production = Production::where('title', $title)->firstOrFail();
         if(empty($production)){
             return 'error';
         }

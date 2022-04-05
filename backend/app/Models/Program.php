@@ -29,7 +29,7 @@ class Program extends BaseModel
     public function findCourseByName($courseName): static
     {
         $course = new Program();
-        $course = Program::where('name', $courseName)->first();
+        $course = Program::where('name', $courseName)->firstOrFail();
         if(is_null($course)){
             return "error";
         }

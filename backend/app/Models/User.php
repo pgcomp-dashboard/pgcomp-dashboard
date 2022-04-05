@@ -141,14 +141,14 @@ class User extends BaseModel
     public function findUserByName($UserName)
     {
         $user = new User();
-        $user = User::where('name', $UserName)->first();
+        $user = User::where('name', $UserName)->firstOrFail();
         return User::checkIfUserWasFound($user);
     }
 
     public function findProfessorBySiape($siape)
     {
         $user = new User();
-        $user = User::where('siape', $siape)->first();
+        $user = User::where('siape', $siape)->firstOrFail();
         return User::checkIfUserWasFound($user);
 
     }

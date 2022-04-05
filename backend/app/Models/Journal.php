@@ -58,7 +58,7 @@ class Journal extends BaseModel
     public function deleteJournal($title)
     {
         $journal = new Journal();
-        $journal = Journal::where('name', $title)->first();
+        $journal = Journal::where('name', $title)->firstOrFail();
         if(empty($journal)){
             return 'error';
         }

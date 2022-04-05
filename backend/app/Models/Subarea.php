@@ -22,7 +22,7 @@ class Subarea extends BaseModel
         'area_id',
     ];
 
-    public function belongsToTheProgram()
+    public function belongsToTheArea()
     {
         return $this->hasOne(Area::class, 'area_id');
     }
@@ -62,7 +62,7 @@ class Subarea extends BaseModel
     }
 
     public function findSubareaByName($name){
-        $subarea = Area::where('subarea_name', $name)->firtst();
+        $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
         if(empty($subarea)){
             return "error";
         }
@@ -70,7 +70,7 @@ class Subarea extends BaseModel
     }
 
     public function deleteSubareaByName($name){
-        $subarea = Area::where('subarea_name', $name)->firtst();
+        $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
         if(empty($subarea)){
             return "error";
         }

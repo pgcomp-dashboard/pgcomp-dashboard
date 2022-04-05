@@ -43,7 +43,7 @@ class StratumQualis extends BaseModel
     public function deleteStratumQualis($code)
     {
         $stratum = new StratumQualis();
-        $stratum = StratumQualis::where('code', $code)->first();
+        $stratum = StratumQualis::where('code', $code)->firstOrFail();
         if(empty($stratum)){
             return 'error';
         }
