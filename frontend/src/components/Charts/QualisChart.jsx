@@ -12,6 +12,7 @@ import axios from 'axios';
 import { map } from 'lodash';
 import { useEffect, useState } from 'react';
 import generateColorsArray from '../../Utils.js'
+//TODO: get na url 'dashboard/production_per_qualis'
 
 ChartJS.register(
     CategoryScale,
