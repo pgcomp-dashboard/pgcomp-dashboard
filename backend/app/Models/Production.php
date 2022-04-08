@@ -20,6 +20,8 @@ class Production extends BaseModel
         'title',
         'year',
         'journals_id',
+//       'user_id', TODO: Adicionar o campo de user id
+    //  'doi', TODO: Adicionar o campo doi também.
     ];
 
     public function isWroteBy()

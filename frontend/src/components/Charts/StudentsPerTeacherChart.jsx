@@ -44,7 +44,7 @@ function StudentsPerTeacherChart({ filter }) {
     }
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/dashboard').then(({ data }) => {
+        axios.get('http://localhost:8000/api/dashboard/total_students_per_advisor').then(({ data }) => {
             const slicedData = data.slice(0, NUMBER_OF_ITEMS);
 
             console.log(data);

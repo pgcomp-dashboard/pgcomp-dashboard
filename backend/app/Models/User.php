@@ -82,15 +82,16 @@ class User extends BaseModel
 
     protected $fillable = [
         'registration',
-        'siape',
+        'siape', // TODo: Nem sempre é siape, as vezes é rm se for aluno
         'name',
-        'type',
+        'type', //TODO: Aceitar apenas três entradas. Docente, discente e admin
         'area',
         'email',
         'password',
         'course_id',
         'program_id',
         'lattes_url',
+//        TODO: se for usar user como docente e discente tem que ter uma id apontando pra ele mesmo. Um aluno é diretamente ligado a um professor
     ];
 
     protected $hidden = [

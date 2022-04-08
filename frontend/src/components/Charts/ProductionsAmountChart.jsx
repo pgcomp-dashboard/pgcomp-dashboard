@@ -11,6 +11,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
+//TODO: get na url 'dashboard/all_production'
 
 ChartJS.register(
     CategoryScale,
@@ -51,7 +52,7 @@ function ProductionsAmountChart({ filter }) {
                 borderWidth: 1,
             },
         },
-        responsive: true,
+        responsive: true, //TODO: Porque duas vezes essa variavel?
     }
 
     useEffect(() => {

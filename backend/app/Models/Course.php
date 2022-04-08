@@ -8,7 +8,10 @@ class Course extends BaseModel
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+//      'program_id',  TODO: Adicionar o campo de program_id
+    ];
 
     public static function creationRules(): array
     {
