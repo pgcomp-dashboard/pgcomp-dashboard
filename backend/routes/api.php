@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\Dashboard\DashboardController;
+use App\Http\Controllers\Api\Dashboard\ProductionsController;
+use App\Http\Controllers\Api\Dashboard\ProgramsController;
+use App\Http\Controllers\Api\Dashboard\QualisController;
+use App\Http\Controllers\Api\Dashboard\StudentsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,11 +23,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//TODO: Dar nomes melhores e mais padrao
-Route::get('dashboard/program', [\App\Http\Controllers\Api\DashboardController::class, 'nomePrograma']);
-Route::get('dashboard/all_production', [\App\Http\Controllers\Api\DashboardController::class, 'totalProducoes']);
-Route::get('dashboard/production_per_qualis', [\App\Http\Controllers\Api\DashboardController::class, 'qualis']);
-Route::get('dashboard/students_production', [\App\Http\Controllers\Api\DashboardController::class, 'producoesDiscentes']);
-Route::get('dashboard/fields', [\App\Http\Controllers\Api\DashboardController::class, 'discentesArea']);
-Route::get('dashboard/subfields', [\App\Http\Controllers\Api\DashboardController::class, 'discentesSubarea']);
-Route::get('dashboard/total_students_per_advisor', [\App\Http\Controllers\Api\DashboardController::class, 'advisors']);
+Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
+    //TODO: Dar nomes melhores e mais padrao
+    Route::get('program', [ProgramsController::class, 'nomePrograma']);
+    Route::get('all_production', [ProductionsController::class, 'totalProducoes']);
+    Route::get('production_per_qualis', [QualisController::class, 'qualis']);
+    Route::get('students_production', [ProductionsController::class, 'producoesDiscentes']);
+    Route::get('fields', [StudentsController::class, 'discentesArea']);
+    Route::get('subfields', [StudentsController::class, 'discentesSubarea']);
+    Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
+});
+
+
