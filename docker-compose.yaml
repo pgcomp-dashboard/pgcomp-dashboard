@@ -53,6 +53,15 @@ services:
     entrypoint: tail -f /dev/null
     ports:
       - '3000:3000'
+  frontend-admin:
+    image: node:16.14-slim
+    user: node
+    volumes:
+      - .:/home/node/project
+    working_dir: /home/node/project/frontend-admin
+    entrypoint: tail -f /dev/null
+    ports:
+      - '4000:4000'
   nginx:
     image: nginx:stable-alpine
     volumes:

@@ -27,6 +27,11 @@ class Subarea extends BaseModel
         return $this->hasOne(Area::class, 'area_id');
     }
 
+    public function area(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Area::class, 'area_id');
+    }
+
     public static function creationRules(): array
     {
         return [
@@ -54,26 +59,23 @@ class Subarea extends BaseModel
     }
 
     public static function createOrUpdateSubarea(array $data): Subarea
-    { 
+    {
         return User::updateOrCreateModel(
             Arr::only($data, ['subarea_name']),
             $data
         );
     }
 
-    public function findSubareaByName($name){
-        $subarea = Area::where('subarea_name', $name)->firtst();
-        if(empty($subarea)){
-            return "error";
-        }
-        return $subarea;
+    public function findSubareaByName($name): self
+    {
+        return self::where('subarea_name', $name)->firstOrFail();
     }
 
     public function deleteSubareaByName($name){
-        $subarea = Area::where('subarea_name', $name)->firtst();
+        $subarea = Area::where('subarea_name', $name)->first();
         if(empty($subarea)){
             return "error";
         }
     }
-     
+
 }

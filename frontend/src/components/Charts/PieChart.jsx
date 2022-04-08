@@ -4,6 +4,9 @@ import { Pie } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
+//TODO: get na url 'dashboard/fields'
+//TODO: mudar de nome a classe e chamar de field. criar um novo componente de subfield
+//TODO: get na url 'dashboard/subfields'
 
 function PieChart({ filter }) {
     const options = {

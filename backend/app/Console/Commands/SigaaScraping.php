@@ -136,7 +136,7 @@ class SigaaScraping extends Command
             if ($user) {
                 $user->defended_at = $data['date'];
                 $user->save();
-                $this->info("{$user->name} atualizado!\n");
+                $this->info("{$user->name} defendeu.");
             }
         }
     }
