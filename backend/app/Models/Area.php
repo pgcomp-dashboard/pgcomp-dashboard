@@ -3,15 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
-use Laravel\Fortify\Rules\Password;
-use Laravel\Sanctum\HasApiTokens;
 
 class Area extends BaseModel
 {
@@ -53,27 +45,8 @@ class Area extends BaseModel
         ];
     }
 
-    public static function createOrUpdateArea(array $data): Area
-    { 
-        return User::updateOrCreateModel(
-            Arr::only($data, ['area_name']),
-            $data
-        );
-    }
-
-    public function findAreaByName($name){
-        $area = Area::where('area_name', $name)->firtst();
-        if(empty($area)){
-            return "error";
-        }
-        return $area;
-    }
-
-    public function deleteAreaByName($name){
-        $area = Area::where('area_name', $name)->firtst();
-        if(empty($area)){
-            return "error";
-        }
-        $area-delete();
+    public function findAreaByName($name): self
+    {
+        return Area::where('area_name', $name)->firstOrFail();
     }
 }

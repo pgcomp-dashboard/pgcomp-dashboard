@@ -3,13 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
-use Laravel\Fortify\Rules\Password;
-use Laravel\Sanctum\HasApiTokens;
 
 class Journal extends BaseModel
 {
@@ -18,12 +13,16 @@ class Journal extends BaseModel
     protected $fillable = [
         'name',
         'stratum_qualis_id',
+        'issn',
+        'name',
+        'sbc_adjustment',
+        'scopus_url',
+        'percentile',
+        'last_qualis',
+        'update_date',
+        'tentative_date',
+        'logs',
     ];
-
-
-    public function hasQualis(){
-        return $this->hasOne(StratumQualis::class, 'stratum_qualis_id');
-    }
 
     public static function creationRules(): array
     {
@@ -33,8 +32,15 @@ class Journal extends BaseModel
                 'nullable',
                 'int',
                 Rule::exists(StratumQualis::class, 'id'),
-                'required',
-            ]
+            ],
+            'issn' => 'string|nullable|max:255',
+            'sbc_adjustment' => 'string|nullable|max:255',
+            'scopus_url' => 'string|nullable|max:255',
+            'percentile' => 'string|nullable|max:255',
+            'last_qualis' => 'string|nullable|max:255',
+            'update_date' => 'date|nullable',
+            'tentative_date' => 'date|nullable',
+            'logs' => 'string|nullable|max:255',
         ];
     }
 
@@ -46,23 +52,16 @@ class Journal extends BaseModel
                 'nullable',
                 'int',
                 Rule::exists(StratumQualis::class, 'id'),
-                'required',
-            ]
+            ],
+            'issn' => 'string|nullable|max:255',
+            'sbc_adjustment' => 'string|nullable|max:255',
+            'scopus_url' => 'string|nullable|max:255',
+            'percentile' => 'string|nullable|max:255',
+            'last_qualis' => 'string|nullable|max:255',
+            'update_date' => 'date|nullable',
+            'tentative_date' => 'date|nullable',
+            'logs' => 'string|nullable|max:255',
         ];
-    }
-
-    public function findAll() {
-        return Journal::all();
-    }
-
-    public function deleteJournal($title)
-    {
-        $journal = new Journal();
-        $journal = Journal::where('name', $title)->first();
-        if(empty($journal)){
-            return 'error';
-        }
-        $journal->delete();
     }
 
     public static function createOrUpdateJournal(array $data): Journal
@@ -71,5 +70,16 @@ class Journal extends BaseModel
             Arr::only($data, ['name']),
             $data
         );
+    }
+
+    public function stratumQualis(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');
+    }
+
+    public function deleteJournal($title): bool
+    {
+        $journal = Journal::where('name', $title)->firstOrFail();
+        return $journal->delete();
     }
 }
