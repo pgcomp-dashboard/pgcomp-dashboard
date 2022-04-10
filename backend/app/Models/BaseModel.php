@@ -36,7 +36,7 @@ abstract class BaseModel extends Model
      * @return static updated or created model instance.
      * @throws ValidationException check if attributes are valid.
      */
-    public static function updateOrCreateModel(array $attributes, array $values = [], array $updateOptions = []): static
+    public static function updateOrCreate(array $attributes, array $values = [], array $updateOptions = []): static
     {
         /** @var BaseModel $model */
         $model = static::where($attributes)->first();

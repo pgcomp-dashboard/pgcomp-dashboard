@@ -77,7 +77,7 @@ class Production extends BaseModel
 
     public static function createOrUpdateProduction(array $data): Production
     {
-        return Production::updateOrCreateModel(
+        return Production::updateOrCreate(
             Arr::only($data, ['title']),
             $data
         );

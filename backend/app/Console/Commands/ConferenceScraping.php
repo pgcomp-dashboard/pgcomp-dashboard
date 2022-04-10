@@ -75,7 +75,7 @@ class ConferenceScraping extends Command
             }
 
             try {
-                Conference::updateOrCreateModel(
+                Conference::updateOrCreate(
                     ['initials' => $item['sigla']],
                     [
                         'name' => $item['conferencia'],

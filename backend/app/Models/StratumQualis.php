@@ -48,7 +48,7 @@ class StratumQualis extends BaseModel
 
     public static function createOrUpdateStratumQualis(array $data): StratumQualis
     {
-        return StratumQualis::updateOrCreateModel(
+        return StratumQualis::updateOrCreate(
             Arr::only($data, ['code']),
             $data
         );

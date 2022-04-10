@@ -51,7 +51,7 @@ class JournalScraping extends Command
             } catch (ModelNotFoundException) {
                 $item['stratum_qualis_id'] = null;
             }
-            Journal::updateOrCreateModel(
+            Journal::updateOrCreate(
                 [
                     'issn' => $item['issn'],
                 ],

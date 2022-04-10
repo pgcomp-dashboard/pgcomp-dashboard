@@ -274,7 +274,7 @@ class User extends BaseModel
         $data['password'] = $password;
         $data['password_confirmation'] = $password;
 
-        return User::updateOrCreateModel(
+        return User::updateOrCreate(
             Arr::only($data, ['registration']),
             $data
         );
@@ -287,7 +287,7 @@ class User extends BaseModel
         $data['password'] = $password;
         $data['password_confirmation'] = $password;
 
-        return User::updateOrCreateModel(
+        return User::updateOrCreate(
             Arr::only($data, ['siape']),
             $data
         );

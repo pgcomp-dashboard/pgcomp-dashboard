@@ -66,7 +66,7 @@ class Journal extends BaseModel
 
     public static function createOrUpdateJournal(array $data): Journal
     {
-        return Journal::updateOrCreateModel(
+        return Journal::updateOrCreate(
             Arr::only($data, ['name']),
             $data
         );
