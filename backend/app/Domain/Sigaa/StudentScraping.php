@@ -77,7 +77,7 @@ class StudentScraping extends BaseScraping
     {
         $course = Course::where('name', $name)->first(['id']);
         if (empty($course)) {
-            $course = Course::createModel(['name' => $name]);
+            $course = Course::create(['name' => $name]);
         }
 
         return $course->id;

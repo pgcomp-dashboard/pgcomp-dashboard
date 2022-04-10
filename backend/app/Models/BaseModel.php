@@ -12,7 +12,7 @@ abstract class BaseModel extends Model
 
     abstract public static function updateRules(): array;
 
-    public static function createModel(array $attributes = []): static
+    public static function create(array $attributes = []): static
     {
         $validator = Validator::make($attributes, static::creationRules());
 
@@ -20,10 +20,10 @@ abstract class BaseModel extends Model
             throw new ValidationException($validator);
         }
 
-        return static::create($validator->validated());
+        return static::query()->create($validator->validated());
     }
 
-    public static function updateModel(int $id, array $attributes = [], array $options = []): static
+    public function update(array $attributes = [], array $options = []): static
     {
         $validator = Validator::make($attributes, static::updateRules());
 
@@ -31,20 +31,19 @@ abstract class BaseModel extends Model
             throw new ValidationException($validator);
         }
 
-        $model = static::findOrFail($id);
+        parent::update($validator->validated(), $options);
 
-        $model->update($validator->validated(), $options);
-
-        return $model;
+        return $this;
     }
 
-    public static function updateOrCreateModel(array $attributes, array $values = [])
+    public static function updateOrCreateModel(array $attributes, array $values = [], array $updateOptions = [])
     {
+        /** @var BaseModel $model */
         $model = static::where($attributes)->first();
         if (empty($model)) {
-            return static::createModel(array_merge($attributes, $values));
+            return static::create(array_merge($attributes, $values));
         }
 
-        return static::updateModel($model->id, array_merge($attributes, $values));
+        return $model->update(array_merge($attributes, $values), $updateOptions);
     }
 }
