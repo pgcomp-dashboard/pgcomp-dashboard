@@ -2,9 +2,31 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
+/**
+ * App\Models\Area
+ *
+ * @property int $id
+ * @property string $area_name
+ * @property int $program_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Program|null $belongsToTheProgram
+ * @method static Builder|Area newModelQuery()
+ * @method static Builder|Area newQuery()
+ * @method static Builder|Area query()
+ * @method static Builder|Area whereAreaName($value)
+ * @method static Builder|Area whereCreatedAt($value)
+ * @method static Builder|Area whereId($value)
+ * @method static Builder|Area whereProgramId($value)
+ * @method static Builder|Area whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class Area extends BaseModel
 {
     use HasFactory;
@@ -13,11 +35,6 @@ class Area extends BaseModel
         'area_name',
         'program_id',
     ];
-
-    public function belongsToTheProgram()
-    {
-        return $this->hasOne(Program::class, 'program_id');
-    }
 
     public static function creationRules(): array
     {
@@ -30,6 +47,11 @@ class Area extends BaseModel
                 'required',
             ],
         ];
+    }
+
+    public function belongsToTheProgram()
+    {
+        return $this->hasOne(Program::class, 'program_id');
     }
 
     public function updateRules(): array

@@ -2,9 +2,56 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
+/**
+ * App\Models\Conference
+ *
+ * @property int $id
+ * @property string $initials
+ * @property string $name
+ * @property int|null $category
+ * @property string|null $link
+ * @property string|null $ce_indicated
+ * @property string|null $h5
+ * @property string|null $last_qualis
+ * @property string|null $logs
+ * @property string|null $h5_old
+ * @property bool|null $use_scholar
+ * @property string|null $qualis_2016
+ * @property int|null $qualis_2016_id
+ * @property string|null $qualis_without_induction
+ * @property int|null $qualis_without_induction_id
+ * @property string|null $sbc_adjustment_or_event
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|Conference newModelQuery()
+ * @method static Builder|Conference newQuery()
+ * @method static Builder|Conference query()
+ * @method static Builder|Conference whereCategory($value)
+ * @method static Builder|Conference whereCeIndicated($value)
+ * @method static Builder|Conference whereCreatedAt($value)
+ * @method static Builder|Conference whereH5($value)
+ * @method static Builder|Conference whereH5Old($value)
+ * @method static Builder|Conference whereId($value)
+ * @method static Builder|Conference whereInitials($value)
+ * @method static Builder|Conference whereLastQualis($value)
+ * @method static Builder|Conference whereLink($value)
+ * @method static Builder|Conference whereLogs($value)
+ * @method static Builder|Conference whereName($value)
+ * @method static Builder|Conference whereQualis2016($value)
+ * @method static Builder|Conference whereQualis2016Id($value)
+ * @method static Builder|Conference whereQualisWithoutInduction($value)
+ * @method static Builder|Conference whereQualisWithoutInductionId($value)
+ * @method static Builder|Conference whereSbcAdjustmentOrEvent($value)
+ * @method static Builder|Conference whereUpdatedAt($value)
+ * @method static Builder|Conference whereUseScholar($value)
+ * @mixin Eloquent
+ */
 class Conference extends BaseModel
 {
     use HasFactory;
