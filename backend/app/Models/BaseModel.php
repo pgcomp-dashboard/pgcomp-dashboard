@@ -23,7 +23,7 @@ abstract class BaseModel extends Model
         return static::query()->create($validator->validated());
     }
 
-    public function update(array $attributes = [], array $options = []): static
+    public function update(array $attributes = [], array $options = []): bool
     {
         $validator = Validator::make($attributes, $this->updateRules());
 
@@ -31,12 +31,10 @@ abstract class BaseModel extends Model
             throw new ValidationException($validator);
         }
 
-        parent::update($validator->validated(), $options);
-
-        return $this;
+        return parent::update($validator->validated(), $options);
     }
 
-    public static function updateOrCreateModel(array $attributes, array $values = [], array $updateOptions = [])
+    public static function updateOrCreateModel(array $attributes, array $values = [], array $updateOptions = []): static
     {
         /** @var BaseModel $model */
         $model = static::where($attributes)->first();
@@ -44,6 +42,8 @@ abstract class BaseModel extends Model
             return static::create(array_merge($attributes, $values));
         }
 
-        return $model->update(array_merge($attributes, $values), $updateOptions);
+        $model->update(array_merge($attributes, $values), $updateOptions);
+
+        return $model;
     }
 }
