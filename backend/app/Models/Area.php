@@ -32,7 +32,7 @@ class Area extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function updateRules(): array
     {
         return [
             'area_name' => 'required|string|max:255',

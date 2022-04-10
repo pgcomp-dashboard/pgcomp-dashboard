@@ -45,7 +45,7 @@ class Subarea extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function updateRules(): array
     {
         return [
             'subarea_name' => 'required|string|max:255',

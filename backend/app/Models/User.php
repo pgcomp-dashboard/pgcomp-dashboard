@@ -218,22 +218,24 @@ class User extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function updateRules(): array
     {
+        $courseIdRules = [
+            'int',
+            Rule::exists(Course::class, 'id'),
+        ];
+        if ($this->type === UserType::PROFESSOR) {
+            $courseIdRules[] = 'nullable';
+        }
+
         return [
             'name' => 'string|max:255',
             'area' => 'nullable|string|max:255',
-            'course_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Course::class, 'id'),
-                'required_if:type,'.UserType::STUDENT->value,
-            ],
+            'course_id' => $courseIdRules,
             'program_id' => [
                 'nullable',
                 'int',
                 Rule::exists(Program::class, 'id'),
-                'required',
             ],
             'lattes_url' => 'nullable|string|max:255',
         ];

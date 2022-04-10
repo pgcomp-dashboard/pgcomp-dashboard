@@ -47,7 +47,7 @@ class Production extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function updateRules(): array
     {
         return [
             'title' => 'required|string|max:255',

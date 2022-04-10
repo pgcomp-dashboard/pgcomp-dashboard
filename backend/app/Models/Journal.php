@@ -44,7 +44,7 @@ class Journal extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function updateRules(): array
     {
         return [
             'name' => 'required|string|max:255',
