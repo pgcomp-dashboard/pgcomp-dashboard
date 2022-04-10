@@ -28,7 +28,7 @@ class StratumQualis extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function updateRules(): array
     {
         return [
             'code' => 'string|max:2',

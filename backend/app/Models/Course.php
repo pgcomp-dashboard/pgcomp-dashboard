@@ -37,7 +37,7 @@ class Course extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function updateRules(): array
     {
         return [
             'name' => 'string|max:255',

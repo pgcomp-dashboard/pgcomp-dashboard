@@ -10,7 +10,7 @@ abstract class BaseModel extends Model
 {
     abstract public static function creationRules(): array;
 
-    abstract public static function updateRules(): array;
+    abstract public function updateRules(): array;
 
     public static function create(array $attributes = []): static
     {
@@ -25,7 +25,7 @@ abstract class BaseModel extends Model
 
     public function update(array $attributes = [], array $options = []): static
     {
-        $validator = Validator::make($attributes, static::updateRules());
+        $validator = Validator::make($attributes, $this->updateRules());
 
         if ($validator->fails()) {
             throw new ValidationException($validator);
