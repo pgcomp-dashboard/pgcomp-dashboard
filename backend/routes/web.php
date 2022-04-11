@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\StratumQualis;
+use App\Models\User;
+use App\Models\Production;
+use App\Models\Journal;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +17,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-
-});
+Route::get('/test', function () {});

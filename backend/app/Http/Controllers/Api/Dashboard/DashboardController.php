@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
@@ -12,7 +12,7 @@ class DashboardController extends Controller
     {
         $attributes = ['id', 'name'];
         $data = User::where('type', UserType::PROFESSOR)
-            //->whereHas('advisedes')
+            //->whereHas('advisedes') // não lista professores sem orientandos!
             ->withCount('advisedes')
             ->get($attributes);
 

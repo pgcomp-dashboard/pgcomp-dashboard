@@ -4,16 +4,89 @@ namespace App\Models;
 
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
+use Database\Factories\UserFactory;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Laravel\Fortify\Rules\Password;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 
+/**
+ * App\Models\User
+ *
+ * @property int $id
+ * @property int|null $registration
+ * @property int|null $siape
+ * @property string $name
+ * @property UserType $type
+ * @property string|null $area
+ * @property string|null $email
+ * @property Carbon|null $email_verified_at
+ * @property string $password
+ * @property string|null $two_factor_secret
+ * @property string|null $two_factor_recovery_codes
+ * @property bool $is_admin
+ * @property int|null $program_id
+ * @property int|null $course_id
+ * @property string|null $lattes_url
+ * @property string|null $remember_token
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $defended_at
+ * @property-read Collection|User[] $advisedes
+ * @property-read int|null $advisedes_count
+ * @property-read Collection|User[] $advisors
+ * @property-read int|null $advisors_count
+ * @property-read Program|null $belongsToTheCourse
+ * @property-read Collection|User[] $coadviseees
+ * @property-read int|null $coadviseees_count
+ * @property-read Collection|User[] $coadvisors
+ * @property-read int|null $coadvisors_count
+ * @property-read Collection|User[] $isAdvisoredBy
+ * @property-read int|null $is_advisored_by_count
+ * @property-read DatabaseNotificationCollection|DatabaseNotification[] $notifications
+ * @property-read int|null $notifications_count
+ * @property-read Collection|PersonalAccessToken[] $tokens
+ * @property-read int|null $tokens_count
+ * @property-read Collection|Production[] $writerOf
+ * @property-read int|null $writer_of_count
+ * @method static UserFactory factory(...$parameters)
+ * @method static Builder|User newModelQuery()
+ * @method static Builder|User newQuery()
+ * @method static Builder|User query()
+ * @method static Builder|User whereArea($value)
+ * @method static Builder|User whereCourseId($value)
+ * @method static Builder|User whereCreatedAt($value)
+ * @method static Builder|User whereDefendedAt($value)
+ * @method static Builder|User whereEmail($value)
+ * @method static Builder|User whereEmailVerifiedAt($value)
+ * @method static Builder|User whereId($value)
+ * @method static Builder|User whereIsAdmin($value)
+ * @method static Builder|User whereLattesUrl($value)
+ * @method static Builder|User whereName($value)
+ * @method static Builder|User wherePassword($value)
+ * @method static Builder|User whereProgramId($value)
+ * @method static Builder|User whereRegistration($value)
+ * @method static Builder|User whereRememberToken($value)
+ * @method static Builder|User whereSiape($value)
+ * @method static Builder|User whereTwoFactorRecoveryCodes($value)
+ * @method static Builder|User whereTwoFactorSecret($value)
+ * @method static Builder|User whereType($value)
+ * @method static Builder|User whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class User extends BaseModel
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -52,10 +125,72 @@ class User extends BaseModel
         'is_admin' => false,
     ];
 
+    public static function creationRules(): array
+    {
+        return [
+            'registration' => 'nullable|int|required_if:type,' . UserType::STUDENT->value,
+            'siape' => 'nullable|int|required_if:type,' . UserType::PROFESSOR->value,
+            'name' => 'required|string|max:255',
+            'type' => ['required', new Enum(UserType::class)],
+            'area' => 'nullable|string|max:255',
+            'email' => [
+                'nullable',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique(User::class),
+            ],
+            'password' => ['required', 'string', new Password, 'confirmed'],
+            'course_id' => [
+                'nullable',
+                'int',
+                Rule::exists(Course::class, 'id'),
+                'required_if:type,' . UserType::STUDENT->value,
+            ],
+            'program_id' => [
+                'nullable',
+                'int',
+                Rule::exists(Program::class, 'id'),
+                'required',
+            ],
+            'lattes_url' => 'nullable|string|max:255',
+        ];
+    }
+
+    public static function createOrUpdateStudent(array $data): User
+    {
+        $data['type'] = UserType::STUDENT->value;
+        $password = Hash::make(Str::random(12));
+        $data['password'] = $password;
+        $data['password_confirmation'] = $password;
+
+        return User::updateOrCreate(
+            Arr::only($data, ['registration']),
+            $data
+        );
+    }
+
+    public static function createOrUpdateTeacher(array $data): User
+    {
+        $data['type'] = UserType::PROFESSOR->value;
+        $password = Hash::make(Str::random(12));
+        $data['password'] = $password;
+        $data['password_confirmation'] = $password;
+
+        return User::updateOrCreate(
+            Arr::only($data, ['siape']),
+            $data
+        );
+    }
 
     public function isAdvisoredBy()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function writerOf()
+    {
+        return $this->belongsToMany(Production::class);
     }
 
     public function belongsToTheCourse()
@@ -78,6 +213,8 @@ class User extends BaseModel
         return User::checkIfUserWasFound($user);
     }
 
+    //nao terminado
+
     public function findProfessorBySiape($siape)
     {
         $user = new User();
@@ -98,11 +235,59 @@ class User extends BaseModel
         return User::all();
     }
 
-    //nao terminado
     public function findNumberOfStudentsForEachProfessor()
     {
         $allProfessor = User::all('name', 'siape')->whereNotNull('siape')->count();
         return $allProfessor;
+    }
+
+    public function updateRules(): array
+    {
+        $courseIdRules = [
+            'int',
+            Rule::exists(Course::class, 'id'),
+        ];
+        if ($this->type === UserType::PROFESSOR) {
+            $courseIdRules[] = 'nullable';
+        }
+
+        return [
+            'name' => 'string|max:255',
+            'area' => 'nullable|string|max:255',
+            'course_id' => $courseIdRules,
+            'program_id' => [
+                'nullable',
+                'int',
+                Rule::exists(Program::class, 'id'),
+            ],
+            'lattes_url' => 'nullable|string|max:255',
+        ];
+    }
+
+    public function advisors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
+            ->wherePivot('relation_type', UserRelationType::ADVISOR);
+    }
+
+    public function advisedes(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
+            ->wherePivot('relation_type', UserRelationType::ADVISOR)
+            ->whereNull('defended_at');
+    }
+
+    public function coadvisors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
+            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
+    }
+
+    public function coadviseees(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
+            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR)
+            ->whereNull('defended_at');
     }
 
     protected function checkIfUserAlreadyExist($sigaaId)
@@ -116,108 +301,5 @@ class User extends BaseModel
             return 'error';
         }
         return $user;
-    }
-
-    public static function creationRules(): array
-    {
-        return [
-            'registration' => 'nullable|int|required_if:type,'.UserType::STUDENT->value,
-            'siape' => 'nullable|int|required_if:type,'.UserType::PROFESSOR->value,
-            'name' => 'required|string|max:255',
-            'type' => ['required', new Enum(UserType::class)],
-            'area' => 'nullable|string|max:255',
-            'email' => [
-                'nullable',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique(User::class),
-            ],
-            'password' => ['required', 'string', new Password, 'confirmed'],
-            'course_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Course::class, 'id'),
-                'required_if:type,'.UserType::STUDENT->value,
-            ],
-            'program_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Program::class, 'id'),
-                'required',
-            ],
-            'lattes_url' => 'nullable|string|max:255',
-        ];
-    }
-
-    public static function updateRules(): array
-    {
-        return [
-            'name' => 'string|max:255',
-            'area' => 'nullable|string|max:255',
-            'course_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Course::class, 'id'),
-                'required_if:type,'.UserType::STUDENT->value,
-            ],
-            'program_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Program::class, 'id'),
-                'required',
-            ],
-            'lattes_url' => 'nullable|string|max:255',
-        ];
-    }
-
-    public function advisors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
-            ->wherePivot('relation_type', UserRelationType::ADVISOR);
-    }
-
-    public function advisedes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
-            ->wherePivot('relation_type', UserRelationType::ADVISOR);
-    }
-
-    public function coadvisors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
-            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
-    }
-
-    public function coadviseees(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
-            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
-    }
-
-    public static function createOrUpdateStudent(array $data): User
-    {
-        $data['type'] = UserType::STUDENT->value;
-        $password = Hash::make(Str::random(12));
-        $data['password'] = $password;
-        $data['password_confirmation'] = $password;
-
-        return User::updateOrCreateModel(
-            Arr::only($data, ['registration']),
-            $data
-        );
-    }
-
-    public static function createOrUpdateTeacher(array $data): User
-    {
-        $data['type'] = UserType::PROFESSOR->value;
-        $password = Hash::make(Str::random(12));
-        $data['password'] = $password;
-        $data['password_confirmation'] = $password;
-
-        return User::updateOrCreateModel(
-            Arr::only($data, ['siape']),
-            $data
-        );
     }
 }
