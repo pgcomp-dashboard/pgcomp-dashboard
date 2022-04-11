@@ -11,7 +11,7 @@ import {
 import axios from 'axios';
 import { map } from 'lodash';
 import { useEffect, useState } from 'react';
-import generateColorsArray from '../../Utils.js'
+import Utils from '../../Utils.js'
 
 ChartJS.register(
     CategoryScale,
@@ -57,7 +57,7 @@ function StudentsPerTeacherChart({ filter }) {
                     {
                         label: 'Número de alunos',
                         data: map(slicedData, 'advisedes_count'),
-                        backgroundColor: generateColorsArray(NUMBER_OF_ITEMS)
+                        backgroundColor: Utils.generateColorsArray(NUMBER_OF_ITEMS)
                     }]
             };
 

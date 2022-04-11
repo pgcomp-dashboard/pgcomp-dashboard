@@ -18,7 +18,7 @@ function DataCard(props) {
                     }
                     title={props.title}
                     action={
-                        <DefaultFilter filter={filter} setFilter={setFilter} />
+                        <DefaultFilter filter={filter} setFilter={setFilter} options={props.filterOptions} />
                     }
                 />
                 <CardContent>
