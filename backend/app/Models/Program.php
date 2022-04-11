@@ -2,8 +2,35 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use Illuminate\Validation\Rule;
 
+/**
+ * App\Models\Program
+ *
+ * @property int $id
+ * @property int $sigaa_id
+ * @property string $name
+ * @property string|null $description
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $professors
+ * @property-read int|null $professors_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $students
+ * @property-read int|null $students_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
+ * @property-read int|null $users_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Program newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Program newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Program query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Program whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Program whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Program whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Program whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Program whereSigaaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Program whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Program extends BaseModel
 {
     protected $fillable = [
@@ -41,9 +68,21 @@ class Program extends BaseModel
         return Program::checkIfCourseAlreadyExist($sigaaId);
     }
 
-    public function findAllCourses(): \Illuminate\Database\Eloquent\Collection|array
+    public function findAllCourses($columns): \Illuminate\Database\Eloquent\Collection|array
     {
-        return Program::all();
+        return Program::all($columns);
+    }
+
+    public function findAllCoursesByColumns($columns, $pattern): \Illuminate\Database\Eloquent\Collection|array
+    {
+        $data = Program::all($columns);
+        $data = $data[0];
+        $dataInNewPattern = array();
+        for($counter = 0; $counter < count($columns); $counter++){
+            $dataInNewPattern[$pattern[$counter]] = $data[$columns[$counter]];
+        }
+
+        return $dataInNewPattern;
     }
 
     protected function checkIfCourseAlreadyExist(int $sigaaId): static
@@ -78,5 +117,20 @@ class Program extends BaseModel
             'name' => 'string|max:255',
             'description' => 'string|max:2500',
         ];
+    }
+
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class, 'program_id');
+    }
+
+    public function professors(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->users()->where('type', UserType::PROFESSOR->value);
+    }
+
+    public function students(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->users()->where('type', UserType::STUDENT->value);
     }
 }

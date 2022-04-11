@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -83,4 +85,46 @@ class Production extends BaseModel
         );
     }
 
+    public function totalProductionsPerYear()
+    {
+        $data = DB::table('productions')
+            ->select(DB::raw('distinct productions.id, productions.year'))
+            ->select(DB::raw('productions.year, count(productions.id) as production_count'))
+            ->groupBy('productions.year')
+            ->get();
+
+        $dataYear = [];
+        $dataCount = [];
+        for($counter = 0; $counter < count($data); $counter++){
+            $dataYear[$counter] = $data[$counter]->year;
+            $dataCount[$counter] = $data[$counter]->production_count;
+        }
+
+        return [$dataYear, $dataCount];
+    }
+
+    public function totalProductionsPerCourse()
+    {
+        $data = DB::table('productions')
+            ->join('users_productions', 'productions.id',
+                '=', 'users_productions.productions_id')
+            ->join('users', 'users.id', '=', 'users_productions.users_id')
+            ->join('courses', 'courses.id', '=', 'users.course_id')
+            ->select(DB::raw('productions.id, courses.name, courses.id'))
+            //->select(DB::raw('productions.year, count(courses.id) as courses_count'))
+            //->where('users.type', '=', UserType::STUDENT)
+            //->where('courses.id', '=', 1)
+            //->groupBy('productions.year')
+            ->get();
+
+        /*
+        $dataYear = [];
+        $dataCount = [];
+        for($counter = 0; $counter < count($data); $counter++){
+            $dataYear[$counter] = $data[$counter]->year;
+            $dataCount[$counter] = $data[$counter]->courses_count;
+        }
+        */
+        return $data; //[$dataYear, $dataCount];
+    }
 }

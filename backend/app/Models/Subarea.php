@@ -2,16 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\UserRelationType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
-use Laravel\Fortify\Rules\Password;
-use Laravel\Sanctum\HasApiTokens;
 
 class Subarea extends BaseModel
 {
@@ -25,6 +19,11 @@ class Subarea extends BaseModel
     public function belongsToTheArea()
     {
         return $this->hasOne(Area::class, 'area_id');
+    }
+
+    public function area(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Area::class, 'area_id');
     }
 
     public static function creationRules(): array
@@ -54,26 +53,23 @@ class Subarea extends BaseModel
     }
 
     public static function createOrUpdateSubarea(array $data): Subarea
-    { 
+    {
         return Subarea::updateOrCreateModel(
             Arr::only($data, ['subarea_name']),
             $data
         );
     }
 
-    public function findSubareaByName($name){
-        $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
-        if(empty($subarea)){
-            return "error";
-        }
-        return $subarea;
+    public function findSubareaByName($name): self
+    {
+        return self::where('subarea_name', $name)->firstOrFail();
     }
 
     public function deleteSubareaByName($name){
-        $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
+        $subarea = Area::where('subarea_name', $name)->first();
         if(empty($subarea)){
             return "error";
         }
     }
-     
+
 }

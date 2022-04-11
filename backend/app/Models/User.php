@@ -7,6 +7,7 @@ use App\Enums\UserType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -85,7 +86,7 @@ class User extends BaseModel
         'siape', // TODo: Nem sempre é siape, as vezes é rm se for aluno
         'name',
         'type', //TODO: Aceitar apenas três entradas. Docente, discente e admin
-        'area',
+        'subarea_id',
         'email',
         'password',
         'course_id',
@@ -129,6 +130,10 @@ class User extends BaseModel
     public function belongsToTheCourse()
     {
         return $this->hasOne(Program::class, 'course_id');
+    }
+
+    public function belongsToSubarea(){
+        return $this->hasOne(Subarea::class, 'subarea_id');
     }
 
     public function deleteUser($sigaaId)
@@ -193,7 +198,6 @@ class User extends BaseModel
             'siape' => 'nullable|int|required_if:type,'.UserType::PROFESSOR->value,
             'name' => 'required|string|max:255',
             'type' => ['required', new Enum(UserType::class)],
-            'area' => 'nullable|string|max:255',
             'email' => [
                 'nullable',
                 'string',
@@ -202,6 +206,11 @@ class User extends BaseModel
                 Rule::unique(User::class),
             ],
             'password' => ['required', 'string', new Password, 'confirmed'],
+            'subarea' => [
+                'nullable',
+                'int',
+                Rule::exists(Subarea::class, 'id')
+            ],
             'course_id' => [
                 'nullable',
                 'int',
@@ -222,7 +231,11 @@ class User extends BaseModel
     {
         return [
             'name' => 'string|max:255',
-            'area' => 'nullable|string|max:255',
+            'subarea' => [
+                'nullable',
+                'int',
+                Rule::exists(Subarea::class, 'id')
+            ],
             'course_id' => [
                 'nullable',
                 'int',
@@ -289,5 +302,44 @@ class User extends BaseModel
             Arr::only($data, ['siape']),
             $data
         );
+    }
+
+    public function areas()
+    {
+        $data = DB::table('users')
+            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->join('areas', 'areas.id', '=', 'subareas.area_id')
+            ->select(DB::raw('distinct areas.area_name, count(areas.id) as area_count'))
+            ->where('users.type', '=', UserType::STUDENT)
+            ->groupBy('areas.area_name')
+            ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for($counter = 0; $counter < count($data); $counter++){
+            $dataFields[$counter] = $data[$counter]->area_name;
+            $dataCount[$counter] = $data[$counter]->area_count;
+        }
+
+        return [$dataFields, $dataCount];
+    }
+
+    public function subareas()
+    {
+        $data = DB::table('users')
+            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->select(DB::raw('distinct subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->where('users.type', '=', UserType::STUDENT)
+            ->groupBy('subareas.subarea_name')
+            ->get();
+
+        $dataSubfields = [];
+        $dataCount = [];
+        for($counter = 0; $counter < count($data); $counter++){
+            $dataSubfields[$counter] = $data[$counter]->subarea_name;
+            $dataCount[$counter] = $data[$counter]->subarea_count;
+        }
+
+        return [$dataSubfields, $dataCount];
     }
 }
