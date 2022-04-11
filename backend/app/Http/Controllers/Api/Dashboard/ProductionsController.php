@@ -40,6 +40,6 @@ class ProductionsController extends Controller
         //  }
         //}
         $production = new Production();
-        return $production->totalProductionsPerCourse();
+        return $production->totalProductionsPerCourse(['year', 'data']);
     }
 }
