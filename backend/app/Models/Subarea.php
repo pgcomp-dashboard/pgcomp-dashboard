@@ -2,11 +2,34 @@
 
 namespace App\Models;
 
-use App\Enums\UserRelationType;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
+/**
+ * App\Models\Subarea
+ *
+ * @property int $id
+ * @property string $subarea_name
+ * @property int $area_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Area $area
+ * @property-read Area|null $belongsToTheProgram
+ * @method static Builder|Subarea newModelQuery()
+ * @method static Builder|Subarea newQuery()
+ * @method static Builder|Subarea query()
+ * @method static Builder|Subarea whereAreaId($value)
+ * @method static Builder|Subarea whereCreatedAt($value)
+ * @method static Builder|Subarea whereId($value)
+ * @method static Builder|Subarea whereSubareaName($value)
+ * @method static Builder|Subarea whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class Subarea extends BaseModel
 {
     use HasFactory;
@@ -15,16 +38,6 @@ class Subarea extends BaseModel
         'subarea_name',
         'area_id',
     ];
-
-    public function belongsToTheArea()
-    {
-        return $this->hasOne(Area::class, 'area_id');
-    }
-
-    public function area(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Area::class, 'area_id');
-    }
 
     public static function creationRules(): array
     {
@@ -39,7 +52,21 @@ class Subarea extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public static function createOrUpdateSubarea(array $data): Subarea
+    {
+        return User::updateOrCreate(
+            Arr::only($data, ['subarea_name']),
+            $data
+        );
+    }
+
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(Area::class, 'area_id');
+    }
+
+
+    public function updateRules(): array
     {
         return [
             'subarea_name' => 'required|string|max:255',
@@ -52,24 +79,14 @@ class Subarea extends BaseModel
         ];
     }
 
-    public static function createOrUpdateSubarea(array $data): Subarea
-    {
-        return Subarea::updateOrCreateModel(
-            Arr::only($data, ['subarea_name']),
-            $data
-        );
-    }
-
     public function findSubareaByName($name): self
     {
         return self::where('subarea_name', $name)->firstOrFail();
     }
 
-    public function deleteSubareaByName($name){
-        $subarea = Area::where('subarea_name', $name)->first();
-        if(empty($subarea)){
-            return "error";
-        }
+    public function deleteSubareaByName($name)
+    {
+        $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
+        return $subarea->delete();
     }
-
 }

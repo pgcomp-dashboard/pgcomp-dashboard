@@ -2,11 +2,31 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
+/**
+ * App\Models\Area
+ *
+ * @property int $id
+ * @property string $area_name
+ * @property int $program_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Program|null $belongsToTheProgram
+ * @method static Builder|Area newModelQuery()
+ * @method static Builder|Area newQuery()
+ * @method static Builder|Area query()
+ * @method static Builder|Area whereAreaName($value)
+ * @method static Builder|Area whereCreatedAt($value)
+ * @method static Builder|Area whereId($value)
+ * @method static Builder|Area whereProgramId($value)
+ * @method static Builder|Area whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class Area extends BaseModel
 {
     use HasFactory;
@@ -15,11 +35,6 @@ class Area extends BaseModel
         'area_name',
         'program_id',
     ];
-
-    public function belongsToTheProgram()
-    {
-        return $this->hasOne(Program::class, 'program_id');
-    }
 
     public static function creationRules(): array
     {
@@ -34,7 +49,12 @@ class Area extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function belongsToTheProgram()
+    {
+        return $this->hasOne(Program::class, 'program_id');
+    }
+
+    public function updateRules(): array
     {
         return [
             'area_name' => 'required|string|max:255',
@@ -47,28 +67,14 @@ class Area extends BaseModel
         ];
     }
 
-    public static function createOrUpdateArea(array $data): Area
+    public function findAreaByName($name): self
     {
-        return Area::updateOrCreateModel(
-            Arr::only($data, ['area_name']),
-            $data
-        );
-    }
-
-    public function findAreaByName($name){
-        $area = Area::where('area_name', $name)->firstOrFail();
-        if(empty($area)){
-            return "error";
-        }
-        return $area;
+        return Area::where('area_name', $name)->firstOrFail();
     }
 
     public function deleteAreaByName($name){
-        $area = Area::where('area_name', $name)->firstOrFail();
-        if(empty($area)){
-            return "error";
-        }
-        $area-delete();
+        $area = Area::where('name', $name)->firstOrFail();
+        return $area->delete();
     }
 
 }

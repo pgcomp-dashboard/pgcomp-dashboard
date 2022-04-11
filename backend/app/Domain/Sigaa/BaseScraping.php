@@ -61,7 +61,7 @@ abstract class BaseScraping
 
         $course = Program::where('sigaa_id', $sigaaId)->first();
         if (empty($course)) {
-            $course = Program::createModel($data);
+            $course = Program::create($data);
         }
         return $course;
     }

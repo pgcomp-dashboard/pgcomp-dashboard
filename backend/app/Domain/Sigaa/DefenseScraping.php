@@ -2,9 +2,7 @@
 
 namespace App\Domain\Sigaa;
 
-use App\Enums\UserType;
 use App\Models\Course;
-use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -65,6 +63,6 @@ class DefenseScraping extends BaseScraping
             default => $course,
         };
 
-        return Course::where('name', $name)->first(['id'])->id;
+        return Course::where('name', $name)->first(['id'])?->id;
     }
 }

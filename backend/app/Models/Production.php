@@ -2,18 +2,38 @@
 
 namespace App\Models;
 
-use App\Enums\UserType;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
-use Laravel\Fortify\Rules\Password;
-use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * App\Models\Production
+ *
+ * @property int $id
+ * @property string $title
+ * @property int $year
+ * @property int|null $journals_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Journal|null $hasQualis
+ * @property-read Collection|User[] $isWroteBy
+ * @property-read int|null $is_wrote_by_count
+ * @method static Builder|Production newModelQuery()
+ * @method static Builder|Production newQuery()
+ * @method static Builder|Production query()
+ * @method static Builder|Production whereCreatedAt($value)
+ * @method static Builder|Production whereId($value)
+ * @method static Builder|Production whereJournalsId($value)
+ * @method static Builder|Production whereTitle($value)
+ * @method static Builder|Production whereUpdatedAt($value)
+ * @method static Builder|Production whereYear($value)
+ * @mixin Eloquent
+ */
 class Production extends BaseModel
 {
     use HasFactory;
@@ -23,17 +43,8 @@ class Production extends BaseModel
         'year',
         'journals_id',
 //       'user_id', TODO: Adicionar o campo de user id
-    //  'doi', TODO: Adicionar o campo doi também.
+        //  'doi', TODO: Adicionar o campo doi também.
     ];
-
-    public function isWroteBy()
-    {
-        return $this->belongsToMany(User::class);
-    }
-
-    public function hasQualis(){
-        return $this->hasOne(Journal::class, 'journals_id');
-    }
 
     public static function creationRules(): array
     {
@@ -49,7 +60,25 @@ class Production extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public static function createOrUpdateProduction(array $data): Production
+    {
+        return Production::updateOrCreate(
+            Arr::only($data, ['title']),
+            $data
+        );
+    }
+
+    public function isWroteBy()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
+    public function hasQualis()
+    {
+        return $this->hasOne(Journal::class, 'journals_id');
+    }
+
+    public function updateRules(): array
     {
         return [
             'title' => 'required|string|max:255',
@@ -63,26 +92,18 @@ class Production extends BaseModel
         ];
     }
 
-    public function findAll() {
+    public function findAll()
+    {
         return Production::all();
     }
 
     public function deleteProduction($title)
     {
-        $production = new Production();
-        $production = Production::where('title', $title)->firstOrFail();
-        if(empty($production)){
+        $production = Production::where('title', $title)->first();
+        if (empty($production)) {
             return 'error';
         }
         $production->delete();
-    }
-
-    public static function createOrUpdateProduction(array $data): Production
-    {
-        return Production::updateOrCreateModel(
-            Arr::only($data, ['title']),
-            $data
-        );
     }
 
     public function totalProductionsPerYear()
@@ -127,4 +148,6 @@ class Production extends BaseModel
         */
         return $data; //[$dataYear, $dataCount];
     }
+
+
 }

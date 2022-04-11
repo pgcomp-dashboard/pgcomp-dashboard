@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Course
@@ -10,17 +13,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $id
  * @property string $name
  * @property string|null $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|Course newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Course newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Course query()
- * @method static \Illuminate\Database\Eloquent\Builder|Course whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Course whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Course whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Course whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Course whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|Course newModelQuery()
+ * @method static Builder|Course newQuery()
+ * @method static Builder|Course query()
+ * @method static Builder|Course whereCreatedAt($value)
+ * @method static Builder|Course whereDescription($value)
+ * @method static Builder|Course whereId($value)
+ * @method static Builder|Course whereName($value)
+ * @method static Builder|Course whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Course extends BaseModel
 {
@@ -28,7 +31,6 @@ class Course extends BaseModel
 
     protected $fillable = [
         'name',
-//      'program_id',  TODO: Adicionar o campo de program_id
     ];
 
     public static function creationRules(): array
@@ -38,7 +40,7 @@ class Course extends BaseModel
         ];
     }
 
-    public static function updateRules(): array
+    public function updateRules(): array
     {
         return [
             'name' => 'string|max:255',

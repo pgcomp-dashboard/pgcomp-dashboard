@@ -15,7 +15,15 @@ return new class extends Migration
     {
         Schema::create('journals', function (Blueprint $table) {
             $table->id();
+            $table->string('issn')->index();
             $table->string('name');
+            $table->string('sbc_adjustment')->nullable();
+            $table->string('scopus_url')->nullable();
+            $table->string('percentile')->nullable();
+            $table->string('last_qualis')->nullable();
+            $table->dateTime('update_date')->nullable();
+            $table->dateTime('tentative_date')->nullable();
+            $table->string('logs')->nullable();
             $table->foreignId('stratum_qualis_id')->nullable()->constrained();
             $table->timestamps();
         });
