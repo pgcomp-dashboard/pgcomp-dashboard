@@ -10,6 +10,7 @@ import PieChart from "./components/Charts/PieChart";
 import QualisChart from "./components/Charts/QualisChart";
 import ProductionPerStudentChart from "./components/Charts/ProductionPerStudentChart";
 import ProductionsAmountChart from "./components/Charts/ProductionsAmountChart";
+import Utils from './Utils'
 
 export function App() {
     return (
@@ -24,24 +25,28 @@ export function App() {
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
+                    filterOptions={Utils.universityFilter}
                     chart={ProductionsAmountChart} />
 
                 <DataCard title="Qualis"
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
+                    filterOptions={Utils.universityFilter}
                     chart={QualisChart} />
 
                 <DataCard title="Produção por discentes"
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
+                    filterOptions={Utils.universityFilter}
                     chart={ProductionPerStudentChart} />
 
                 <DataCard title="Alunos por docente"
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
+                    filterOptions={Utils.universityAndActivesFilter}
                     chart={StudentsPerTeacherChart} />
 
                 <DataCard title="Alunos por área"
@@ -49,6 +54,7 @@ export function App() {
                     minHeight="300px"
                     height="250px"
                     icon={PieChartIcon}
+                    filterOptions={Utils.universityAndActivesFilter}
                     chart={PieChart} />
             </div>
 

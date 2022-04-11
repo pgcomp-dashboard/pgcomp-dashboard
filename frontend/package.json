@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-      "serve": "yarn webpack serve"
+    "serve": "yarn webpack serve"
   },
   "dependencies": {
     "@emotion/react": "^11.8.2",
