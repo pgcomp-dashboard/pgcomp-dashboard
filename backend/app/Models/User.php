@@ -317,7 +317,7 @@ class User extends BaseModel
         $data = DB::table('users')
             ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
             ->join('areas', 'areas.id', '=', 'subareas.area_id')
-            ->select(DB::raw('distinct areas.area_name, count(areas.id) as area_count'))
+            ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->groupBy('areas.area_name')
             ->get();
@@ -336,7 +336,7 @@ class User extends BaseModel
     {
         $data = DB::table('users')
             ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
-            ->select(DB::raw('distinct subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->groupBy('subareas.subarea_name')
             ->get();

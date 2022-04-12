@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -92,7 +93,7 @@ class Production extends BaseModel
         ];
     }
 
-    public function findAll()
+    public function findAll(): Collection
     {
         return Production::all();
     }
@@ -106,7 +107,7 @@ class Production extends BaseModel
         $production->delete();
     }
 
-    public function totalProductionsPerYear()
+    public function totalProductionsPerYear(): array
     {
         $data = DB::table('productions')
             ->select(DB::raw('distinct productions.id, productions.year'))
@@ -124,7 +125,7 @@ class Production extends BaseModel
         return [$dataYear, $dataCount];
     }
 
-    public function totalProductionsPerCourse($pattern)
+    public function totalProductionsPerCourse($pattern): array
     {
         $totalOfCourses = DB::table('courses')
             ->select(DB::raw('distinct courses.id'))
@@ -146,6 +147,7 @@ class Production extends BaseModel
                 ->join('users', 'users.id', '=', 'users_productions.users_id')
                 ->join('courses', 'courses.id', '=', 'users.course_id')
                 ->where('courses.id', '=', $nCourse)
+                ->where('users.type', '=', UserType::STUDENT)
                 ->groupBy('productions.year', 'courses.id')
                 ->get();
             $coursesProductions[$nCourse] = $data;
@@ -153,6 +155,10 @@ class Production extends BaseModel
 
         $data = array();
         $allYears = array();
+        for($year = $years[0]->min; $year <= $years[0]->max; $year++){
+            $allYears[] = $year;
+        }
+
         for($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
             $auxData = $coursesProductions[$nCourse];
             $newTempData = array();
@@ -160,14 +166,13 @@ class Production extends BaseModel
             $dataSize = count($auxData);
 
             for($year = $years[0]->min; $year <= $years[0]->max; $year++){
-                array_push($allYears, $year);
                 if($countIterations < $dataSize &&
                     $auxData[$countIterations]->year == $year)
                 {
-                    array_push($newTempData, $auxData[$countIterations]->total);
+                    $newTempData[] = $auxData[$countIterations]->total;
                     $countIterations++;
                 }else{
-                    array_push($newTempData, 0);
+                    $newTempData[] = 0;
                 }
             }
             $data[$nCourse-1] = $newTempData;

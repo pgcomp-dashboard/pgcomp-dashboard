@@ -13,30 +13,29 @@ class StudentsController extends Controller
 {
     public function studentsArea()
     {
-        return ['fields' => ['CG', 'Análise de Dados', 'I.A',],
-                'data' => [12, 3, 5,]];
+        //return ['fields' => ['CG', 'Análise de Dados', 'I.A',],
+        //        'data' => [12, 3, 5,]];
 
-        /*
+
         $keyReturnPattern = ['fields', 'data'];
         $user = new User();
-        $data = $user->areas($keyReturnPattern);
+        $data = $user->areas();
 
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
-        */
     }
 
 
     public function studentsSubarea()
     {
-        return ['subfields' => ['CG', 'Análise de Dados', 'I.A',],
-                'data' => [12, 3, 5,]];
+        //return ['subfields' => ['CG', 'Análise de Dados', 'I.A',],
+        //        'data' => [12, 3, 5,]];
 
-        /*
+
         $keyReturnPattern = ['subfields', 'data'];
         $user = new User();
-        $data = $user->subareas($keyReturnPattern);
+        $data = $user->subareas();
 
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
-        */
+
     }
 }
