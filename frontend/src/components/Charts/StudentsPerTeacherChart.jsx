@@ -11,7 +11,7 @@ import {
 import axios from 'axios';
 import { map } from 'lodash';
 import { useEffect, useState } from 'react';
-import generateColorsArray from '../../Utils.js'
+import Utils from '../../Utils.js'
 
 ChartJS.register(
     CategoryScale,
@@ -43,11 +43,9 @@ function StudentsPerTeacherChart({ filter }) {
         }
     }
 
-    useEffect(() => {
-        axios.get('http://localhost:8000/api/dashboard/total_students_per_advisor').then(({ data }) => {
+    const getData = (selectedFilter = []) => {
+        axios.get('http://localhost:8000/api/dashboard/total_students_per_advisor', { params: { selectedFilter } }).then(({ data }) => {
             const slicedData = data.slice(0, NUMBER_OF_ITEMS);
-
-            console.log(data);
 
             const labels = map(slicedData, 'name');
 
@@ -57,17 +55,22 @@ function StudentsPerTeacherChart({ filter }) {
                     {
                         label: 'Número de alunos',
                         data: map(slicedData, 'advisedes_count'),
-                        backgroundColor: generateColorsArray(NUMBER_OF_ITEMS)
+                        backgroundColor: Utils.generateColorsArray(NUMBER_OF_ITEMS)
                     }]
             };
 
             setChartData(teachersData);
         });
+    }
+
+    useEffect(() => {
+        getData();
 
     }, []);
 
     useEffect(() => {
         console.log('Filtro atualizado: ' + filter);
+        getData(filter);
     }, [filter]);
 
     return (
