@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 /**
@@ -91,7 +93,7 @@ class Production extends BaseModel
         ];
     }
 
-    public function findAll()
+    public function findAll(): Collection
     {
         return Production::all();
     }
@@ -105,4 +107,81 @@ class Production extends BaseModel
         $production->delete();
     }
 
+    public function totalProductionsPerYear(): array
+    {
+        $data = DB::table('productions')
+            ->select(DB::raw('distinct productions.id, productions.year'))
+            ->select(DB::raw('productions.year, count(productions.id) as production_count'))
+            ->groupBy('productions.year')
+            ->get();
+
+        $dataYear = [];
+        $dataCount = [];
+        for($counter = 0; $counter < count($data); $counter++){
+            $dataYear[$counter] = $data[$counter]->year;
+            $dataCount[$counter] = $data[$counter]->production_count;
+        }
+
+        return [$dataYear, $dataCount];
+    }
+
+    public function totalProductionsPerCourse($pattern): array
+    {
+        $totalOfCourses = DB::table('courses')
+            ->select(DB::raw('distinct courses.id'))
+            ->get();
+        $totalOfCourses = count($totalOfCourses);
+
+        $years = DB::table('productions')
+            ->select(DB::raw('min(productions.year) as min, max(productions.year) as max'))
+            ->get();
+
+        $coursesName = Course::all('name');
+        $coursesProductions = array();
+
+        for($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
+            $data = DB::table('productions')
+                ->select(DB::raw('productions.year, count(distinct productions.id) as total'))
+                ->join('users_productions', 'productions.id',
+                    '=', 'users_productions.productions_id')
+                ->join('users', 'users.id', '=', 'users_productions.users_id')
+                ->join('courses', 'courses.id', '=', 'users.course_id')
+                ->where('courses.id', '=', $nCourse)
+                ->where('users.type', '=', UserType::STUDENT)
+                ->groupBy('productions.year', 'courses.id')
+                ->get();
+            $coursesProductions[$nCourse] = $data;
+        }
+
+        $data = array();
+        $allYears = array();
+        for($year = $years[0]->min; $year <= $years[0]->max; $year++){
+            $allYears[] = $year;
+        }
+
+        for($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
+            $auxData = $coursesProductions[$nCourse];
+            $newTempData = array();
+            $countIterations = 0;
+            $dataSize = count($auxData);
+
+            for($year = $years[0]->min; $year <= $years[0]->max; $year++){
+                if($countIterations < $dataSize &&
+                    $auxData[$countIterations]->year == $year)
+                {
+                    $newTempData[] = $auxData[$countIterations]->total;
+                    $countIterations++;
+                }else{
+                    $newTempData[] = 0;
+                }
+            }
+            $data[$nCourse-1] = $newTempData;
+        }
+
+        $dataWithLabels = array();
+        for($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
+            $dataWithLabels[] = ['label' => $coursesName[$nCourse - 1]->name, 'data' => $data[$nCourse - 1]];
+        }
+        return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
+    }
 }

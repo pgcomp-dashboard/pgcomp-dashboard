@@ -16,6 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -96,7 +97,7 @@ class User extends BaseModel
         'siape',
         'name',
         'type',
-        'area',
+        'subarea_id',
         'email',
         'password',
         'course_id',
@@ -132,7 +133,11 @@ class User extends BaseModel
             'siape' => 'nullable|int|required_if:type,' . UserType::PROFESSOR->value,
             'name' => 'required|string|max:255',
             'type' => ['required', new Enum(UserType::class)],
-            'area' => 'nullable|string|max:255',
+            'subarea_id' => [
+                'nullable',
+                'int',
+                Rule::exists(Subarea::class, 'id')
+            ],
             'email' => [
                 'nullable',
                 'string',
@@ -253,7 +258,11 @@ class User extends BaseModel
 
         return [
             'name' => 'string|max:255',
-            'area' => 'nullable|string|max:255',
+            'subarea' => [
+                'nullable',
+                'int',
+                Rule::exists(Subarea::class, 'id')
+            ],
             'course_id' => $courseIdRules,
             'program_id' => [
                 'nullable',
@@ -302,4 +311,44 @@ class User extends BaseModel
         }
         return $user;
     }
+
+    public function areas(): array
+    {
+        $data = DB::table('users')
+            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->join('areas', 'areas.id', '=', 'subareas.area_id')
+            ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+            ->where('users.type', '=', UserType::STUDENT)
+            ->groupBy('areas.area_name')
+            ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for($counter = 0; $counter < count($data); $counter++){
+            $dataFields[$counter] = $data[$counter]->area_name;
+            $dataCount[$counter] = $data[$counter]->area_count;
+        }
+
+        return [$dataFields, $dataCount];
+    }
+
+    public function subareas(): array
+    {
+        $data = DB::table('users')
+            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->where('users.type', '=', UserType::STUDENT)
+            ->groupBy('subareas.subarea_name')
+            ->get();
+
+        $dataSubfields = [];
+        $dataCount = [];
+        for($counter = 0; $counter < count($data); $counter++){
+            $dataSubfields[$counter] = $data[$counter]->subarea_name;
+            $dataCount[$counter] = $data[$counter]->subarea_count;
+        }
+
+        return [$dataSubfields, $dataCount];
+    }
+
 }
