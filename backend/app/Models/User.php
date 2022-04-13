@@ -312,7 +312,7 @@ class User extends BaseModel
         return $user;
     }
 
-    public function areas()
+    public function areas(): array
     {
         $data = DB::table('users')
             ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
@@ -332,7 +332,7 @@ class User extends BaseModel
         return [$dataFields, $dataCount];
     }
 
-    public function subareas()
+    public function subareas(): array
     {
         $data = DB::table('users')
             ->join('subareas', 'users.subarea_id', '=', 'subareas.id')

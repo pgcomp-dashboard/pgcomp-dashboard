@@ -98,7 +98,6 @@ class StratumQualis extends BaseModel
                 ->join('stratum_qualis', 'journals.stratum_qualis_id',
                     '=', 'stratum_qualis.id')
                 ->where('stratum_qualis.id', '=', $nStratum)
-                //->where('users.type', '=', UserType::STUDENT)
                 ->groupBy('productions.year', 'stratum_qualis.id')
                 ->get();
             $stratumProductions[$nStratum] = $data;
