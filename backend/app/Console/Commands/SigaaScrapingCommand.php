@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
-class SigaaScraping extends Command
+class SigaaScrapingCommand extends Command
 {
     /**
      * The name and signature of the console command.
