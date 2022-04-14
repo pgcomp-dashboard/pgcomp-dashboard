@@ -10,8 +10,9 @@ use Google\Service\Sheets;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
-class JournalScraping extends Command
+class JournalScrapingCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -47,13 +48,14 @@ class JournalScraping extends Command
         $this->getOutput()->info('Salvando dados...');
         $this->withProgressBar($data, function ($item) {
             try {
+                $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
                 $item['stratum_qualis_id'] = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
             } catch (ModelNotFoundException) {
                 $item['stratum_qualis_id'] = null;
             }
             Journal::updateOrCreate(
                 [
-                    'issn' => $item['issn'],
+                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
                 ],
                 [
                     'name' => $item['periodico'],

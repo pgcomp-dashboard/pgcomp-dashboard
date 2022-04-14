@@ -12,7 +12,11 @@
         "laravel/framework": "^9.2",
         "laravel/sanctum": "^2.14",
         "laravel/tinker": "^2.7",
-        "querypath/querypath": "^3.0"
+        "querypath/querypath": "^3.0",
+        "ext-zip": "*",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "ext-simplexml": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
@@ -30,7 +34,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -50,6 +57,9 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "post-install-cmd": [
+            "(! test -f .env && cp .env.example .env && php artisan key:generate) || exit 0"
         ]
     },
     "extra": {

@@ -6,10 +6,17 @@ use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use Database\Factories\UserFactory;
 use Eloquent;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
@@ -88,9 +95,10 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @method static Builder|User whereUpdatedAt($value)
  * @mixin Eloquent
  */
-class User extends BaseModel
+class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;
 
     protected $fillable = [
         'registration',
