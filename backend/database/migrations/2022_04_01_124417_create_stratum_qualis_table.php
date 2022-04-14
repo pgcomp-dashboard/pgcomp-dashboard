@@ -19,17 +19,6 @@ return new class extends Migration
             $table->integer('score');
             $table->timestamps();
         });
-
-        DB::table('stratum_qualis')->insert([
-            ['code' => 'A1', 'score' => 10],
-            ['code' => 'A2', 'score' => 9],
-            ['code' => 'A3', 'score' => 8],
-            ['code' => 'A4', 'score' => 7],
-            ['code' => 'B1', 'score' => 4],
-            ['code' => 'B2', 'score' => 3],
-            ['code' => 'B3', 'score' => 2],
-            ['code' => 'B4', 'score' => 1],
-        ]);
     }
 
     /**
