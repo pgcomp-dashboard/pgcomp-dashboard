@@ -53,7 +53,6 @@ class Journal extends BaseModel
         'name',
         'stratum_qualis_id',
         'issn',
-        'name',
         'sbc_adjustment',
         'scopus_url',
         'percentile',
@@ -116,9 +115,9 @@ class Journal extends BaseModel
         return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');
     }
 
-    public function deleteJournal($title): bool
+    public function deleteJournal($name): bool
     {
-        $journal = Journal::where('name', $title)->firstOrFail();
+        $journal = Journal::where('name', $name)->firstOrFail();
         return $journal->delete();
     }
 }

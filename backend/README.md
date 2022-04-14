@@ -13,3 +13,6 @@
 ### Recriar base de dados
 `docker-compose exec php bash`\
 `php artisan migrate:fresh` **Isso apagará todos os dados!**
+
+### Inserir dados falsos
+`php artisan db:seed` **Somente deve ser executado após de realizar o scraping** 

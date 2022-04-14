@@ -19,11 +19,11 @@ return new class extends Migration
             $table->integer('siape')->unique()->nullable();
             $table->string('name');
             $table->string('type');
-            $table->string('area')->nullable();
             $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('is_admin')->default(false);
+            $table->foreignId('subarea_id')->nullable()->constrained();
             $table->foreignId('program_id')->nullable()->constrained();
             $table->foreignId('course_id')->nullable()->constrained();
             $table->string('lattes_url')->nullable();

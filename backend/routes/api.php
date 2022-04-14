@@ -25,12 +25,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     //TODO: Dar nomes melhores e mais padrao
-    Route::get('program', [ProgramsController::class, 'nomePrograma']);
-    Route::get('all_production', [ProductionsController::class, 'totalProducoes']);
-    Route::get('production_per_qualis', [QualisController::class, 'qualis']);
-    Route::get('students_production', [ProductionsController::class, 'producoesDiscentes']);
-    Route::get('fields', [StudentsController::class, 'discentesArea']);
-    Route::get('subfields', [StudentsController::class, 'discentesSubarea']);
+    Route::get('program', [ProgramsController::class, 'programName']);
+    Route::get('all_production', [ProductionsController::class, 'totalProductionsPerYear']);
+    Route::get('students_production', [ProductionsController::class, 'studentsProductions']);
+    Route::get('production_per_qualis', [QualisController::class, 'productionPerQualis']);
+    Route::get('fields', [StudentsController::class, 'studentsArea']);
+    Route::get('subfields', [StudentsController::class, 'studentsSubarea']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
 });
 

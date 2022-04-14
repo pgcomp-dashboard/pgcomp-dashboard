@@ -59,12 +59,8 @@ class Program extends BaseModel
 
     public function deleteCourse($sigaaId)
     {
-        $course = Program::checkIfCourseAlreadyExist($sigaaId);
-        if (is_null($course)) {
-            return "error";
-        }
-        $course->delete();
-        return true;
+        $course = Program::where('sigaa_id', $sigaaId)->firstOrFail();
+        return $course->delete();
     }
 
     public function findCourseByName($courseName): static
@@ -124,5 +120,17 @@ class Program extends BaseModel
         $course->sigaa_id = $courseArray['sigaa_id'];
         $course->name = $courseArray['name'];
         return $course;
+    }
+
+    public function findAllCoursesByColumns($columns, $pattern): \Illuminate\Database\Eloquent\Collection|array
+    {
+        $data = Program::all($columns);
+        $data = $data[0];
+        $dataInNewPattern = array();
+        for($counter = 0; $counter < count($columns); $counter++){
+            $dataInNewPattern[$pattern[$counter]] = $data[$columns[$counter]];
+        }
+
+        return $dataInNewPattern;
     }
 }

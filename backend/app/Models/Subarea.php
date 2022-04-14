@@ -60,15 +60,11 @@ class Subarea extends BaseModel
         );
     }
 
-    public function belongsToTheProgram()
-    {
-        return $this->hasOne(Area::class, 'area_id');
-    }
-
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class, 'area_id');
     }
+
 
     public function updateRules(): array
     {
@@ -90,10 +86,7 @@ class Subarea extends BaseModel
 
     public function deleteSubareaByName($name)
     {
-        $subarea = Area::where('subarea_name', $name)->first();
-        if (empty($subarea)) {
-            return "error";
-        }
+        $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
+        return $subarea->delete();
     }
-
 }
