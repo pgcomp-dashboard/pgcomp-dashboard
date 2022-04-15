@@ -206,22 +206,22 @@ As seguintes ferramentas foram usadas na construção do projeto:
 ---
 
 ## 👨‍💻 Contribuidores
-- Gestor do Projeto:
+- **Gestor do Projeto:**
     - Diego Corrêa
 
-- Frontend:
+- **Frontend:**
     - Guilherme do Valle
     - Matheus Aguiar
     - Iury Assunção
 
-- Backend:
+- **Backend:**
     - Mateus Carvalho
     - Litiano Moura
 
-- Documentação:
+- **Documentação:**
     - Mayki Oliveira
     - Denis Boaventura
 
-- Teste:
+- **Teste:**
     - Ayran Campos
     - Matheus Novais
