@@ -1,92 +1,227 @@
-# AUFBAProduz
+<h1 align="center">Dashboard de Produção Científica - UFBA</h1>
 
 
 
-## Getting started
+<p align="center">
+  <a href="https://www.ufba.br/">
+    <img alt="Feito por AUFBAProduz" src="https://img.shields.io/badge/feito%20por-AUFBAProduz-%237519C1">
+  </a>
+</p>
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+<h4 align="center"> 
+	🚧  Em produção 🚀 🚧
+</h4>
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+<p align="center">
+ <a href="#-sobre-o-projeto">Sobre</a> •
+ <a href="#-funcionalidades">Funcionalidades</a> •
+ <a href="#-layout">Layout</a> • 
+ <a href="#-executando-o-projeto">Executando o projeto</a> • 
+ <a href="#-tecnologias">Tecnologias</a> • 
+ <a href="#-contribuidores">Contribuidores</a> • 
+</p>
 
-## Add your files
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## 💻 Sobre o projeto  
+
+Este projeto foi realizado por meio da disciplina Tópicos em Sistemas de Informação e WEB I, ministrada pelo professor Frederico Araújo Durão. O mesmo visa disponibilizar através de um Dashboard público, visualizações gráficas acerca das publicações realizadas pelo Programa de Pós-Graduação em Ciência da Computação (PGCOMP).
+
+---
+
+## ⚙ Funcionalidades
+No Dashboard constam informações como:  
+- Histórico anual de publicações do PGCOMP;
+- Quantidades de publicações segmentadas por Qualis;
+- Quantidade de produções para dicentes de Mestrado e Doutorado;
+- Número de discentes por área;
+- Número de discentes por subárea;
+- Quantidade de alunos vinculados a cada Docente.
+
+
+Esses gráficos podem ser filtrados por:
+- Intervalo de ano de publicação;
+- Publicado por (Docente, Mestrando ou Doutorado);
+- Tipo de publicação (Conferência ou Periódico).
+
+
+Os dados são adquiridos através de Web Scraping dentro dos seguinte sites, atualização feita a cada 3 meses:
+- [PGCOMP](https://pgcomp.ufba.br/)
+- [SIGAA](https://sigaa.ufba.br/sigaa/public/home.jsf)
+- [Escavador](https://www.escavador.com)
+
+
+Além disso, existe o frontend-admin, no qual um usuário do tipo Admin, após logar-se, pode Visualiar, Criar, Remover e/ou Editar de forma manual:
+- Curso;
+- Docente;
+- Discente;
+- Produção;
+- Pontuação do estrato QUALIS;
+- Discentes e docentes podem se cadastrar no sistema para alterar seus dados.
+
+---
+
+## 🎨 Layout
+
+O layout da aplicação está disponível no Figma:
+
+<a href="https://www.figma.com/file/9M697aFVIxaRZ3gWmGwrrc/new-dashboard-pgcomp?node-id=0%3A1">
+  <img alt="Made by tgmarinho" src="https://img.shields.io/badge/Acessar%20Layout%20-Figma-%2304D361">
+</a>
+
+<h1>Inseris AQUI imagens sobre a aplicação.</h1>
+
+### Frontend-admin
+
+<p align="center">
+  <img alt="Front-admin" title="#AUFBAProduz" src="" width="200px">
+
+  <img alt="Front-admin" title="#AUFBAProduz" src="" width="200px">
+</p>
+
+### Frontend
+
+<p align="center">
+  <img alt="Front-dash" title="#AUFBAProduz" src="" width="200px">
+
+  <img alt="Front-dash" title="#AUFBAProduz" src="" width="200px">
+</p>
+
+---
+
+## 🚀 Executando o projeto
+
+Este projeto é divido em quatro partes:
+1. Backend (pasta backend) 
+2. Frontend (pasta frontend)
+3. DevOps (pasta devops)
+4. Frontend-admin (pasta frontend-admin)
+
+💡Tanto o Frontend quanto o Mobile precisam que o Backend esteja sendo executado para funcionar.
+
+### Pré-requisitos
+
+Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
+[Git](https://git-scm.com), [Docker](https://www.docker.com/). 
+
+#### :cloud: Instalando Git e Docker
+
+- Para instalar o Git siga este [passo a passo](https://git-scm.com/book/pt-br/v2/Come%C3%A7ando-Instalando-o-Git).
+- Para instalar o Docker e Docker-compose, siga o passo a passo abaixo:
+```bash
+# Instalando
+$ curl -fsSL https://get.docker.com/ | sh
+
+# Adcionando o seu usuário ao grupo docker (retira a necessidade de utilização do sudo)
+$ sudo usermod -aG docker <user>
+# Substitua <user> por seu usuário
+
+# Instalando docker-compose
+# Buscando a última versão
+$ VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K.*\d')
+# Indicando local de instalação
+$ DESTINATION=/usr/local/bin/docker-compose
+# Instalando
+$ sudo curl -L https://github.com/docker/compose/releases/download/${VERSION}/docker-compose-$(uname -s)-$(uname -m) -o $DESTINATION
+# Distribuindo permissões de usuário
+$ sudo chmod 755 $DESTINATION
+```
+
+#### :on: Clonado o repositório, subindo e startando containers
+
+```bash
+
+# Clonando repositório
+$ git clone -b develop https://gitlab.com/aufbaproduz/aufbaproduz.git
+
+# Subindo os containers do projeto
+$ docker-compose up -d
+
+# Startando os containers do projeto
+$ docker-compose start
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/aufbaproduz/aufbaproduz.git
-git branch -M main
-git push -uf origin main
+
+#### 🎲 Rodando o Backend (servidor)
+
+```bash
+
+$ docker-compose exec php bash
+$ composer install
+$ ! test -f .env && cp .env.example .env && php artisan key:generate
+$ php artisan migrate
+
+# O servidor phpmyadmin será iniciado na porta:8080 - acesse http://localhost:8080
+
 ```
 
-## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.com/aufbaproduz/aufbaproduz/-/settings/integrations)
+#### 🧭 Rodando a aplicação web (Frontend)
 
-## Collaborate with your team
+```bash
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+$ docker-compose exec node bash
+$ npm install
+$ yarn webpack serve --port 3000
 
-## Test and Deploy
+# A aplicação será aberta na porta:3000 - acesse http://localhost:3000
 
-Use the built-in continuous integration in GitLab.
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+---
 
-***
+## 🛠 Tecnologias
 
-# Editing this README
+As seguintes ferramentas foram usadas na construção do projeto:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+#### **Backend**
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+-   **[MySQL 8](https://dev.mysql.com/downloads/installer/)**
+-   **[Redis](https://redis.io/docs/getting-started/)**
+-   **[Laravel 9](https://laravel.com/docs/9.x/installation)**
 
-## Name
-Choose a self-explaining name for your project.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+#### **Frontend**
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+-   **[Node 16.14 - LTS](https://nodejs.org/pt-br/download/)**
+-   **[NPM 8](https://docs.npmjs.com/cli/v8/commands/npm-install)**
+-   **[React](https://pt-br.reactjs.org/)**
+-   **[Bootstrap 5](https://getbootstrap.com/docs/5.0/getting-started/introduction/)**
+-   **[Chart.js](https://www.chartjs.org/docs/latest/)**
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+#### **DevOps**
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+-   **[Ubuntu 20.04 - LTS](https://releases.ubuntu.com/20.04/)**
+-   **[Docker 20.10](https://www.docker.com/blog/introducing-docker-engine-20-10/)**
+-   **[Portainer](https://www.portainer.io/)**
+-   **[Git](https://git-scm.com/downloads)**
+-   **[Ngnix](https://www.nginx.com/)**
+-   **[JSON](https://www.json.org/json-en.html)**
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+#### **Utilitários**
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+-   Protótipo:  **[Figma](https://www.figma.com/)**  →  **[Protótipo (Dashboard Publicações UFBA)](https://www.figma.com/file/9M697aFVIxaRZ3gWmGwrrc/new-dashboard-pgcomp?node-id=0%3A1)**
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+---
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## 👨‍💻 Contribuidores
+- Gestor do Projeto:
+    - Diego Corrêa
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+- Frontend:
+    - Guilherme do Valle
+    - Matheus Aguiar
+    - Iury Assunção
 
-## License
-For open source projects, say how it is licensed.
+- Backend:
+    - Mateus Carvalho
+    - Litiano Moura
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- Documentação:
+    - Mayki Oliveira
+    - Denis Boaventura
+
+- Teste:
+    - Ayran Campos
+    - Matheus Novais
