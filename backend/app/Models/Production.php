@@ -7,6 +7,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -69,9 +70,9 @@ class Production extends BaseModel
         );
     }
 
-    public function isWroteBy()
+    public function isWroteBy(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'users_productions', 'productions_id', 'users_id');
     }
 
     public function hasQualis()
@@ -117,7 +118,7 @@ class Production extends BaseModel
 
         $dataYear = [];
         $dataCount = [];
-        for($counter = 0; $counter < count($data); $counter++){
+        for ($counter = 0; $counter < count($data); $counter++) {
             $dataYear[$counter] = $data[$counter]->year;
             $dataCount[$counter] = $data[$counter]->production_count;
         }
@@ -139,7 +140,7 @@ class Production extends BaseModel
         $coursesName = Course::all('name');
         $coursesProductions = array();
 
-        for($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
+        for ($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
             $data = DB::table('productions')
                 ->select(DB::raw('productions.year, count(distinct productions.id) as total'))
                 ->join('users_productions', 'productions.id',
@@ -155,31 +156,30 @@ class Production extends BaseModel
 
         $data = array();
         $allYears = array();
-        for($year = $years[0]->min; $year <= $years[0]->max; $year++){
+        for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
             $allYears[] = $year;
         }
 
-        for($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
+        for ($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
             $auxData = $coursesProductions[$nCourse];
             $newTempData = array();
             $countIterations = 0;
             $dataSize = count($auxData);
 
-            for($year = $years[0]->min; $year <= $years[0]->max; $year++){
-                if($countIterations < $dataSize &&
-                    $auxData[$countIterations]->year == $year)
-                {
+            for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
+                if ($countIterations < $dataSize &&
+                    $auxData[$countIterations]->year == $year) {
                     $newTempData[] = $auxData[$countIterations]->total;
                     $countIterations++;
-                }else{
+                } else {
                     $newTempData[] = 0;
                 }
             }
-            $data[$nCourse-1] = $newTempData;
+            $data[$nCourse - 1] = $newTempData;
         }
 
         $dataWithLabels = array();
-        for($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
+        for ($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
             $dataWithLabels[] = ['label' => $coursesName[$nCourse - 1]->name, 'data' => $data[$nCourse - 1]];
         }
         return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
