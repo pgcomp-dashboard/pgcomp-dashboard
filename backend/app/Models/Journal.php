@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Traits\PublishProductions;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
@@ -26,6 +28,8 @@ use Illuminate\Validation\Rule;
  * @property int|null $stratum_qualis_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read Collection|Production[] $productions
+ * @property-read int|null $productions_count
  * @property-read StratumQualis|null $stratumQualis
  * @method static Builder|Journal newModelQuery()
  * @method static Builder|Journal newQuery()
@@ -47,7 +51,7 @@ use Illuminate\Validation\Rule;
  */
 class Journal extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, PublishProductions;
 
     protected $fillable = [
         'name',

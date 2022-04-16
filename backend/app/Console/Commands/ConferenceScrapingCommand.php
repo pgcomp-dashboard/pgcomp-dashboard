@@ -76,6 +76,13 @@ class ConferenceScrapingCommand extends Command
             } catch (ModelNotFoundException) {
                 $item['qualis_without_induction_id'] = null;
             }
+            try {
+                $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ?
+                    '-' : $item['Qualis_Final'];
+                $item['stratum_qualis_id'] = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+            } catch (ModelNotFoundException) {
+                $item['stratum_qualis_id'] = null;
+            }
 
             try {
                 Conference::updateOrCreate(
