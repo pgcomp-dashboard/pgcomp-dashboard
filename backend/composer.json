@@ -24,6 +24,7 @@
         "knuckleswtf/scribe": "^3.24",
         "laravel/sail": "^1.0.1",
         "laravel/telescope": "^4.7",
+        "lucascudo/laravel-pt-br-localization": "^1.2",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",
         "phpunit/phpunit": "^9.5.10",
