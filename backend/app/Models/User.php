@@ -67,10 +67,10 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property-read int|null $is_advisored_by_count
  * @property-read DatabaseNotificationCollection|DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count
+ * @property-read Collection|Production[] $productions
+ * @property-read int|null $productions_count
  * @property-read Collection|PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
- * @property-read Collection|Production[] $writerOf
- * @property-read int|null $writer_of_count
  * @method static UserFactory factory(...$parameters)
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
@@ -202,9 +202,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return $this->belongsToMany(User::class);
     }
 
-    public function writerOf()
+    public function writerOf(): BelongsToMany
     {
-        return $this->belongsToMany(Production::class);
+        return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
     }
 
     public function belongsToTheCourse()

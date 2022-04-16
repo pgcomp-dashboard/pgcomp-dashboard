@@ -51,7 +51,7 @@ class Program extends BaseModel
     public static function creationRules(): array
     {
         return [
-            'sigaa_id' => ['required', 'int', Rule::unique(self::class, 'id')],
+            'sigaa_id' => ['required', 'int', Rule::unique(self::class, 'sigaa_id')],
             'name' => 'required|string|max:255',
             'description' => 'string|max:2500',
         ];

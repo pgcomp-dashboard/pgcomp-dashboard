@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Dashboard\ProductionsController;
 use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
+use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,3 +36,6 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
 });
 
 
+Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => ['auth:sanctum', IsAdmin::class]], function () {
+    // @todo add admin routes
+});
