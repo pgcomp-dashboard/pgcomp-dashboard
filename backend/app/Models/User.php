@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Eloquent;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -22,8 +23,8 @@ use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -307,19 +308,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->whereNull('defended_at');
     }
 
-    protected function checkIfUserAlreadyExist($sigaaId)
-    {
-        return User::find($sigaaId);
-    }
-
-    protected function checkIfUserWasFound($user)
-    {
-        if (is_null($user)) {
-            return 'error';
-        }
-        return $user;
-    }
-
     public function areas(): array
     {
         $data = DB::table('users')
@@ -332,7 +320,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         $dataFields = [];
         $dataCount = [];
-        for($counter = 0; $counter < count($data); $counter++){
+        for ($counter = 0; $counter < count($data); $counter++) {
             $dataFields[$counter] = $data[$counter]->area_name;
             $dataCount[$counter] = $data[$counter]->area_count;
         }
@@ -351,7 +339,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         $dataSubfields = [];
         $dataCount = [];
-        for($counter = 0; $counter < count($data); $counter++){
+        for ($counter = 0; $counter < count($data); $counter++) {
             $dataSubfields[$counter] = $data[$counter]->subarea_name;
             $dataCount[$counter] = $data[$counter]->subarea_count;
         }
@@ -359,4 +347,26 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return [$dataSubfields, $dataCount];
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+        ResetPasswordNotification::createUrlUsing(function (User $user, string $token) {
+            return config('app.front_url') . '/reset-password?' .
+                http_build_query(['token' => $token, 'email' => $user->getEmailForPasswordReset()]);
+        });
+
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
+    protected function checkIfUserAlreadyExist($sigaaId)
+    {
+        return User::find($sigaaId);
+    }
+
+    protected function checkIfUserWasFound($user)
+    {
+        if (is_null($user)) {
+            return 'error';
+        }
+        return $user;
+    }
 }
