@@ -19,7 +19,6 @@ use Illuminate\Validation\Rule;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Area $area
- * @property-read Area|null $belongsToTheProgram
  * @method static Builder|Subarea newModelQuery()
  * @method static Builder|Subarea newQuery()
  * @method static Builder|Subarea query()

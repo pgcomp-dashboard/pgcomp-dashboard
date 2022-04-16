@@ -40,13 +40,13 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property int|null $siape
  * @property string $name
  * @property UserType $type
- * @property string|null $area
  * @property string|null $email
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property bool $is_admin
+ * @property int|null $subarea_id
  * @property int|null $program_id
  * @property int|null $course_id
  * @property string|null $lattes_url
@@ -67,15 +67,14 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property-read int|null $is_advisored_by_count
  * @property-read DatabaseNotificationCollection|DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count
- * @property-read Collection|Production[] $productions
- * @property-read int|null $productions_count
  * @property-read Collection|PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
+ * @property-read Collection|Production[] $writerOf
+ * @property-read int|null $writer_of_count
  * @method static UserFactory factory(...$parameters)
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
- * @method static Builder|User whereArea($value)
  * @method static Builder|User whereCourseId($value)
  * @method static Builder|User whereCreatedAt($value)
  * @method static Builder|User whereDefendedAt($value)
@@ -90,6 +89,7 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @method static Builder|User whereRegistration($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereSiape($value)
+ * @method static Builder|User whereSubareaId($value)
  * @method static Builder|User whereTwoFactorRecoveryCodes($value)
  * @method static Builder|User whereTwoFactorSecret($value)
  * @method static Builder|User whereType($value)
