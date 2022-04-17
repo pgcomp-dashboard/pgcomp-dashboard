@@ -66,9 +66,19 @@ class StratumQualis extends BaseModel
         ];
     }
 
+    public function findQualis($id, $attributes = ['id', 'code', 'score'])
+    {
+        return StratumQualis::where('id', $id)->get($attributes)->firstOrFail();
+    }
+
     public function findAll()
     {
         return StratumQualis::all();
+    }
+
+    public function findAllQualis($attributes = ['id', 'code', 'score'])
+    {
+        return StratumQualis::all($attributes);
     }
 
     public function deleteStratumQualis($code)
@@ -134,10 +144,4 @@ class StratumQualis extends BaseModel
         }
         return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
     }
-
-    public function findQualis($id, $attributes = ['code', 'score'])
-    {
-        return StratumQualis::where('id', $id)->get($attributes)->firstOrFail();
-    }
-
 }

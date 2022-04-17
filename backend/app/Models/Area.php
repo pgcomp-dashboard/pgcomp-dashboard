@@ -67,18 +67,25 @@ class Area extends BaseModel
         ];
     }
 
+    public function findArea($id, $attributes = ['id', 'area_name'])
+    {
+        return Area::where('id', $id)->get($attributes)->firstOrFail();
+    }
+
+    public function findAllArea($attributes = ['id', 'area_name']): \Illuminate\Database\Eloquent\Collection
+    {
+        return Area::all($attributes);
+    }
+
     public function findAreaByName($name): self
     {
         return Area::where('area_name', $name)->firstOrFail();
     }
 
-    public function deleteAreaByName($name){
+    public function deleteAreaByName($name)
+    {
         $area = Area::where('name', $name)->firstOrFail();
         return $area->delete();
-    }
-
-    public function findArea($id, $attributes = ['area_name']){
-        return Area::where('id', $id)->get($attributes)->firstOrFail();
     }
 
 }

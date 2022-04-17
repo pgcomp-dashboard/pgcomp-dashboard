@@ -7,7 +7,14 @@ use App\Models\StratumQualis;
 
 class QualisAdminController extends Controller
 {
+
+    public function allQualis(){
+        $stratum = new StratumQualis();
+        return $stratum->findAllQualis();
+    }
+
     public function qualis($id){
-        return (new StratumQualis)->findQualis($id);
+        $stratum = new StratumQualis();
+        return $stratum->findQualis($id);
     }
 }

@@ -79,6 +79,15 @@ class Subarea extends BaseModel
         ];
     }
 
+    public function findSubarea($id, $attributes = ['id', 'subarea_name']){
+        return Subarea::where('id', $id)->get($attributes)->firstOrFail();
+    }
+
+    public function findAllSubarea($attributes = ['id', 'subarea_name']): \Illuminate\Database\Eloquent\Collection
+    {
+        return Subarea::all($attributes);
+    }
+
     public function findSubareaByName($name): self
     {
         return self::where('subarea_name', $name)->firstOrFail();
@@ -88,9 +97,5 @@ class Subarea extends BaseModel
     {
         $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
         return $subarea->delete();
-    }
-
-    public function findSubarea($id, $attributes = ['subarea_name']){
-        return Subarea::where('id', $id)->get($attributes)->firstOrFail();
     }
 }

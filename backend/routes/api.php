@@ -43,6 +43,10 @@ Route::group(['name' => 'panel.', 'prefix' => 'panel'], function (){
     Route::get('field/{id}', [FieldsAdminController::class, 'area']);
     Route::get('subfield/{id}', [FieldsAdminController::class, 'subarea']);
     Route::get('qualis/{id}', [QualisAdminController::class, 'qualis']);
+
+    Route::get('all_fields', [FieldsAdminController::class, 'allArea']);
+    Route::get('all_subfields', [FieldsAdminController::class, 'allSubarea']);
+    Route::get('all_qualis', [QualisAdminController::class, 'allQualis']);
 });
 
 

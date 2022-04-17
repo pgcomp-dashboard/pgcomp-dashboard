@@ -4,14 +4,30 @@ namespace App\Http\Controllers\Api\PanelAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Area;
+use App\Models\Subarea;
 
 class FieldsAdminController extends Controller
 {
-    public function area($id){
-        return (new \App\Models\Area)->findArea($id);
+
+    public function allArea(): \Illuminate\Database\Eloquent\Collection
+    {
+        $area = new Area();
+        return $area->findAllArea();
     }
 
-    public function subarea($id){
-        return (new \App\Models\Subarea)->findSubarea($id);
+    public function allSubarea(): \Illuminate\Database\Eloquent\Collection
+    {
+        $subarea = new Subarea();
+        return $subarea->findAllSubarea();
+    }
+
+    public function area($id) {
+        $area = new Area();
+        return $area->findArea($id);
+    }
+
+    public function subarea($id) {
+        $subarea = new Subarea();
+        return $subarea->findSubarea($id);
     }
 }
