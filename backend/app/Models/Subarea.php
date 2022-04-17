@@ -54,7 +54,7 @@ class Subarea extends BaseModel
 
     public static function createOrUpdateSubarea(array $data): Subarea
     {
-        return User::updateOrCreate(
+        return Subarea::updateOrCreate(
             Arr::only($data, ['subarea_name']),
             $data
         );
@@ -88,9 +88,9 @@ class Subarea extends BaseModel
         return Subarea::all($attributes);
     }
 
-    public function findSubareaByName($name): self
+    public function findSubareaByName($name, $attributes = ['id', 'subarea_name']): self
     {
-        return self::where('subarea_name', $name)->firstOrFail();
+        return self::where('subarea_name', $name)->get($attributes)->firstOrFail();
     }
 
     public function deleteSubareaByName($name)

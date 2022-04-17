@@ -66,9 +66,9 @@ class StratumQualis extends BaseModel
         ];
     }
 
-    public function findQualis($id, $attributes = ['id', 'code', 'score'])
+    public function findQualis($code, $attributes = ['id', 'code', 'score'])
     {
-        return StratumQualis::where('id', $id)->get($attributes)->firstOrFail();
+        return StratumQualis::where('code', $code)->get($attributes)->firstOrFail();
     }
 
     public function findAll()
