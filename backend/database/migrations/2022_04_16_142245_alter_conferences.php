@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('stratum_qualis', function (Blueprint $table) {
-            $table->id();
-            $table->string('code');
-            $table->integer('score');
-            $table->timestamps();
+        Schema::table('conferences', function (Blueprint $table) {
+            $table->foreignId('stratum_qualis_id')->nullable()->constrained();
         });
     }
 
@@ -28,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stratum_qualis');
+        Schema::table('conferences', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('stratum_qualis_id');
+        });
     }
 };

@@ -5,10 +5,10 @@ use App\Http\Controllers\Api\Dashboard\ProductionsController;
 use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
-
-use \App\Http\Controllers\Api\PanelAdmin\FieldsAdminController;
-use \App\Http\Controllers\Api\PanelAdmin\QualisAdminController;
-
+use App\Http\Controllers\Api\PanelAdmin\FieldsAdminController;
+use App\Http\Controllers\Api\PanelAdmin\QualisAdminController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,42 +38,45 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
 });
 
-Route::group(['name' => 'panel.', 'prefix' => 'panel'], function (){
+Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' => 'portal'], function () {
+    Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
-    //CRUD Area
-    Route::get('field/{name}', [FieldsAdminController::class, 'area']);
-    Route::post('field', function(Request $request){
-        return (new FieldsAdminController())->saveArea($request);
-    });
-    Route::put('field', function(Request $request){
-        return (new FieldsAdminController())->saveArea($request);
-    });
-    Route::delete('field/{name}', [FieldsAdminController::class, 'deleteArea']);
+    Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
+        // @todo add admin routes
+        //CRUD Area
+        Route::get('field/{name}', [FieldsAdminController::class, 'area']);
+        Route::post('field', function(Request $request){
+            return (new FieldsAdminController())->saveArea($request);
+        });
+        Route::put('field', function(Request $request){
+            return (new FieldsAdminController())->saveArea($request);
+        });
+        Route::delete('field/{name}', [FieldsAdminController::class, 'deleteArea']);
 
-    //CRUD Subarea
-    Route::get('subfield/{name}', [FieldsAdminController::class, 'subarea']);
-    Route::post('subfield', function(Request $request){
-       return (new FieldsAdminController())->saveSubarea($request);
-    });
-    Route::put('subfield', function(Request $request){
-        return (new FieldsAdminController())->saveSubarea($request);
-    });
-    Route::delete('subfield/{name}', [FieldsAdminController::class, 'deleteSubarea']);
+        //CRUD Subarea
+        Route::get('subfield/{name}', [FieldsAdminController::class, 'subarea']);
+        Route::post('subfield', function(Request $request){
+            return (new FieldsAdminController())->saveSubarea($request);
+        });
+        Route::put('subfield', function(Request $request){
+            return (new FieldsAdminController())->saveSubarea($request);
+        });
+        Route::delete('subfield/{name}', [FieldsAdminController::class, 'deleteSubarea']);
 
-    //CRUD Qualis
-    Route::get('qualis/{code}', [QualisAdminController::class, 'qualis']);
-    Route::post('qualis', function(Request $request){
-        return (new QualisAdminController())->saveQualis($request);
-    });
-    Route::put('qualis', function(Request $request){
-        return (new QualisAdminController())->saveQualis($request);
-    });
-    Route::delete('qualis/{code}', [QualisAdminController::class, 'deleteQualis']);
+        //CRUD Qualis
+        Route::get('qualis/{code}', [QualisAdminController::class, 'qualis']);
+        Route::post('qualis', function(Request $request){
+            return (new QualisAdminController())->saveQualis($request);
+        });
+        Route::put('qualis', function(Request $request){
+            return (new QualisAdminController())->saveQualis($request);
+        });
+        Route::delete('qualis/{code}', [QualisAdminController::class, 'deleteQualis']);
 
-    //List all save raws
-    Route::get('fields', [FieldsAdminController::class, 'allArea']);
-    Route::get('subfields', [FieldsAdminController::class, 'allSubarea']);
-    Route::get('qualis', [QualisAdminController::class, 'allQualis']);
+        //List all save raws
+        Route::get('fields', [FieldsAdminController::class, 'allArea']);
+        Route::get('subfields', [FieldsAdminController::class, 'allSubarea']);
+        Route::get('qualis', [QualisAdminController::class, 'allQualis']);
+
+    });
 });
-
-

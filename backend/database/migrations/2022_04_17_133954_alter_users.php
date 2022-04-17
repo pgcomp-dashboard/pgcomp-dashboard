@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('stratum_qualis', function (Blueprint $table) {
-            $table->id();
-            $table->string('code');
-            $table->integer('score');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('lattes_id')->nullable();
+            $table->timestamp('lattes_updated_at')->nullable();
         });
     }
 
@@ -28,6 +26,9 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stratum_qualis');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('lattes_updated_at');
+            $table->dropColumn('lattes_id');
+        });
     }
 };

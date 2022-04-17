@@ -51,7 +51,7 @@ class Program extends BaseModel
     public static function creationRules(): array
     {
         return [
-            'sigaa_id' => ['required', 'int', Rule::unique(self::class, 'id')],
+            'sigaa_id' => ['required', 'int', Rule::unique(self::class, 'sigaa_id')],
             'name' => 'required|string|max:255',
             'description' => 'string|max:2500',
         ];
@@ -106,6 +106,18 @@ class Program extends BaseModel
         return $this->users()->where('type', UserType::STUDENT->value);
     }
 
+    public function findAllCoursesByColumns($columns, $pattern): Collection|array
+    {
+        $data = Program::all($columns);
+        $data = $data[0];
+        $dataInNewPattern = array();
+        for ($counter = 0; $counter < count($columns); $counter++) {
+            $dataInNewPattern[$pattern[$counter]] = $data[$columns[$counter]];
+        }
+
+        return $dataInNewPattern;
+    }
+
     protected function checkIfCourseAlreadyExist(int $sigaaId): static
     {
         $course = Program::find($sigaaId);
@@ -120,17 +132,5 @@ class Program extends BaseModel
         $course->sigaa_id = $courseArray['sigaa_id'];
         $course->name = $courseArray['name'];
         return $course;
-    }
-
-    public function findAllCoursesByColumns($columns, $pattern): \Illuminate\Database\Eloquent\Collection|array
-    {
-        $data = Program::all($columns);
-        $data = $data[0];
-        $dataInNewPattern = array();
-        for($counter = 0; $counter < count($columns); $counter++){
-            $dataInNewPattern[$pattern[$counter]] = $data[$columns[$counter]];
-        }
-
-        return $dataInNewPattern;
     }
 }

@@ -6,17 +6,25 @@ use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use Database\Factories\UserFactory;
 use Eloquent;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -32,13 +40,13 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property int|null $siape
  * @property string $name
  * @property UserType $type
- * @property string|null $area
  * @property string|null $email
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property bool $is_admin
+ * @property int|null $subarea_id
  * @property int|null $program_id
  * @property int|null $course_id
  * @property string|null $lattes_url
@@ -67,7 +75,6 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
- * @method static Builder|User whereArea($value)
  * @method static Builder|User whereCourseId($value)
  * @method static Builder|User whereCreatedAt($value)
  * @method static Builder|User whereDefendedAt($value)
@@ -82,15 +89,17 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @method static Builder|User whereRegistration($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereSiape($value)
+ * @method static Builder|User whereSubareaId($value)
  * @method static Builder|User whereTwoFactorRecoveryCodes($value)
  * @method static Builder|User whereTwoFactorSecret($value)
  * @method static Builder|User whereType($value)
  * @method static Builder|User whereUpdatedAt($value)
  * @mixin Eloquent
  */
-class User extends BaseModel
+class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;
 
     protected $fillable = [
         'registration',
@@ -193,9 +202,9 @@ class User extends BaseModel
         return $this->belongsToMany(User::class);
     }
 
-    public function writerOf()
+    public function writerOf(): BelongsToMany
     {
-        return $this->belongsToMany(Production::class);
+        return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
     }
 
     public function belongsToTheCourse()
@@ -299,19 +308,6 @@ class User extends BaseModel
             ->whereNull('defended_at');
     }
 
-    protected function checkIfUserAlreadyExist($sigaaId)
-    {
-        return User::find($sigaaId);
-    }
-
-    protected function checkIfUserWasFound($user)
-    {
-        if (is_null($user)) {
-            return 'error';
-        }
-        return $user;
-    }
-
     public function areas(): array
     {
         $data = DB::table('users')
@@ -324,7 +320,7 @@ class User extends BaseModel
 
         $dataFields = [];
         $dataCount = [];
-        for($counter = 0; $counter < count($data); $counter++){
+        for ($counter = 0; $counter < count($data); $counter++) {
             $dataFields[$counter] = $data[$counter]->area_name;
             $dataCount[$counter] = $data[$counter]->area_count;
         }
@@ -343,7 +339,7 @@ class User extends BaseModel
 
         $dataSubfields = [];
         $dataCount = [];
-        for($counter = 0; $counter < count($data); $counter++){
+        for ($counter = 0; $counter < count($data); $counter++) {
             $dataSubfields[$counter] = $data[$counter]->subarea_name;
             $dataCount[$counter] = $data[$counter]->subarea_count;
         }
@@ -351,4 +347,38 @@ class User extends BaseModel
         return [$dataSubfields, $dataCount];
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+        ResetPasswordNotification::createUrlUsing(function (User $user, string $token) {
+            return config('app.front_url') . '/reset-password?' .
+                http_build_query(['token' => $token, 'email' => $user->getEmailForPasswordReset()]);
+        });
+
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
+    public function updateLattes(array $data): void
+    {
+        foreach ($data['productions'] as $production) {
+            if (!$production['doi']) {
+                continue;
+            }
+            $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
+        }
+        $this->lattes_updated_at = $data['lattes_updated_at'];
+        $this->save();
+    }
+
+    protected function checkIfUserAlreadyExist($sigaaId)
+    {
+        return User::find($sigaaId);
+    }
+
+    protected function checkIfUserWasFound($user)
+    {
+        if (is_null($user)) {
+            return 'error';
+        }
+        return $user;
+    }
 }
