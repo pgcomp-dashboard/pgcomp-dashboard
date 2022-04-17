@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Production;
 
 class ProductionsController extends Controller
 {
-    public function totalProducoes()
+    public function totalProductionsPerYear()
     {
         // TODO: Retornar lista de anos no JSON
         // TODO: Retornar JSON na estrutura de lista abaixo
@@ -15,9 +16,15 @@ class ProductionsController extends Controller
         // '2016', '2017', '2018', '2019', '2020', '2021', '2022'],
         //  'data': generateValues(anos), TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //}
+
+        $keyReturnPattern = ['years', 'data'];
+        $productions = new Production();
+        $data = $productions->totalProductionsPerYear();
+
+        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
-    public function producoesDiscentes()
+    public function studentsProductions()
     {
         // TODO: Retornar lista de anos no JSON
         // TODO: Retornar JSON na estrutura de lista abaixo
@@ -32,5 +39,7 @@ class ProductionsController extends Controller
         //      'data': generateValues(NUMBER_OF_ITEMS),TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //  }
         //}
+        $production = new Production();
+        return $production->totalProductionsPerCourse(['year', 'data']);
     }
 }

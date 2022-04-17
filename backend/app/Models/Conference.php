@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\PublishProductions;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,6 +30,9 @@ use Illuminate\Validation\Rule;
  * @property string|null $sbc_adjustment_or_event
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property int|null $stratum_qualis_id
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Production[] $productions
+ * @property-read int|null $productions_count
  * @method static Builder|Conference newModelQuery()
  * @method static Builder|Conference newQuery()
  * @method static Builder|Conference query()
@@ -48,13 +52,14 @@ use Illuminate\Validation\Rule;
  * @method static Builder|Conference whereQualisWithoutInduction($value)
  * @method static Builder|Conference whereQualisWithoutInductionId($value)
  * @method static Builder|Conference whereSbcAdjustmentOrEvent($value)
+ * @method static Builder|Conference whereStratumQualisId($value)
  * @method static Builder|Conference whereUpdatedAt($value)
  * @method static Builder|Conference whereUseScholar($value)
  * @mixin Eloquent
  */
 class Conference extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, PublishProductions;
 
     protected $fillable = [
         'initials',

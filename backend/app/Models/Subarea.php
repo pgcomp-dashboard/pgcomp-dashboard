@@ -19,7 +19,6 @@ use Illuminate\Validation\Rule;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Area $area
- * @property-read Area|null $belongsToTheProgram
  * @method static Builder|Subarea newModelQuery()
  * @method static Builder|Subarea newQuery()
  * @method static Builder|Subarea query()
@@ -60,15 +59,11 @@ class Subarea extends BaseModel
         );
     }
 
-    public function belongsToTheProgram()
-    {
-        return $this->hasOne(Area::class, 'area_id');
-    }
-
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class, 'area_id');
     }
+
 
     public function updateRules(): array
     {
@@ -90,10 +85,7 @@ class Subarea extends BaseModel
 
     public function deleteSubareaByName($name)
     {
-        $subarea = Area::where('subarea_name', $name)->first();
-        if (empty($subarea)) {
-            return "error";
-        }
+        $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
+        return $subarea->delete();
     }
-
 }

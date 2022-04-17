@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\StratumQualis;
 
 class QualisController extends Controller
 {
-    public function qualis()
+    public function productionPerQualis()
     {
         // TODO: Retornar lista de anos no JSON
         // years = ['2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015',
@@ -39,5 +40,7 @@ class QualisController extends Controller
 //                    data: generateValues(NUMBER_OF_ITEMS), TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
 //                },
 //            ]
+        $qualis = new StratumQualis();
+        return $qualis->totalProductionsPerQualis(['years', 'data']);
     }
 }
