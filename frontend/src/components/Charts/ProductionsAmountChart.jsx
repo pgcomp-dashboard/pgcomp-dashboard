@@ -52,7 +52,6 @@ function ProductionsAmountChart({ filter }) {
                 borderWidth: 1,
             },
         },
-        responsive: true, //TODO: Porque duas vezes essa variavel?
     }
 
     useEffect(() => {
