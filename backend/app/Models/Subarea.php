@@ -89,4 +89,8 @@ class Subarea extends BaseModel
         $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
         return $subarea->delete();
     }
+
+    public function findSubarea($id, $attributes = ['subarea_name']){
+        return Subarea::where('id', $id)->get($attributes)->firstOrFail();
+    }
 }

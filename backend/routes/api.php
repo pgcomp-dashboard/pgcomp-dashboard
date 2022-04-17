@@ -5,6 +5,10 @@ use App\Http\Controllers\Api\Dashboard\ProductionsController;
 use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
+
+use \App\Http\Controllers\Api\PanelAdmin\FieldsAdminController;
+use \App\Http\Controllers\Api\PanelAdmin\QualisAdminController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +36,13 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('fields', [StudentsController::class, 'studentsArea']);
     Route::get('subfields', [StudentsController::class, 'studentsSubarea']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
+});
+
+Route::group(['name' => 'panel.', 'prefix' => 'panel'], function (){
+
+    Route::get('field/{id}', [FieldsAdminController::class, 'area']);
+    Route::get('subfield/{id}', [FieldsAdminController::class, 'subarea']);
+    Route::get('qualis/{id}', [QualisAdminController::class, 'qualis']);
 });
 
 

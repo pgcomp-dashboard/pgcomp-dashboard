@@ -77,4 +77,8 @@ class Area extends BaseModel
         return $area->delete();
     }
 
+    public function findArea($id, $attributes = ['area_name']){
+        return Area::where('id', $id)->get($attributes)->firstOrFail();
+    }
+
 }

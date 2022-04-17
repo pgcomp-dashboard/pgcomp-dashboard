@@ -135,4 +135,9 @@ class StratumQualis extends BaseModel
         return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
     }
 
+    public function findQualis($id, $attributes = ['code', 'score'])
+    {
+        return StratumQualis::where('id', $id)->get($attributes)->firstOrFail();
+    }
+
 }
