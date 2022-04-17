@@ -357,6 +357,18 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         $this->notify(new ResetPasswordNotification($token));
     }
 
+    public function updateLattes(array $data): void
+    {
+        foreach ($data['productions'] as $production) {
+            if (!$production['doi']) {
+                continue;
+            }
+            $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
+        }
+        $this->lattes_updated_at = $data['lattes_updated_at'];
+        $this->save();
+    }
+
     protected function checkIfUserAlreadyExist($sigaaId)
     {
         return User::find($sigaaId);

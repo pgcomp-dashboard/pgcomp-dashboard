@@ -20,6 +20,8 @@ return new class extends Migration
             $table->index(['publisher_type', 'publisher_id']);
             $table->string('last_qualis')->nullable();
             $table->foreignId('stratum_qualis_id')->nullable()->constrained();
+            $table->foreignId('sequence_number')->nullable()->index();
+            $table->string('doi')->unique()->index()->nullable();
         });
     }
 
@@ -37,6 +39,8 @@ return new class extends Migration
             $table->dropColumn('publisher_id');
             $table->dropColumn('last_qualis');
             $table->dropConstrainedForeignId('stratum_qualis_id');
+            $table->dropColumn('sequence_number');
+            $table->dropColumn('doi');
         });
     }
 };

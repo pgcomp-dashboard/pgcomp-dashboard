@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 /**
  * App\Models\Production
@@ -55,7 +56,7 @@ class Production extends BaseModel
         'journals_id',
         'publisher_type',
         'publisher_id',
-        //  'doi', TODO: Adicionar o campo doi também.
+        'doi',
     ];
 
     public static function creationRules(): array
@@ -65,6 +66,8 @@ class Production extends BaseModel
             'year' => 'required|int|date_format:Y',
             'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255', new ClassExists()],
             'publisher_id' => ['nullable', 'required_with:publisher_type', 'int', new MorphExists()],
+            'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
+            'sequence_number' => 'nullable|int',
         ];
     }
 
@@ -102,6 +105,8 @@ class Production extends BaseModel
             'year' => 'int|date_format:Y',
             'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255', new ClassExists()],
             'publisher_id' => ['nullable', 'required_with:publisher_type', 'int', new MorphExists()],
+            'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
+            'sequence_number' => 'nullable|int',
         ];
     }
 

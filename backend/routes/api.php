@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Dashboard\ProductionsController;
 use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,7 +36,10 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
 });
 
+Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' => 'portal'], function () {
+    Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
-Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => ['auth:sanctum', IsAdmin::class]], function () {
-    // @todo add admin routes
+    Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
+        // @todo add admin routes
+    });
 });
