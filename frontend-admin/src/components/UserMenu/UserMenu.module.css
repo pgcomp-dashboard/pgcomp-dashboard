@@ -2,13 +2,17 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    padding: 10px;
+    cursor: pointer;
 }
 
 
 .user__menu__welcome {
     font-size: 22px;
     margin-left: 5px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    
 }
 
 .user__menu__name {
