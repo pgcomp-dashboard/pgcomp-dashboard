@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class ProductionsController extends Controller
 {
-    public function totalProductionsPerYear(Request $request, $user_type = null, $course_id = null)
+    public function totalProductionsPerYear(Request $request)
     {
         //{
         //  'years': ['2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015',
@@ -23,11 +23,13 @@ class ProductionsController extends Controller
             default => null
         };
 
+        $user_type = $request->input("user_type");
+        $course_id = $request->input("course_id");
+
         $keyReturnPattern = ['years', 'data'];
         $productions = new Production();
         $data = $productions
                     ->totalProductionsPerYear(user_type: $user_type, course_id: $course_id, publisher_type: $publisher_type);
-
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
