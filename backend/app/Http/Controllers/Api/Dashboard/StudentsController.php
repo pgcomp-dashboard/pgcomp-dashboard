@@ -3,23 +3,39 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Area;
+use App\Models\Subarea;
+use App\Enums\UserType;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class StudentsController extends Controller
 {
-    public function discentesArea()
+    public function studentsArea()
     {
-        //{
-        //  fields: ['CG', 'Análise de Dados', 'I.A',],
-        //  data: [12, 3, 5,], TODO: Aqui é 1 valor por area, deve ter o mesmo tamanho de areas
-        //}
+        //return ['fields' => ['CG', 'Análise de Dados', 'I.A',],
+        //        'data' => [12, 3, 5,]];
+
+
+        $keyReturnPattern = ['fields', 'data'];
+        $user = new User();
+        $data = $user->areas();
+
+        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
 
-    public function discentesSubarea()
+    public function studentsSubarea()
     {
-        //{
-        //  subfields: ['CG', 'Análise de Dados', 'I.A',],
-        //  data: [12, 3, 5,], TODO: Aqui é 1 valor por subarea, deve ter o mesmo tamanho de subareas
-        //}
+        //return ['subfields' => ['CG', 'Análise de Dados', 'I.A',],
+        //        'data' => [12, 3, 5,]];
+
+
+        $keyReturnPattern = ['subfields', 'data'];
+        $user = new User();
+        $data = $user->subareas();
+
+        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
+
     }
 }

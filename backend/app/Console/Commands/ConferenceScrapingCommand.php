@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use QueryPath\DOMQuery;
 
-class ConferenceScraping extends Command
+class ConferenceScrapingCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -64,21 +64,33 @@ class ConferenceScraping extends Command
         $this->getOutput()->info('Salvadno dados...');
         $this->withProgressBar($data, function ($item) {
             try {
+                $item['Qualis 2016'] = in_array($item['Qualis 2016'], ['nulo', 'C']) ? '-' : $item['Qualis 2016'];
                 $item['qualis_2016_id'] = StratumQualis::findByCode($item['Qualis 2016'], ['id'])->id;
             } catch (ModelNotFoundException) {
                 $item['qualis_2016_id'] = null;
             }
             try {
+                $item['Qualis_Sem_Inducao'] = in_array($item['Qualis_Sem_Inducao'], ['nulo', 'C']) ?
+                    '-' : $item['Qualis_Sem_Inducao'];
                 $item['qualis_without_induction_id'] = StratumQualis::findByCode($item['Qualis_Sem_Inducao'], ['id'])->id;
             } catch (ModelNotFoundException) {
                 $item['qualis_without_induction_id'] = null;
             }
+            try {
+                $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ?
+                    '-' : $item['Qualis_Final'];
+                $item['stratum_qualis_id'] = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+            } catch (ModelNotFoundException) {
+                $item['stratum_qualis_id'] = null;
+            }
 
             try {
                 Conference::updateOrCreate(
-                    ['initials' => $item['sigla']],
                     [
+                        'initials' => $item['sigla'],
                         'name' => $item['conferencia'],
+                    ],
+                    [
                         'category' => $item['categoria'],
                         'link' => $item['link'],
                         'ce_indicated' => $item['CE_Indicou'],

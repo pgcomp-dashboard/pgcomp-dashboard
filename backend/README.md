@@ -3,7 +3,6 @@
 ### Iniciar projeto backend
 `docker-compose exec php bash`\
 `composer install`\
-`! test -f .env && cp .env.example .env && php artisan key:generate`\
 `php artisan migrate` ou importar dump do banco de dados.
 
 ### SIGAA Web Scraping
@@ -14,3 +13,6 @@
 ### Recriar base de dados
 `docker-compose exec php bash`\
 `php artisan migrate:fresh` **Isso apagará todos os dados!**
+
+### Inserir dados falsos
+`php artisan db:seed` **Somente deve ser executado após de realizar o scraping** 

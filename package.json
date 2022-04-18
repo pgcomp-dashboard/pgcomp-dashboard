@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "chartjs-plugin-labels": "^1.1.0",
-    "create-react-app": "^5.0.0"
-  }
-}

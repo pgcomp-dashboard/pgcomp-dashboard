@@ -51,7 +51,7 @@ class Program extends BaseModel
     public static function creationRules(): array
     {
         return [
-            'sigaa_id' => ['required', 'int', Rule::unique(self::class, 'id')],
+            'sigaa_id' => ['required', 'int', Rule::unique(self::class, 'sigaa_id')],
             'name' => 'required|string|max:255',
             'description' => 'string|max:2500',
         ];
@@ -59,12 +59,8 @@ class Program extends BaseModel
 
     public function deleteCourse($sigaaId)
     {
-        $course = Program::checkIfCourseAlreadyExist($sigaaId);
-        if (is_null($course)) {
-            return "error";
-        }
-        $course->delete();
-        return true;
+        $course = Program::where('sigaa_id', $sigaaId)->firstOrFail();
+        return $course->delete();
     }
 
     public function findCourseByName($courseName): static
@@ -108,6 +104,18 @@ class Program extends BaseModel
     public function students(): HasMany
     {
         return $this->users()->where('type', UserType::STUDENT->value);
+    }
+
+    public function findAllCoursesByColumns($columns, $pattern): Collection|array
+    {
+        $data = Program::all($columns);
+        $data = $data[0];
+        $dataInNewPattern = array();
+        for ($counter = 0; $counter < count($columns); $counter++) {
+            $dataInNewPattern[$pattern[$counter]] = $data[$columns[$counter]];
+        }
+
+        return $dataInNewPattern;
     }
 
     protected function checkIfCourseAlreadyExist(int $sigaaId): static
