@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './App.module.css';
+import SessionsPanel from './components/SessionsPanel/SessionsPanel';
 import Toolbar from './components/Toolbar/Toolbar';
 
 function App() {
-  return (
-    <div className={styles.App}>
-        <Toolbar />
-    </div>
-  );
+    const [selectedSession, setSelectedSession] = useState('areas');
+    return (
+        <div className={styles.App}>
+            <Toolbar />
+            <div className={styles['admin__panel']}>
+                <h1> Painel de administração </h1>
+
+                <div className={styles['admin__panel__board']}>
+                    <SessionsPanel setSelectedSession={setSelectedSession} />
+                    {selectedSession}
+                </div>
+
+            </div>
+        </div>
+    );
 }
 
 export default App;

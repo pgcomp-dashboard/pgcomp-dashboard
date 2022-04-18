@@ -1,0 +1,25 @@
+.SessionsPanel {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    border-radius: 10px;
+    background-color:#292929;
+    color: white;
+}
+
+.SessionsPanel ul {
+    list-style: none;
+    margin-top: 30px;
+    margin-bottom: 30px;
+} 
+
+.SessionsPanel li {
+    font-size: 25px;
+    line-height: 124px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.SessionsPanel li:hover {
+    background-color: #373636;
+}

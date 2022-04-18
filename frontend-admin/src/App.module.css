@@ -5,3 +5,17 @@ body {
     background-color: whitesmoke;
     font-family: 'Roboto';
   }
+
+
+
+
+.admin__panel h1 {
+    text-align: center;
+    font-size: 32px;
+    color: #3D3D3D;
+}
+
+.admin__panel__board {
+    display: flex;
+    padding: 30px;
+}
