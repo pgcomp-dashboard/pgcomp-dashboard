@@ -1,0 +1,16 @@
+.UserMenu {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 10px;
+}
+
+
+.user__menu__welcome {
+    font-size: 22px;
+    margin-left: 5px;
+}
+
+.user__menu__name {
+    color: rgb(57, 121, 121);
+}
