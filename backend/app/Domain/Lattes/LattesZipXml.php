@@ -3,6 +3,7 @@
 namespace App\Domain\Lattes;
 
 use App\Domain\Lattes\Exceptions\InvalidXml;
+use App\Models\Conference;
 use App\Models\Journal;
 use DOMDocument;
 use Exception;
@@ -60,9 +61,29 @@ class LattesZipXml
                 $publisher_id = Journal::where('issn', $issn)->first()?->id;
                 $publisher_type = $publisher_id ? Journal::class : null;
             }
-            // @todo check conference!
 
             $production = compact('title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');
+            $data['productions'][] = $production;
+        }
+
+        /** @var SimpleXMLElement $item */
+        foreach ($xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'TRABALHOS-EM-EVENTOS'}->{'TRABALHO-EM-EVENTOS'} as $item) {
+            $title = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['TITULO-DO-TRABALHO'];
+            $year = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ANO-DO-TRABALHO'];
+            $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
+            $issn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISSN'];
+            $isbn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISBN'];
+            $conferenceName = (string)$item->{'DETALHAMENTO-DO-TRABALHO'}->attributes()['NOME-DO-EVENTO'];
+            $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
+            $publisher_id = null;
+            $publisher_type = null;
+
+            if ($conferenceName) {
+                $publisher_id = Conference::where('name', $conferenceName)->first()?->id;
+                $publisher_type = $publisher_id ? Conference::class : null;
+            }
+
+            $production = compact('title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number', 'issn', 'isbn');
             $data['productions'][] = $production;
         }
 
