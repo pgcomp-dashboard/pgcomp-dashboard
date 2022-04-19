@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Dashboard\ProductionsController;
 use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
+use App\Http\Controllers\Api\JournalsController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
@@ -40,6 +41,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
+        Route::resource('journals', JournalsController::class);
         // @todo add admin routes
     });
 });

@@ -110,4 +110,17 @@ abstract class BaseModel extends Model
     {
         return in_array($field, $this->getFilterable()) || in_array('*', $this->getFilterable());
     }
+
+    public function isDateCast(string $key): bool
+    {
+        return $this->hasCast(
+            $key,
+            ['date', 'datetime', 'immutable_date', 'immutable_datetime', 'custom_datetime', 'immutable_custom_datetime']
+        );
+    }
+
+    public function isNumberCast(string $key): bool
+    {
+        return $this->hasCast($key, ['int', 'integer', 'float', 'real', 'double', 'decimal']);
+    }
 }

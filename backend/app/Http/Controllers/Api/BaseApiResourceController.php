@@ -24,7 +24,7 @@ abstract class BaseApiResourceController extends Controller
             'filters' => 'array',
             'filters.*.field' => 'string|required',
             'filters.*.value' => 'required',
-            'filters.*.operator' => 'string|in:in,not_in',
+            'filters.*.operator' => 'string|in:in,not in,like,not like,=,!=',
         ]);
 
         $query = $this->modelClass()::query();
@@ -36,32 +36,7 @@ abstract class BaseApiResourceController extends Controller
             $query->orderBy($orderBy, $request->input('dir', 'asc'));
         }
 
-        foreach ($request->input('filters', []) as $filter) {
-            if (!$model->canFilterBy($filter['field'])) {
-                continue;
-            }
-
-            $operator = $filter['operator'] ?? null;
-            $type = $model->getCasts()[$filter['field']] ?? 'string';
-            $isDateType = $model->hasCast(
-                $filter['field'],
-                ['date', 'datetime', 'immutable_date', 'immutable_datetime', 'custom_datetime', 'immutable_custom_datetime']
-            );
-            $isNumberType = $model->hasCast($filter['field'], ['int', 'integer', 'float', 'real', 'double', 'decimal']);
-
-            if ($operator === 'in' || $operator === 'not_in') {
-                $values = explode('|', $filter['value']);
-                $query->whereIn($filter['field'], $values, not: $operator === 'not_in');
-            } elseif ($isDateType) {
-                $this->dateFilter($query, $filter);
-            } elseif ($isNumberType) {
-                $this->numberFilter($query, $filter);
-            } elseif ($type === 'string') {
-                $query->where($filter['field'], 'like', "%{$filter['value']}%");
-            } else {
-                throw new \Exception("Invalid filter {$filter['field']}");
-            }
-        }
+        $this->applyFilters($query, $request->input('filters', []));
 
         return $query->paginate($request->input('per_page'));
     }
@@ -115,6 +90,38 @@ abstract class BaseApiResourceController extends Controller
     protected function newModelInstance(): BaseModel
     {
         return $this->modelClass()::newModelInstance();
+    }
+
+    protected function applyFilters(Builder $query, array $filters): Builder
+    {
+        $model = $this->newModelInstance();
+        foreach ($filters as $filter) {
+            if (!$model->canFilterBy($filter['field'])) {
+                continue;
+            }
+
+            $operator = $filter['operator'] ?? null;
+            $type = $model->getCasts()[$filter['field']] ?? 'string';
+
+            if (in_array($operator, ['in', 'not in'])) {
+                $values = explode('|', $filter['value']);
+                $query->whereIn($filter['field'], $values, not: $operator === 'not in');
+            } elseif (in_array($operator, ['=', '!='])) {
+                $query->where($filter['field'], $operator, $filter['value']);
+            } elseif (in_array($operator, ['like', 'not like'])) {
+                $query->where($filter['field'], $operator, "%{$filter['value']}%");
+            } elseif ($model->isDateCast($filter['field'])) {
+                $this->dateFilter($query, $filter);
+            } elseif ($model->isNumberCast($filter['field'])) {
+                $this->numberFilter($query, $filter);
+            } elseif ($type === 'string') {
+                $query->where($filter['field'], 'like', "%{$filter['value']}%");
+            } else {
+                throw new \Exception("Invalid filter {$filter['field']}");
+            }
+        }
+
+        return $query;
     }
 
     /**
