@@ -14,6 +14,20 @@ abstract class BaseModel extends Model
     abstract public static function creationRules(): array;
 
     /**
+     * The attributes that are used to sort.
+     *
+     * @var string[]
+     */
+    protected array $sortable = ['*'];
+
+    /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = ['*'];
+
+    /**
      * @param array $attributes model attributes do save.
      * @return static new model instance saved.
      * @throws ValidationException check if attributes are valid.
@@ -69,5 +83,44 @@ abstract class BaseModel extends Model
         }
 
         return parent::update($validator->validated(), $options);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSortable(): array
+    {
+        return $this->sortable;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getFilterable(): array
+    {
+        return $this->filterable;
+    }
+
+    public function canSortBy(string $field): bool
+    {
+        return in_array($field, $this->getSortable()) || in_array('*', $this->getSortable());
+    }
+
+    public function canFilterBy(string $field): bool
+    {
+        return in_array($field, $this->getFilterable()) || in_array('*', $this->getFilterable());
+    }
+
+    public function isDateCast(string $key): bool
+    {
+        return $this->hasCast(
+            $key,
+            ['date', 'datetime', 'immutable_date', 'immutable_datetime', 'custom_datetime', 'immutable_custom_datetime']
+        );
+    }
+
+    public function isNumberCast(string $key): bool
+    {
+        return $this->hasCast($key, ['int', 'integer', 'float', 'real', 'double', 'decimal']);
     }
 }
