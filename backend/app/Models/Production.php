@@ -65,7 +65,7 @@ class Production extends BaseModel
             'title' => 'required|string|max:255',
             'year' => 'required|int|date_format:Y',
             'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255', new ClassExists()],
-            'publisher_id' => ['nullable', 'required_with:publisher_type', 'int', new MorphExists()],
+            'publisher_id' => ['nullable', 'int', new MorphExists()],
             'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
             'sequence_number' => 'nullable|int',
         ];
@@ -104,8 +104,7 @@ class Production extends BaseModel
             'title' => 'string|max:255',
             'year' => 'int|date_format:Y',
             'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255', new ClassExists()],
-            'publisher_id' => ['nullable', 'required_with:publisher_type', 'int', new MorphExists()],
-            'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
+            'publisher_id' => ['nullable', 'int', new MorphExists()],
             'sequence_number' => 'nullable|int',
         ];
     }
@@ -148,9 +147,6 @@ class Production extends BaseModel
                 ->orderBy('productions.year')
                     ->get();
 
-
-        
-
         $dataYear = [];
         $dataCount = [];
 
@@ -166,8 +162,6 @@ class Production extends BaseModel
 
         return [$dataYear, $dataCount];
     }
-
-    
 
     public function totalProductionsPerCourse($pattern): array
     {
