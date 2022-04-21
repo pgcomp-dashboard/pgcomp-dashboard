@@ -363,7 +363,13 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             if (!$production['doi']) {
                 continue;
             }
-            $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
+            $productionModel = Production::where('doi', $production['doi'])->first();
+            if ($productionModel?->publisher_id) {
+                // isso evita que o valor seja removido em caso de multiplos usuarios por produção
+                unset($production['publisher_id']);
+            }
+            $productionModel = Production::updateOrCreate(Arr::only($production, ['doi']), $production);
+            $this->writerOf()->syncWithoutDetaching($productionModel);
         }
         $this->lattes_updated_at = $data['lattes_updated_at'];
         $this->save();

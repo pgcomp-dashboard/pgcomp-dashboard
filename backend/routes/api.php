@@ -6,7 +6,9 @@ use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
 use App\Http\Controllers\Api\PanelAdmin\FieldsAdminController;
+use App\Http\Controllers\Api\PanelAdmin\SubfieldsAdminController;
 use App\Http\Controllers\Api\PanelAdmin\QualisAdminController;
+use App\Http\Controllers\Api\JournalsController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
@@ -42,41 +44,12 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
+        Route::resource('journals', JournalsController::class);
         // @todo add admin routes
         //CRUD Area
-        Route::get('field/{name}', [FieldsAdminController::class, 'area']);
-        Route::post('field', function(Request $request){
-            return (new FieldsAdminController())->saveArea($request);
-        });
-        Route::put('field', function(Request $request){
-            return (new FieldsAdminController())->saveArea($request);
-        });
-        Route::delete('field/{name}', [FieldsAdminController::class, 'deleteArea']);
-
-        //CRUD Subarea
-        Route::get('subfield/{name}', [FieldsAdminController::class, 'subarea']);
-        Route::post('subfield', function(Request $request){
-            return (new FieldsAdminController())->saveSubarea($request);
-        });
-        Route::put('subfield', function(Request $request){
-            return (new FieldsAdminController())->saveSubarea($request);
-        });
-        Route::delete('subfield/{name}', [FieldsAdminController::class, 'deleteSubarea']);
-
-        //CRUD Qualis
-        Route::get('qualis/{code}', [QualisAdminController::class, 'qualis']);
-        Route::post('qualis', function(Request $request){
-            return (new QualisAdminController())->saveQualis($request);
-        });
-        Route::put('qualis', function(Request $request){
-            return (new QualisAdminController())->saveQualis($request);
-        });
-        Route::delete('qualis/{code}', [QualisAdminController::class, 'deleteQualis']);
-
-        //List all save raws
-        Route::get('fields', [FieldsAdminController::class, 'allArea']);
-        Route::get('subfields', [FieldsAdminController::class, 'allSubarea']);
-        Route::get('qualis', [QualisAdminController::class, 'allQualis']);
-
+        Route::resource('qualis', QualisAdminController::class)
+            ->except(['destroy']);
+        Route::resource('fields', FieldsAdminController::class);
+        Route::resource('subfields', SubfieldsAdminController::class);
     });
 });
