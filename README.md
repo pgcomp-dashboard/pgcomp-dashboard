@@ -91,10 +91,10 @@ O layout da aplicação está disponível no Figma:
 ## 🚀 Executando o projeto
 
 Este projeto é divido em quatro partes:
-1. Backend (pasta backend) 
-2. Frontend (pasta frontend)
-3. DevOps (pasta devops)
-4. Frontend-admin (pasta frontend-admin)
+1. Backend [(pasta backend)](https://gitlab.com/aufbaproduz/aufbaproduz/-/tree/develop/backend)
+2. Frontend [(pasta frontend)](https://gitlab.com/aufbaproduz/aufbaproduz/-/tree/develop/frontend)
+3. DevOps [(pasta devops)](https://gitlab.com/aufbaproduz/aufbaproduz/-/tree/develop/devops)
+4. Frontend-admin [(pasta frontend-admin)](https://gitlab.com/aufbaproduz/aufbaproduz/-/tree/develop/frontend-admin)
 
 💡Tanto o Frontend quanto o Mobile precisam que o Backend esteja sendo executado para funcionar.
 
