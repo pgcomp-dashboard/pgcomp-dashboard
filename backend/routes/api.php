@@ -53,8 +53,8 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::resource('qualis', QualisAdminController::class)->except(['destroy']);
         Route::resource('fields', FieldsAdminController::class);
         Route::resource('subfields', SubfieldsAdminController::class);
-        Route::resource('user', UsersAdminController::class)->except('store');
-        Route::resource('students', StudentsAdminController::class)->except('store');
-        Route::resource('professors', ProfessorAdminController::class)->except('store');
+        Route::resource('users', UsersAdminController::class)->except(['store']);
+        Route::resource('students', StudentsAdminController::class)->except(['store']);
+        Route::resource('professors', ProfessorAdminController::class)->except(['store']);
     });
 });
