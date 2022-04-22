@@ -65,7 +65,7 @@ class Production extends BaseModel
             'title' => 'required|string|max:255',
             'year' => 'required|int|date_format:Y',
             'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255', new ClassExists()],
-            'publisher_id' => ['nullable', 'required_with:publisher_type', 'int', new MorphExists()],
+            'publisher_id' => ['nullable', 'int', new MorphExists()],
             'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
             'sequence_number' => 'nullable|int',
         ];
@@ -104,8 +104,7 @@ class Production extends BaseModel
             'title' => 'string|max:255',
             'year' => 'int|date_format:Y',
             'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255', new ClassExists()],
-            'publisher_id' => ['nullable', 'required_with:publisher_type', 'int', new MorphExists()],
-            'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
+            'publisher_id' => ['nullable', 'int', new MorphExists()],
             'sequence_number' => 'nullable|int',
         ];
     }
@@ -124,19 +123,41 @@ class Production extends BaseModel
         $production->delete();
     }
 
-    public function totalProductionsPerYear(): array
+    public function totalProductionsPerYear($user_type, $course_id, $publisher_type): array
     {
-        $data = DB::table('productions')
-            ->select(DB::raw('distinct productions.id, productions.year'))
-            ->select(DB::raw('productions.year, count(productions.id) as production_count'))
-            ->groupBy('productions.year')
+        $years = DB::table('productions')
+            ->select(DB::raw('min(productions.year) as min, max(productions.year) as max'))
             ->get();
+
+        $data = DB::table('productions')
+                ->when($publisher_type, function ($query, $publisher_type){
+                    $query->where('productions.publisher_type', '=', $publisher_type );
+                })
+                ->when($user_type, function ($query, $user_type){
+                    $query->join('users_productions', "users_productions.productions_id", '=', 'productions.id');
+                    $query->join('users', 'users.id', '=', 'users_productions.users_id');
+                    $query->where('users.type','=', $user_type);
+                })
+                ->when($course_id, function ($query, $course_id){
+                    $query->where('users.course_id', '=', $course_id);
+                })
+                ->select(DB::raw('distinct productions.id, productions.year'))
+                ->select(DB::raw('productions.year, count(productions.id) as production_count'))
+                ->groupBy('productions.year')
+                ->orderBy('productions.year')
+                    ->get();
 
         $dataYear = [];
         $dataCount = [];
-        for ($counter = 0; $counter < count($data); $counter++) {
-            $dataYear[$counter] = $data[$counter]->year;
-            $dataCount[$counter] = $data[$counter]->production_count;
+
+        for ($year = $years[0]->min;  $year <= $years[0]->max; $year++){
+            $dataYear[] = $year;
+            if($data[0]->year == $year){
+                $dataCount[] = $data[0]->production_count;
+                $data->shift();
+            } else {
+                $dataCount[] = 0;
+            }
         }
 
         return [$dataYear, $dataCount];
