@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\Dashboard\StudentsController;
 use App\Http\Controllers\Api\PanelAdmin\FieldsAdminController;
 use App\Http\Controllers\Api\PanelAdmin\SubfieldsAdminController;
 use App\Http\Controllers\Api\PanelAdmin\QualisAdminController;
+use App\Http\Controllers\Api\PanelAdmin\UsersAdminController;
+use App\Http\Controllers\Api\PanelAdmin\StudentsAdminController;
+use App\Http\Controllers\Api\PanelAdmin\ProfessorAdminController;
 use App\Http\Controllers\Api\JournalsController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Middleware\IsAdmin;
@@ -48,7 +51,10 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         // @todo add admin routes
         //CRUD Area
         Route::resource('qualis', QualisAdminController::class)->except(['destroy']);
-        Route::resource('fields', FieldsAdminController::class)->except(['destroy']);
-        Route::resource('subfields', SubfieldsAdminController::class)->except(['destroy']);;
+        Route::resource('fields', FieldsAdminController::class);
+        Route::resource('subfields', SubfieldsAdminController::class);
+        Route::resource('user', UsersAdminController::class)->except('store');
+        Route::resource('students', StudentsAdminController::class)->except('store');
+        Route::resource('professors', ProfessorAdminController::class)->except('store');
     });
 });
