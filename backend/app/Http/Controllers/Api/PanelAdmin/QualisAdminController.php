@@ -8,9 +8,9 @@ use App\Models\StratumQualis;
 
 class QualisAdminController extends BaseApiResourceController{
 
+
     protected function modelClass(): string|BaseModel
     {
         return StratumQualis::class;
     }
-
 }

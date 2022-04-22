@@ -47,9 +47,8 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::resource('journals', JournalsController::class);
         // @todo add admin routes
         //CRUD Area
-        Route::resource('qualis', QualisAdminController::class)
-            ->except(['destroy']);
-        Route::resource('fields', FieldsAdminController::class);
-        Route::resource('subfields', SubfieldsAdminController::class);
+        Route::resource('qualis', QualisAdminController::class)->except(['destroy']);
+        Route::resource('fields', FieldsAdminController::class)->except(['destroy']);
+        Route::resource('subfields', SubfieldsAdminController::class)->except(['destroy']);;
     });
 });
