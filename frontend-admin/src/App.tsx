@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import styles from './App.module.css';
+import Session from './components/Session/Session';
 import SessionsPanel from './components/SessionsPanel/SessionsPanel';
 import Toolbar from './components/Toolbar/Toolbar';
 
 function App() {
     const [selectedSession, setSelectedSession] = useState('areas');
+
     return (
         <div className={styles.App}>
             <Toolbar />
@@ -13,7 +15,7 @@ function App() {
 
                 <div className={styles['admin__panel__board']}>
                     <SessionsPanel setSelectedSession={setSelectedSession} />
-                    {selectedSession}
+                    <Session type={selectedSession} />
                 </div>
 
             </div>
