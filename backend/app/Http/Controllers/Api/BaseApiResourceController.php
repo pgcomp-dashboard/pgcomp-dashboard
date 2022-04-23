@@ -89,7 +89,7 @@ abstract class BaseApiResourceController extends Controller
 
     protected function newBaseQuery(): Builder
     {
-        return $this->modelClass()::newQuery();
+        return $this->modelClass()::query();
     }
 
     /**
