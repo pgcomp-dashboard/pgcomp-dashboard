@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters;
+use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -21,19 +22,8 @@ abstract class BaseApiResourceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(BaseResourceIndexRequest $request)
     {
-        $request->validate([
-            'page' => 'int|min:1',
-            'per_page' => 'int|min:1|max:100',
-            'order_by' => 'string',
-            'dir' => 'string|in:asc,desc',
-            'filters' => 'array',
-            'filters.*.field' => 'string|required',
-            'filters.*.value' => 'required',
-            'filters.*.operator' => 'string|in:in,not in,like,not like,=,!=',
-        ]);
-
         $model = $this->newModelInstance();
 
         $orderBy = $request->input('order_by');
