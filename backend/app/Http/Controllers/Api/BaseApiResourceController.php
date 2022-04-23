@@ -5,11 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Filters;
 use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 abstract class BaseApiResourceController extends Controller
 {
+    protected Builder $query;
+
+    public function __construct()
+    {
+        $this->query = $this->newBaseQuery();
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -26,18 +34,16 @@ abstract class BaseApiResourceController extends Controller
             'filters.*.operator' => 'string|in:in,not in,like,not like,=,!=',
         ]);
 
-        $query = $this->modelClass()::query();
-
         $model = $this->newModelInstance();
 
         $orderBy = $request->input('order_by');
         if ($orderBy && $model->canSortBy($orderBy)) {
-            $query->orderBy($orderBy, $request->input('dir', 'asc'));
+            $this->query->orderBy($orderBy, $request->input('dir', 'asc'));
         }
 
-        (new Filters())->applyFilters($query, $request->input('filters', []));
+        (new Filters($this->query))->applyFilters($request->input('filters', []));
 
-        return $query->paginate($request->input('per_page'));
+        return $this->query->paginate($request->input('per_page'));
     }
 
     /**
@@ -83,12 +89,17 @@ abstract class BaseApiResourceController extends Controller
 
     protected function findOrFail(int $id, array $columns = ['*']): BaseModel
     {
-        return $this->modelClass()::findOrFail($id, $columns);
+        return $this->query->findOrFail($id, $columns);
     }
 
     protected function newModelInstance(): BaseModel
     {
         return $this->modelClass()::newModelInstance();
+    }
+
+    protected function newBaseQuery(): Builder
+    {
+        return $this->modelClass()::newQuery();
     }
 
     /**
