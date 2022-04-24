@@ -5,6 +5,7 @@ namespace App\Models;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -49,6 +50,14 @@ class Area extends BaseModel
         ];
     }
 
+    public static function createOrUpdateArea(array $data): Area
+    {
+        return Area::updateOrCreate(
+            Arr::only($data, ['area_name']),
+            $data
+        );
+    }
+
     public function belongsToTheProgram()
     {
         return $this->hasOne(Program::class, 'program_id');
@@ -67,9 +76,19 @@ class Area extends BaseModel
         ];
     }
 
-    public function findAreaByName($name): self
+    public function findArea($id, $attributes = ['id', 'area_name'])
     {
-        return Area::where('area_name', $name)->firstOrFail();
+        return Area::where('id', $id)->get($attributes)->firstOrFail();
+    }
+
+    public function findAllArea($attributes = ['id', 'area_name']): \Illuminate\Database\Eloquent\Collection
+    {
+        return Area::all($attributes);
+    }
+
+    public function findAreaByName($name, $attributes = ['id', 'area_name']): self
+    {
+        return Area::where('area_name', $name)->get($attributes)->firstOrFail();
     }
 
     public function deleteAreaByName($name)
