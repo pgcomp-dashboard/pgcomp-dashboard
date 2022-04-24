@@ -13,7 +13,7 @@ class ProfessorController extends BaseApiResourceController
 {
     public function store(Request $request)
     {
-        $request->merge(['type' => UserType::PROFESSOR]);
+        $request->merge(['type' => UserType::PROFESSOR->value]);
 
         return parent::store($request);
     }
