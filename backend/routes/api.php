@@ -51,17 +51,17 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
-        Route::resource('journals', JournalController::class);
-        Route::resource('conferences', ConferenceController::class);
-        Route::resource('courses', CourseController::class);
-        Route::resource('productions', ProductionsAdminController::class);
-        Route::resource('programs', ProgramsAdminController::class);
-        Route::resource('qualis', StratumQualisController::class)->except(['destroy']);
-        Route::resource('fields', AreaController::class);
-        Route::resource('subfields', SubareaController::class);
-        Route::resource('users', UserAdminController::class)->except(['store']);
-        Route::resource('students', StudentAdminController::class)->except(['store']);
-        Route::resource('professors', ProfessorController::class)->except(['store']);
+        Route::apiResource('journals', JournalController::class);
+        Route::apiResource('conferences', ConferenceController::class);
+        Route::apiResource('courses', CourseController::class);
+        Route::apiResource('productions', ProductionsAdminController::class);
+        Route::apiResource('programs', ProgramsAdminController::class);
+        Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
+        Route::apiResource('fields', AreaController::class);
+        Route::apiResource('subfields', SubareaController::class);
+        Route::apiResource('users', UserAdminController::class)->except(['store']);
+        Route::apiResource('students', StudentAdminController::class)->except(['store']);
+        Route::apiResource('professors', ProfessorController::class)->except(['store']);
     });
 });
 
