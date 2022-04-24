@@ -5,12 +5,12 @@ use App\Http\Controllers\Api\Dashboard\ProductionsController;
 use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
-use App\Http\Controllers\Api\PanelAdmin\FieldsAdminController;
-use App\Http\Controllers\Api\PanelAdmin\SubfieldsAdminController;
-use App\Http\Controllers\Api\PanelAdmin\QualisAdminController;
-use App\Http\Controllers\Api\PanelAdmin\UsersAdminController;
-use App\Http\Controllers\Api\PanelAdmin\StudentsAdminController;
-use App\Http\Controllers\Api\PanelAdmin\ProfessorAdminController;
+use App\Http\Controllers\Api\PanelAdmin\AreaController;
+use App\Http\Controllers\Api\PanelAdmin\SubareaController;
+use App\Http\Controllers\Api\PanelAdmin\StratumQualisController;
+use App\Http\Controllers\Api\PanelAdmin\UsersController;
+use App\Http\Controllers\Api\PanelAdmin\StudentController;
+use App\Http\Controllers\Api\PanelAdmin\ProfessorController;
 use App\Http\Controllers\Api\JournalsController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Middleware\IsAdmin;
@@ -37,7 +37,7 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('program', [ProgramsController::class, 'programName']);
     Route::get('all_production', [ProductionsController::class, 'totalProductionsPerYear']);
     Route::get('students_production', [ProductionsController::class, 'studentsProductions']);
-    Route::get('production_per_qualis', [QualisController::class, 'productionPerQualis']);
+    Route::get('production_per_qualis', [StratumQualisController::class, 'productionPerQualis']);
     Route::get('fields', [StudentsController::class, 'studentsArea']);
     Route::get('subfields', [StudentsController::class, 'studentsSubarea']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
@@ -50,11 +50,11 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::resource('journals', JournalsController::class);
         // @todo add admin routes
         //CRUD Area
-        Route::resource('qualis', QualisAdminController::class)->except(['destroy']);
-        Route::resource('fields', FieldsAdminController::class);
-        Route::resource('subfields', SubfieldsAdminController::class);
-        Route::resource('users', UsersAdminController::class)->except(['store']);
-        Route::resource('students', StudentsAdminController::class)->except(['store']);
-        Route::resource('professors', ProfessorAdminController::class)->except(['store']);
+        Route::resource('qualis', StratumQualisController::class)->except(['destroy']);
+        Route::resource('fields', AreaController::class);
+        Route::resource('subfields', SubareaController::class);
+        Route::resource('users', UsersController::class)->except(['store']);
+        Route::resource('students', StudentsController::class)->except(['store']);
+        Route::resource('professors', ProfessorController::class)->except(['store']);
     });
 });

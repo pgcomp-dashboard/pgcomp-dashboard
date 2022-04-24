@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Models\BaseModel;
 use App\Models\StratumQualis;
 
-class QualisAdminController extends BaseApiResourceController{
+class StratumQualisController extends BaseApiResourceController{
 
 
     protected function modelClass(): string|BaseModel

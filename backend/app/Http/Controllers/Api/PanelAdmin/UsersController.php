@@ -9,7 +9,7 @@ use App\Models\BaseModel;
 use App\Http\Responses;
 use Illuminate\Http\Request;
 
-class UsersAdminController extends BaseApiResourceController {
+class UsersController extends BaseApiResourceController {
 
     const ANYUSER = "user";
     private string $userType;

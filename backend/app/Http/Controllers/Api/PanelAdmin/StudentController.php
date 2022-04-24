@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\PanelAdmin;
 
 use App\Enums\UserType;
 
-class StudentsAdminController extends UsersAdminController {
+class StudentController extends UsersController {
 
     function __construct()
     {
