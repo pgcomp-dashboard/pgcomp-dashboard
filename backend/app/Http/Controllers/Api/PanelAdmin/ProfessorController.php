@@ -3,13 +3,28 @@
 namespace App\Http\Controllers\Api\PanelAdmin;
 
 use App\Enums\UserType;
+use App\Http\Controllers\Api\BaseApiResourceController;
+use App\Models\BaseModel;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
-class ProfessorController extends UsersController
+class ProfessorController extends BaseApiResourceController
 {
-    function __construct()
+    public function store(Request $request)
     {
-        parent::__construct(UserType::PROFESSOR->value,
-            "Invalid professor user",
-            ["field" => "type", "value" => "professor", "operator" => "="]);
+        $request->merge(['type' => UserType::PROFESSOR]);
+
+        return parent::store($request);
+    }
+
+    protected function newBaseQuery(): Builder
+    {
+        return parent::newBaseQuery()->where('type', UserType::PROFESSOR);
+    }
+
+    protected function modelClass(): string|BaseModel
+    {
+        return User::class;
     }
 }
