@@ -45,3 +45,5 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         // @todo add admin routes
     });
 });
+
+Route::get('healthcheck', fn () => ['success' => true]);

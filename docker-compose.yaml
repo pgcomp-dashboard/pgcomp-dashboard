@@ -71,6 +71,10 @@ services:
       - php
     ports:
       - '8000:80'
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:80/api/healthcheck" ]
+      retries: 3
+      timeout: 5s
   phpmyadmin:
     image: phpmyadmin
     ports:
