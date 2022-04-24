@@ -3,14 +3,15 @@ import PieChartOutlinedIcon from '@mui/icons-material/PieChartOutlined';
 import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
-import SessionItem from '../SessionItem/SessionItem';
+import SessionItem from '../SessionPanel/SessionPanel';
 import { useState } from 'react';
 
 interface SessionsPanelProps {
-    setSelectedSession: any
+    setSelectedSession: any,
+    selectedSession: string
 }
 
-function SessionsPanel( {setSelectedSession}: SessionsPanelProps ) {
+function SessionsPanel({ setSelectedSession, selectedSession }: SessionsPanelProps) {
 
     const iconStyle = {
         'height': '42px',
@@ -21,13 +22,13 @@ function SessionsPanel( {setSelectedSession}: SessionsPanelProps ) {
         <div className={styles['SessionsPanel']}>
             <ul>
                 <SessionItem icon={<PieChartOutlinedIcon style={iconStyle} />} label={'Áreas e sub-áreas'} setSelectedSession={setSelectedSession}
-                    session='areas' />
+                    session='areas' isSelected={'areas' == selectedSession} />
                 <SessionItem icon={<BarChartOutlinedIcon style={iconStyle} />} label={'Qualis'} setSelectedSession={setSelectedSession}
-                    session='qualis' />
+                    session='qualis' isSelected={'qualis' == selectedSession} />
                 <SessionItem icon={<BadgeOutlinedIcon style={iconStyle} />} label={'Docente'} setSelectedSession={setSelectedSession}
-                    session='teachers' />
+                    session='teachers' isSelected={'teachers' == selectedSession} />
                 <SessionItem icon={<SchoolOutlinedIcon style={iconStyle} />} label={'Discente'} setSelectedSession={setSelectedSession}
-                    session='students' />
+                    session='students' isSelected={'students' == selectedSession} />
             </ul>
         </div>
     )

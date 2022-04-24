@@ -17,11 +17,11 @@ function CreateSessionItemDialog(props: CreateSessionItemDialogProps) {
 
     return (
         <Dialog open={props.open} onClose={props.handleClose}>
-            <DialogTitle>Criar {props.type.toLowerCase()}</DialogTitle>
+            <DialogTitle>Adicionar {props.type.toLowerCase()}</DialogTitle>
 
             <DialogContent>
 
-                <TextField id="itemName" label={'Adicionar ' + props.type.toLowerCase()} name="itemName" fullWidth
+                <TextField id="itemName" label={'Insira ' + props.type.toLowerCase()} name="itemName" fullWidth
                     value={itemName}
                     onChange={handleInputChange} />
 

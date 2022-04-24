@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 import CreateSessionItemDialog from '../CreateSessionItemDialog/CreateSessionItemDialog';
+import SessionItem from '../SessionItem/SessionItem';
 import styles from './Session.module.css'
 
 interface nameTypesLayout {
@@ -32,6 +33,7 @@ function Session(props: SessionProps) {
     return (
         <div className={styles['Session']}>
             <AddSessionItemButton type={nameTypes[props.type]} handleOpen={handleModalOpen} />
+            <SessionItem name='test' type='qualis' />
             <CreateSessionItemDialog type={nameTypes[props.type]} open={modalOpened} handleClose={handleModalClose} />
         </div>
     )

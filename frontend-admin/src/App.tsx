@@ -14,7 +14,7 @@ function App() {
                 <h1> Painel de administração </h1>
 
                 <div className={styles['admin__panel__board']}>
-                    <SessionsPanel setSelectedSession={setSelectedSession} />
+                    <SessionsPanel setSelectedSession={setSelectedSession} selectedSession={selectedSession} />
                     <Session type={selectedSession} />
                 </div>
 

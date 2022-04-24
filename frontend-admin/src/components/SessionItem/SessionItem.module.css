@@ -1,0 +1,11 @@
+.SessionItem {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 8px;
+    background-color: #292929;
+    padding: 10px;
+    font-size: 22px;
+    color: white;
+    margin: 10px 0;
+}
