@@ -59,9 +59,9 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
         Route::apiResource('subareas', SubareaController::class);
-        Route::apiResource('users', UserAdminController::class)->except(['store']);
-        Route::apiResource('students', StudentAdminController::class)->except(['store']);
-        Route::apiResource('professors', ProfessorController::class)->except(['store']);
+        Route::apiResource('users', UserAdminController::class);
+        Route::apiResource('students', StudentAdminController::class);
+        Route::apiResource('professors', ProfessorController::class);
     });
 });
 
