@@ -1,14 +1,18 @@
-import styles from "./Toolbar.module.css";
-import icLogo from "../../assets/ic_logo.png";
+import styles from './Toolbar.module.css'
+import icLogo from '../../assets/ic_logo.png'
+import UserMenu from '../UserMenu/UserMenu';
 
-function Toolbar() {
-  return (
-    <div className={styles.nav__toolbar}>
-      <div>
-        <img alt="Logo" src={icLogo} height={70} />
-      </div>
-    </div>
-  );
+function Toolbar(){
+    const className = styles['nav__toolbar'];
+    return (
+        <div className={className}>
+            <div>
+                <img src={icLogo} height={70} />
+            </div>
+
+            <UserMenu />
+        </div>
+    )
 }
 
-export default Toolbar;
+export default Toolbar
