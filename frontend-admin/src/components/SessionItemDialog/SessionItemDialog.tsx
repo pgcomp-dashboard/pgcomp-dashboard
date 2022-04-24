@@ -1,14 +1,16 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
 import React, { useState } from "react"
 
-interface CreateSessionItemDialogProps {
+interface SessionItemDialogProps {
     open: boolean,
     type: string,
     handleClose: any
+    name?: string,
+    isEdit?: boolean
 }
 
-function CreateSessionItemDialog(props: CreateSessionItemDialogProps) {
-    const [itemName, setItemName] = useState('');
+function SessionItemDialog(props: SessionItemDialogProps) {
+    const [itemName, setItemName] = useState(props.name ? props.name : '');
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.currentTarget.value;
@@ -17,7 +19,7 @@ function CreateSessionItemDialog(props: CreateSessionItemDialogProps) {
 
     return (
         <Dialog open={props.open} onClose={props.handleClose}>
-            <DialogTitle>Adicionar {props.type.toLowerCase()}</DialogTitle>
+            <DialogTitle>{props.isEdit ? 'Editar' : 'Adicionar'} {props.type.toLowerCase()}</DialogTitle>
 
             <DialogContent>
 
@@ -35,4 +37,4 @@ function CreateSessionItemDialog(props: CreateSessionItemDialogProps) {
     )
 }
 
-export default CreateSessionItemDialog
+export default SessionItemDialog

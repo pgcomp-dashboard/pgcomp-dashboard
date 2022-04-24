@@ -1,23 +1,13 @@
 import { List } from '@mui/material';
 import { useState } from 'react'
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
-import CreateSessionItemDialog from '../CreateSessionItemDialog/CreateSessionItemDialog';
+import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
 import SessionItem from '../SessionItem/SessionItem';
 import styles from './Session.module.css'
-
-interface nameTypesLayout {
-    [key: string]: string
-}
+import Utils from '../../Utils'
 
 interface SessionProps {
     type: string;
-}
-
-const nameTypes: nameTypesLayout = {
-    areas: 'Área de estudo',
-    qualis: 'Nota qualis',
-    teachers: 'Docente',
-    students: 'Discente'
 }
 
 function Session(props: SessionProps) {
@@ -38,12 +28,12 @@ function Session(props: SessionProps) {
 
     return (
         <div className={styles['Session']}>
-            <AddSessionItemButton type={nameTypes[props.type]} handleOpen={handleModalOpen} />
+            <AddSessionItemButton type={Utils.nameTypes[props.type]} handleOpen={handleModalOpen} />
             <List disablePadding>
                 <SessionItem name='test' type='qualis' children={mockedChilds} />
             </List>
 
-            <CreateSessionItemDialog type={nameTypes[props.type]} open={modalOpened} handleClose={handleModalClose} />
+            <SessionItemDialog type={Utils.nameTypes[props.type]} open={modalOpened} handleClose={handleModalClose} />
         </div>
     )
 }
