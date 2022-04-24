@@ -79,7 +79,7 @@ abstract class BaseApiResourceController extends Controller
 
     protected function findOrFail(int $id, array $columns = ['*']): BaseModel
     {
-        return $this->query->findOrFail($id, $columns);
+        return $this->newBaseQuery()->findOrFail($id, $columns);
     }
 
     protected function newModelInstance(): BaseModel
