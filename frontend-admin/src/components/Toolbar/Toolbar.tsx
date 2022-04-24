@@ -9,7 +9,7 @@ function Toolbar(){
             <div>
                 <img src={icLogo} height={70} />
             </div>
-            
+
             <UserMenu />
         </div>
     )

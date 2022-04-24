@@ -48,18 +48,20 @@ class LattesZipXml
 
         /** @var SimpleXMLElement $item */
         foreach ($xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'ARTIGOS-PUBLICADOS'}->{'ARTIGO-PUBLICADO'} as $item) {
+            $doi = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
+            if (!trim($doi)) {
+                continue;
+            }
             $title = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['ANO-DO-ARTIGO'];
-            $doi = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
             $issn = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['ISSN'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
-            $publisher_type = null;
+            $publisher_type = Journal::class;
 
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
                 $publisher_id = Journal::where('issn', $issn)->first()?->id;
-                $publisher_type = $publisher_id ? Journal::class : null;
             }
 
             $production = compact('title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');
@@ -68,19 +70,21 @@ class LattesZipXml
 
         /** @var SimpleXMLElement $item */
         foreach ($xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'TRABALHOS-EM-EVENTOS'}->{'TRABALHO-EM-EVENTOS'} as $item) {
+            $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
+            if (!trim($doi)) {
+                continue;
+            }
             $title = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['TITULO-DO-TRABALHO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ANO-DO-TRABALHO'];
-            $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
             $issn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISSN'];
             $isbn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISBN'];
             $conferenceName = (string)$item->{'DETALHAMENTO-DO-TRABALHO'}->attributes()['NOME-DO-EVENTO'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
-            $publisher_type = null;
+            $publisher_type = Conference::class;
 
             if ($conferenceName) {
                 $publisher_id = Conference::where('name', $conferenceName)->first()?->id;
-                $publisher_type = $publisher_id ? Conference::class : null;
             }
 
             $production = compact('title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number', 'issn', 'isbn');

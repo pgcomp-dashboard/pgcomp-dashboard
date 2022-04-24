@@ -18,7 +18,7 @@ class IsAdmin
      * @return Response|RedirectResponse
      * @throws AuthenticationException
      */
-    public function handle(Request $request, Closure $next): Response|RedirectResponse
+    public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
 

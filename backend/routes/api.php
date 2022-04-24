@@ -5,6 +5,17 @@ use App\Http\Controllers\Api\Dashboard\ProductionsController;
 use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
+use App\Http\Controllers\Api\PanelAdmin\AreaController;
+use App\Http\Controllers\Api\PanelAdmin\ConferenceController;
+use App\Http\Controllers\Api\PanelAdmin\CourseController;
+use App\Http\Controllers\Api\PanelAdmin\JournalController;
+use App\Http\Controllers\Api\PanelAdmin\ProductionController as ProductionAdminController;
+use App\Http\Controllers\Api\PanelAdmin\ProfessorController;
+use App\Http\Controllers\Api\PanelAdmin\ProgramController as ProgramAdminController;
+use App\Http\Controllers\Api\PanelAdmin\StratumQualisController;
+use App\Http\Controllers\Api\PanelAdmin\StudentController as StudentAdminController;
+use App\Http\Controllers\Api\PanelAdmin\SubareaController;
+use App\Http\Controllers\Api\PanelAdmin\UserController as UserAdminController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
@@ -40,6 +51,18 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
-        // @todo add admin routes
+        Route::apiResource('journals', JournalController::class);
+        Route::apiResource('conferences', ConferenceController::class);
+        Route::apiResource('courses', CourseController::class);
+        Route::apiResource('productions', ProductionAdminController::class);
+        Route::apiResource('programs', ProgramAdminController::class);
+        Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
+        Route::apiResource('areas', AreaController::class);
+        Route::apiResource('subareas', SubareaController::class);
+        Route::apiResource('users', UserAdminController::class);
+        Route::apiResource('students', StudentAdminController::class);
+        Route::apiResource('professors', ProfessorController::class);
     });
 });
+
+Route::get('healthcheck', fn() => ['success' => true]);
