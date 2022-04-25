@@ -26,11 +26,11 @@ class ProductionsController extends Controller
         $user_type = [
             "docente" => ["professor", null],
             "mestrando" => ["student", "1"],
-            "doutorando" => ["student", "2"]
+            "doutorando" => ["student", "2"],
+            null => [null,null]
         ];
 
         $filter = $user_type[$request->input("user_type")];
-        //$course_id = $request->input("course_id");
 
         $keyReturnPattern = ['years', 'data'];
         $productions = new Production();
