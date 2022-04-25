@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\PublishProductions;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -31,7 +32,7 @@ use Illuminate\Validation\Rule;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int|null $stratum_qualis_id
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Production[] $productions
+ * @property-read Collection|Production[] $productions
  * @property-read int|null $productions_count
  * @method static Builder|Conference newModelQuery()
  * @method static Builder|Conference newQuery()

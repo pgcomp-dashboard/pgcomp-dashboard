@@ -54,6 +54,8 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $defended_at
+ * @property string|null $lattes_id
+ * @property string|null $lattes_updated_at
  * @property-read Collection|User[] $advisedes
  * @property-read int|null $advisedes_count
  * @property-read Collection|User[] $advisors
@@ -82,6 +84,8 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @method static Builder|User whereEmailVerifiedAt($value)
  * @method static Builder|User whereId($value)
  * @method static Builder|User whereIsAdmin($value)
+ * @method static Builder|User whereLattesId($value)
+ * @method static Builder|User whereLattesUpdatedAt($value)
  * @method static Builder|User whereLattesUrl($value)
  * @method static Builder|User whereName($value)
  * @method static Builder|User wherePassword($value)

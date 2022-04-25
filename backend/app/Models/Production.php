@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -29,6 +28,8 @@ use Illuminate\Validation\Rule;
  * @property int|null $publisher_id
  * @property string|null $last_qualis
  * @property int|null $stratum_qualis_id
+ * @property int|null $sequence_number
+ * @property string|null $doi
  * @property-read Collection|User[] $isWroteBy
  * @property-read int|null $is_wrote_by_count
  * @property-read Model|Eloquent $publisher
@@ -36,10 +37,12 @@ use Illuminate\Validation\Rule;
  * @method static Builder|Production newQuery()
  * @method static Builder|Production query()
  * @method static Builder|Production whereCreatedAt($value)
+ * @method static Builder|Production whereDoi($value)
  * @method static Builder|Production whereId($value)
  * @method static Builder|Production whereLastQualis($value)
  * @method static Builder|Production wherePublisherId($value)
  * @method static Builder|Production wherePublisherType($value)
+ * @method static Builder|Production whereSequenceNumber($value)
  * @method static Builder|Production whereStratumQualisId($value)
  * @method static Builder|Production whereTitle($value)
  * @method static Builder|Production whereUpdatedAt($value)
@@ -69,14 +72,6 @@ class Production extends BaseModel
             'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
             'sequence_number' => 'nullable|int',
         ];
-    }
-
-    public static function createOrUpdateProduction(array $data): Production
-    {
-        return Production::updateOrCreate(
-            Arr::only($data, ['title']),
-            $data
-        );
     }
 
     protected static function boot()
@@ -109,20 +104,6 @@ class Production extends BaseModel
         ];
     }
 
-    public function findAll(): Collection
-    {
-        return Production::all();
-    }
-
-    public function deleteProduction($title)
-    {
-        $production = Production::where('title', $title)->first();
-        if (empty($production)) {
-            return 'error';
-        }
-        $production->delete();
-    }
-
     public function totalProductionsPerYear($user_type, $course_id, $publisher_type): array
     {
         $years = DB::table('productions')
@@ -130,29 +111,29 @@ class Production extends BaseModel
             ->get();
 
         $data = DB::table('productions')
-                ->when($publisher_type, function ($query, $publisher_type){
-                    $query->where('productions.publisher_type', '=', $publisher_type );
-                })
-                ->when($user_type, function ($query, $user_type){
-                    $query->join('users_productions', "users_productions.productions_id", '=', 'productions.id');
-                    $query->join('users', 'users.id', '=', 'users_productions.users_id');
-                    $query->where('users.type','=', $user_type);
-                })
-                ->when($course_id, function ($query, $course_id){
-                    $query->where('users.course_id', '=', $course_id);
-                })
-                ->select(DB::raw('distinct productions.id, productions.year'))
-                ->select(DB::raw('productions.year, count(productions.id) as production_count'))
-                ->groupBy('productions.year')
-                ->orderBy('productions.year')
-                    ->get();
+            ->when($publisher_type, function ($query, $publisher_type) {
+                $query->where('productions.publisher_type', '=', $publisher_type);
+            })
+            ->when($user_type, function ($query, $user_type) {
+                $query->join('users_productions', "users_productions.productions_id", '=', 'productions.id');
+                $query->join('users', 'users.id', '=', 'users_productions.users_id');
+                $query->where('users.type', '=', $user_type);
+            })
+            ->when($course_id, function ($query, $course_id) {
+                $query->where('users.course_id', '=', $course_id);
+            })
+            ->select(DB::raw('distinct productions.id, productions.year'))
+            ->select(DB::raw('productions.year, count(productions.id) as production_count'))
+            ->groupBy('productions.year')
+            ->orderBy('productions.year')
+            ->get();
 
         $dataYear = [];
         $dataCount = [];
 
-        for ($year = $years[0]->min;  $year <= $years[0]->max; $year++){
+        for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
             $dataYear[] = $year;
-            if($data->isNotEmpty() && $data[0]->year == $year){
+            if ($data->isNotEmpty() && $data[0]->year == $year) {
                 $dataCount[] = $data->shift()->production_count;
             } else {
                 $dataCount[] = 0;

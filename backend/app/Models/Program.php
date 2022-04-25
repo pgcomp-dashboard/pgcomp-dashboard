@@ -57,32 +57,6 @@ class Program extends BaseModel
         ];
     }
 
-    public function deleteCourse($sigaaId)
-    {
-        $course = Program::where('sigaa_id', $sigaaId)->firstOrFail();
-        return $course->delete();
-    }
-
-    public function findCourseByName($courseName): static
-    {
-        $course = new Program();
-        $course = Program::where('name', $courseName)->first();
-        if (is_null($course)) {
-            return "error";
-        }
-        return $course;
-    }
-
-    public function findBySigaaID($sigaaId): static
-    {
-        return Program::checkIfCourseAlreadyExist($sigaaId);
-    }
-
-    public function findAllCourses(): Collection|array
-    {
-        return Program::all();
-    }
-
     public function updateRules(): array
     {
         return [
@@ -108,6 +82,9 @@ class Program extends BaseModel
 
     public function findAllCoursesByColumns($columns, $pattern): Collection|array
     {
+        /**
+         * @todo todos os dados devem ser retornados de forma paginada!
+         */
         $data = Program::all($columns);
         $data = $data[0];
         $dataInNewPattern = array();
@@ -116,21 +93,5 @@ class Program extends BaseModel
         }
 
         return $dataInNewPattern;
-    }
-
-    protected function checkIfCourseAlreadyExist(int $sigaaId): static
-    {
-        $course = Program::find($sigaaId);
-        if (is_null($course)) {
-            return "error";
-        }
-        return $course;
-    }
-
-    protected function fillCourseFields($course, $courseArray)
-    {
-        $course->sigaa_id = $courseArray['sigaa_id'];
-        $course->name = $courseArray['name'];
-        return $course;
     }
 }

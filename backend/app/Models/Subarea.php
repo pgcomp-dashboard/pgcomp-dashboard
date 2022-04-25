@@ -6,7 +6,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -51,19 +50,10 @@ class Subarea extends BaseModel
         ];
     }
 
-    public static function createOrUpdateSubarea(array $data): Subarea
-    {
-        return Subarea::updateOrCreate(
-            Arr::only($data, ['subarea_name']),
-            $data
-        );
-    }
-
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class, 'area_id');
     }
-
 
     public function updateRules(): array
     {
@@ -76,25 +66,5 @@ class Subarea extends BaseModel
                 'required',
             ],
         ];
-    }
-
-    public function findSubarea($id, $attributes = ['id', 'subarea_name']){
-        return Subarea::where('id', $id)->firstOrFail($attributes);
-    }
-
-    public function findAllSubarea($attributes = ['id', 'subarea_name']): \Illuminate\Database\Eloquent\Collection
-    {
-        return Subarea::all($attributes);
-    }
-
-    public function findSubareaByName($name, $attributes = ['id', 'subarea_name']): self
-    {
-        return self::where('subarea_name', $name)->firstOrFail($attributes);
-    }
-
-    public function deleteSubareaByName($name)
-    {
-        $subarea = Subarea::where('subarea_name', $name)->firstOrFail();
-        return $subarea->delete();
     }
 }

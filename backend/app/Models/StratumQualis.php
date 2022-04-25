@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use App\Enums\UserType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -45,14 +43,6 @@ class StratumQualis extends BaseModel
         ];
     }
 
-    public static function createOrUpdateStratumQualis(array $data): StratumQualis
-    {
-        return StratumQualis::updateOrCreate(
-            Arr::only($data, ['code']),
-            $data
-        );
-    }
-
     public static function findByCode(string $code, array $columns = ['*']): self
     {
         return self::where('code', $code)->firstOrFail($columns);
@@ -64,27 +54,6 @@ class StratumQualis extends BaseModel
             'code' => 'string|max:2',
             'score' => 'int',
         ];
-    }
-
-    public function findQualis($code, $attributes = ['id', 'code', 'score'])
-    {
-        return StratumQualis::where('code', $code)->get($attributes)->firstOrFail();
-    }
-
-    public function findAll()
-    {
-        return StratumQualis::all();
-    }
-
-    public function findAllQualis($attributes = ['id', 'code', 'score'])
-    {
-        return StratumQualis::all($attributes);
-    }
-
-    public function deleteStratumQualis($code)
-    {
-        $stratum = StratumQualis::where('code', $code)->firstOrFail();
-        $stratum->delete();
     }
 
     public function totalProductionsPerQualis($pattern): array
@@ -101,7 +70,7 @@ class StratumQualis extends BaseModel
         $stratumLabels = StratumQualis::all('code');
         $stratumProductions = array();
 
-        for($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
+        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
             $data = DB::table('productions')
                 ->select(DB::raw('productions.year, count(distinct productions.id) as total'))
                 ->join('journals', 'productions.journals_id', '=', 'journals.id')
@@ -115,31 +84,30 @@ class StratumQualis extends BaseModel
 
         $data = array();
         $allYears = array();
-        for($year = $years[0]->min; $year <= $years[0]->max; $year++){
+        for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
             $allYears[] = $year;
         }
 
-        for($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
+        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
             $auxData = $stratumProductions[$nStratum];
             $newTempData = array();
             $countIterations = 0;
             $dataSize = count($auxData);
 
-            for($year = $years[0]->min; $year <= $years[0]->max; $year++){
-                if($countIterations < $dataSize &&
-                    $auxData[$countIterations]->year == $year)
-                {
+            for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
+                if ($countIterations < $dataSize &&
+                    $auxData[$countIterations]->year == $year) {
                     $newTempData[] = $auxData[$countIterations]->total;
                     $countIterations++;
-                }else{
+                } else {
                     $newTempData[] = 0;
                 }
             }
-            $data[$nStratum-1] = $newTempData;
+            $data[$nStratum - 1] = $newTempData;
         }
 
         $dataWithLabels = array();
-        for($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
+        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
             $dataWithLabels[] = ['label' => $stratumLabels[$nStratum - 1]->code, 'data' => $data[$nStratum - 1]];
         }
         return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];

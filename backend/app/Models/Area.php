@@ -5,6 +5,7 @@ namespace App\Models;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -17,7 +18,7 @@ use Illuminate\Validation\Rule;
  * @property int $program_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Program|null $belongsToTheProgram
+ * @property-read Program $program
  * @method static Builder|Area newModelQuery()
  * @method static Builder|Area newQuery()
  * @method static Builder|Area query()
@@ -58,9 +59,9 @@ class Area extends BaseModel
         );
     }
 
-    public function belongsToTheProgram()
+    public function program(): BelongsTo
     {
-        return $this->hasOne(Program::class, 'program_id');
+        return $this->belongsTo(Program::class, 'program_id');
     }
 
     public function updateRules(): array
@@ -75,26 +76,4 @@ class Area extends BaseModel
             ],
         ];
     }
-
-    public function findArea($id, $attributes = ['id', 'area_name'])
-    {
-        return Area::where('id', $id)->get($attributes)->firstOrFail();
-    }
-
-    public function findAllArea($attributes = ['id', 'area_name']): \Illuminate\Database\Eloquent\Collection
-    {
-        return Area::all($attributes);
-    }
-
-    public function findAreaByName($name, $attributes = ['id', 'area_name']): self
-    {
-        return Area::where('area_name', $name)->get($attributes)->firstOrFail();
-    }
-
-    public function deleteAreaByName($name)
-    {
-        $area = Area::where('name', $name)->firstOrFail();
-        return $area->delete();
-    }
-
 }

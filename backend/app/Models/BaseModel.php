@@ -9,11 +9,6 @@ use Illuminate\Validation\ValidationException;
 abstract class BaseModel extends Model
 {
     /**
-     * @return array creation rules to validate attributes.
-     */
-    abstract public static function creationRules(): array;
-
-    /**
      * The attributes that are used to sort.
      *
      * @var string[]
@@ -26,6 +21,11 @@ abstract class BaseModel extends Model
      * @var string[]
      */
     protected array $filterable = ['*'];
+
+    /**
+     * @return array creation rules to validate attributes.
+     */
+    abstract public static function creationRules(): array;
 
     /**
      * @param array $attributes model attributes do save.
