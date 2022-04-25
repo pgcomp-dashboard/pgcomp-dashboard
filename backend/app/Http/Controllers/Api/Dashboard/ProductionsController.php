@@ -23,13 +23,19 @@ class ProductionsController extends Controller
             default => null
         };
 
-        $user_type = $request->input("user_type");
-        $course_id = $request->input("course_id");
+        $user_type = [
+            "docente" => ["professor", null],
+            "mestrando" => ["student", "1"],
+            "doutorando" => ["student", "2"]
+        ];
+
+        $filter = $user_type[$request->input("user_type")];
+        //$course_id = $request->input("course_id");
 
         $keyReturnPattern = ['years', 'data'];
         $productions = new Production();
         $data = $productions
-                    ->totalProductionsPerYear(user_type: $user_type, course_id: $course_id, publisher_type: $publisher_type);
+                    ->totalProductionsPerYear(user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 

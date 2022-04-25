@@ -152,9 +152,8 @@ class Production extends BaseModel
 
         for ($year = $years[0]->min;  $year <= $years[0]->max; $year++){
             $dataYear[] = $year;
-            if($data[0]->year == $year){
-                $dataCount[] = $data[0]->production_count;
-                $data->shift();
+            if($data->isNotEmpty() && $data[0]->year == $year){
+                $dataCount[] = $data->shift()->production_count;
             } else {
                 $dataCount[] = 0;
             }
