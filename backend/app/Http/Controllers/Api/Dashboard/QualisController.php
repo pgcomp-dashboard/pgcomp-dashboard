@@ -43,4 +43,23 @@ class QualisController extends Controller
         $qualis = new StratumQualis();
         return $qualis->totalProductionsPerQualis(['years', 'data']);
     }
+
+    public function productionPerQualisFilterMasterDegree()
+    {
+        $qualis = new StratumQualis();
+        return $qualis->ProductionsPerQualisFilterMaster(['years', 'data']);
+    }
+
+    public function productionPerQualisFilterDoctorateDegree()
+    {
+        $qualis = new StratumQualis();
+        return $qualis->ProductionsPerQualisFilterDoctorateDegree(['years', 'data']);
+    }
+
+    public function productionPerQualisFilterByTeacher()
+    {
+        $qualis = new StratumQualis();
+        return $qualis->ProductionsPerQualisFilterByTeacher(['years', 'data']);
+    }
+
 }
