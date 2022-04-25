@@ -93,8 +93,9 @@ class Area extends BaseModel
 
     public function deleteAreaByName($name)
     {
-        $area = Area::where('name', $name)->firstOrFail();
+        $area = Area::where('area_name', $name)->firstOrFail();
         return $area->delete();
     }
 
 }
+

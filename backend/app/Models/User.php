@@ -347,6 +347,214 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return [$dataSubfields, $dataCount];
     }
 
+    public function subareasMasterFilter(): array
+    {
+        $data = DB::table('users')
+            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->where('users.type', '=', UserType::STUDENT)
+            ->where('users.course_id', '=', 1)
+            ->groupBy('subareas.subarea_name')
+            ->get();
+            
+
+        $dataSubfields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataSubfields[$counter] = $data[$counter]->subarea_name;
+            $dataCount[$counter] = $data[$counter]->subarea_count;
+        }
+
+        return [$dataSubfields, $dataCount];
+    }
+
+    public function areasMasterFilter(): array
+    {
+        $data = DB::table('users')
+        ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+        ->join('areas', 'areas.id', '=', 'subareas.area_id')
+        ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+        ->where('users.type', '=', UserType::STUDENT)
+        ->where('users.course_id', '=', 1)
+        ->groupBy('areas.area_name')
+        ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataFields[$counter] = $data[$counter]->area_name;
+            $dataCount[$counter] = $data[$counter]->area_count;
+    }
+
+    return [$dataFields, $dataCount];
+    }
+
+    public function areasDoctorFilter(): array
+    {
+        $data = DB::table('users')
+        ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+        ->join('areas', 'areas.id', '=', 'subareas.area_id')
+        ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+        ->where('users.type', '=', UserType::STUDENT)
+        ->where('users.course_id', '=', 2)
+        ->groupBy('areas.area_name')
+        ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataFields[$counter] = $data[$counter]->area_name;
+            $dataCount[$counter] = $data[$counter]->area_count;
+    }
+
+    return [$dataFields, $dataCount];
+    }
+
+    public function subareasDoctorFilter(): array
+    {
+        $data = DB::table('users')
+            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->where('users.type', '=', UserType::STUDENT)
+            ->where('users.course_id', '=', 2)
+            ->groupBy('subareas.subarea_name')
+            ->get();
+
+        $dataSubfields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataSubfields[$counter] = $data[$counter]->subarea_name;
+            $dataCount[$counter] = $data[$counter]->subarea_count;
+        }
+
+        return [$dataSubfields, $dataCount];
+    }
+
+
+    public function areasActiveFilter(): array
+    {
+        $data = DB::table('users')
+        ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+        ->join('areas', 'areas.id', '=', 'subareas.area_id')
+        ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+        ->where('users.type', '=', UserType::STUDENT)
+        ->where('users.defended_at', '=', null)
+        ->groupBy('areas.area_name')
+        ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataFields[$counter] = $data[$counter]->area_name;
+            $dataCount[$counter] = $data[$counter]->area_count;
+    }
+
+    return [$dataFields, $dataCount];
+    }
+
+    public function subareasActiveFilter(): array
+    {
+        $data = DB::table('users')
+            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->where('users.type', '=', UserType::STUDENT)
+            ->where('users.defended_at', '=', null)
+            ->groupBy('subareas.subarea_name')
+            ->get();
+
+        $dataSubfields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataSubfields[$counter] = $data[$counter]->subarea_name;
+            $dataCount[$counter] = $data[$counter]->subarea_count;
+        }
+
+        return [$dataSubfields, $dataCount];
+    }
+
+    public function areasNotActiveFilter(): array
+    {
+        $data = DB::table('users')
+        ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+        ->join('areas', 'areas.id', '=', 'subareas.area_id')
+        ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+        ->where('users.type', '=', UserType::STUDENT)
+        ->where('users.defended_at', '!=', null)
+        ->groupBy('areas.area_name')
+        ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataFields[$counter] = $data[$counter]->area_name;
+            $dataCount[$counter] = $data[$counter]->area_count;
+    }
+
+    return [$dataFields, $dataCount];   
+    }
+
+    public function subareasNotActiveFilter(): array
+    {
+        $data = DB::table('users')
+        ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+        ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+        ->where('users.type', '=', UserType::STUDENT)
+        ->where('users.defended_at', '!=', null)
+        ->groupBy('subareas.subarea_name')
+        ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataSubfields[$counter] = $data[$counter]->subarea_name;
+            $dataCount[$counter] = $data[$counter]->subarea_count;
+        }
+
+    return [$dataFields, $dataCount];   
+    }
+
+
+    public function areasCompletedFilter(): array
+    {
+        $data = DB::table('users')
+        ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+        ->join('areas', 'areas.id', '=', 'subareas.area_id')
+        ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+        ->where('users.type', '=', UserType::STUDENT)
+        ->where('users.defended_at', '!=', null)
+        ->groupBy('areas.area_name')
+        ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataFields[$counter] = $data[$counter]->area_name;
+            $dataCount[$counter] = $data[$counter]->area_count;
+    }
+
+    return [$dataFields, $dataCount];
+    }
+
+    public function subareasCompletedFilter(): array
+    {
+        $data = DB::table('users')
+        ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+        ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+        ->where('users.type', '=', UserType::STUDENT)
+        ->where('users.defended_at', '!=', null)
+        ->groupBy('subareas.subarea_name')
+        ->get();
+
+        $dataFields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataSubfields[$counter] = $data[$counter]->subarea_name;
+            $dataCount[$counter] = $data[$counter]->subarea_count;
+        }
+
+    return [$dataFields, $dataCount];   
+    }
+
     public function sendPasswordResetNotification($token)
     {
         ResetPasswordNotification::createUrlUsing(function (User $user, string $token) {
@@ -363,13 +571,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             if (!$production['doi']) {
                 continue;
             }
-            $productionModel = Production::where('doi', $production['doi'])->first();
-            if ($productionModel?->publisher_id) {
-                // isso evita que o valor seja removido em caso de multiplos usuarios por produção
-                unset($production['publisher_id']);
-            }
-            $productionModel = Production::updateOrCreate(Arr::only($production, ['doi']), $production);
-            $this->writerOf()->syncWithoutDetaching($productionModel);
+            $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
         }
         $this->lattes_updated_at = $data['lattes_updated_at'];
         $this->save();

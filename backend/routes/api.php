@@ -41,9 +41,26 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('program', [ProgramsController::class, 'programName']);
     Route::get('all_production', [ProductionsController::class, 'totalProductionsPerYear']);
     Route::get('students_production', [ProductionsController::class, 'studentsProductions']);
+
     Route::get('production_per_qualis', [QualisController::class, 'productionPerQualis']);
-    Route::get('fields', [StudentsController::class, 'studentsArea']);
+    Route::get('production_per_qualis/master', [QualisController::class, 'productionPerQualisFilterMasterDegree']);
+    Route::get('production_per_qualis/doctor', [QualisController::class, 'productionPerQualisFilterDoctorateDegree']);
+    Route::get('production_per_qualis/teacher', [QualisController::class, 'productionPerQualisFilterByTeacher']);
+
+
     Route::get('subfields', [StudentsController::class, 'studentsSubarea']);
+    Route::get('subfields/master', [StudentsController::class,  'studentsMasterDegreeSubareas']);
+    Route::get('subfields/doctorate', [StudentsController::class, 'studentsDoctorateDegreeSubareas']);
+    Route::get('subfields/active', [StudentsController::class, 'studentsActiveAreas']);
+    Route::get('subfields/disabled', [StudentsController::class, 'studentsNotActiveSubareas']);
+    Route::get('subfields/completed', [StudentsController::class, 'studentsCompletedSubareas']);
+
+    Route::get('fields', [StudentsController::class, 'studentsArea']);
+    Route::get("fields/master", [StudentsController::class, 'studentsMasterDegreeAreas']);
+    Route::get("fields/doctorate", [StudentsController::class, 'studentsDoctorateDegreeArea']);
+    Route::get("fields/active", [StudentsController::class, 'studentsActiveAreas']);
+    Route::get("fields/disabled", [StudentsController::class, 'studentsNotActiveArea']);
+    Route::get("fields/completed", [StudentsController::class, 'studentsCompletedAreas']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
 });
 
