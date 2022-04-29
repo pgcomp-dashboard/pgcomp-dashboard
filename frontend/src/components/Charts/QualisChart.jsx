@@ -9,10 +9,7 @@ import {
     Legend,
 } from 'chart.js';
 import axios from 'axios';
-import { map } from 'lodash';
 import { useEffect, useState } from 'react';
-import generateColorsArray from '../../Utils.js'
-//TODO: get na url 'dashboard/production_per_qualis'
 
 ChartJS.register(
     CategoryScale,
@@ -23,19 +20,8 @@ ChartJS.register(
     Legend
 );
 
-const generateValues = (numberOfValues) => {
-    const values = [];
-    for (let i = 0; i < numberOfValues; i++) {
-        values.push(Math.floor(Math.random() * 150) + 1);
-    }
-
-    return values;
-}
-
 function QualisChart({ filter }) {
     const [chartData, setChartData] = useState(null);
-    const NUMBER_OF_ITEMS = 19;
-
     const qualisCategoriesColors = {
         'A1': '#7CBB00',
         'A2': '#FF6C6C',
@@ -71,7 +57,7 @@ function QualisChart({ filter }) {
 
     const getData = (selectedFilter = []) => {
         axios.get('http://localhost:8000/api/dashboard/production_per_qualis', { params: { selectedFilter } })
-            .then(({ data, year }) => {
+            .then(({ data }) => {
                 const labels = data.years;
                 const dataChart = data
                     .data
@@ -98,7 +84,7 @@ function QualisChart({ filter }) {
             });
     }
 
-    useEffect(() => {        
+    useEffect(() => {
         getData();
     }, []);
 

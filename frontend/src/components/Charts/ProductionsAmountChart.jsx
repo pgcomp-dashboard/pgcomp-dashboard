@@ -23,15 +23,6 @@ ChartJS.register(
     Legend
 );
 
-const generateValues = (numberOfValues) => {
-    const values = [];
-    for (let i = 0; i < numberOfValues; i++) {
-        values.push(Math.floor(Math.random() * 150) + 1);
-    }
-
-    return values;
-}
-
 function ProductionsAmountChart({ filter }) {
     const [chartData, setChartData] = useState(null);
 

@@ -9,9 +9,7 @@ import {
     Legend,
 } from 'chart.js';
 import axios from 'axios';
-import { map } from 'lodash';
 import { useEffect, useState } from 'react';
-//TODO: get na url 'dashboard/students_production'
 
 ChartJS.register(
     CategoryScale,
@@ -33,7 +31,6 @@ const generateValues = (numberOfValues) => {
 
 function ProductionPerStudentChart({ filter }) {
     const [chartData, setChartData] = useState(null);
-    const NUMBER_OF_ITEMS = 19;
 
     const options = {
         elements: {
