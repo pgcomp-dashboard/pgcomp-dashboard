@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\PanelAdmin\ConferenceController;
 use App\Http\Controllers\Api\PanelAdmin\CourseController;
 use App\Http\Controllers\Api\PanelAdmin\JournalController;
 use App\Http\Controllers\Api\PanelAdmin\ProductionController as ProductionAdminController;
+use App\Http\Controllers\Api\PanelAdmin\ProfessorProductionController;
+use App\Http\Controllers\Api\PanelAdmin\StudentProductionController;
 use App\Http\Controllers\Api\PanelAdmin\ProfessorController;
 use App\Http\Controllers\Api\PanelAdmin\ProgramController as ProgramAdminController;
 use App\Http\Controllers\Api\PanelAdmin\StratumQualisController;
@@ -72,6 +74,10 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('conferences', ConferenceController::class);
         Route::apiResource('courses', CourseController::class);
         Route::apiResource('productions', ProductionAdminController::class);
+        Route::apiResource('productions/student', ProfessorProductionController::class)
+            ->except(['store', 'update']);
+        Route::apiResource('productions/professor', StudentProductionController::class)
+            ->except(['store', 'update']);;
         Route::apiResource('programs', ProgramAdminController::class);
         Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
