@@ -15,7 +15,8 @@
 <p align="center">
  <a href="#-sobre-o-projeto">Sobre</a> •
  <a href="#-funcionalidades">Funcionalidades</a> •
- <a href="#-layout">Layout</a> • 
+ <a href="#-layout">Layout</a> •
+ <a href="#-arquitetura">Arquitetura</a> •
  <a href="#-executando-o-projeto">Executando o projeto</a> • 
  <a href="#-tecnologias">Tecnologias</a> • 
  <a href="#-contribuidores">Contribuidores</a> • 
@@ -25,6 +26,8 @@
 ## 💻 Sobre o projeto  
 
 Este projeto foi realizado por meio da disciplina Tópicos em Sistemas de Informação e WEB I, ministrada pelo professor Frederico Araújo Durão. O mesmo visa disponibilizar através de um Dashboard público, visualizações gráficas acerca das publicações realizadas pelo Programa de Pós-Graduação em Ciência da Computação (PGCOMP).
+
+[Acessar Documentação do Projeto](https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/home)
 
 ---
 
@@ -47,7 +50,6 @@ Esses gráficos podem ser filtrados por:
 Os dados são adquiridos através de Web Scraping dentro dos seguinte sites, atualização feita a cada 3 meses:
 - [PGCOMP](https://pgcomp.ufba.br/)
 - [SIGAA](https://sigaa.ufba.br/sigaa/public/home.jsf)
-- [Escavador](https://www.escavador.com)
 
 
 Além disso, existe o frontend-admin, no qual um usuário do tipo Admin, após logar-se, pode Visualiar, Criar, Remover e/ou Editar de forma manual:
@@ -85,6 +87,19 @@ O layout da aplicação está disponível no Figma:
 
   <img alt="Front-dash" title="#AUFBAProduz" src="" width="200px">
 </p>
+
+---
+
+## 🏛 Arquitetura
+
+### Diagrama da Aplicação Web
+
+<img alt="Diagrama-app-web" title="#AUFBAProduz" src="https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/uploads/7078520d539cd701b7a642385173d7b2/modelo_aufbaproduz.drawio__10_.png" width="500px">
+
+### Diagrama do Banco de Dados
+
+<img alt="Diagrama-bd" title="#AUFBAProduz" src="https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/uploads/f96f0bc33ba3848a3a654916905c36ae/ufbafaz.png" width="500px">
+
 
 ---
 
