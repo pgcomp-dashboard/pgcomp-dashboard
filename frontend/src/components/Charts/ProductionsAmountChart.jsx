@@ -11,7 +11,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
-//TODO: get na url 'dashboard/all_production'
+import axios from 'axios';
 
 ChartJS.register(
     CategoryScale,
@@ -54,26 +54,31 @@ function ProductionsAmountChart({ filter }) {
         },
     }
 
+    const getData = (selectedFilter = []) => {
+        axios.get('http://localhost:8000/api/dashboard/all_production', { params: { selectedFilter } })
+            .then(({ data }) => {
+                const labels = data.years;
+
+                const dataChart = [
+                    {
+                        label: 'Produções',
+                        data: data.data,
+                        borderColor: '#66ff99',
+                        backgroundColor: '#66ff99',
+                    }
+                ];
+
+                const productionsData = {
+                    labels,
+                    datasets: dataChart
+                }
+
+                setChartData(productionsData);
+            });
+    }
+
     useEffect(() => {
-        const labels = ['2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022'];
-
-        const data = {
-            labels,
-            datasets: [
-
-                {
-                    label: 'Dataset 1',
-                    data: generateValues(19),
-                    borderColor: '#66ff99',
-                    backgroundColor: '#66ff99',
-                },
-
-            ]
-        };
-
-        console.log(data);
-
-        setChartData(data);
+        getData();
 
     }, []);
 

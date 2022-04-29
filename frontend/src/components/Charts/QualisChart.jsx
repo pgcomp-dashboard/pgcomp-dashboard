@@ -36,6 +36,17 @@ function QualisChart({ filter }) {
     const [chartData, setChartData] = useState(null);
     const NUMBER_OF_ITEMS = 19;
 
+    const qualisCategoriesColors = {
+        'A1': '#7CBB00',
+        'A2': '#FF6C6C',
+        'A3': '#3098DC',
+        'A4': '#868686',
+        'B1': '#E76A05',
+        'B2': '#F25AFF',
+        'B3': '#5A938F',
+        'B4': '#BBB400'
+    }
+
     const options = {
         elements: {
             bar: {
@@ -58,52 +69,37 @@ function QualisChart({ filter }) {
         }
     }
 
-    useEffect(() => {
-        const labels = ['2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022'];
+    const getData = (selectedFilter = []) => {
+        axios.get('http://localhost:8000/api/dashboard/production_per_qualis', { params: { selectedFilter } })
+            .then(({ data, year }) => {
+                const labels = data.years;
+                const dataChart = data
+                    .data
+                    .filter((qualis) => {
+                        return qualis.label !== '-'
+                    })
+                    .map((qualis) => {
+                        return {
+                            ...qualis,
+                            backgroundColor: qualisCategoriesColors[qualis.label]
 
-        const qualisData = {
-            labels,
-            datasets: [
-                {
-                    label: 'A1',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: '#7CBB00'
-                }, {
-                    label: 'A2',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: '#FF6C6C'
-                }, {
-                    label: 'A3',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: '#3098DC'
-                }, {
-                    label: 'A4',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: '#868686'
-                }, {
-                    label: 'B1',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: '#E76A05'
-                }, {
-                    label: 'B2',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: '#F25AFF'
-                }, {
-                    label: 'B3',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: '#5A938F'
-                }, {
-                    label: 'B4',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: '#BBB400'
-                },
-            ]
-        };
+                        }
 
-        console.log(qualisData);
+                    });
 
-        setChartData(qualisData);
+                const qualisData = {
+                    labels,
+                    datasets: dataChart
+                };
 
+                setChartData(qualisData);
+
+                console.log('qualis: ', qualisData);
+            });
+    }
+
+    useEffect(() => {        
+        getData();
     }, []);
 
     useEffect(() => {
