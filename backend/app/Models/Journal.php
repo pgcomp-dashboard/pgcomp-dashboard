@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -86,14 +85,6 @@ class Journal extends BaseModel
         ];
     }
 
-    public static function createOrUpdateJournal(array $data): Journal
-    {
-        return Journal::updateOrCreate(
-            Arr::only($data, ['name']),
-            $data
-        );
-    }
-
     public function updateRules(): array
     {
         return [
@@ -117,11 +108,5 @@ class Journal extends BaseModel
     public function stratumQualis(): BelongsTo
     {
         return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');
-    }
-
-    public function deleteJournal($name): bool
-    {
-        $journal = Journal::where('name', $name)->firstOrFail();
-        return $journal->delete();
     }
 }
