@@ -74,23 +74,17 @@ class ControllerSubAreaTest extends TestCase
 
       public function test_remove_Subarea()
       {
-          $scraping = new ReflectionClass(Subarea::class);
-          $method = $scraping->getMethod('deleteSubareaByName');
-          $area = new Subarea();
+          $program = Program::create(['sigaa_id' => random_int(9999, 999999), 'name' => 'Program 1']);
+          $area = Area::create(['program_id' => $program->id, 'area_name' => 'Teste Area 1']);
+          $subAreaData = ['subarea_name' => 'teste1', 'area_id' => $area->id];
+          $subarea = Subarea::create($subAreaData);
 
+          $user = new User();
+          $user->is_admin = true;
+          $data = $this->actingAs($user)->delete('api/portal/admin/subareas/' . $subarea->id);
+          $data->assertStatus(200);
 
-          $area->createOrUpdateSubarea(['subarea_name' => "Area_1", "area_id"=> 1]);
-
-          $values = [
-              // Exception
-              ['arg' => 'Area_1', 'return' => true],
-              //['arg' => 'Area_300', 'return' => false],
-          ];
-
-          foreach($values as $value) {
-              $this->assertEquals(
-                  $method->invoke($area, $value['arg']), $value['return']
-              );
-          }
+          $data = $this->actingAs($user)->get('api/portal/admin/subareas/' . $subarea->id);
+          $data->assertStatus(404);
        }
 }
