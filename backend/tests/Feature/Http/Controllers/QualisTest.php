@@ -1,9 +1,7 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Http\Controllers\Http\Controllers;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class QualisTest extends TestCase

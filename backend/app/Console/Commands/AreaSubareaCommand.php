@@ -44,6 +44,8 @@ class AreaSubareaCommand extends Command
             }
             $user->subarea_id = $subArea?->id;
             $user->save();
+
+            $user->advisedes()->update(['subarea_id' => $subArea?->id]);
         }
     }
 
