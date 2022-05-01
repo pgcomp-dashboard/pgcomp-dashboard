@@ -49,7 +49,6 @@ chrome-user-data
 *.swp
 *.swo
 
-package-lock.json
 yarn.lock
 
 packages/react-devtools-core/dist

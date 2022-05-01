@@ -88,4 +88,9 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     });
 });
 
-Route::get('healthcheck', fn() => ['success' => true]);
+Route::get('healthcheck', function (Request $request) {
+    \Illuminate\Support\Facades\DB::getPdo();
+    $startTime = defined('LARAVEL_START') ? LARAVEL_START : $request->server('REQUEST_TIME_FLOAT');
+
+    return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
+});
