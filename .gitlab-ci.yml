@@ -1,0 +1,85 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DEPLOY_FOLDER: "mate85-deploy"
+  DOMAINS: "mate85.litiano.dev.br mate85-api.litiano.dev.br mate85-admin.litiano.dev.br"
+  EMAIL: "litiano.moura@ufba.br"
+
+docker-build:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  cache:
+    - key:
+        files:
+          - backend/package-lock.json
+      paths:
+        - backend/node_modules
+    - key:
+        files:
+          - frontend/package-lock.json
+      paths:
+        - frontend/node_modules
+    - key:
+        files:
+          - frontend-admin/package-lock.json
+      paths:
+        - frontend-admin/node_modules
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - echo "$ENV_PROD" >> backend/.env.prod
+    - cp backend/.env.prod backend/.env
+    - docker run --volume `pwd`/backend:/app --workdir /app node:16.14-slim npm install
+    - docker run --volume `pwd`/backend:/app --workdir /app node:16.14-slim npm run production
+    - docker run --volume `pwd`/frontend:/app --workdir /app node:16.14-slim npm install
+    - docker run --volume `pwd`/frontend:/app --workdir /app node:16.14-slim npx webpack build --mode production --optimization-minimize
+#    - docker run --volume `pwd`/frontend-admin:/app --workdir /app node:16.14-slim npm install
+#    - docker run --volume `pwd`/frontend-admin:/app --workdir /app node:16.14-slim npm run build
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/php || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE/php --pull --file devops/docker/php/Dockerfile -t "$CI_REGISTRY_IMAGE/php" --target production .
+    - docker push "$CI_REGISTRY_IMAGE/php"
+    - docker pull $CI_REGISTRY_IMAGE/nginx || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE/nginx --pull --file devops/docker/nginx/Dockerfile -t "$CI_REGISTRY_IMAGE/nginx" --target production .
+    - docker push "$CI_REGISTRY_IMAGE/nginx"
+    - docker build --cache-from $CI_REGISTRY_IMAGE/certbot --pull -t "$CI_REGISTRY_IMAGE/certbot" ./devops/docker/certbot
+    - docker push "$CI_REGISTRY_IMAGE/certbot"
+  only:
+    - main
+
+deploy:
+  image: ubuntu:latest
+  stage: deploy
+  before_script:
+    - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - echo "$SSH_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeychecking=no -l "$SSH_USER" "$SSH_HOST" "mkdir -p $DEPLOY_FOLDER"
+    - scp -o StrictHostKeychecking=no -o user="$SSH_USER" devops/docker/certbot/init-letsencrypt.sh "$SSH_HOST":"$DEPLOY_FOLDER"
+    - scp -r -o StrictHostKeychecking=no -o user="$SSH_USER" backend/storage "$SSH_HOST":"$DEPLOY_FOLDER/backend"
+    - scp -o StrictHostKeychecking=no -o user="$SSH_USER" docker-compose-prod.yaml "$SSH_HOST":"$DEPLOY_FOLDER/docker-compose.yaml"
+  script:
+      - |
+        ssh -o StrictHostKeychecking=no -l "$SSH_USER" "$SSH_HOST" "\
+          cd $DEPLOY_FOLDER && \
+          rm -f .env && \
+          echo CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE >> .env && \
+          echo UID=1000 >> .env && \
+          echo GID=1000 >> .env && \
+          docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD $CI_REGISTRY && \
+          bash init-letsencrypt.sh -d \"$DOMAINS\" -e $EMAIL -w 0 && \
+          echo docker pull $CI_REGISTRY_IMAGE/nginx && \
+          echo docker pull $CI_REGISTRY_IMAGE/php && \
+          docker pull $CI_REGISTRY_IMAGE/nginx && \
+          docker pull $CI_REGISTRY_IMAGE/php && \
+          docker pull $CI_REGISTRY_IMAGE/php | grep \"Image is up to date\" || \
+            (docker-compose exec -T php php backend/artisan down | 2>/dev/null) && \
+          docker-compose up -d && \
+          docker image prune -f"
+  only:
+    - main
