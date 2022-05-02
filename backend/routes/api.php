@@ -74,17 +74,16 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('conferences', ConferenceController::class);
         Route::apiResource('courses', CourseController::class);
         Route::apiResource('productions', ProductionAdminController::class);
-        Route::apiResource('productions/student', ProfessorProductionController::class)
-            ->except(['store', 'update']);
-        Route::apiResource('productions/professor', StudentProductionController::class)
-            ->except(['store', 'update']);;
         Route::apiResource('programs', ProgramAdminController::class);
         Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
         Route::apiResource('subareas', SubareaController::class);
         Route::apiResource('users', UserAdminController::class);
+
         Route::apiResource('students', StudentAdminController::class);
+        Route::apiResource('students.productions', StudentProductionController::class);
         Route::apiResource('professors', ProfessorController::class);
+        Route::apiResource('professors.productions', ProfessorProductionController::class);
     });
 });
 

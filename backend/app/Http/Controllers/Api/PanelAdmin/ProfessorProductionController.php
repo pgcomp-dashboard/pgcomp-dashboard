@@ -2,32 +2,42 @@
 
 namespace App\Http\Controllers\Api\PanelAdmin;
 
-use App\Enums\UserType;
-use App\Http\Controllers\Api\BaseApiResourceController;
-use App\Models\BaseModel;
-use App\Models\Production;
-use Illuminate\Database\Eloquent\Builder;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\BaseResourceIndexRequest;
 use Illuminate\Http\Request;
 
-class ProfessorProductionController extends BaseApiResourceController
+class ProfessorProductionController extends Controller
 {
-    public function store(Request $request)
-    {
-        $request->merge(['type' => UserType::PROFESSOR->value]);
 
-        return parent::store($request);
+    protected ProductionController $productionController;
+
+    public function index(BaseResourceIndexRequest $request, $professors){
+        $this->productionController = $this->newInstance();
+        $this->productionController->professorQuery($professors);
+        return $this->productionController->index($request);
     }
 
-    protected function newBaseQuery(): Builder
-    {
-        return parent::newBaseQuery()
-            ->join('users_productions', 'id', '=', 'users_productions.productions_id')
-            ->join('users', 'users_productions.users_id', '=', 'users.id')
-            ->where('users.type', '=',UserType::PROFESSOR);
+    public function show($professors, $productions){
+        $this->productionController = $this->newInstance();
+        return $this->productionController->show($productions);
     }
 
-    protected function modelClass(): string|BaseModel
-    {
-        return Production::class;
+    public function store(Request $request, $professors){
+        $this->productionController = $this->newInstance();
+        return $this->productionController->store($request);
+    }
+
+    public function update(Request $request, $professors, $productions){
+        $this->productionController = $this->newInstance();
+        return $this->productionController->update($request, $productions);
+    }
+
+    public function destroy($professors, $productions){
+        $this->productionController = $this->newInstance();
+        return $this->productionController->destroy($productions);
+    }
+
+    private function newInstance(){
+        return new ProductionController();
     }
 }
