@@ -72,7 +72,7 @@ function ProductionPerStudentChart({ filter }) {
                 });
 
                 const productionStudentData = {
-                    labels, 
+                    labels,
                     datasets: dataChart
                 }
 
@@ -85,7 +85,9 @@ function ProductionPerStudentChart({ filter }) {
     }, []);
 
     useEffect(() => {
-        console.log('Filtro atualizado: ' + filter);
+        if (filter == 'default') filter = [];
+
+        getData(filter);
     }, [filter]);
 
     return (
