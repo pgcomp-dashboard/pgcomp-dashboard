@@ -31,7 +31,13 @@ function LoginPage() {
     }
 
     const handleLogin = () => {
-
+        axios.get('http://localhost:8000/api/login', {
+            params: {
+                email, password
+            }
+        }).then((response) => {
+            // if respose.logged { setIsloged(true) }
+        })
     }
 
     useEffect(() => {
