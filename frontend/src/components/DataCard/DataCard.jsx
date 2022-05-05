@@ -7,7 +7,7 @@ import DefaultFilter from '../Filters/DefaultFilter';
 
 
 function DataCard(props) {
-    const [filter, setFilter] = useState(10);
+    const [filter, setFilter] = useState('default');
 
     return (
         <div className={styles.data__card}>

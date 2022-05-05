@@ -3,7 +3,7 @@ import { Toolbar, Footer } from "../../components";
 import styles from "./Dashboard.module.css";
 
 interface Props {
-  children: any;
+  children: any
 }
 
 function DashboardTemplate(props: Props) {

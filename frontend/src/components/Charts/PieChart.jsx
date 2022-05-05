@@ -57,17 +57,19 @@ function PieChart({ filter }) {
                 },
             ],
         });
-        
+
         getData();
     }, []);
 
-    
+
 
     useEffect(() => {
-        console.log('Filtro atualizado: ' + filter);
+        if (filter == 'default') filter = [];
+        
+        getData(filter);
     }, [filter]);
 
-    return chartData ?  <Pie options={options} data={chartData} /> : null;
+    return chartData ? <Pie options={options} data={chartData} /> : null;
 }
 
 export default PieChart

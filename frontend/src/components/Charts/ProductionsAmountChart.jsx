@@ -46,7 +46,7 @@ function ProductionsAmountChart({ filter }) {
     }
 
     const getData = (selectedFilter = []) => {
-        axios.get('http://localhost:8000/api/dashboard/all_production', { params: { selectedFilter } })
+        axios.get('http://localhost:8000/api/dashboard/all_production', { params: { user_type: selectedFilter } })
             .then(({ data }) => {
                 const labels = data.years;
 
@@ -74,7 +74,9 @@ function ProductionsAmountChart({ filter }) {
     }, []);
 
     useEffect(() => {
-        console.log('Filtro atualizado: ' + filter);
+        if (filter == 'default') filter = [];
+        
+        getData(filter);
     }, [filter]);
 
     return (

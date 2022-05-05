@@ -31,8 +31,13 @@ function QualisChart({ filter }) {
         'B2': '#F25AFF',
         'B3': '#5A938F',
         'B4': '#BBB400'
-    }
+    };
 
+    const qualisFilters = {
+        'mestrando': 'master',
+        'doutorando': 'doctor',
+        'docente': 'teacher',
+    }
     const options = {
         elements: {
             bar: {
@@ -56,7 +61,11 @@ function QualisChart({ filter }) {
     }
 
     const getData = (selectedFilter = []) => {
-        axios.get('http://localhost:8000/api/dashboard/production_per_qualis', { params: { selectedFilter } })
+        console.log(selectedFilter);
+        const endpointFilter = selectedFilter && !(Array.isArray(selectedFilter)) && selectedFilter !== 'default' ? '/' + qualisFilters[selectedFilter] : '';
+        const url = 'http://localhost:8000/api/dashboard/production_per_qualis' + endpointFilter
+        console.log(url);
+        axios.get(url)
             .then(({ data }) => {
                 const labels = data.years;
                 const dataChart = data
@@ -89,7 +98,9 @@ function QualisChart({ filter }) {
     }, []);
 
     useEffect(() => {
-        console.log('Filtro atualizado: ' + filter);
+        if (filter == 'default') filter = [];
+
+        getData(filter);
     }, [filter]);
 
     return (
