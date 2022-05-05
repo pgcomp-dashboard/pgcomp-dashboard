@@ -3,7 +3,7 @@ import { Toolbar, Footer } from "../../components";
 import styles from "./Dashboard.module.css";
 
 interface Props {
-  children: JSX.Element | React.ReactNode | React.ReactChildren;
+  children: any
 }
 
 function DashboardTemplate(props: Props) {
