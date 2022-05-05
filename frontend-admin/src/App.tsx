@@ -3,6 +3,7 @@ import styles from './App.module.css';
 import Session from './components/Session/Session';
 import SessionsPanel from './components/SessionsPanel/SessionsPanel';
 import Toolbar from './components/Toolbar/Toolbar';
+import { LoginPage } from './pages';
 import NewPasswordPage from "./pages/NewPassword/NewPassword";
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
     //         </div>
     //     </div>
     // );
-  return <NewPasswordPage />;
+  return <LoginPage />;
 }
 
 export default App;
