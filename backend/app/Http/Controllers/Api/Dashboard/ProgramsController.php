@@ -15,6 +15,9 @@ class ProgramsController extends Controller
         //  "nome": "Programa de pós-graduação em ciência da computação"
         //}
 
+        /**
+         * @todo vamos tentar usar o padrão de nomes do banco de dados para evitar renomear.
+         */
         $keyReturnPattern = ['sigla', "nome"];
         $keysSearch = ['name', 'description'];
         $program = new Program();

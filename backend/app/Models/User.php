@@ -16,6 +16,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\DatabaseNotification;
@@ -201,62 +202,29 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         );
     }
 
-    public function isAdvisoredBy()
-    {
-        return $this->belongsToMany(User::class);
-    }
-
     public function writerOf(): BelongsToMany
     {
         return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
     }
 
-    public function belongsToTheCourse()
+    public function program(): BelongsTo
     {
-        return $this->hasOne(Program::class, 'course_id');
+        return $this->belongsTo(Program::class, 'program_id');
     }
 
-    public function deleteUser($sigaaId)
+    public function findUserByName($UserName): User
     {
-        $user = new User();
-        $user = User::checkIfUserAlreadyExist($sigaaId);
-        $user = User::checkIfUserWasFound($user);
-        $user->delete();
+        return User::where('name', $UserName)->firstOrFail();
     }
 
-    public function findUserByName($UserName)
+    public function findProfessorBySiape(int $siape): User
     {
-        $user = new User();
-        $user = User::where('name', $UserName)->first();
-        return User::checkIfUserWasFound($user);
+        return User::where('siape', $siape)->firstOrFail();
     }
 
-    //nao terminado
-
-    public function findProfessorBySiape($siape)
+    public function findStudentByRegistration($registration): User
     {
-        $user = new User();
-        $user = User::where('siape', $siape)->first();
-        return User::checkIfUserWasFound($user);
-
-    }
-
-    public function findStudentByRegistration($registration)
-    {
-        $user = new User();
-        $user = User::where('registration', $registration);
-        return User::checkIfUserWasFound($user);
-    }
-
-    public function findAllUsers()
-    {
-        return User::all();
-    }
-
-    public function findNumberOfStudentsForEachProfessor()
-    {
-        $allProfessor = User::all('name', 'siape')->whereNotNull('siape')->count();
-        return $allProfessor;
+        return User::where('registration', $registration)->firstOrFail();
     }
 
     public function updateRules(): array
