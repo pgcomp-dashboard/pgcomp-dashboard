@@ -44,13 +44,15 @@ class AreaSubareaCommand extends Command
             }
             $user->subarea_id = $subArea?->id;
             $user->save();
+
+            $user->advisedes()->update(['subarea_id' => $subArea?->id]);
         }
     }
 
     protected function getSheet(): Sheets
     {
         $cliente = new Client();
-        $cliente->setAuthConfig('/var/www/html/google-ufba.json');
+        $cliente->setAuthConfig(base_path('google-ufba.json'));
 
         $cliente->setApplicationName('mate85-sheets');
         $cliente->addScope(Sheets::SPREADSHEETS_READONLY);

@@ -2,13 +2,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Area;
+use App\Models\Program;
+use App\Models\User;
 use ReflectionClass;
+use Tests\TestCase;
 
 class ControllerAreaTest extends TestCase
 {
-
     public function test_createArea_syntax()
     {
         $scraping = new ReflectionClass(Area::class);
@@ -21,18 +22,18 @@ class ControllerAreaTest extends TestCase
             ['arg' => ['area_name' => 'Ló#@gica', 'program_id' => 1], 'return' => true],
             ['arg' => ['area_name' => 'Teoria dos Grafos', 'program_id' => 1], 'return' => true],
             //['arg' => ['area_name' => '😽', 'program_id' => 1], 'return' => false],
-           // ['arg' => ['area_name' => 'joaocarlos@gmail.com', 'program_id' => 1], 'return' => false],
-            
+            // ['arg' => ['area_name' => 'joaocarlos@gmail.com', 'program_id' => 1], 'return' => false],
+
         ];
-       
-        foreach($values as $value) {
+
+        foreach ($values as $value) {
             $this->assertEquals(
                 $method->invoke($area, $value['arg'])->getIncrementing(), $value['return']
             );
         }
-     }
+    }
 
-     public function test_createArea_exception()
+    public function test_createArea_exception()
     {
         $scraping = new ReflectionClass(Area::class);
         $method = $scraping->getMethod('createOrUpdateArea');
@@ -40,65 +41,54 @@ class ControllerAreaTest extends TestCase
 
         $values = [
             // Exceptions
-            ['arg' => ['area_name' => 'Teoria os Gráfos', 'program_id' =>-1], 'return' => true],
+            ['arg' => ['area_name' => 'Teoria os Gráfos', 'program_id' => -1], 'return' => true],
             ['arg' => ['area_name' => 'Teoria os Gráfos'], 'return' => true],
             ['arg' => ['program_id' => 1], 'return' => true],
             ['arg' => [], 'return' => true],
-            
+
         ];
         $this->expectExceptionMessage('O campo program id selecionado é inválido.');
 
-        foreach($values as $value) {
+        foreach ($values as $value) {
             $this->assertEquals(
                 $method->invoke($area, $value['arg'])->getIncrementing(), $value['return']
             );
         }
-     }
+    }
 
-     public function test_view_area()
-     {
-         $scraping = new ReflectionClass(Area::class);
-         $method = $scraping->getMethod('findArea');
-         $area = new Area();
- 
-         $values = [
-             // Exceptions
-             ['arg' => 1, 'return' => 1],
-             ['arg' => 2, 'return' => 2],
-             //['arg' => 4, 'return' => 4],
-             ['arg' => 3, 'return' => 3],
-            // ['arg' => 1 + 5 / 2, 'return' => 5 + 1 / 2],
-            // ['arg' => 10000, 'return' => 10000], //Exception
-            // ['arg' => -1, 'return' => -1],
-             
-         ];
- 
-         foreach($values as $value) {
-             $this->assertEquals(
-                 $method->invoke($area, $value['arg'])['id'], $value['return']
-             );
-         }
-      }
+    public function test_view_area()
+    {
+        $area = $this->createArea();
 
-      public function test_remove_area()
-      {
-          $scraping = new ReflectionClass(Area::class);
-          $method = $scraping->getMethod('deleteAreaByName');
-          $area = new Area();
-        
+        $data = $this->get('api/portal/admin/areas/' . $area->id);
 
-          $area->createOrUpdateArea(['area_name' => "Area_1", "program_id"=> 1]);
+        $data->assertJson($area->toArray());
+    }
 
-          $values = [
-              // Exception
-              ['arg' => 'Area_1', 'return' => true],
-              //['arg' => 'Area_300', 'return' => false],
-          ];
-  
-          foreach($values as $value) {
-              $this->assertEquals(
-                  $method->invoke($area, $value['arg']), $value['return']
-              );
-          }
-       }
+    public function test_remove_area()
+    {
+        $area = $this->createArea();
+
+        $data = $this->delete('api/portal/admin/areas/' . $area->id);
+        $data->assertStatus(200);
+
+        $data = $this->get('api/portal/admin/areas/' . $area->id);
+        $data->assertStatus(404);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $user = new User();
+        $user->is_admin = true;
+
+        $this->actingAs($user); // use api as admin user.
+    }
+
+    protected function createArea(): Area
+    {
+        $program = Program::create(['sigaa_id' => random_int(9999, 999999), 'name' => 'Program 1']);
+        return Area::create(['program_id' => $program->id, 'area_name' => 'Teste Area 1']);
+    }
 }
