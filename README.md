@@ -19,7 +19,7 @@
  <a href="#-arquitetura">Arquitetura</a> •
  <a href="#-executando-o-projeto">Executando o projeto</a> • 
  <a href="#-tecnologias">Tecnologias</a> • 
- <a href="#-contribuidores">Contribuidores</a> • 
+ <a href="#-contribuidores">Contribuidores</a> 
 </p>
 
 
@@ -144,10 +144,12 @@ $ sudo chmod 755 $DESTINATION
 #### :on: Clonado o repositório, subindo e startando containers
 
 ```bash
-
 # Clonando repositório
 $ git clone -b develop https://gitlab.com/aufbaproduz/aufbaproduz.git
 
+```
+
+```bash
 # Subindo os containers do projeto
 $ docker-compose up -d
 
@@ -159,27 +161,38 @@ $ docker-compose start
 #### 🎲 Rodando o Backend (servidor)
 
 ```bash
-
 $ docker-compose exec php bash
 $ composer install
 $ ! test -f .env && cp .env.example .env && php artisan key:generate
 $ php artisan migrate
+$ exit
 
 # O servidor phpmyadmin será iniciado na porta:8080 - acesse http://localhost:8080
-
 ```
 
 
-#### 🧭 Rodando a aplicação web (Frontend)
+#### 🧭 Rodando a Aplicação Web
+
+##### Página do Dashboard (Frontend)
 
 ```bash
-
 $ docker-compose exec node bash
 $ npm install
 $ yarn webpack serve --port 3000
+$ exit
 
 # A aplicação será aberta na porta:3000 - acesse http://localhost:3000
+```
 
+##### Rodando a página do Painel Administrativo (Frontend-admin)
+
+```bash
+$ docker-compose exec frontend-admin bash
+$ npm install
+$ npm start
+$ exit
+
+# A aplicação será aberta na porta:4000 - acesse http://localhost:4000
 ```
 
 ---
