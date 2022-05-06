@@ -69,7 +69,8 @@ function StudentsPerTeacherChart({ filter }) {
     }, []);
 
     useEffect(() => {
-        console.log('Filtro atualizado: ' + filter);
+        if (filter == 'default') filter = [];
+
         getData(filter);
     }, [filter]);
 

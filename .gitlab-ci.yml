@@ -31,6 +31,7 @@ docker-build:
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - echo "$ENV_PROD" >> backend/.env.prod
+    - echo "$GOOGLE_AUTH" > backend/google-ufba.json
     - cp backend/.env.prod backend/.env
     - docker run --volume `pwd`/backend:/app --workdir /app node:16.14-slim npm install
     - docker run --volume `pwd`/backend:/app --workdir /app node:16.14-slim npm run production

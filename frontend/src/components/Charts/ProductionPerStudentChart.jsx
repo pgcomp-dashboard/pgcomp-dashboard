@@ -9,9 +9,7 @@ import {
     Legend,
 } from 'chart.js';
 import axios from 'axios';
-import { map } from 'lodash';
 import { useEffect, useState } from 'react';
-//TODO: get na url 'dashboard/students_production'
 
 ChartJS.register(
     CategoryScale,
@@ -33,7 +31,6 @@ const generateValues = (numberOfValues) => {
 
 function ProductionPerStudentChart({ filter }) {
     const [chartData, setChartData] = useState(null);
-    const NUMBER_OF_ITEMS = 19;
 
     const options = {
         elements: {
@@ -57,31 +54,40 @@ function ProductionPerStudentChart({ filter }) {
         }
     }
 
-    useEffect(() => {
-        const labels = ['2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022'];
+    const productionAreaColors = {
+        'Mestrado': 'rgb(48, 152, 220)',
+        'Doutorado': 'rgb(255, 108, 108)'
+    }
 
-        const productionStudentData = {
-            labels,
-            datasets: [
-                {
-                    label: 'Mestrado',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: 'rgb(48, 152, 220)'
-                },
-                {
-                    label: 'Doutorado',
-                    data: generateValues(NUMBER_OF_ITEMS),
-                    backgroundColor: 'rgb(255, 108, 108)'
+    const getData = (selectedFilter = []) => {
+        axios.get('http://localhost:8000/api/dashboard/students_production', { params: { selectedFilter } })
+            .then(({ data }) => {
+                const labels = data.year;
+
+                const dataChart = data.data.map((production) => {
+                    return {
+                        ...production,
+                        backgroundColor: productionAreaColors[production.label]
+                    }
+                });
+
+                const productionStudentData = {
+                    labels,
+                    datasets: dataChart
                 }
-            ]
-        };
 
-        setChartData(productionStudentData);
+                setChartData(productionStudentData);
+            });
+    }
 
+    useEffect(() => {
+        getData();
     }, []);
 
     useEffect(() => {
-        console.log('Filtro atualizado: ' + filter);
+        if (filter == 'default') filter = [];
+
+        getData(filter);
     }, [filter]);
 
     return (

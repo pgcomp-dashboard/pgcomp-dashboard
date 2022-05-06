@@ -70,21 +70,22 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
-        Route::apiResource('journals', JournalController::class);
-        Route::apiResource('conferences', ConferenceController::class);
-        Route::apiResource('courses', CourseController::class);
-        Route::apiResource('productions', ProductionAdminController::class);
-        Route::apiResource('productions/student', ProfessorProductionController::class)
-            ->except(['store', 'update']);
-        Route::apiResource('productions/professor', StudentProductionController::class)
-            ->except(['store', 'update']);;
-        Route::apiResource('programs', ProgramAdminController::class);
+        Route::apiResource('journals', JournalController::class)->except(['destroy']);
+        Route::apiResource('conferences', ConferenceController::class)->except(['destroy']);
+        Route::apiResource('courses', CourseController::class)->except(['destroy']);
+        Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
+        Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']);
         Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
-        Route::apiResource('areas', AreaController::class);
-        Route::apiResource('subareas', SubareaController::class);
-        Route::apiResource('users', UserAdminController::class);
-        Route::apiResource('students', StudentAdminController::class);
-        Route::apiResource('professors', ProfessorController::class);
+        Route::apiResource('areas', AreaController::class)->except(['destroy']);
+        Route::apiResource('subareas', SubareaController::class)->except(['destroy']);
+        Route::apiResource('users', UserAdminController::class)->except(['destroy']);
+
+        Route::apiResource('students', StudentAdminController::class)->except(['destroy']);
+        Route::apiResource('students.productions', StudentProductionController::class)
+            ->except(['destroy']);
+        Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
+        Route::apiResource('professors.productions', ProfessorProductionController::class)
+            ->except(['destroy']);
     });
 });
 
@@ -94,3 +95,4 @@ Route::get('healthcheck', function (Request $request) {
 
     return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
 });
+
