@@ -12,6 +12,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
 
 ChartJS.register(
     CategoryScale,
@@ -25,6 +26,7 @@ ChartJS.register(
 
 function ProductionsAmountChart({ filter }) {
     const [chartData, setChartData] = useState(null);
+    const [publisherType, setPublisherType] = useState(null);
 
     const options = {
         type: 'line',
@@ -46,7 +48,12 @@ function ProductionsAmountChart({ filter }) {
     }
 
     const getData = (selectedFilter = []) => {
-        axios.get('http://localhost:8000/api/dashboard/all_production', { params: { user_type: selectedFilter } })
+        axios.get('https://mate85-api.litiano.dev.br/api/dashboard/all_production', {
+            params: {
+                user_type: selectedFilter,
+                publisher_type: publisherType
+            }
+        })
             .then(({ data }) => {
                 const labels = data.years;
 
@@ -75,12 +82,17 @@ function ProductionsAmountChart({ filter }) {
 
     useEffect(() => {
         if (filter == 'default') filter = [];
-        
+
         getData(filter);
-    }, [filter]);
+    }, [filter, publisherType]);
 
     return (
-        chartData ? <Line options={options} data={chartData} /> : null
+        chartData ?
+            <>
+                <ProductionTypeFilter setPublisherType={setPublisherType} />
+                <Line options={options} data={chartData} />
+            </>
+            : null
 
     )
 }

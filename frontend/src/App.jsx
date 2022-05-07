@@ -6,11 +6,12 @@ import StudentsPerTeacherChart from "./components/Charts/StudentsPerTeacherChart
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import PieChartIcon from '@mui/icons-material/PieChart';
 import Footer from "./components/Footer/Footer";
-import PieChart from "./components/Charts/PieChart";
 import QualisChart from "./components/Charts/QualisChart";
 import ProductionPerStudentChart from "./components/Charts/ProductionPerStudentChart";
 import ProductionsAmountChart from "./components/Charts/ProductionsAmountChart";
 import Utils from './Utils'
+import StudentsPerSubfieldChart from "./components/Charts/StudentsPerSubfieldChart";
+import StudentsPerFieldChart from "./components/Charts/StudentsPerFieldChart";
 
 export function App() {
     return (
@@ -21,7 +22,7 @@ export function App() {
             <Title />
 
             <div className={styles.cards__container}>
-                <DataCard title="Quantidade de produções"
+                <DataCard title="Quantidade de produções científicas"
                     minWidth="1000px"
                     minHeight="300px"
                     icon={AssessmentIcon}
@@ -43,19 +44,29 @@ export function App() {
                     chart={ProductionPerStudentChart} />
 
                 <DataCard title="Alunos por docente"
-                    minWidth="1000px"
-                    minHeight="300px"
+                    minWidth="1200px"
+                    minHeight="400px"
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityAndActivesFilter}
                     chart={StudentsPerTeacherChart} />
 
                 <DataCard title="Alunos por área"
                     minWidth="1000px"
-                    minHeight="300px"
+                    minHeight="350px"
                     height="250px"
+                    type="fields"
                     icon={PieChartIcon}
                     filterOptions={Utils.universityAndActivesFilter}
-                    chart={PieChart} />
+                    chart={StudentsPerFieldChart} />
+
+                <DataCard title="Alunos por subárea"
+                    minWidth="1000px"
+                    minHeight="350px"
+                    height="250px"
+                    type="subfields"
+                    icon={PieChartIcon}
+                    filterOptions={Utils.universityAndActivesFilter}
+                    chart={StudentsPerSubfieldChart} />
             </div>
 
             <Footer />

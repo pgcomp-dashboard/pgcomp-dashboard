@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
 
 ChartJS.register(
     CategoryScale,
@@ -22,6 +23,8 @@ ChartJS.register(
 
 function QualisChart({ filter }) {
     const [chartData, setChartData] = useState(null);
+    const [publisherType, setPublisherType] = useState(null);
+
     const qualisCategoriesColors = {
         'A1': '#7CBB00',
         'A2': '#FF6C6C',
@@ -61,11 +64,14 @@ function QualisChart({ filter }) {
     }
 
     const getData = (selectedFilter = []) => {
-        console.log(selectedFilter);
         const endpointFilter = selectedFilter && !(Array.isArray(selectedFilter)) && selectedFilter !== 'default' ? '/' + qualisFilters[selectedFilter] : '';
-        const url = 'http://localhost:8000/api/dashboard/production_per_qualis' + endpointFilter
+        const url = 'https://mate85-api.litiano.dev.br/api/dashboard/production_per_qualis' + endpointFilter
         console.log(url);
-        axios.get(url)
+        axios.get(url, {
+            params: {
+                publisher_type: publisherType
+            }
+        })
             .then(({ data }) => {
                 const labels = data.years;
                 const dataChart = data
@@ -101,10 +107,15 @@ function QualisChart({ filter }) {
         if (filter == 'default') filter = [];
 
         getData(filter);
-    }, [filter]);
+    }, [filter, publisherType]);
 
     return (
-        chartData ? <Bar options={options} data={chartData} /> : null
+        chartData ?
+            <>
+                <ProductionTypeFilter setPublisherType={setPublisherType} />
+                <Bar options={options} data={chartData} />
+            </>
+            : null
 
     )
 }
