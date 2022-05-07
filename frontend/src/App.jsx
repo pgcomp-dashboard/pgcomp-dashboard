@@ -12,6 +12,7 @@ import ProductionsAmountChart from "./components/Charts/ProductionsAmountChart";
 import Utils from './Utils'
 import StudentsPerSubfieldChart from "./components/Charts/StudentsPerSubfieldChart";
 import StudentsPerFieldChart from "./components/Charts/StudentsPerFieldChart";
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 export function App() {
     return (
@@ -23,21 +24,21 @@ export function App() {
 
             <div className={styles.cards__container}>
                 <DataCard title="Quantidade de produções científicas"
-                    minWidth="1000px"
+                    minWidth="1200px"
                     minHeight="300px"
-                    icon={AssessmentIcon}
+                    icon={ShowChartIcon}
                     filterOptions={Utils.universityFilter}
                     chart={ProductionsAmountChart} />
 
                 <DataCard title="Qualis"
-                    minWidth="1000px"
+                    minWidth="1200px"
                     minHeight="300px"
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityFilter}
                     chart={QualisChart} />
 
                 <DataCard title="Produção por discentes"
-                    minWidth="1000px"
+                    minWidth="1200px"
                     minHeight="300px"
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityFilter}
@@ -51,7 +52,7 @@ export function App() {
                     chart={StudentsPerTeacherChart} />
 
                 <DataCard title="Alunos por área"
-                    minWidth="1000px"
+                    minWidth="1200px"
                     minHeight="350px"
                     height="250px"
                     type="fields"
@@ -60,7 +61,7 @@ export function App() {
                     chart={StudentsPerFieldChart} />
 
                 <DataCard title="Alunos por subárea"
-                    minWidth="1000px"
+                    minWidth="1200px"
                     minHeight="350px"
                     height="250px"
                     type="subfields"

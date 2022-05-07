@@ -2,6 +2,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: whitesmoke;
+    background-color: #FFFFFF;
     font-family: 'Roboto';
+    overflow-x: hidden
   }
