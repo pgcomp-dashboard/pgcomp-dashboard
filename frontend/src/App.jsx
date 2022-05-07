@@ -13,12 +13,18 @@ import Utils from './Utils'
 import StudentsPerSubfieldChart from "./components/Charts/StudentsPerSubfieldChart";
 import StudentsPerFieldChart from "./components/Charts/StudentsPerFieldChart";
 import ShowChartIcon from '@mui/icons-material/ShowChart';
+import BurgerMenu from "./components/BurgerMenu/BurgerMenu";
+import { useState } from "react";
 
 export function App() {
+    const [showBurgerMenu, setShowBurgerMenu] = useState(false);
+
     return (
         <div className={styles.app__global}>
 
-            <Toolbar />
+            <Toolbar setShowBurgerMenu={setShowBurgerMenu} />
+
+            <BurgerMenu showBurgerMenu={showBurgerMenu} />
 
             <Title />
 
@@ -26,6 +32,7 @@ export function App() {
                 <DataCard title="Quantidade de produções científicas"
                     minWidth="1200px"
                     minHeight="300px"
+                    idSession="productions-amount"
                     icon={ShowChartIcon}
                     filterOptions={Utils.universityFilter}
                     chart={ProductionsAmountChart} />
@@ -33,6 +40,7 @@ export function App() {
                 <DataCard title="Qualis"
                     minWidth="1200px"
                     minHeight="300px"
+                    idSession={"qualis"}
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityFilter}
                     chart={QualisChart} />
@@ -40,6 +48,7 @@ export function App() {
                 <DataCard title="Produção por discentes"
                     minWidth="1200px"
                     minHeight="300px"
+                    idSession="productions-per-student"
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityFilter}
                     chart={ProductionPerStudentChart} />
@@ -47,6 +56,7 @@ export function App() {
                 <DataCard title="Alunos por docente"
                     minWidth="1200px"
                     minHeight="400px"
+                    idSession="students-per-teacher"
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityAndActivesFilter}
                     chart={StudentsPerTeacherChart} />
@@ -54,6 +64,7 @@ export function App() {
                 <DataCard title="Alunos por área"
                     minWidth="1200px"
                     minHeight="350px"
+                    idSession="students-per-field"
                     height="250px"
                     type="fields"
                     icon={PieChartIcon}
@@ -63,6 +74,7 @@ export function App() {
                 <DataCard title="Alunos por subárea"
                     minWidth="1200px"
                     minHeight="350px"
+                    idSession="students-per-subfield"
                     height="250px"
                     type="subfields"
                     icon={PieChartIcon}

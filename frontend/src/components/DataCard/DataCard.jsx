@@ -11,7 +11,7 @@ function DataCard(props) {
     const iconStyle = { width: 50, height: 50 };
 
     return (
-        <div className={styles.data__card}>
+        <div className={styles.data__card} id={props.idSession}>
             <Card sx={{ minWidth: props.minWidth, minHeight: props.minHeight, height: props.height, }}>
                 <CardHeader
                     avatar={

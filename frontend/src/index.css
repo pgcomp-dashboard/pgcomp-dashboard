@@ -4,5 +4,6 @@ body {
     padding: 0;
     background-color: #FFFFFF;
     font-family: 'Roboto';
-    overflow-x: hidden
+    overflow-x: hidden;
+    scroll-behavior: smooth !important;
   }
