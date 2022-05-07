@@ -35,7 +35,6 @@ function PieChart({ filter, type }) {
     const getData = (selectedFilter = []) => {
         axios.get(`https://mate85-api.litiano.dev.br/api/dashboard/${type}`, { params: { selectedFilter } })
             .then(({ data }) => {
-                console.log('areas', data);
                 const labels = data[type];
                 const dataChart = data.data;
                 const newBackgroundColors = Utils.generateColorsArray(data.data.length);
