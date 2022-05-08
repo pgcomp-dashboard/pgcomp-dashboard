@@ -12,6 +12,7 @@ use Tests\TestCase;
 
 class ControllerSubAreaTest extends TestCase
 {
+    // Teste model
     public function test_createSubarea_syntax()
     {
         $scraping = new ReflectionClass(Subarea::class);
@@ -35,6 +36,7 @@ class ControllerSubAreaTest extends TestCase
         }
     }
 
+    // Teste model
     public function test_createSubarea_exception()
     {
         $scraping = new ReflectionClass(Subarea::class);
