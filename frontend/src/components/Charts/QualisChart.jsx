@@ -65,10 +65,11 @@ function QualisChart({ filter }) {
 
     const getData = (selectedFilter = []) => {
         const endpointFilter = selectedFilter && !(Array.isArray(selectedFilter)) && selectedFilter !== 'default' ? '/' + qualisFilters[selectedFilter] : '';
-        const url = 'https://mate85-api.litiano.dev.br/api/dashboard/production_per_qualis' + endpointFilter
+        const url = 'https://mate85-api.litiano.dev.br/api/dashboard/production_per_qualis'
         axios.get(url, {
             params: {
-                publisher_type: publisherType
+                publisher_type: publisherType,
+                user_type: selectedFilter
             }
         })
             .then(({ data }) => {

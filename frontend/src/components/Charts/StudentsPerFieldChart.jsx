@@ -1,7 +1,7 @@
 import PieChart from "./PieChart"
 
-function StudentsPerFieldChart() {
-    return <PieChart type={'fields'} />
+function StudentsPerFieldChart({ filter }) {
+    return <PieChart type={'fields'} filter={filter} />
 }
 
 export default StudentsPerFieldChart
