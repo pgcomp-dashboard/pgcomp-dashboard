@@ -32,13 +32,14 @@ function LoginPage() {
 
     const handleLogin = () => {
         axios.post('https://mate85-api.litiano.dev.br/api/login', {
-            params: {
-                email, password
-            }
+            email, password
         }).then((response) => {
             console.log(response);
-            // if respose.logged { setIsloged(true) }
-        })
+
+            if (response.status === 200) { setIsLogged(true) }
+        }).catch(function (response) {
+            console.log(response);
+        });
     }
 
     useEffect(() => {
