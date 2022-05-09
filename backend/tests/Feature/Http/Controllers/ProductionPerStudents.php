@@ -13,10 +13,16 @@ class ProductionPerStudents extends TestCase
      *
      * @return void
      */
-    public function test_example()
+    public function test_production_per_students()
     {
-        $response = $this->get('/');
+        $getResponse = $this->get('/api/dashboard/students_production');
+        $postResponse = $this->post('/api/dashboard/students_production');
+        $patchResponse = $this->patch('/api/dashboard/students_production');
+        $deleteResponse = $this->delete('/api/dashboard/students_production');
 
-        $response->assertStatus(200);
+        $getResponse->assertStatus(200);
+        $postResponse->assertStatus(405);
+        $patchResponse->assertStatus(405);
+        $deleteResponse->assertStatus(405);
     }
 }

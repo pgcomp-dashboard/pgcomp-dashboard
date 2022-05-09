@@ -15,10 +15,10 @@ class StudentsPerAdvisorTest extends TestCase
      */
     public function test_students_per_adivisor_response()
     {
-        $getResponse = $this->get('/api/dashboard/students_production');
-        $postResponse = $this->post('/api/dashboard/students_production');
-        $patchResponse = $this->patch('/api/dashboard/students_production');
-        $deleteResponse = $this->delete('/api/dashboard/students_production');
+        $getResponse = $this->get('/api/dashboard/total_students_per_advisor');
+        $postResponse = $this->post('/api/dashboard/total_students_per_advisor');
+        $patchResponse = $this->patch('/api/dashboard/total_students_per_advisor');
+        $deleteResponse = $this->delete('/api/dashboard/total_students_per_advisor');
 
         $getResponse->assertStatus(200);
         $postResponse->assertStatus(405);
