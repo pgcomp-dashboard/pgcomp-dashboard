@@ -1,0 +1,51 @@
+.nav--toolbar {
+    position: fixed;
+    justify-content: space-around;
+  }
+
+  .toolbar--input--container {
+    display: none;
+  }
+
+  .toolbar--links {
+    position: absolute;
+    right: 0;
+    height: 120vh;
+    text-decoration: none;
+    padding: 20px;
+    top: -3vh;
+    background-color: #292929;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    align-items: left;
+    width: 60vh;
+    line-height: 140px;
+  }
+
+  .toolbar--links .show {
+    
+  }
+
+  .toolbar--links li {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+  }
+
+  .toolbar--links li:hover {
+    background-color: #3a3939;
+}
+
+  .toolbar--links a {
+    font-size: 25px;
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav--active {
+    transform: translateX(0%);
+  }
