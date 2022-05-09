@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
 
 ChartJS.register(
     CategoryScale,
@@ -31,6 +32,7 @@ const generateValues = (numberOfValues) => {
 
 function ProductionPerStudentChart({ filter }) {
     const [chartData, setChartData] = useState(null);
+    const [publisherType, setPublisherType] = useState(null);
 
     const options = {
         elements: {
@@ -60,16 +62,24 @@ function ProductionPerStudentChart({ filter }) {
     }
 
     const getData = (selectedFilter = []) => {
-        axios.get('http://localhost:8000/api/dashboard/students_production', { params: { selectedFilter } })
+        axios.get('https://mate85-api.litiano.dev.br/api/dashboard/students_production', {
+            params: {
+                selectedFilter,
+                publisher_type: publisherType
+            }
+        })
             .then(({ data }) => {
                 const labels = data.year;
 
-                const dataChart = data.data.map((production) => {
+                const dataChart = data.data.map((production, index) => {
+                    let type = index == 0 ? 'Mestrado' : 'Doutorado'
                     return {
-                        ...production,
-                        backgroundColor: productionAreaColors[production.label]
+                        label: type,
+                        data: production.data,
+                        backgroundColor: productionAreaColors[type]
                     }
                 });
+
 
                 const productionStudentData = {
                     labels,
@@ -88,10 +98,15 @@ function ProductionPerStudentChart({ filter }) {
         if (filter == 'default') filter = [];
 
         getData(filter);
-    }, [filter]);
+    }, [filter, publisherType]);
 
     return (
-        chartData ? <Bar options={options} data={chartData} /> : null
+        chartData ?
+            <>
+                <ProductionTypeFilter setPublisherType={setPublisherType} />
+                <Bar options={options} data={chartData} />
+            </>
+            : null
 
     )
 }

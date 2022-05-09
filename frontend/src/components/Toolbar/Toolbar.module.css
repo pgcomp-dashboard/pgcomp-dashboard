@@ -9,4 +9,33 @@
     overflow: hidden;
     background-color: white;
     border-bottom: 0.5px solid rgb(196, 192, 192);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+
+.burger--toolbar {
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+.burger--toolbar div {
+    width: 30px;
+    height: 5px;
+    background-color: rgb(21, 6, 6);
+    margin: 6px;
+    transition: all 0.3s ease;
+  }
+
+
+.toggle .burger--line--1 {
+    transform: rotate(-45deg) translate(-7px, 8px);
+  }
+  
+  .toggle .burger--line--2 {
+    opacity: 0;
+  }
+    
+  .toggle .burger--line--3 {
+    transform: rotate(45deg) translate(-7px, -8px);
+  }

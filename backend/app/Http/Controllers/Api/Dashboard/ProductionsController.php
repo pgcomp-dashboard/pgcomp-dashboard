@@ -22,7 +22,7 @@ class ProductionsController extends Controller
             'conference' => Conference::class,
             default => null
         };
-
+        
         $user_type = [
             "docente" => ["professor", null],
             "mestrando" => ["student", "1"],

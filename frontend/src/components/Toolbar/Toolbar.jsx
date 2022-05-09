@@ -1,11 +1,36 @@
 import styles from './Toolbar.module.css'
 import icLogo from '../../assets/ic_logo.png'
+import { useState } from 'react'
+import { Button } from '@mui/material';
 
-function Toolbar(props) {
+function Toolbar({ setShowBurgerMenu }) {
+    const [toggleClass, setToggleClass] = useState('');
+
+    const onToggleBurger = () => {
+        if (!toggleClass) {
+            setToggleClass(styles['toggle']);
+            setShowBurgerMenu(true);
+        } else {
+            setToggleClass('');
+            setShowBurgerMenu(false);
+        }
+    }
+
+
     return (
         <div className={styles.nav__toolbar}>
+            <div className={styles['burger--toolbar'] + ' ' + toggleClass} onClick={onToggleBurger}>
+                <div className={styles['burger--line--1']}></div>
+                <div className={styles['burger--line--2']}></div>
+                <div className={styles['burger--line--3']}></div>
+            </div>
             <div>
                 <img src={icLogo} height={70} />
+            </div>
+            <div>
+                <Button>
+                    Login
+                </Button>
             </div>
         </div>
     )
