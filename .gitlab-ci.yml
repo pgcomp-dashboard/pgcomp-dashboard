@@ -37,8 +37,8 @@ docker-build:
     - docker run --volume `pwd`/backend:/app --workdir /app node:16.14-slim npm run production
     - docker run --volume `pwd`/frontend:/app --workdir /app node:16.14-slim npm install
     - docker run --volume `pwd`/frontend:/app --workdir /app node:16.14-slim npx webpack build --mode production --optimization-minimize
-#    - docker run --volume `pwd`/frontend-admin:/app --workdir /app node:16.14-slim npm install
-#    - docker run --volume `pwd`/frontend-admin:/app --workdir /app node:16.14-slim npm run build
+    - docker run --volume `pwd`/frontend-admin:/app --workdir /app node:16.14-slim npm install
+    - docker run --volume `pwd`/frontend-admin:/app --workdir /app node:16.14-slim npm run build
   script:
     - docker pull $CI_REGISTRY_IMAGE/php || true
     - docker build --cache-from $CI_REGISTRY_IMAGE/php --pull --file devops/docker/php/Dockerfile -t "$CI_REGISTRY_IMAGE/php" --target production .
