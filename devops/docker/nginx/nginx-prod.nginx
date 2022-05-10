@@ -147,7 +147,7 @@ server {
     listen 443 ssl http2;
 
     index index.html;
-    root /var/www/html/frontend-admin/dist;
+    root /var/www/html/frontend-admin/build;
 
     server_name mate85-admin.litiano.dev.br;
 
