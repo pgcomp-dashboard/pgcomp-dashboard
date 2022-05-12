@@ -24,7 +24,6 @@ ChartJS.register(
 
 function StudentsPerTeacherChart({ filter }) {
     const [chartData, setChartData] = useState(null);
-    const NUMBER_OF_ITEMS = 8;
 
     const options = {
         elements: {
@@ -44,18 +43,16 @@ function StudentsPerTeacherChart({ filter }) {
     }
 
     const getData = (selectedFilter = []) => {
-        axios.get('http://localhost:8000/api/dashboard/total_students_per_advisor', { params: { selectedFilter } }).then(({ data }) => {
-            const slicedData = data.slice(0, NUMBER_OF_ITEMS);
-
-            const labels = map(slicedData, 'name');
+        axios.get('https://mate85-api.litiano.dev.br/api/dashboard/total_students_per_advisor', { params: { user_type: selectedFilter } }).then(({ data }) => {
+            const labels = map(data, 'name');
 
             const teachersData = {
                 labels,
                 datasets: [
                     {
                         label: 'Número de alunos',
-                        data: map(slicedData, 'advisedes_count'),
-                        backgroundColor: Utils.generateColorsArray(NUMBER_OF_ITEMS)
+                        data: map(data, 'advisedes_count'),
+                        backgroundColor: Utils.generateColorsArray(data.length)
                     }]
             };
 
@@ -69,7 +66,8 @@ function StudentsPerTeacherChart({ filter }) {
     }, []);
 
     useEffect(() => {
-        console.log('Filtro atualizado: ' + filter);
+        if (filter == 'default') filter = [];
+
         getData(filter);
     }, [filter]);
 

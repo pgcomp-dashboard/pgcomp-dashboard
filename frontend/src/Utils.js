@@ -14,15 +14,15 @@ function generateColorsArray(numberOfColors) {
 const universityFilter = [
     {
         label: 'Mestrado',
-        value: 20
+        value: 'mestrando'
     },
     {
         label: 'Doutorado',
-        value: 30
+        value: 'doutorando'
     },
     {
         label: 'Bolsistas',
-        value: 40
+        value: 'docente'
     },
 ]
 

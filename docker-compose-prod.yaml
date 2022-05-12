@@ -1,0 +1,45 @@
+version: '3.3'
+# Docker-compose for production
+services:
+  php:
+    image: ${CI_REGISTRY_IMAGE}/php:latest
+    volumes: &phpVolumes
+      - ./backend/storage:/var/www/html/backend/storage
+    entrypoint: ["sh", "/php-fpm.sh"]
+    restart: always
+  queue:
+    image: ${CI_REGISTRY_IMAGE}/php:latest
+    volumes: *phpVolumes
+    entrypoint: ["sh", "/queue.sh"]
+    restart: always
+    depends_on:
+      - php
+  cron:
+    image: ${CI_REGISTRY_IMAGE}/php:latest
+    volumes: *phpVolumes
+    user: "root"
+    entrypoint: ["sh", "/cron.sh"]
+    restart: always
+    depends_on:
+      - php
+  nginx:
+    image: ${CI_REGISTRY_IMAGE}/nginx:latest
+    volumes: &nginxVolumes
+      - ./backend/storage:/var/www/html/backend/storage
+      - ./devops/docker/certbot/letsencrypt:/etc/letsencrypt
+      - ./devops/docker/certbot/www:/var/www/certbot
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - php
+    entrypoint: "/bin/sh /prod-command.sh"
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "https://mate85.litiano.dev.br/api/healthcheck" ]
+      retries: 3
+      timeout: 5s
+  certbot:
+    image: ${CI_REGISTRY_IMAGE}/certbot:latest
+    volumes: *nginxVolumes
+    restart: always

@@ -1,0 +1,217 @@
+# Backend laravel HTTP -> HTTPS
+server {
+    listen 80;
+    server_name mate85-api.litiano.dev.br;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://mate85-api.litiano.dev.br$request_uri;
+    }
+}
+# Backend laravel HTTPS
+server {
+    listen 443 ssl http2;
+    server_name mate85-api.litiano.dev.br;
+    root /var/www/html/backend/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    client_max_body_size 10m;
+    client_body_buffer_size 512K;
+    client_body_in_file_only clean;
+
+    ssl_certificate /etc/letsencrypt/live/mate85-api.litiano.dev.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mate85-api.litiano.dev.br/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+        gzip_static on;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+
+# Frontend HTTP -> HTTPS
+server {
+    listen 80;
+    server_name mate85.litiano.dev.br;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://mate85.litiano.dev.br$request_uri;
+    }
+}
+# Frontend HTTPS
+server {
+    listen 443 ssl http2;
+
+    index index.html;
+    root /var/www/html/frontend/dist;
+
+    server_name mate85.litiano.dev.br;
+
+    ssl_certificate /etc/letsencrypt/live/mate85.litiano.dev.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mate85.litiano.dev.br/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    gzip on;
+    gzip_disable "msie6";
+
+    gzip_comp_level 6;
+    gzip_min_length 1100;
+    gzip_buffers 16 8k;
+    gzip_proxied any;
+    gzip_types
+    text/plain
+    text/css
+    text/js
+    text/xml
+    text/javascript
+    application/javascript
+    application/x-javascript
+    application/json
+    application/xml
+    application/xml+rss
+    image/svg+xml;
+    gzip_vary on;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location ~* \.(ico|jpg|jpeg|png|gif|svg|js|css|swf|eot|ttf|otf|woff|woff2|html|json|txt)$ {
+        add_header Cache-Control "public";
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header 'Access-Control-Allow-Origin' '*';
+        expires +1y;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+# Frontend Admin HTTP -> HTTPS
+server {
+    listen 80;
+    server_name mate85-admin.litiano.dev.br;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://mate85-admin.litiano.dev.br$request_uri;
+    }
+}
+# Frontend Admin HTTPS
+server {
+    listen 443 ssl http2;
+
+    index index.html;
+    root /var/www/html/frontend-admin/build;
+
+    server_name mate85-admin.litiano.dev.br;
+
+    ssl_certificate /etc/letsencrypt/live/mate85-admin.litiano.dev.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mate85-admin.litiano.dev.br/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    gzip on;
+    gzip_disable "msie6";
+
+    gzip_comp_level 6;
+    gzip_min_length 1100;
+    gzip_buffers 16 8k;
+    gzip_proxied any;
+    gzip_types
+    text/plain
+    text/css
+    text/js
+    text/xml
+    text/javascript
+    application/javascript
+    application/x-javascript
+    application/json
+    application/xml
+    application/xml+rss
+    image/svg+xml;
+    gzip_vary on;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location ~* \.(ico|jpg|jpeg|png|gif|svg|js|css|swf|eot|ttf|otf|woff|woff2|html|json|txt)$ {
+        add_header Cache-Control "public";
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header 'Access-Control-Allow-Origin' '*';
+        expires +1y;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+
+## Direct IP
+server {
+    listen 80 default_server;
+    server_name _;
+    return 404;
+}
+## Direct IP
+server {
+    listen 443 ssl default_server;
+    server_name _;
+
+    ssl_certificate /etc/letsencrypt/live/mate85.litiano.dev.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mate85.litiano.dev.br/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    return 404;
+}

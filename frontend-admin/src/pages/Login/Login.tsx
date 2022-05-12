@@ -1,43 +1,82 @@
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
 import hero from "../../assets/login.svg";
+import { AuthContext } from "../../providers/AuthProvider";
 
 import { DashboardTemplate } from "../../templates";
 
 import styles from "./Login.module.css";
 
 function LoginPage() {
-  return (
-    <DashboardTemplate>
-      <div className={styles.login_page}>
-        <div className={styles.login_page__action_container}>
-          <h1>Painel de Administração</h1>
+    axios.defaults.withCredentials = true;
 
-          <form className={styles.login_page__form}>
-            <div className={styles.login_page__form__input_container}>
-              <span>E-mail:</span>
-              <input type="email" placeholder="fulano.beltrano@ufba.br" />
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const { isLogged, setIsLogged } = useContext(AuthContext);
+
+    const getCsrfCookie = () => {
+        axios.get('http://localhost:8000/api/csrf-cookie').then((response) => {
+            console.log(response);
+        });
+    }
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.currentTarget.value;
+        setEmail(newValue);
+    }
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.currentTarget.value;
+        setPassword(newValue);
+    }
+
+    const handleLogin = () => {
+        axios.get('http://localhost:8000/api/login', {
+            params: {
+                email, password
+            }
+        }).then((response) => {
+            // if respose.logged { setIsloged(true) }
+        })
+    }
+
+    useEffect(() => {
+        getCsrfCookie();
+    }, []);
+
+    return (
+        <div className={styles.login_page}>
+            <div className={styles.login_page__action_container}>
+                <h1>Painel de Administração</h1>
+
+                <div className={styles.login_page__form}>
+                    <div className={styles.login_page__form__input_container}>
+                        <span>E-mail:</span>
+                        <input type="email" placeholder="fulano.beltrano@ufba.br" onChange={handleEmailChange}
+                            value={email} />
+                    </div>
+
+                    <div className={styles.login_page__form__input_container}>
+                        <span>Senha:</span>
+                        <input type="password" placeholder="Senha" onChange={handlePasswordChange}
+                            value={password} />
+                    </div>
+
+                    <button onClick={handleLogin}>Acessar</button>
+
+                    <a target="_blank" href="#!" rel="noreferrer">
+                        Esqueceu a senha?
+                    </a>
+                </div>
             </div>
 
-            <div className={styles.login_page__form__input_container}>
-              <span>Senha:</span>
-              <input type="password" placeholder="Senha" />
+            <div className={styles.login_page__divider} />
+
+            <div className={styles.login_page__hero}>
+                <img alt="Login" src={hero} />
             </div>
-
-            <button>Acessar</button>
-
-            <a target="_blank" href="#!" rel="noreferrer">
-              Esqueceu a senha?
-            </a>
-          </form>
         </div>
-
-        <div className={styles.login_page__divider} />
-
-        <div className={styles.login_page__hero}>
-          <img alt="Login" src={hero} />
-        </div>
-      </div>
-    </DashboardTemplate>
-  );
+    );
 }
 
 export default LoginPage;

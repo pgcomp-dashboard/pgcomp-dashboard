@@ -20,5 +20,7 @@ Responsável pelo painel administrativo, o qual possibilitará:
 
 ### Iniciar projeto frontend-admin
 ```bash
-
+$ docker-compose exec frontend-admin bash
+$ npm install
+$ npm start
 ```

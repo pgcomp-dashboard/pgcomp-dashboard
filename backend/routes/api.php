@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\PanelAdmin\ConferenceController;
 use App\Http\Controllers\Api\PanelAdmin\CourseController;
 use App\Http\Controllers\Api\PanelAdmin\JournalController;
 use App\Http\Controllers\Api\PanelAdmin\ProductionController as ProductionAdminController;
+use App\Http\Controllers\Api\PanelAdmin\ProfessorProductionController;
+use App\Http\Controllers\Api\PanelAdmin\StudentProductionController;
 use App\Http\Controllers\Api\PanelAdmin\ProfessorController;
 use App\Http\Controllers\Api\PanelAdmin\ProgramController as ProgramAdminController;
 use App\Http\Controllers\Api\PanelAdmin\StratumQualisController;
@@ -43,10 +45,6 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('students_production', [ProductionsController::class, 'studentsProductions']);
 
     Route::get('production_per_qualis', [QualisController::class, 'productionPerQualis']);
-    Route::get('production_per_qualis/master', [QualisController::class, 'productionPerQualisFilterMasterDegree']);
-    Route::get('production_per_qualis/doctor', [QualisController::class, 'productionPerQualisFilterDoctorateDegree']);
-    Route::get('production_per_qualis/teacher', [QualisController::class, 'productionPerQualisFilterByTeacher']);
-
 
     Route::get('subfields', [StudentsController::class, 'studentsSubarea']);
     Route::get('subfields/master', [StudentsController::class,  'studentsMasterDegreeSubareas']);
@@ -61,6 +59,7 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get("fields/active", [StudentsController::class, 'studentsActiveAreas']);
     Route::get("fields/disabled", [StudentsController::class, 'studentsNotActiveArea']);
     Route::get("fields/completed", [StudentsController::class, 'studentsCompletedAreas']);
+    
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
 });
 
@@ -68,18 +67,29 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
-        Route::apiResource('journals', JournalController::class);
-        Route::apiResource('conferences', ConferenceController::class);
-        Route::apiResource('courses', CourseController::class);
-        Route::apiResource('productions', ProductionAdminController::class);
-        Route::apiResource('programs', ProgramAdminController::class);
+        Route::apiResource('journals', JournalController::class)->except(['destroy']);
+        Route::apiResource('conferences', ConferenceController::class)->except(['destroy']);
+        Route::apiResource('courses', CourseController::class)->except(['destroy']);
+        Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
+        Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']);
         Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
-        Route::apiResource('areas', AreaController::class);
-        Route::apiResource('subareas', SubareaController::class);
-        Route::apiResource('users', UserAdminController::class);
-        Route::apiResource('students', StudentAdminController::class);
-        Route::apiResource('professors', ProfessorController::class);
+        Route::apiResource('areas', AreaController::class)->except(['destroy']);
+        Route::apiResource('subareas', SubareaController::class)->except(['destroy']);
+        Route::apiResource('users', UserAdminController::class)->except(['destroy']);
+
+        Route::apiResource('students', StudentAdminController::class)->except(['destroy']);
+        Route::apiResource('students.productions', StudentProductionController::class)
+            ->except(['destroy']);
+        Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
+        Route::apiResource('professors.productions', ProfessorProductionController::class)
+            ->except(['destroy']);
     });
 });
 
-Route::get('healthcheck', fn() => ['success' => true]);
+Route::get('healthcheck', function (Request $request) {
+    \Illuminate\Support\Facades\DB::getPdo();
+    $startTime = defined('LARAVEL_START') ? LARAVEL_START : $request->server('REQUEST_TIME_FLOAT');
+
+    return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
+});
+

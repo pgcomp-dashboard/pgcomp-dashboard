@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Controllers\Api\PanelAdmin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\BaseResourceIndexRequest;
+use Illuminate\Http\Request;
+
+class ProfessorProductionController extends Controller
+{
+
+    protected ProductionController $productionController;
+
+    public function index(BaseResourceIndexRequest $request, $professors){
+        $this->productionController = $this->newInstance();
+        $this->productionController->professorQuery($professors);
+        return $this->productionController->index($request);
+    }
+
+    public function show($professors, $productions){
+        $this->productionController = $this->newInstance();
+        return $this->productionController->show($productions);
+    }
+
+    public function store(Request $request, $professors){
+        $this->productionController = $this->newInstance();
+        return $this->productionController->store($request);
+    }
+
+    public function update(Request $request, $professors, $productions){
+        $this->productionController = $this->newInstance();
+        return $this->productionController->update($request, $productions);
+    }
+
+    public function destroy($professors, $productions){
+        $this->productionController = $this->newInstance();
+        return $this->productionController->destroy($productions);
+    }
+
+    private function newInstance(){
+        return new ProductionController();
+    }
+}

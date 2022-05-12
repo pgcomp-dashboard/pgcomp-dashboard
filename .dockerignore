@@ -1,0 +1,8 @@
+/devops/docker/mysql/dbdata
+/.git
+/.idea
+/.github
+/backend/node_modules
+/backend/vendor
+/frontend/node_modules
+/frontend-admin/node_modules

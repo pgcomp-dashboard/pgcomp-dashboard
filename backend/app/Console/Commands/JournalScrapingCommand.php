@@ -91,7 +91,7 @@ class JournalScrapingCommand extends Command
     protected function getSheet(): Sheets
     {
         $cliente = new Client();
-        $cliente->setAuthConfig('/var/www/html/google-ufba.json');
+        $cliente->setAuthConfig(base_path('google-ufba.json'));
 
         $cliente->setApplicationName('mate85-sheets');
         $cliente->addScope(Sheets::SPREADSHEETS_READONLY);

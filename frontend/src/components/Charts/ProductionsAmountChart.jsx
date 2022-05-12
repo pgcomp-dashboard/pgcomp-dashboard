@@ -11,7 +11,8 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
-//TODO: get na url 'dashboard/all_production'
+import axios from 'axios';
+import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
 
 ChartJS.register(
     CategoryScale,
@@ -23,17 +24,9 @@ ChartJS.register(
     Legend
 );
 
-const generateValues = (numberOfValues) => {
-    const values = [];
-    for (let i = 0; i < numberOfValues; i++) {
-        values.push(Math.floor(Math.random() * 150) + 1);
-    }
-
-    return values;
-}
-
 function ProductionsAmountChart({ filter }) {
     const [chartData, setChartData] = useState(null);
+    const [publisherType, setPublisherType] = useState(null);
 
     const options = {
         type: 'line',
@@ -54,35 +47,52 @@ function ProductionsAmountChart({ filter }) {
         },
     }
 
+    const getData = (selectedFilter = []) => {
+        axios.get('https://mate85-api.litiano.dev.br/api/dashboard/all_production', {
+            params: {
+                user_type: selectedFilter,
+                publisher_type: publisherType
+            }
+        })
+            .then(({ data }) => {
+                const labels = data.years;
+
+                const dataChart = [
+                    {
+                        label: 'Produções',
+                        data: data.data,
+                        borderColor: '#66ff99',
+                        backgroundColor: '#66ff99',
+                    }
+                ];
+
+                const productionsData = {
+                    labels,
+                    datasets: dataChart
+                }
+
+                setChartData(productionsData);
+            });
+    }
+
     useEffect(() => {
-        const labels = ['2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022'];
-
-        const data = {
-            labels,
-            datasets: [
-
-                {
-                    label: 'Dataset 1',
-                    data: generateValues(19),
-                    borderColor: '#66ff99',
-                    backgroundColor: '#66ff99',
-                },
-
-            ]
-        };
-
-        console.log(data);
-
-        setChartData(data);
+        getData();
 
     }, []);
 
     useEffect(() => {
-        console.log('Filtro atualizado: ' + filter);
-    }, [filter]);
+        if (filter == 'default') filter = [];
+
+        getData(filter);
+    }, [filter, publisherType]);
 
     return (
-        chartData ? <Line options={options} data={chartData} /> : null
+        chartData ?
+            <>
+                <ProductionTypeFilter setPublisherType={setPublisherType} />
+                <Line options={options} data={chartData} />
+            </>
+            : null
 
     )
 }
