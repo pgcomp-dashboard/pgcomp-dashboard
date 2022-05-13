@@ -14,10 +14,8 @@ function LoginPage() {
     const [password, setPassword] = useState('');
     const { isLogged, setIsLogged } = useContext(AuthContext);
 
-    const getCsrfCookie = () => {
-        axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie').then((response) => {
-            console.log(response);
-        });
+    const getCsrfCookie = async () => {
+        await axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie')
     }
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,13 +29,15 @@ function LoginPage() {
     }
 
     const handleLogin = () => {
-        axios.post('http://localhost:8000/api/login', {
-            params: {
-                email, password
-            }
+        axios.post('https://mate85-api.litiano.dev.br/api/login', {
+            email, password
         }).then((response) => {
-            // if respose.logged { setIsloged(true) }
-        })
+            console.log(response);
+
+            if (response.status === 200) { setIsLogged(true) }
+        }).catch(function (response) {
+            console.log(response);
+        });
     }
 
     useEffect(() => {
