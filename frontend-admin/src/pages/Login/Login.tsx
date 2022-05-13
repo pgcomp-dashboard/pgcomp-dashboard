@@ -15,7 +15,7 @@ function LoginPage() {
     const { isLogged, setIsLogged } = useContext(AuthContext);
 
     const getCsrfCookie = () => {
-        axios.get('http://localhost:8000/api/csrf-cookie').then((response) => {
+        axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie').then((response) => {
             console.log(response);
         });
     }
@@ -31,7 +31,7 @@ function LoginPage() {
     }
 
     const handleLogin = () => {
-        axios.get('http://localhost:8000/api/login', {
+        axios.post('http://localhost:8000/api/login', {
             params: {
                 email, password
             }
