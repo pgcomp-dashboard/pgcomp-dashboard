@@ -35,13 +35,13 @@ class Kernel extends HttpKernel
             \Illuminate\Session\Middleware\StartSession::class,
             // \Illuminate\Session\Middleware\AuthenticateSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
+//            \App\Http\Middleware\VerifyCsrfToken::class, //@todo desabilitado temporatiamente.
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
         'api' => [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
+//            'throttle:api', //@todo desabilitado para teste de carga!
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];

@@ -10,6 +10,7 @@ use Tests\TestCase;
 
 class ControllerAreaTest extends TestCase
 {
+    // Teste model
     public function test_createArea_syntax()
     {
         $scraping = new ReflectionClass(Area::class);
@@ -33,6 +34,7 @@ class ControllerAreaTest extends TestCase
         }
     }
 
+    // Teste model
     public function test_createArea_exception()
     {
         $scraping = new ReflectionClass(Area::class);
