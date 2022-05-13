@@ -84,9 +84,9 @@ class ControllerSubAreaTest extends TestCase
         $user = new User();
         $user->is_admin = true;
         $data = $this->actingAs($user)->delete('api/portal/admin/subareas/' . $subarea->id);
-        $data->assertStatus(200);
+        $data->assertStatus(405);
 
         $data = $this->actingAs($user)->get('api/portal/admin/subareas/' . $subarea->id);
-        $data->assertStatus(404);
+        $data->assertStatus(200);
     }
 }
