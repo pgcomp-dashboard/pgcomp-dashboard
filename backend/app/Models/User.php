@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CourseType;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use Database\Factories\UserFactory;
@@ -265,6 +266,25 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
             ->wherePivot('relation_type', UserRelationType::ADVISOR)
             ->whereNull('defended_at');
+
+    }
+
+    public function advisedesMaster(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
+            ->wherePivot('relation_type', UserRelationType::ADVISOR)
+            ->whereNull('defended_at')
+            ->where('course_id','=', CourseType::MASTER);
+
+    }
+
+    public function advisedesDoctorate(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
+            ->wherePivot('relation_type', UserRelationType::ADVISOR)
+            ->whereNull('defended_at')
+            ->where('course_id', '=', CourseType::DOCTORATE);
+
     }
 
     public function coadvisors(): BelongsToMany

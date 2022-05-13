@@ -59,8 +59,10 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get("fields/active", [StudentsController::class, 'studentsActiveAreas']);
     Route::get("fields/disabled", [StudentsController::class, 'studentsNotActiveArea']);
     Route::get("fields/completed", [StudentsController::class, 'studentsCompletedAreas']);
-    
+
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
+    Route::get('total_students_per_advisor/master', [DashboardController::class, 'advisorsMaster']);
+    Route::get('total_students_per_advisor/doctorate', [DashboardController::class, 'advisorsDoctorate']);
 });
 
 Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' => 'portal'], function () {

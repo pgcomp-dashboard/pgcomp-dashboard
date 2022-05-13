@@ -20,4 +20,28 @@ class DashboardController extends Controller
             return $item->only([...$attributes, 'advisedes_count']);
         });
     }
+
+    public function advisorsMaster()
+    {
+        $attributes = ['id', 'name'];
+        $data = User::where('type', UserType::PROFESSOR)
+            ->withCount('advisedesMaster')
+            ->get($attributes);
+
+        return $data->transform(function ($item) use ($attributes) {
+            return $item->only([...$attributes, 'advisedes_master_count']);
+        });
+    }
+
+    public function advisorsDoctorate()
+    {
+        $attributes = ['id', 'name'];
+        $data = User::where('type', UserType::PROFESSOR)
+            ->withCount('advisedesDoctorate')
+            ->get($attributes);
+
+        return $data->transform(function ($item) use ($attributes) {
+            return $item->only([...$attributes, 'advisedes_doctorate_count']);
+        });
+    }
 }
