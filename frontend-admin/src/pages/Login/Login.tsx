@@ -15,9 +15,7 @@ function LoginPage() {
     const { isLogged, setIsLogged } = useContext(AuthContext);
 
     const getCsrfCookie = async () => {
-        await axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie').then((response) => {
-            console.log(response);
-        });
+        await axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie')
     }
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
