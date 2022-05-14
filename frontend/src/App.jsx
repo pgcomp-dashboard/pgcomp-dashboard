@@ -36,6 +36,14 @@ export function App() {
                     icon={ShowChartIcon}
                     filterOptions={Utils.universityFilter}
                     chart={ProductionsAmountChart} />
+                
+                <DataCard title="Produção por discentes"
+                    minWidth="1200px"
+                    minHeight="300px"
+                    idSession="productions-per-student"
+                    icon={AssessmentIcon}
+                    filterOptions={Utils.universityFilter}
+                    chart={ProductionPerStudentChart} />
 
                 <DataCard title="Qualis"
                     minWidth="1200px"
@@ -44,14 +52,6 @@ export function App() {
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityFilter}
                     chart={QualisChart} />
-
-                <DataCard title="Produção por discentes"
-                    minWidth="1200px"
-                    minHeight="300px"
-                    idSession="productions-per-student"
-                    icon={AssessmentIcon}
-                    filterOptions={Utils.universityFilter}
-                    chart={ProductionPerStudentChart} />
 
                 <DataCard title="Alunos por docente"
                     minWidth="1200px"
