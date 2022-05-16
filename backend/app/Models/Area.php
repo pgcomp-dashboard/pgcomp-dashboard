@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -75,5 +77,16 @@ class Area extends BaseModel
                 'required',
             ],
         ];
+    }
+
+    public function users(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, Subarea::class, 'area_id', 'subarea_id');
+    }
+
+    public function students(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, Subarea::class, 'area_id', 'subarea_id')
+            ->where('type', UserType::STUDENT);
     }
 }
