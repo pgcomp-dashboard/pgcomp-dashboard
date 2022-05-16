@@ -19,7 +19,7 @@ class DashboardController extends Controller
             ->withCount(['advisedes' => function (Builder $belongsToMany) use ($userType) {
                 if ($userType === 'doutorando') {
                     $belongsToMany->where('course_id', 2);
-                } elseif ($userType === 'mestrado') {
+                } elseif ($userType === 'mestrando') {
                     $belongsToMany->where('course_id', 1);
                 } elseif ($userType === '50') {
                     $belongsToMany->whereNull('defended_at');
