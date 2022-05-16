@@ -8,16 +8,23 @@ use App\Models\User;
 
 class DashboardController extends Controller
 {
+    const ADVISEDES = 'advisedes';
+    const MASTER = 'advisedesMaster';
+    const DOCTORATE = 'advisedesDoctorate';
+
+    const COUNTPATTERN = 'advisedes_count';
+    const COUNTMASTER = 'advisedes_master_count';
+    const COUNTDOCTORATE = 'advisedes_doctorate_count';
+
     public function advisors()
     {
         $attributes = ['id', 'name'];
         $data = User::where('type', UserType::PROFESSOR)
-            //->whereHas('advisedes') // não lista professores sem orientandos!
-            ->withCount('advisedes')
+            ->withCount(self::ADVISEDES)
             ->get($attributes);
 
         return $data->transform(function ($item) use ($attributes) {
-            return $item->only([...$attributes, 'advisedes_count']);
+            return $item->only([...$attributes, self::COUNTPATTERN]);
         });
     }
 
@@ -25,11 +32,12 @@ class DashboardController extends Controller
     {
         $attributes = ['id', 'name'];
         $data = User::where('type', UserType::PROFESSOR)
-            ->withCount('advisedesMaster')
+            ->withCount(self::MASTER)
             ->get($attributes);
 
         return $data->transform(function ($item) use ($attributes) {
-            return $item->only([...$attributes, 'advisedes_master_count']);
+            $item = $item->only([...$attributes, self::COUNTMASTER]);
+            return $this->changeToKeyPattern($item, self::COUNTMASTER, self::COUNTPATTERN);
         });
     }
 
@@ -37,11 +45,21 @@ class DashboardController extends Controller
     {
         $attributes = ['id', 'name'];
         $data = User::where('type', UserType::PROFESSOR)
-            ->withCount('advisedesDoctorate')
+            ->withCount(self::DOCTORATE)
             ->get($attributes);
 
         return $data->transform(function ($item) use ($attributes) {
-            return $item->only([...$attributes, 'advisedes_doctorate_count']);
+            $item = $item->only([...$attributes, self::COUNTDOCTORATE]);
+            return $this->changeToKeyPattern($item, self::COUNTDOCTORATE, self::COUNTPATTERN);
         });
+    }
+
+    private function changeToKeyPattern($data, $key, $keyPattern) {
+        if(array_key_exists( $key, $data)) {
+            $keys = array_keys($data);
+            $keys[array_search($key, $keys)] = $keyPattern;
+            return array_combine($keys, $data);
+        }
+        return $data;
     }
 }
