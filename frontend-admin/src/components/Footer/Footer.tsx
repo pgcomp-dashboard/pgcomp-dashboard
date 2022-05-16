@@ -2,6 +2,7 @@ import styles from "./Footer.module.css";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
+import React from 'react';
 
 function Footer() {
   return (

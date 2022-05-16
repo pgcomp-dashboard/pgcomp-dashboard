@@ -14,7 +14,7 @@ function DefaultFilter({ filter, setFilter, options }) {
                     value={filter}
                     label="Filtro"
                     onChange={(e) => { setFilter(e.target.value) }}>
-                    <MenuItem value={'default'}>Geral</MenuItem>
+                    <MenuItem value={'default'}>Todos</MenuItem>
                     {options ? options.map(option => (<MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>)) : null}
                 </Select>
             </FormControl>
