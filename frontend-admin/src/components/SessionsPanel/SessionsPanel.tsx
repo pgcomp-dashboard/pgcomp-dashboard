@@ -5,6 +5,7 @@ import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import SessionItem from '../SessionPanel/SessionPanel';
 import { useState } from 'react';
+import React from 'react';
 
 interface SessionsPanelProps {
     setSelectedSession: any,

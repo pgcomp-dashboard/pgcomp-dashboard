@@ -2,6 +2,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import hero from "../../assets/login.svg";
 import { AuthContext } from "../../providers/AuthProvider";
+import React from 'react';
 
 import { DashboardTemplate } from "../../templates";
 

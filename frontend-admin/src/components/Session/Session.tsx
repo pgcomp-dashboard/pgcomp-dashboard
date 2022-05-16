@@ -7,6 +7,7 @@ import styles from './Session.module.css'
 import Utils from '../../Utils'
 import { AuthContext } from '../../providers/AuthProvider';
 import axios from 'axios';
+import React from 'react';
 
 interface SessionProps {
     type: string;

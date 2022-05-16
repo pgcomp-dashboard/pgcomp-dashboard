@@ -2,6 +2,7 @@ import { useState } from "react";
 import Session from "../../components/Session/Session"
 import SessionsPanel from "../../components/SessionsPanel/SessionsPanel"
 import styles from '../../App.module.css';
+import React from 'react';
 
 
 function AdminPanel() {
