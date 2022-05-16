@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
 use App\Http\Controllers\Api\PanelAdmin\AreaController;
+use App\Http\Controllers\Api\PanelAdmin\AuthController;
 use App\Http\Controllers\Api\PanelAdmin\ConferenceController;
 use App\Http\Controllers\Api\PanelAdmin\CourseController;
 use App\Http\Controllers\Api\PanelAdmin\JournalController;
@@ -59,7 +60,7 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get("fields/active", [StudentsController::class, 'studentsActiveAreas']);
     Route::get("fields/disabled", [StudentsController::class, 'studentsNotActiveArea']);
     Route::get("fields/completed", [StudentsController::class, 'studentsCompletedAreas']);
-    
+
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
 });
 
@@ -93,3 +94,4 @@ Route::get('healthcheck', function (Request $request) {
     return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
 });
 
+Route::post('login', [AuthController::class, 'login']);
