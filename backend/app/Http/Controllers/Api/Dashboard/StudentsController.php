@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Area;
+use App\Models\Subarea;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -41,18 +42,34 @@ class StudentsController extends Controller
     }
 
 
-    public function studentsSubarea()
+    public function studentsSubarea(Request $request)
     {
         //return ['subfields' => ['CG', 'Análise de Dados', 'I.A',],
         //        'data' => [12, 3, 5,]];
 
+        $selectedFilter = $request->input('selectedFilter');
 
-        $keyReturnPattern = ['subfields', 'data'];
-        $user = new User();
-        $data = $user->subareas();
+        $filter = function(Builder $builder) use ($selectedFilter) {
+            if ($selectedFilter === 'mestrando') {
+                $builder->where('course_id', 1);
+            } elseif ($selectedFilter === 'doutorando') {
+                $builder->where('course_id', 2);
+            } elseif ($selectedFilter === '50') {
+                $builder->whereNull('defended_at');
+            } elseif ($selectedFilter === '60') {
+                $builder->whereNotNull('defended_at');
+            }
+        };
+        $areas = Subarea::withCount([
+            'students' => $filter
+        ])->whereHas('students', $filter)
+            ->orderBy('subarea_name')
+            ->get();
 
-        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
-
+        return [
+            'subfields' => $areas->pluck('subarea_name')->toArray(),
+            'data' => $areas->pluck('students_count')->toArray(),
+        ];
     }
 
     public function studentsMasterDegreeAreas()

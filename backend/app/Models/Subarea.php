@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -66,5 +68,15 @@ class Subarea extends BaseModel
                 'required',
             ],
         ];
+    }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class, 'subarea_id', 'id');
+    }
+
+    public function students(): HasMany
+    {
+        return $this->users()->where('type', UserType::STUDENT);
     }
 }

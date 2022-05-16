@@ -283,25 +283,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->whereNull('defended_at');
     }
 
-    public function subareas(): array
-    {
-        $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
-            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
-            ->where('users.type', '=', UserType::STUDENT)
-            ->groupBy('subareas.subarea_name')
-            ->get();
-
-        $dataSubfields = [];
-        $dataCount = [];
-        for ($counter = 0; $counter < count($data); $counter++) {
-            $dataSubfields[$counter] = $data[$counter]->subarea_name;
-            $dataCount[$counter] = $data[$counter]->subarea_count;
-        }
-
-        return [$dataSubfields, $dataCount];
-    }
-
     public function subareasMasterFilter(): array
     {
         $data = DB::table('users')
