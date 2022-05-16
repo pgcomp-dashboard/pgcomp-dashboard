@@ -616,9 +616,4 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return $belongsToMany;
     }
-
-    public function up ()
-    {
-        User::whereType('professor')->get()->each(fn ($u) => $u->programs()->sync([1 => ['started_at' => '2014-01-01']]));
-    }
 }
