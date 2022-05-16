@@ -6,6 +6,8 @@ use App\Enums\UserType;
 use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Models\BaseModel;
 use App\Models\Production;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ProductionController extends BaseApiResourceController
 {
