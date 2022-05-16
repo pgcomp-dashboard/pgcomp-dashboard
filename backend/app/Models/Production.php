@@ -206,6 +206,17 @@ class Production extends BaseModel
         return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
     }
 
+    public function findAllUserProductions($user, $production){
+        $data = DB::table('productions')
+            ->select('productions.id')
+            ->join('users_productions', 'productions.id',
+                '=', 'users_productions.productions_id')
+            ->join('users', 'users.id', '=', 'users_productions.users_id')
+            ->where('users.id', '-', $user)
+            ->where('productions.id', '=', $production );
+        return $data;
+    }
+
     protected function setQualis(): void
     {
         if ($this->publisher) {
