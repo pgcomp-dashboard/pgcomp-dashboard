@@ -13,11 +13,11 @@ function generateColorsArray(numberOfColors) {
 
 const universityFilter = [
     {
-        label: 'Mestrados',
+        label: 'Mestrandos',
         value: 'mestrando'
     },
     {
-        label: 'Doutorados',
+        label: 'Doutorandos',
         value: 'doutorando'
     },
     {
