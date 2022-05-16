@@ -42,10 +42,12 @@ class Program extends BaseModel
         'sigaa_id',
         'name',
         'description',
+        'started_at',
     ];
 
     protected $casts = [
         'sigaa_id' => 'int',
+        'started_at' => 'datetime',
     ];
 
     public static function creationRules(): array
@@ -54,6 +56,7 @@ class Program extends BaseModel
             'sigaa_id' => ['required', 'int', Rule::unique(self::class, 'sigaa_id')],
             'name' => 'required|string|max:255',
             'description' => 'string|max:2500',
+            'started_at' => 'date|nullable',
         ];
     }
 
@@ -62,6 +65,7 @@ class Program extends BaseModel
         return [
             'name' => 'string|max:255',
             'description' => 'string|max:2500',
+            'started_at' => 'date|nullable',
         ];
     }
 

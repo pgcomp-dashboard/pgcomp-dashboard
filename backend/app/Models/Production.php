@@ -107,10 +107,12 @@ class Production extends BaseModel
     public function totalProductionsPerYear($user_type, $course_id, $publisher_type): array
     {
         $years = DB::table('productions')
+            ->where('year', '>=', 2014)
             ->select(DB::raw('min(productions.year) as min, max(productions.year) as max'))
             ->get();
 
         $data = DB::table('productions')
+            ->where('year', '>=', 2014)
             ->when($publisher_type, function ($query, $publisher_type) {
                 $query->where('productions.publisher_type', '=', $publisher_type);
             })
@@ -151,6 +153,7 @@ class Production extends BaseModel
         $totalOfCourses = count($totalOfCourses);
 
         $years = DB::table('productions')
+            ->where('year', '>=', 2014)
             ->select(DB::raw('min(productions.year) as min, max(productions.year) as max'))
             ->get();
 
@@ -166,6 +169,7 @@ class Production extends BaseModel
                 ->join('courses', 'courses.id', '=', 'users.course_id')
                 ->where('courses.id', '=', $nCourse)
                 ->where('users.type', '=', UserType::STUDENT)
+                ->where('year', '>=', 2014)
                 ->groupBy('productions.year', 'courses.id')
                 ->get();
             $coursesProductions[$nCourse] = $data;
