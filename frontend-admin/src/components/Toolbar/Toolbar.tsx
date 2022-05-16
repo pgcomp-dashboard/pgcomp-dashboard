@@ -1,6 +1,7 @@
 import styles from './Toolbar.module.css'
 import icLogo from '../../assets/ic_logo.png'
 import UserMenu from '../UserMenu/UserMenu';
+import React from 'react';
 
 function Toolbar(){
     const className = styles['nav__toolbar'];

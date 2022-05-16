@@ -1,10 +1,13 @@
 import { List } from '@mui/material';
-import { useState } from 'react'
+import { useState, useEffect, useContext } from 'react';
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
 import SessionItem from '../SessionItem/SessionItem';
 import styles from './Session.module.css'
 import Utils from '../../Utils'
+import { AuthContext } from '../../providers/AuthProvider';
+import axios from 'axios';
+import React from 'react';
 
 interface SessionProps {
     type: string;
@@ -12,6 +15,7 @@ interface SessionProps {
 
 function Session(props: SessionProps) {
     const [modalOpened, setModalOpened] = useState(false);
+    const { token } = useContext(AuthContext);
 
     const handleModalOpen = () => {
         setModalOpened(true);
@@ -25,6 +29,20 @@ function Session(props: SessionProps) {
         {name: 'child 1', type: 'qualis'},
         {name: 'child 2', type: 'qualis'},
     ]
+
+    let config = {
+        method: 'get',
+        url: 'https://mate85-api.litiano.dev.br/api/portal/admin/areas',
+        headers: {
+            'Authorization': token
+        }
+    }
+
+    useEffect(() => {
+      axios(config).then((response: any) => {
+        console.log(response);
+      })  
+    }, []);
 
     return (
         <div className={styles['Session']}>

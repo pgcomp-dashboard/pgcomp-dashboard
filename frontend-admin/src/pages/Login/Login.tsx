@@ -2,6 +2,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import hero from "../../assets/login.svg";
 import { AuthContext } from "../../providers/AuthProvider";
+import React from 'react';
 
 import { DashboardTemplate } from "../../templates";
 
@@ -31,14 +32,14 @@ function LoginPage() {
     const handleLogin = () => {
         axios.post('https://mate85-api.litiano.dev.br/api/login', {
             email, password
-        }).then((response) => {
+        }).then((response: any) => {
             console.log(response);
 
             if (response.status === 200) { 
                 setIsLogged(true);
-                setToken(response.data);
+                setToken("Bearer " + response.data);
              }
-        }).catch(function (response) {
+        }).catch(function (response: any) {
             console.log(response);
         });
     }

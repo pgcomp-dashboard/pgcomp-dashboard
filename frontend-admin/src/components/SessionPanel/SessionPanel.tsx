@@ -1,4 +1,5 @@
 import styles from './SessionPanel.module.css';
+import React from 'react';
 
 interface SessionPanelProps {
     label: string;

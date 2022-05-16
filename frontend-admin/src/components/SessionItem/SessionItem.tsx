@@ -7,6 +7,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useState } from 'react';
 import Utils from '../../Utils'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
+import React from 'react';
 
 interface SessionItemProps {
     name: string,
