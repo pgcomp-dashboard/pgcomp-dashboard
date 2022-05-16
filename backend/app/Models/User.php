@@ -6,6 +6,7 @@ use App\Enums\CourseType;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use Database\Factories\UserFactory;
+use DateTimeInterface;
 use Eloquent;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
@@ -579,5 +582,58 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             return 'error';
         }
         return $user;
+    }
+
+    public function programs(): BelongsToMany
+    {
+        return $this->belongsToMany(Program::class, 'users_programs')
+            ->withPivot(['started_at', 'finished_at']);
+    }
+
+    public function currentProgramsIn(DateTimeInterface $date): BelongsToMany
+    {
+        $belongsToMany = $this->programs();
+
+        return $belongsToMany->whereDate($belongsToMany->qualifyPivotColumn('started_at'), '<=', $date)
+            ->where(function (Builder $builder) use ($date, $belongsToMany) {
+                $builder->whereDate($belongsToMany->qualifyPivotColumn('finished_at'), '>=', $date)
+                    ->orWhereNull($belongsToMany->qualifyPivotColumn('finished_at'))
+                ;
+            })
+        ;
+    }
+
+    /**
+     * @param int $programId
+     * @return Collection<int, Program>
+     */
+    public function productionsByProgram(int $programId): Collection
+    {
+        return $this->writerOf()
+            ->join('users_programs', function (JoinClause $joinClause) use ($programId) {
+                $joinClause->on('users_programs.user_id', '=', 'users_productions.users_id')
+                    ->whereColumn(new Expression('YEAR(users_programs.started_at)'), '<=', 'productions.year',)
+                    ->where(function (JoinClause $builder) {
+                        $builder->whereColumn(new Expression('YEAR(users_programs.finished_at)'), '>=', 'productions.year')
+                            ->orWhereNull('users_programs.finished_at');
+                    })
+                    ->where('users_programs.program_id', $programId)
+                ;
+            })->get();
+    }
+
+    public function currentPrograms(): BelongsToMany
+    {
+        $belongsToMany = $this->programs();
+
+        $belongsToMany->whereDate($belongsToMany->qualifyPivotColumn('started_at'), '<=', Carbon::now())
+            ->where(function (Builder $builder) use ($belongsToMany) {
+                $builder->whereDate($belongsToMany->qualifyPivotColumn('finished_at'), '>=', Carbon::now())
+                    ->orWhereNull($belongsToMany->qualifyPivotColumn('finished_at'))
+                ;
+            })
+        ;
+
+        return $belongsToMany;
     }
 }

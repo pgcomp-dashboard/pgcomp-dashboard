@@ -72,10 +72,10 @@ class ControllerAreaTest extends TestCase
         $area = $this->createArea();
 
         $data = $this->delete('api/portal/admin/areas/' . $area->id);
-        $data->assertStatus(200);
+        $data->assertStatus(405);
 
         $data = $this->get('api/portal/admin/areas/' . $area->id);
-        $data->assertStatus(404);
+        $data->assertStatus(200);
     }
 
     protected function setUp(): void

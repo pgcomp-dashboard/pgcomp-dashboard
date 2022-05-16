@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Dashboard\ProgramsController;
 use App\Http\Controllers\Api\Dashboard\QualisController;
 use App\Http\Controllers\Api\Dashboard\StudentsController;
 use App\Http\Controllers\Api\PanelAdmin\AreaController;
+use App\Http\Controllers\Api\PanelAdmin\AuthController;
 use App\Http\Controllers\Api\PanelAdmin\ConferenceController;
 use App\Http\Controllers\Api\PanelAdmin\CourseController;
 use App\Http\Controllers\Api\PanelAdmin\JournalController;
@@ -95,3 +96,4 @@ Route::get('healthcheck', function (Request $request) {
     return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
 });
 
+Route::post('login', [AuthController::class, 'login']);
