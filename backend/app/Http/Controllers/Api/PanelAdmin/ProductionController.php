@@ -16,6 +16,13 @@ class ProductionController extends BaseApiResourceController
         return Production::class;
     }
 
+    public function store(Request $request){
+        $production = new Production();
+        $saveProduction = parent::store($request);
+        $saveProduction->saveInterTable($request->input("users_id"));
+        return $saveProduction;
+    }
+
     public function studentQuery($students){
         $this->query = $this->newBaseQuery()
             ->select('productions.id', 'productions.title', 'productions.year',

@@ -30,6 +30,9 @@ class ProfessorProductionController extends Controller
     }
 
     public function store(Request $request, $professors){
+        if($professors != $request->input("users_id")){
+            abort(400);
+        }
         $this->productionController = $this->newInstance();
         return $this->productionController->store($request);
     }

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -102,6 +103,11 @@ class Production extends BaseModel
             'publisher_id' => ['nullable', 'int', new MorphExists()],
             'sequence_number' => 'nullable|int',
         ];
+    }
+
+    public function saveInterTable($users_id)//: void
+    {
+        $this->isWroteBy()->attach($users_id);
     }
 
     public function totalProductionsPerYear($user_type, $course_id, $publisher_type): array
