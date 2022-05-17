@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-import { AuthContext } from '../providers/AuthProvider';
 import axios from 'axios';
 
 

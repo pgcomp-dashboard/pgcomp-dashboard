@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import axios from 'axios';
 import { useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
-import { createItem, updateItem } from '../../factories/ItemsFactory';
+import { createItem, updateItem } from '../../services/ItemsService';
 
 interface SessionItemDialogProps {
     open: boolean,

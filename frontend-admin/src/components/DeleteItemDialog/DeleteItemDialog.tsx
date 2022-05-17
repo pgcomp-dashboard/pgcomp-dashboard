@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import axios from 'axios';
 import { useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
-import { deleteItem } from '../../factories/ItemsFactory';
+import { deleteItem } from '../../services/ItemsService';
 
 interface DeleteItemDialogProps {
     open: boolean,
