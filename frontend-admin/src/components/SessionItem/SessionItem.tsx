@@ -10,17 +10,26 @@ import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
 import React from 'react';
 
 interface SessionItemProps {
-    name: string,
-    type: string
+    name?: string,
+    area_name?: string,
+    type: string,
     children?: any,
     isChildren?: boolean
 }
 
-function SessionItem(props: SessionItemProps) {
+interface namePropertyProps {
+    areas: string
+}
+
+function SessionItem(props: any) {
     const iconsStyle = {
         height: '30px',
         width: '35px',
         cursor: 'pointer'
+    }
+
+    const nameProperty: any = {
+        'areas': 'area_name'
     }
 
     const [expandChildren, setExpandChildren] = useState(false);
@@ -41,7 +50,7 @@ function SessionItem(props: SessionItemProps) {
         <>
             <ListItem disablePadding style={childrenStyle}>
                 <div className={styles['SessionItem']}>
-                    <div>{props.name}</div>
+                    <div>{props[ nameProperty[props.type] ]}</div>
                     <div>
                         <EditIcon style={iconsStyle} onClick={() => setModalOpened(true)} />
                         <DeleteIcon style={iconsStyle} />
@@ -51,8 +60,8 @@ function SessionItem(props: SessionItemProps) {
                 </div>
             </ListItem>
 
-            <SessionItemDialog type={Utils.nameTypes[props.type]} open={modalOpened} handleClose={handleModalClose}
-                isEdit={true} name={props.name} />
+            <SessionItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={modalOpened} handleClose={handleModalClose}
+                isEdit={true} name={props[ nameProperty[props.type] ]} />
 
             <Collapse in={expandChildren} timeout="auto" unmountOnExit>
                 {props.children ? props.children.map((item: SessionItemProps) => {
