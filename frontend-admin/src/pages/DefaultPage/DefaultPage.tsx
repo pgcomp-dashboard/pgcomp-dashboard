@@ -1,3 +1,4 @@
+import React from 'react';
 import { useContext } from "react";
 import { LoginPage } from "..";
 import { AuthContext } from "../../providers/AuthProvider";

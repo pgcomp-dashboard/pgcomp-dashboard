@@ -1,8 +1,9 @@
 .footer__ufba {
-    position: static;
+    position: relative;
     left: 0;
     bottom: 0;
     background-color: #0B3665;
+    width: 100%;
     color: white;
     height: 18vh;
     padding: 10px;

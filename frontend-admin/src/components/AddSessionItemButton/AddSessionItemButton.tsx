@@ -1,6 +1,7 @@
 import styles from './AddSessionItemButton.module.css'
 import AddIcon from '@mui/icons-material/Add';
 import { Button } from '@mui/material';
+import React from 'react';
 
 interface AddSessionItemProps {
     type: string,
