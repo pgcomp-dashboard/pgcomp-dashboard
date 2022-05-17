@@ -3,6 +3,7 @@ import React, { useState } from "react"
 import axios from 'axios';
 import { useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
+import { createItem, updateItem } from '../../factories/ItemsFactory';
 
 interface SessionItemDialogProps {
     open: boolean,
@@ -11,6 +12,7 @@ interface SessionItemDialogProps {
     handleClose: any,
     program_id?: any,
     save?: any,
+    id?: number,
     name?: string,
     isEdit?: boolean,
 }
@@ -30,15 +32,16 @@ function SessionItemDialog(props: SessionItemDialogProps) {
         }
     }
 
-    const save: any = {
-        'areas': (area_name: string) => {
-            config.method = props.isEdit ? 'put' : 'post';
-            config.url = 'https://mate85-api.litiano.dev.br/api/portal/admin/areas';
-            config.data = { area_name, program_id: props.isEdit ? props.program_id : 1 }
-            axios(config);
-            setChange(change + 1);
+    const save = () => {
+        if (props.isEdit) {
+            updateItem(config, props.typeAttr, itemName, props.id);
+        } else {
+            createItem(config, props.typeAttr, itemName);
         }
+
+        setChange(change + 1);
     }
+
 
     return (
         <Dialog open={props.open} onClose={props.handleClose}>
@@ -56,7 +59,7 @@ function SessionItemDialog(props: SessionItemDialogProps) {
 
             <DialogActions>
                 <Button onClick={props.handleClose}> Cancelar </Button>
-                <Button onClick={() => { save[props.typeAttr](itemName); props.handleClose(); }}>Salvar</Button>
+                <Button onClick={() => { save(); props.handleClose(); }}>Salvar</Button>
             </DialogActions>
         </Dialog>
     )
