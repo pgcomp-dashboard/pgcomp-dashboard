@@ -4,7 +4,9 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu } from '@mui/material';
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../../providers/AuthProvider';
+import axios from 'axios';
 function UserMenu() {
     const iconStyle = {
         'height': '42px',
@@ -13,6 +15,16 @@ function UserMenu() {
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+    const {isLogged, token} = useContext(AuthContext)
+    const [userName, setUsername] = useState();
+
+    useEffect(() => {
+        if(isLogged){
+            axios.get('https://mate85-api.litiano.dev.br/api/user', {headers: {'Authorization': `${token}`}}).then(response=> {
+                setUsername(response.data.name);
+            })
+        }
+    }, [isLogged, token])
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -31,10 +43,15 @@ function UserMenu() {
                 aria-expanded={open ? 'true' : undefined}>
                 <AccountCircleIcon color="primary" fontSize='inherit' style={iconStyle} />
 
-                <div className={styles['user__menu__welcome']}>
-                    <span>Olá,</span>
-                    <span className={styles['user__menu__name']}>Fulano</span>
-                </div>
+                {!isLogged ? 
+                    <div><a href="/">Entrar</a></div> 
+                    : 
+                    <div className={styles['user__menu__welcome']}>
+                        <span>Olá,</span>
+                        <span className={styles['user__menu__name']}>{userName}</span>
+                    </div>
+                }
+                
             </Button>
 
             <Menu id="user-menu"
@@ -44,7 +61,6 @@ function UserMenu() {
                 MenuListProps={{
                     'aria-labelledby': 'basic-button',
                 }}>
-                <MenuItem onClick={handleClose}>Editar perfil</MenuItem>
                 <MenuItem onClick={handleClose}>Sair</MenuItem>
             </Menu>
         </div>
