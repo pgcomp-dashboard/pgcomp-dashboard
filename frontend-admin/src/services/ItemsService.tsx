@@ -1,22 +1,22 @@
 import axios from 'axios';
 
 
-const createItem = (config: any, type: string, name: string) => {
+const createItem = (config: any, type: string, item: any) => {
     switch (type) {
         case 'areas':
             config.method = 'post';
             config.url = 'https://mate85-api.litiano.dev.br/api/portal/admin/areas';
-            config.data = { area_name: name, program_id: 1 }
+            config.data = { area_name: item.name, program_id: 1 }
             axios(config);
     }
 }
 
-const updateItem = (config: any, type: string, name: string, id: number | undefined) => {
+const updateItem = (config: any, type: string, item: any) => {
     switch (type) {
         case 'areas':
             config.method = 'put';
-            config.url = `https://mate85-api.litiano.dev.br/api/portal/admin/areas/${id}`;
-            config.data = { area_name: name, id: id, program_id: 1 }
+            config.url = `https://mate85-api.litiano.dev.br/api/portal/admin/areas/${item.id}`;
+            config.data = { area_name: item.name, id: item.id, program_id: 1 }
             axios(config);
     }
 }

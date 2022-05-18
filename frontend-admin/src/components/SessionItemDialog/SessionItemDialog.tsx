@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
 import { createItem, updateItem } from '../../services/ItemsService';
+import AreaForm from "../../forms/AreaForm";
 
 interface SessionItemDialogProps {
     open: boolean,
@@ -17,13 +18,13 @@ interface SessionItemDialogProps {
     isEdit?: boolean,
 }
 
-function SessionItemDialog(props: SessionItemDialogProps) {
+const SessionItemDialog = (props: any) => {
     const [itemName, setItemName] = useState(props.name ? props.name : '');
+
     const { token, change, setChange } = useContext(AuthContext);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.currentTarget.value;
-        setItemName(newValue);
+    const forms: any = {
+        'areas': <AreaForm itemName={itemName} setItemName={setItemName} />
     }
 
     const config: any = {
@@ -34,12 +35,13 @@ function SessionItemDialog(props: SessionItemDialogProps) {
 
     const save = () => {
         if (props.isEdit) {
-            updateItem(config, props.typeAttr, itemName, props.id);
+            updateItem(config, props.typeAttr, {name: itemName, id: props.id});
         } else {
-            createItem(config, props.typeAttr, itemName);
+            createItem(config, props.typeAttr, {name: itemName});
         }
-
+        
         setChange(change + 1);
+
     }
 
 
@@ -49,11 +51,7 @@ function SessionItemDialog(props: SessionItemDialogProps) {
 
             <DialogContent>
 
-                <TextField id="itemName" label={'Insira ' + props.type.toLowerCase()} name="itemName" fullWidth
-                    value={itemName}
-                    onChange={handleInputChange}
-                    sx={{ marginTop: '15px' }}
-                />
+                {forms[props.typeAttr]}
 
             </DialogContent>
 
