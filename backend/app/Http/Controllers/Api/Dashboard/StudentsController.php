@@ -5,41 +5,74 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Area;
 use App\Models\Subarea;
-use App\Enums\UserType;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class StudentsController extends Controller
 {
-    public function studentsArea()
+    public function studentsArea(Request $request)
     {
         //return ['fields' => ['CG', 'Análise de Dados', 'I.A',],
         //        'data' => [12, 3, 5,]];
 
+        $selectedFilter = $request->input('selectedFilter');
 
-        $keyReturnPattern = ['fields', 'data'];
-        $user = new User();
-        $data = $user->areas();
+        $filter = function(Builder $builder) use ($selectedFilter) {
+            if ($selectedFilter === 'mestrando') {
+                $builder->where('course_id', 1);
+            } elseif ($selectedFilter === 'doutorando') {
+                $builder->where('course_id', 2);
+            } elseif ($selectedFilter === '50') {
+                $builder->whereNull('defended_at');
+            } elseif ($selectedFilter === '60') {
+                $builder->whereNotNull('defended_at');
+            }
+        };
+        $areas = Area::withCount([
+            'students' => $filter
+        ])->whereHas('students', $filter)
+            ->orderBy('area_name')
+            ->get();
 
-        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
+        return [
+            'fields' => $areas->pluck('area_name')->toArray(),
+            'data' => $areas->pluck('students_count')->toArray(),
+        ];
     }
 
 
-    public function studentsSubarea()
+    public function studentsSubarea(Request $request)
     {
         //return ['subfields' => ['CG', 'Análise de Dados', 'I.A',],
         //        'data' => [12, 3, 5,]];
 
+        $selectedFilter = $request->input('selectedFilter');
 
-        $keyReturnPattern = ['subfields', 'data'];
-        $user = new User();
-        $data = $user->subareas();
+        $filter = function(Builder $builder) use ($selectedFilter) {
+            if ($selectedFilter === 'mestrando') {
+                $builder->where('course_id', 1);
+            } elseif ($selectedFilter === 'doutorando') {
+                $builder->where('course_id', 2);
+            } elseif ($selectedFilter === '50') {
+                $builder->whereNull('defended_at');
+            } elseif ($selectedFilter === '60') {
+                $builder->whereNotNull('defended_at');
+            }
+        };
+        $areas = Subarea::withCount([
+            'students' => $filter
+        ])->whereHas('students', $filter)
+            ->orderBy('subarea_name')
+            ->get();
 
-        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
-
+        return [
+            'subfields' => $areas->pluck('subarea_name')->toArray(),
+            'data' => $areas->pluck('students_count')->toArray(),
+        ];
     }
 
-    public function studentsMasterDegreeAreas() 
+    public function studentsMasterDegreeAreas()
     {
 
         $keyReturnPattern = ['fields', 'data'];
@@ -49,7 +82,7 @@ class StudentsController extends Controller
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
-    public function studentsMasterDegreeSubareas() 
+    public function studentsMasterDegreeSubareas()
     {
 
 
@@ -60,7 +93,7 @@ class StudentsController extends Controller
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
-    public function studentsDoctorateDegreeArea() 
+    public function studentsDoctorateDegreeArea()
     {
 
         $keyReturnPattern = ['fields', 'data'];
@@ -70,7 +103,7 @@ class StudentsController extends Controller
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
-    public function studentsDoctorateDegreeSubareas() 
+    public function studentsDoctorateDegreeSubareas()
     {
 
 
@@ -82,7 +115,7 @@ class StudentsController extends Controller
     }
 
     // Ve se esse atributo vai existir mesmo em User.
-    public function studentsActiveAreas() 
+    public function studentsActiveAreas()
     {
 
         $keyReturnPattern = ['fields', 'data'];
@@ -92,8 +125,8 @@ class StudentsController extends Controller
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
-    
-    public function studentsActiveSubareas() 
+
+    public function studentsActiveSubareas()
     {
 
 
@@ -105,9 +138,9 @@ class StudentsController extends Controller
     }
 
     // Ve se esse atributo vai existir mesmo em User.
-    public function studentsNotActiveArea() 
+    public function studentsNotActiveArea()
     {
-        
+
         $keyReturnPattern = ['fields', 'data'];
         $user = new User();
         $data = $user->areasNotActiveFilter();
@@ -115,9 +148,9 @@ class StudentsController extends Controller
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
-    
-    
-    public function studentsNotActiveSubareas() 
+
+
+    public function studentsNotActiveSubareas()
     {
 
 
@@ -128,7 +161,7 @@ class StudentsController extends Controller
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
-    public function studentsCompletedAreas() 
+    public function studentsCompletedAreas()
     {
 
         $keyReturnPattern = ['fields', 'data'];
@@ -138,8 +171,8 @@ class StudentsController extends Controller
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
     }
 
-        
-    public function studentsCompletedSubareas() 
+
+    public function studentsCompletedSubareas()
     {
 
 

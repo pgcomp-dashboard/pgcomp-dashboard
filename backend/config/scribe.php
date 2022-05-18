@@ -9,7 +9,7 @@ return [
     /*
      * The HTML <title> for the generated documentation. If this is empty, Scribe will infer it from config('app.name').
      */
-    'title' => null,
+    'title' => 'AUFBAProduz - API',
 
     /*
      * A short description of your API. Will be included in the docs webpage, Postman collection and OpenAPI spec.
@@ -210,31 +210,31 @@ return [
         /*
          * Set this to true if any endpoints in your API use authentication.
          */
-        'enabled' => false,
+        'enabled' => true,
 
         /*
          * Set this to true if your API should be authenticated by default. If so, you must also set `enabled` (above) to true.
          * You can then use @unauthenticated or @authenticated on individual endpoints to change their status from the default.
          */
-        'default' => false,
+        'default' => true,
 
         /*
          * Where is the auth value meant to be sent in a request?
          * Options: query, body, basic, bearer, header (for custom header)
          */
-        'in' => 'bearer',
+        'in' => 'header',
 
         /*
          * The name of the auth parameter (eg token, key, apiKey) or header (eg Authorization, Api-Key).
          */
-        'name' => 'key',
+        'name' => 'Authorization',
 
         /*
          * The value of the parameter to be used by Scribe to authenticate response calls.
          * This will NOT be included in the generated documentation.
          * If this value is empty, Scribe will use a random value.
          */
-        'use_value' => env('SCRIBE_AUTH_KEY'),
+        'use_value' => "Bearer 1|LE6fzC7W1sKhh8r7xQgd7G4s9lwIPeKEJQ1lymAe",
 
         /*
          * Placeholder your users will see for the auth parameter in the example requests.
