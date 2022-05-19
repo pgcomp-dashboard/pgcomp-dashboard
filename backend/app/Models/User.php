@@ -268,6 +268,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
             ->wherePivot('relation_type', UserRelationType::ADVISOR)
             ->whereNull('defended_at');
+
     }
 
     public function coadvisors(): BelongsToMany
