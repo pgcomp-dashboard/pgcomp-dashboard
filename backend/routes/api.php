@@ -84,6 +84,8 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
         Route::apiResource('professors.productions', ProfessorProductionController::class)
             ->except(['destroy']);
+
+        Route::get('all_subareas_per_area', [AreaController::class, 'subareaPerArea']);
     });
 });
 
