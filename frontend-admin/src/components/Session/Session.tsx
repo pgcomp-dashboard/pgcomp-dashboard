@@ -62,7 +62,9 @@ function Session(props: SessionProps) {
     }, [token]);
 
     useEffect(() => {
-        getData();
+        setTimeout(() => {
+            getData();
+        }, 1000);
     }, [change]);
 
     console.log(sessionItems);
