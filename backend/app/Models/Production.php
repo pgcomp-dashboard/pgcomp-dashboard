@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -102,6 +103,11 @@ class Production extends BaseModel
             'publisher_id' => ['nullable', 'int', new MorphExists()],
             'sequence_number' => 'nullable|int',
         ];
+    }
+
+    public function saveInterTable($users_id)//: void
+    {
+        $this->isWroteBy()->attach($users_id);
     }
 
     public function totalProductionsPerYear($user_type, $course_id, $publisher_type): array
@@ -204,6 +210,17 @@ class Production extends BaseModel
             $dataWithLabels[] = ['label' => $coursesName[$nCourse - 1]->name, 'data' => $data[$nCourse - 1]];
         }
         return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
+    }
+
+    public function findAllUserProductions($user, $production){
+        $data = DB::table('productions')
+            ->select('productions.id')
+            ->join('users_productions', 'productions.id',
+                '=', 'users_productions.productions_id')
+            ->join('users', 'users.id', '=', 'users_productions.users_id')
+            ->where('users.id', '-', $user)
+            ->where('productions.id', '=', $production );
+        return $data;
     }
 
     protected function setQualis(): void
