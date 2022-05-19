@@ -1,21 +1,49 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
 import React, { useState } from "react"
+import axios from 'axios';
+import { useContext } from 'react';
+import { AuthContext } from '../../providers/AuthProvider';
+import { createItem, updateItem } from '../../services/ItemsService';
+import AreaForm from "../../forms/AreaForm";
 
 interface SessionItemDialogProps {
     open: boolean,
     type: string,
-    handleClose: any
+    typeAttr: string,
+    handleClose: any,
+    program_id?: any,
+    save?: any,
+    id?: number,
     name?: string,
-    isEdit?: boolean
+    isEdit?: boolean,
 }
 
-function SessionItemDialog(props: SessionItemDialogProps) {
+const SessionItemDialog = (props: any) => {
     const [itemName, setItemName] = useState(props.name ? props.name : '');
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.currentTarget.value;
-        setItemName(newValue);
+    const { token, change, setChange } = useContext(AuthContext);
+
+    const forms: any = {
+        'areas': <AreaForm itemName={itemName} setItemName={setItemName} />
     }
+
+    const config: any = {
+        headers: {
+            'Authorization': token
+        }
+    }
+
+    const save = () => {
+        if (props.isEdit) {
+            updateItem(config, props.typeAttr, {name: itemName, id: props.id});
+        } else {
+            createItem(config, props.typeAttr, {name: itemName});
+        }
+        
+        setChange(change + 1);
+
+    }
+
 
     return (
         <Dialog open={props.open} onClose={props.handleClose}>
@@ -23,15 +51,13 @@ function SessionItemDialog(props: SessionItemDialogProps) {
 
             <DialogContent>
 
-                <TextField id="itemName" label={'Insira ' + props.type.toLowerCase()} name="itemName" fullWidth
-                    value={itemName}
-                    onChange={handleInputChange} />
+                {forms[props.typeAttr]}
 
             </DialogContent>
 
             <DialogActions>
                 <Button onClick={props.handleClose}> Cancelar </Button>
-                <Button>Salvar</Button>
+                <Button onClick={() => { save(); props.handleClose(); }}>Salvar</Button>
             </DialogActions>
         </Dialog>
     )
