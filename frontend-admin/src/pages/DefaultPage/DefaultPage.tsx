@@ -5,29 +5,16 @@ import { AuthContext } from "../../providers/AuthProvider";
 import AdminPanel from "../AdminPanel/AdminPanel";
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
+import useToken from '../../hooks/useToken';
 
 const DefaultPage = () => {
-    const { isLogged, setIsLogged } = useContext(AuthContext);
-    const [cookies, setCookie] = useCookies<any | null>(['user']);
+    const { token } = useContext(AuthContext);
 
-    useLayoutEffect(() => {
-        console.log(cookies);
-        let config = {
-            method: 'get',
-            url: `https://mate85-api.litiano.dev.br/api/user`,
-            headers: {
-                'Authorization': cookies.Bearer
-            }
-        };
+    if (!token){
+        return <LoginPage />
+    }
 
-        axios(config).then((response: any) => {
-            if (response.status === 200){
-                setIsLogged(true);
-            }
-        });
-    }, []);
-
-    return isLogged ? <AdminPanel /> : <LoginPage />
+    return <AdminPanel />;
 
 }
 

@@ -1,4 +1,5 @@
 import React, { createContext, useState } from "react";
+import useToken from '../hooks/useToken';
 interface AuthContextProps {
     children: any
 }
@@ -16,7 +17,7 @@ export const AuthContext = createContext<ContextDefault>({ isLogged: false, setI
 
 export const AuthProvider = (props: AuthContextProps) => {
     const [isLogged, setIsLogged] = useState(false);
-    const [token, setToken] = useState('');
+    const { token, setToken } = useToken();
     const [change, setChange] = useState(0);
 
     return (
