@@ -14,6 +14,13 @@ class AreaController extends BaseApiResourceController
         return Area::class;
     }
 
+    public function destroy(int $id)
+    {
+        $areas = Area::where('id', $id)->withCount(['users'])->get();
+        return (count($areas) > 0 and $areas[0]->users_count) ?
+            parent::destroy($id) : abort(406);
+    }
+
     public function subareaPerArea(){
         $areas = Area::with('subarea')->get();
         $data = [];
