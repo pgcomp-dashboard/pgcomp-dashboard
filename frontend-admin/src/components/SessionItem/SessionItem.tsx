@@ -30,7 +30,17 @@ function SessionItem(props: any) {
     }
 
     const nameProperty: any = {
-        'areas': 'area_name'
+        'areas': 'area_name',
+        'qualis' : 'code',
+        'professors': 'name',
+        'students': 'name'
+    }
+
+    const editProperties: any = {
+        'areas': ['area_name'],
+        'qualis': ["score", "code"],
+        'professors': ["name"],
+        'students': ["name"]
     }
 
     const [expandChildren, setExpandChildren] = useState(false);
