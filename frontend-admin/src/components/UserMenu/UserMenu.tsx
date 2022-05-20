@@ -1,12 +1,10 @@
 import styles from './UserMenu.module.css';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
-import axios from 'axios';
+import { api } from '../../services/api';
 function UserMenu() {
     const iconStyle = {
         'height': '42px',
@@ -15,16 +13,14 @@ function UserMenu() {
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-    const {isLogged, token} = useContext(AuthContext)
+    const {isLogged} = useContext(AuthContext)
     const [userName, setUsername] = useState();
 
     useEffect(() => {
         if(isLogged){
-            axios.get('https://mate85-api.litiano.dev.br/api/user', {headers: {'Authorization': `${token}`}}).then(response=> {
-                setUsername(response.data.name);
-            })
+            api.get('https://mate85-api.litiano.dev.br/api/user').then(response => setUsername(response.data.name))
         }
-    }, [isLogged, token])
+    }, [isLogged])
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);

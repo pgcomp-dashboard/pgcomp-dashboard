@@ -1,22 +1,19 @@
-import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import hero from "../../assets/login.svg";
 import { AuthContext } from "../../providers/AuthProvider";
 import React from 'react';
 
-import { DashboardTemplate } from "../../templates";
-
 import styles from "./Login.module.css";
+import { api } from "../../services/api";
 
 function LoginPage() {
-    axios.defaults.withCredentials = true;
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { isLogged, setIsLogged, setToken } = useContext(AuthContext);
+    const { setIsLogged, setToken } = useContext(AuthContext);
 
     const getCsrfCookie = async () => {
-        await axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie')
+        await api.get('https://mate85-api.litiano.dev.br/api/csrf-cookie')
     }
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,12 +27,13 @@ function LoginPage() {
     }
 
     const handleLogin = () => {
-        axios.post('https://mate85-api.litiano.dev.br/api/login', {
+        api.post('https://mate85-api.litiano.dev.br/api/login', {
             email, password
         }).then((response: any) => {
             console.log(response);
 
             if (response.status === 200) { 
+                api.defaults.headers.common['Authorization'] = "Bearer " + response.data
                 setIsLogged(true);
                 setToken("Bearer " + response.data);
              }
