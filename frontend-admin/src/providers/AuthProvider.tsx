@@ -8,7 +8,7 @@ interface ContextDefault {
     isLogged: boolean,
     setIsLogged: React.Dispatch<React.SetStateAction<boolean>>,
     token: string,
-    setToken: React.Dispatch<React.SetStateAction<string>>
+    setToken: React.Dispatch<React.SetStateAction<string>>,
 }
 
 export const AuthContext = createContext<ContextDefault>({ isLogged: false, setIsLogged: () => { }, token: '', setToken: () => { } });

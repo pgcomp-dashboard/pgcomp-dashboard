@@ -7,6 +7,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -66,6 +67,11 @@ class Area extends BaseModel
         return $this->belongsTo(Program::class, 'program_id');
     }
 
+    public function subarea(): HasMany
+    {
+        return $this->hasMany(Subarea::class, 'area_id', 'id');
+    }
+
     public function updateRules(): array
     {
         return [
@@ -88,5 +94,11 @@ class Area extends BaseModel
     {
         return $this->hasManyThrough(User::class, Subarea::class, 'area_id', 'subarea_id')
             ->where('type', UserType::STUDENT);
+    }
+
+    public function subareas(): HasMany
+    {
+        return $this->hasMany(Subarea::class, 'area_id', 'id')
+            ->select("id", "subarea_name");
     }
 }

@@ -4,7 +4,6 @@ import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import SessionItem from '../SessionPanel/SessionPanel';
-import { useState } from 'react';
 import React from 'react';
 
 interface SessionsPanelProps {
@@ -27,7 +26,7 @@ function SessionsPanel({ setSelectedSession, selectedSession }: SessionsPanelPro
                 <SessionItem icon={<BarChartOutlinedIcon style={iconStyle} />} label={'Qualis'} setSelectedSession={setSelectedSession}
                     session='qualis' isSelected={'qualis' == selectedSession} />
                 <SessionItem icon={<BadgeOutlinedIcon style={iconStyle} />} label={'Docente'} setSelectedSession={setSelectedSession}
-                    session='teachers' isSelected={'teachers' == selectedSession} />
+                    session='professors' isSelected={'professors' == selectedSession} />
                 <SessionItem icon={<SchoolOutlinedIcon style={iconStyle} />} label={'Discente'} setSelectedSession={setSelectedSession}
                     session='students' isSelected={'students' == selectedSession} />
             </ul>

@@ -6,7 +6,7 @@ interface nameTypesLayout {
 const nameTypes: nameTypesLayout = {
     areas: 'Área de estudo',
     qualis: 'Nota qualis',
-    teachers: 'Docente',
+    professors: 'Docente',
     students: 'Discente'
 }
 
