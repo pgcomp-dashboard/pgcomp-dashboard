@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { api } from './api';
 
 
 const createItem = (config: any, type: string, item: any) => {
@@ -18,7 +19,12 @@ const updateItem = (config: any, type: string, item: any) => {
             config.url = `https://mate85-api.litiano.dev.br/api/portal/admin/areas/${item.id}`;
             config.data = { area_name: item.name, id: item.id, program_id: 1 }
             axios(config);
+            break;
     }
+}
+
+const updateItemRefactor = ({fields, type, id}: {fields: object, type: string, id: number | undefined}) => {
+    api.put(`/${type}/${id}`, fields).then(response => console.log(response)).catch(err => console.log(err))
 }
 
 const deleteItem = (config: any, type: string, id: number | undefined) => {
@@ -32,5 +38,5 @@ const deleteItem = (config: any, type: string, id: number | undefined) => {
 
 
 export {
-    createItem, updateItem, deleteItem
+    createItem, updateItem, deleteItem, updateItemRefactor
 }

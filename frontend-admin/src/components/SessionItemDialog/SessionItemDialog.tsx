@@ -1,9 +1,9 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material"
 import React, { useState } from "react"
 import { useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
-import { createItem, updateItem } from '../../services/ItemsService';
-import AreaForm from "../../forms/AreaForm";
+import { createItem, updateItem, updateItemRefactor } from '../../services/ItemsService';
+import {AreaForm, QualisForm} from "../../forms"
 
 interface SessionItemDialogProps {
     open: boolean,
@@ -18,12 +18,14 @@ interface SessionItemDialogProps {
 }
 
 const SessionItemDialog = (props: any) => {
-    const [itemName, setItemName] = useState(props.name ? props.name : '');
+    const [itemName, setItemName] = useState(props.fields);
+    const [formFields, setFormFields] = useState({});
 
     const { token } = useContext(AuthContext);
 
     const forms: any = {
-        'areas': <AreaForm itemName={itemName} setItemName={setItemName} />
+        'areas': <AreaForm areaName={props.area_name} setFormFields={setFormFields} />,
+        'qualis': <QualisForm score={props.score} setFormFields={setFormFields} />
     }
 
     const config: any = {
@@ -34,7 +36,8 @@ const SessionItemDialog = (props: any) => {
 
     const save = () => {
         if (props.isEdit) {
-            updateItem(config, props.typeAttr, {name: itemName, id: props.id});
+            // updateItem(config, props.typeAttr, {name: itemName, id: props.id});
+            updateItemRefactor({fields: formFields, type: props.typeAttr, id: props.id})
         } else {
             createItem(config, props.typeAttr, {name: itemName});
         }

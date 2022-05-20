@@ -79,7 +79,8 @@ function SessionItem(props: any) {
 
             <SessionItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={modalOpened} handleClose={handleModalClose}
                 id={props.id}
-                isEdit={true} name={props[nameProperty[props.type]]} />
+                isEdit={true} 
+                {...editProperties[props.type].reduce((fields: object, editable: string) => ({...fields, [editable]: props[editable]}), {})} />
 
             <DeleteItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={deleteModalOpened} handleClose={handleDeleteModalClose}
                 id={props.id} />
