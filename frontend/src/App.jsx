@@ -30,7 +30,7 @@ export function App() {
 
             <div className={styles.cards__container}>
                 <DataCard title="Quantidade de produções científicas"
-                    minWidth="1200px"
+                    minWidth="100%"
                     minHeight="300px"
                     idSession="productions-amount"
                     icon={ShowChartIcon}

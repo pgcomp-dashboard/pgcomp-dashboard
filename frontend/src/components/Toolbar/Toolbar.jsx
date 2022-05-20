@@ -1,7 +1,7 @@
 import styles from './Toolbar.module.css'
 import icLogo from '../../assets/ic_logo.png'
 import { useState } from 'react'
-import { Button } from '@mui/material';
+
 
 function Toolbar({ setShowBurgerMenu }) {
     const [toggleClass, setToggleClass] = useState('');
@@ -28,9 +28,9 @@ function Toolbar({ setShowBurgerMenu }) {
                 <img src={icLogo} height={70} />
             </div>
             <div>
-                <Button>
+                <button className={styles.button__login}>
                     Login
-                </Button>
+                </button>
             </div>
         </div>
     )
