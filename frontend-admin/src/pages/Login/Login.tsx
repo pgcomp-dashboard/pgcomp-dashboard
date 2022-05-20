@@ -7,13 +7,15 @@ import React from 'react';
 import { DashboardTemplate } from "../../templates";
 
 import styles from "./Login.module.css";
+import { useCookies } from 'react-cookie';
 
 function LoginPage() {
     axios.defaults.withCredentials = true;
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { isLogged, setIsLogged, setToken } = useContext(AuthContext);
+    const { isLogged, setIsLogged, token, setToken } = useContext(AuthContext);
+    const [cookies, setCookie] = useCookies<any | null>(['user']);
 
     const getCsrfCookie = async () => {
         await axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie')
@@ -37,7 +39,10 @@ function LoginPage() {
 
             if (response.status === 200) { 
                 setIsLogged(true);
-                setToken("Bearer " + response.data);
+                const bearer = "Bearer " + response.data;
+                setToken(bearer);
+                setCookie('Bearer', bearer, { path: '/' });
+
              }
         }).catch(function (response: any) {
             console.log(response);

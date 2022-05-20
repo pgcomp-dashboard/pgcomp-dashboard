@@ -17,6 +17,10 @@ function Session(props: SessionProps) {
     const [modalOpened, setModalOpened] = useState(false);
     const { token, change } = useContext(AuthContext);
 
+    const indexMethods: any = {
+        'areas': 'all_subareas_per_area'
+    }
+
     const [sessionItems, setSessionItems] = useState([]);
 
     const handleModalOpen = () => {
@@ -34,7 +38,7 @@ function Session(props: SessionProps) {
 
     let config = {
         method: 'get',
-        url: `https://mate85-api.litiano.dev.br/api/portal/admin/${props.type}`,
+        url: `https://mate85-api.litiano.dev.br/api/portal/admin/${indexMethods[props.type]}`,
         headers: {
             'Authorization': token
         }
@@ -44,7 +48,7 @@ function Session(props: SessionProps) {
         if (config.headers.Authorization) {
             axios(config).then((response: any) => {
                 console.log(response.data.data);
-                if (response && response.status === 200 && response.data.data){
+                if (response && response.status === 200 && response.data.data) {
                     setSessionItems(response.data.data);
                     console.log(sessionItems);
                 }
@@ -73,10 +77,10 @@ function Session(props: SessionProps) {
         <div className={styles['Session']}>
             <AddSessionItemButton type={Utils.nameTypes[props.type]} handleOpen={handleModalOpen} />
             <List disablePadding>
-            { sessionItems && sessionItems.length ? 
-                sessionItems.map((sessionItem: any) => {
-                    return <SessionItem {...sessionItem} type={props.type} children={mockedChilds} key={sessionItem.id} />
-                }) : null }
+                {sessionItems && sessionItems.length ?
+                    sessionItems.map((sessionItem: any) => {
+                        return <SessionItem {...sessionItem} type={props.type} children={mockedChilds} key={sessionItem.id} />
+                    }) : null}
             </List>
 
             <SessionItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={modalOpened} handleClose={handleModalClose} />
