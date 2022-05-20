@@ -1,6 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
 import React, { useState } from "react"
-import axios from 'axios';
 import { useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
 import { createItem, updateItem } from '../../services/ItemsService';
@@ -21,7 +20,7 @@ interface SessionItemDialogProps {
 const SessionItemDialog = (props: any) => {
     const [itemName, setItemName] = useState(props.name ? props.name : '');
 
-    const { token, change, setChange } = useContext(AuthContext);
+    const { token } = useContext(AuthContext);
 
     const forms: any = {
         'areas': <AreaForm itemName={itemName} setItemName={setItemName} />
@@ -39,9 +38,6 @@ const SessionItemDialog = (props: any) => {
         } else {
             createItem(config, props.typeAttr, {name: itemName});
         }
-        
-        setChange(change + 1);
-
     }
 
 
