@@ -1,13 +1,12 @@
 import { List } from '@mui/material';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
 import SessionItem from '../SessionItem/SessionItem';
 import styles from './Session.module.css'
 import Utils from '../../Utils'
-import { AuthContext } from '../../providers/AuthProvider';
-import axios from 'axios';
 import React from 'react';
+import { api } from '../../services/api';
 
 interface SessionProps {
     type: string;
@@ -15,7 +14,6 @@ interface SessionProps {
 
 function Session(props: SessionProps) {
     const [modalOpened, setModalOpened] = useState(false);
-    const { token, change } = useContext(AuthContext);
 
     const [sessionItems, setSessionItems] = useState([]);
 
@@ -32,40 +30,17 @@ function Session(props: SessionProps) {
         { name: 'child 2', type: 'qualis' },
     ]
 
-    let config = {
-        method: 'get',
-        url: `https://mate85-api.litiano.dev.br/api/portal/admin/${props.type}`,
-        headers: {
-            'Authorization': token
-        }
-    }
-
     const getData = () => {
-        if (config.headers.Authorization) {
-            axios(config).then((response: any) => {
-                console.log(response.data.data);
+            api.get(props.type).then((response: any) => {
                 if (response && response.status === 200 && response.data.data){
                     setSessionItems(response.data.data);
-                    console.log(sessionItems);
                 }
             });
-        }
     }
 
     useEffect(() => {
         getData();
-    }, []);
-
-    useEffect(() => {
-        config.headers.Authorization = token;
-        getData();
-    }, [token]);
-
-    useEffect(() => {
-        setTimeout(() => {
-            getData();
-        }, 1000);
-    }, [change]);
+    }, [props.type]);
 
     console.log(sessionItems);
 
