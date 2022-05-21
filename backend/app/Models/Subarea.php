@@ -79,4 +79,8 @@ class Subarea extends BaseModel
     {
         return $this->users()->where('type', UserType::STUDENT);
     }
+
+    public static function deleteInstance($id){
+        return Subarea::destroy($id);
+    }
 }
