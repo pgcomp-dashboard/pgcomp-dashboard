@@ -21,26 +21,25 @@ const universityFilter = [
         value: 'doutorando'
     },
     {
-        label: 'Bolsistas',
+        label: 'Docente',
         value: 'docente'
     },
 ]
 
-const activesFilter = [
+const studentsFilter = [
     {
-        label: 'Ativos',
-        value: 50
+        label: 'Mestrandos',
+        value: 'mestrando'
+    },
+    {
+        label: 'Doutorandos',
+        value: 'doutorando'
     },
     {
         label: 'Concluídos',
-        value: 60
-    },
-    {
-        label: 'Não-ativos',
-        value: 70
-    },
+        value: ''
+    }
 ];
 
-const universityAndActivesFilter = [...universityFilter, ...activesFilter];
 
-export default { universityFilter, universityAndActivesFilter, generateColorsArray }
+export default { universityFilter, studentsFilter, generateColorsArray }

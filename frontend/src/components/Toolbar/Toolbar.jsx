@@ -25,7 +25,7 @@ function Toolbar({ setShowBurgerMenu }) {
                 <div className={styles['burger--line--3']}></div>
             </div>
             <div>
-                <img src={icLogo} height={70} />
+                <img src={icLogo} height={70} alt="Logo dashboard pgcomp"/>
             </div>
             <div>
                 <button className={styles.button__login}>

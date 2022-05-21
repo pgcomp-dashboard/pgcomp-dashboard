@@ -58,7 +58,7 @@ export function App() {
                     minHeight="400px"
                     idSession="students-per-teacher"
                     icon={AssessmentIcon}
-                    filterOptions={Utils.universityAndActivesFilter}
+                    filterOptions={Utils.studentsFilter}
                     chart={StudentsPerTeacherChart} />
 
                 <DataCard title="Alunos por área"
@@ -68,7 +68,7 @@ export function App() {
                     height="250px"
                     type="fields"
                     icon={PieChartIcon}
-                    filterOptions={Utils.universityAndActivesFilter}
+                    filterOptions={Utils.studentsFilter}
                     chart={StudentsPerFieldChart} />
 
                 <DataCard title="Alunos por subárea"
@@ -78,7 +78,7 @@ export function App() {
                     height="250px"
                     type="subfields"
                     icon={PieChartIcon}
-                    filterOptions={Utils.universityAndActivesFilter}
+                    filterOptions={Utils.studentsFilter}
                     chart={StudentsPerSubfieldChart} />
             </div>
 
