@@ -8,7 +8,7 @@
     z-index: 100;
     overflow: hidden;
     background-color: white;
-    border-bottom: 0.5px solid rgb(196, 192, 192);
+    box-shadow: 0px 4px 9px rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -51,4 +51,11 @@
   font-size: 16px;
   padding: 6px 22px;
   margin-right: 50px;
+}
+
+.button__login:hover{
+  cursor: pointer;
+  color: #fff;
+  background:#00B03B;
+  transition: 0.4s;
 }
