@@ -7,6 +7,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -70,6 +71,7 @@ class Conference extends BaseModel
         'ce_indicated',
         'h5',
         'last_qualis',
+        'stratum_qualis_id',
         'logs',
         'h5_old',
         'use_scholar',
@@ -96,6 +98,11 @@ class Conference extends BaseModel
             'ce_indicated' => 'string|max:255|nullable',
             'h5' => 'string|max:255|nullable',
             'last_qualis' => 'string|max:255|nullable',
+            'stratum_qualis_id' => [
+                'nullable',
+                'int',
+                Rule::exists(StratumQualis::class, 'id'),
+            ],
             'logs' => 'string|max:255|nullable',
             'h5_old' => 'string|max:255|nullable',
             'use_scholar' => 'boolean',
@@ -117,6 +124,11 @@ class Conference extends BaseModel
             'ce_indicated' => 'string|max:255|nullable',
             'h5' => 'string|max:255|nullable',
             'last_qualis' => 'string|max:255|nullable',
+            'stratum_qualis_id' => [
+                'nullable',
+                'int',
+                Rule::exists(StratumQualis::class, 'id'),
+            ],
             'logs' => 'string|max:255|nullable',
             'h5_old' => 'string|max:255|nullable',
             'use_scholar' => 'boolean',
@@ -126,5 +138,10 @@ class Conference extends BaseModel
             'qualis_2016_id' => ['nullable', 'integer', Rule::exists(StratumQualis::class, 'id')],
             'qualis_without_induction_id' => ['nullable', 'integer', Rule::exists(StratumQualis::class, 'id')],
         ];
+    }
+
+    public function stratumQualis(): BelongsTo
+    {
+        return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');
     }
 }
