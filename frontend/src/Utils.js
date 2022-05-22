@@ -37,7 +37,7 @@ const studentsFilter = [
     },
     {
         label: 'Concluídos',
-        value: ''
+        value: 'completed'
     }
 ];
 
