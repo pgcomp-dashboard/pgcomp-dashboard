@@ -104,6 +104,7 @@ class ConferenceScrapingCommand extends Command
                         'sbc_adjustment_or_event' => $item['Ajuste ou evento SBC'],
                         'qualis_2016_id' => $item['qualis_2016_id'],
                         'qualis_without_induction_id' => $item['qualis_without_induction_id'],
+                        'stratum_qualis_id' => $item['stratum_qualis_id'],
                     ]
                 );
             } catch (ValidationException $exception) {
