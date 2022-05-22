@@ -46,8 +46,9 @@ class LattesZipXml
             'productions' => [],
         ];
 
+        $productions = $xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'ARTIGOS-PUBLICADOS'}->{'ARTIGO-PUBLICADO'} ?? [];
         /** @var SimpleXMLElement $item */
-        foreach ($xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'ARTIGOS-PUBLICADOS'}->{'ARTIGO-PUBLICADO'} as $item) {
+        foreach ($productions as $item) {
             $doi = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
             if (!trim($doi)) {
                 continue;
@@ -68,8 +69,9 @@ class LattesZipXml
             $data['productions'][] = $production;
         }
 
+        $productions = $xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'TRABALHOS-EM-EVENTOS'}->{'TRABALHO-EM-EVENTOS'} ?? [];
         /** @var SimpleXMLElement $item */
-        foreach ($xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'TRABALHOS-EM-EVENTOS'}->{'TRABALHO-EM-EVENTOS'} as $item) {
+        foreach ($productions as $item) {
             $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
             if (!trim($doi)) {
                 continue;
