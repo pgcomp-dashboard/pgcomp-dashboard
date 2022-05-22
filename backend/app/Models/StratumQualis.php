@@ -56,125 +56,36 @@ class StratumQualis extends BaseModel
         ];
     }
 
-    public function totalProductionsPerQualis($pattern): array
+    public function totalProductionsPerQualis($user_type, $course_id, $publisher_type): array
     {
-        $totalOfStratum = DB::table('stratum_qualis')
-            ->select(DB::raw('distinct stratum_qualis.id'))
-            ->get();
-        $totalOfStratum = count($totalOfStratum);
-
-        $years = DB::table('productions')
-            ->select(DB::raw('min(productions.year) as min, max(productions.year) as max'))
-            ->get();
-
-        $stratumLabels = StratumQualis::all('code');
-        $stratumProductions = array();
-
-        // jornals_id || publisher_id (Olhar depois)
-        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
-            $data = DB::table('productions')
-                ->select(DB::raw('productions.year, count(distinct productions.id) as total'))
-                ->join('journals', 'productions.publisher_id', '=', 'journals.id')
-                ->join('stratum_qualis', 'journals.stratum_qualis_id', '=', 'stratum_qualis.id')
-                ->where('stratum_qualis.id', '=', $nStratum)
-                ->groupBy('productions.year', 'stratum_qualis.id')
-                ->get();
-            $stratumProductions[$nStratum] = $data;
-        }
-
-        $data = array();
-        $allYears = array();
-        for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
-            $allYears[] = $year;
-        }
-
-        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
-            $auxData = $stratumProductions[$nStratum];
-            $newTempData = array();
-            $countIterations = 0;
-            $dataSize = count($auxData);
-
-            for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
-                if ($countIterations < $dataSize &&
-                    $auxData[$countIterations]->year == $year) {
-                    $newTempData[] = $auxData[$countIterations]->total;
-                    $countIterations++;
-                } else {
-                    $newTempData[] = 0;
-                }
-            }
-            $data[$nStratum - 1] = $newTempData;
-        }
-
-        $dataWithLabels = array();
-        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
-            $dataWithLabels[] = ['label' => $stratumLabels[$nStratum - 1]->code, 'data' => $data[$nStratum - 1]];
-        }
-        return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
-    }
-
-    public function totalProductionsPerQualisNew($pattern, $user_type, $course_id, $publisher_type): array
-    {
-        $totalOfStratum = StratumQualis::count();
-
-        $years = DB::table('productions')
-            ->select(DB::raw('min(productions.year) as min, max(productions.year) as max'))
-            ->where('year', '>=', 2014)
-            ->get();
-
-        $stratumLabels = StratumQualis::all('code');
-        $stratumProductions = array();
-
-        // jornals_id || publisher_id (Olhar depois)
-        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
-            $data = DB::table('productions')
-                ->when($publisher_type, function ($query, $publisher_type) {
-                    $query->where('productions.publisher_type', '=', $publisher_type);
-                })
-                ->when($user_type, function ($query, $user_type) {
-                    $query->join('users_productions', 'users_productions.productions_id', '=', 'productions.id');
-                    $query->join('users', 'users.id', '=', 'users_productions.users_id');
-                    $query->where('users.type', '=', $user_type);
-                })
-                ->when($course_id, function ($query, $course_id) {
-                    $query->where('users.course_id', '=', $course_id);
-                })
-                ->select(DB::raw('productions.year, count(distinct productions.id) as total'))
-                ->join('stratum_qualis', 'productions.stratum_qualis_id', '=', 'stratum_qualis.id')
-                ->where('stratum_qualis.id', '=', $nStratum)
-                ->groupBy('productions.year', 'stratum_qualis.id')
-                ->get();
-            $stratumProductions[$nStratum] = $data;
-        }
-
+        $years = range(2014, Carbon::now()->year);
+        $stratumQualis = StratumQualis::orderByDesc('score')->get();
         $data = [];
-        $allYears = [];
-        for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
-            $allYears[] = $year;
-        }
-
-        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
-            $auxData = $stratumProductions[$nStratum];
-            $newTempData = [];
-            $countIterations = 0;
-            $dataSize = count($auxData);
-
-            for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
-                if ($countIterations < $dataSize &&
-                    $auxData[$countIterations]->year == $year) {
-                    $newTempData[] = $auxData[$countIterations]->total;
-                    $countIterations++;
-                } else {
-                    $newTempData[] = 0;
-                }
+        /** @var StratumQualis $qualis */
+        foreach ($stratumQualis as $qualis) {
+            $qualisData = ['label' => $qualis->code, 'data' => []];
+            foreach ($years as $year) {
+                $qualisData['data'][] = Production::whereStratumQualisId($qualis->id)
+                    ->where('year', $year)
+                    ->when($publisher_type, function(Builder $builder, $publisherType) {
+                        $builder->where('publisher_type', $publisherType);
+                    })
+                    ->when($user_type, function (Builder $builder, $userType) {
+                        $builder->whereHas('isWroteBy', function (Builder $builder) use ($userType) {
+                           $builder->where('type', $userType);
+                        });
+                    })
+                    ->when($course_id, function (Builder $builder, $courseId) {
+                        $builder->whereHas('isWroteBy', function (Builder $builder) use ($courseId) {
+                            $builder->where('course_id', $courseId);
+                        });
+                    })
+                    ->distinct()
+                    ->count();
             }
-            $data[$nStratum - 1] = $newTempData;
+            $data[] = $qualisData;
         }
 
-        $dataWithLabels = [];
-        for ($nStratum = 1; $nStratum <= $totalOfStratum; $nStratum++) {
-            $dataWithLabels[] = ['label' => $stratumLabels[$nStratum - 1]->code, 'data' => $data[$nStratum - 1]];
-        }
-        return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
+        return compact('years', 'data');
     }
 }

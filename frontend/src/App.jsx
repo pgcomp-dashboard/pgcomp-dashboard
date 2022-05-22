@@ -30,7 +30,7 @@ export function App() {
 
             <div className={styles.cards__container}>
                 <DataCard title="Quantidade de produções científicas"
-                    minWidth="1200px"
+                    minWidth="100%"
                     minHeight="300px"
                     idSession="productions-amount"
                     icon={ShowChartIcon}
@@ -38,7 +38,7 @@ export function App() {
                     chart={ProductionsAmountChart} />
                 
                 <DataCard title="Produção por discentes"
-                    minWidth="1200px"
+                    minWidth="100%"
                     minHeight="300px"
                     idSession="productions-per-student"
                     icon={AssessmentIcon}
@@ -46,7 +46,7 @@ export function App() {
                     chart={ProductionPerStudentChart} />
 
                 <DataCard title="Qualis"
-                    minWidth="1200px"
+                    minWidth="100%"
                     minHeight="300px"
                     idSession={"qualis"}
                     icon={AssessmentIcon}
@@ -54,31 +54,31 @@ export function App() {
                     chart={QualisChart} />
 
                 <DataCard title="Alunos por docente"
-                    minWidth="1200px"
+                    minWidth="100%"
                     minHeight="400px"
                     idSession="students-per-teacher"
                     icon={AssessmentIcon}
-                    filterOptions={Utils.universityAndActivesFilter}
+                    filterOptions={Utils.studentsFilter}
                     chart={StudentsPerTeacherChart} />
 
                 <DataCard title="Alunos por área"
-                    minWidth="1200px"
+                    minWidth="100%"
                     minHeight="350px"
                     idSession="students-per-field"
                     height="250px"
                     type="fields"
                     icon={PieChartIcon}
-                    filterOptions={Utils.universityAndActivesFilter}
+                    filterOptions={Utils.studentsFilter}
                     chart={StudentsPerFieldChart} />
 
                 <DataCard title="Alunos por subárea"
-                    minWidth="1200px"
+                    minWidth="100%"
                     minHeight="350px"
                     idSession="students-per-subfield"
                     height="250px"
                     type="subfields"
                     icon={PieChartIcon}
-                    filterOptions={Utils.universityAndActivesFilter}
+                    filterOptions={Utils.studentsFilter}
                     chart={StudentsPerSubfieldChart} />
             </div>
 
