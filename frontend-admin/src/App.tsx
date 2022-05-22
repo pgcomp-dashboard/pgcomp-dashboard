@@ -11,7 +11,7 @@ import NewPasswordPage from "./pages/NewPassword/NewPassword";
 import { AuthProvider } from './providers/AuthProvider';
 
 function App() {
-
+    
     return (
         <AuthProvider>
             <div className={styles.App}>

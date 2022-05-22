@@ -9,7 +9,7 @@ function ProductionTypeFilter({ setPublisherType }) {
     const addSelectedClass = (button) => {
         switch (button) {
             case 'all':
-                if (allClass){
+                if (allClass) {
                     setAllClass('');
                 } else {
                     setAllClass('selected');
@@ -19,7 +19,7 @@ function ProductionTypeFilter({ setPublisherType }) {
                 break;
 
             case 'journal':
-                if (journalClass){
+                if (journalClass) {
                     setJournalClass('');
                 } else {
                     setJournalClass('selected');
@@ -29,7 +29,7 @@ function ProductionTypeFilter({ setPublisherType }) {
                 break;
 
             case 'conference':
-                if (conferenceClass){
+                if (conferenceClass) {
                     setConferenceClass('');
                 } else {
                     setConferenceClass('selected');
@@ -44,9 +44,9 @@ function ProductionTypeFilter({ setPublisherType }) {
 
             <div className={styles['filter__title']}>Produções publicadas em:</div>
             <div className={styles['production__types']}>
-                <span className={styles['production__type']} onClick={() => { setPublisherType(null); addSelectedClass('all'); }}>Tudo</span>
-                <span className={styles['production__type']} onClick={() => { setPublisherType('journal'); addSelectedClass('journal'); }}>Revista</span>
-                <span className={styles['production__type']} onClick={() => { setPublisherType('conference'); addSelectedClass('conference'); }}>Conferências</span>
+                <span className={styles['production__type'] + ' ' + allClass} onClick={() => { setPublisherType(null); addSelectedClass('all'); }}>Tudo</span>
+                <span className={styles['production__type'] + ' ' + journalClass} onClick={() => { setPublisherType('journal'); addSelectedClass('journal'); }}>Revista</span>
+                <span className={styles['production__type'] + ' ' + conferenceClass} onClick={() => { setPublisherType('conference'); addSelectedClass('conference'); }}>Conferências</span>
             </div>
 
         </div>
