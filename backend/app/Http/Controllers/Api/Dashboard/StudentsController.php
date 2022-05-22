@@ -27,6 +27,8 @@ class StudentsController extends Controller
                 $builder->whereNull('defended_at');
             } elseif ($selectedFilter === '60') {
                 $builder->whereNotNull('defended_at');
+            } elseif ($selectedFilter === 'completed') {
+                $builder->whereNotNull('defended_at');
             }
         };
         $areas = Area::withCount([
@@ -57,6 +59,8 @@ class StudentsController extends Controller
             } elseif ($selectedFilter === '50') {
                 $builder->whereNull('defended_at');
             } elseif ($selectedFilter === '60') {
+                $builder->whereNotNull('defended_at');
+            } elseif ($selectedFilter === 'completed') {
                 $builder->whereNotNull('defended_at');
             }
         };

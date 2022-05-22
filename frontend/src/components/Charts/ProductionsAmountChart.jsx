@@ -45,6 +45,12 @@ function ProductionsAmountChart({ filter }) {
                 borderWidth: 1,
             },
         },
+        scales: {
+            y: {
+              beginAtZero: true,
+              suggestedMax: 100
+            }
+          }
     }
 
     const getData = (selectedFilter = []) => {

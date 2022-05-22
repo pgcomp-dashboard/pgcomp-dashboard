@@ -20,7 +20,7 @@ function BurgerMenu({ showBurgerMenu }) {
         <nav className={styles['nav--toolbar']}>
             <ul className={styles['toolbar--links']} style={showBurgerMenu ? styleIn : styleOut}>
                 <li><a href='#productions-amount'><ShowChartIcon style={iconStyle} /> Quantidade de produções científicas</a></li>
-                <li><a href='#productions-per-student'><AssessmentIcon style={iconStyle} /> Quantidade de produções por discentes</a></li>
+                {/*<li><a href='#productions-per-student'><AssessmentIcon style={iconStyle} /> Quantidade de produções por discentes</a></li>*/}
                 <li><a href='#qualis'><AssessmentIcon style={iconStyle} /> Qualis</a></li>
                 <li><a href='#students-per-teacher'><AssessmentIcon style={iconStyle} /> Alunos por docente</a></li>
                 <li><a href='#students-per-field'><PieChartIcon style={iconStyle} /> Alunos por área</a></li>

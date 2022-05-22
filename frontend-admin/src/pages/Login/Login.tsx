@@ -1,16 +1,12 @@
-import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import hero from "../../assets/login.svg";
 import { AuthContext } from "../../providers/AuthProvider";
 import React from 'react';
 
-import { DashboardTemplate } from "../../templates";
-
 import styles from "./Login.module.css";
-import { useCookies } from 'react-cookie';
 
+import { api } from "../../services/api";
 function LoginPage(props: any) {
-    axios.defaults.withCredentials = true;
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -27,15 +23,17 @@ function LoginPage(props: any) {
     }
 
     const handleLogin = () => {
-        axios.post('https://mate85-api.litiano.dev.br/api/login', {
+        api.post('https://mate85-api.litiano.dev.br/api/login', {
             email, password
         }).then((response: any) => {
+            console.log(response);
 
-            if (response.status === 200) { 
-                
+            if (response.status === 200) {
+
                 const bearer = "Bearer " + response.data;
                 setToken(bearer);
 
+                api.defaults.headers.common['Authorization'] = bearer;
              }
         }).catch(function (response: any) {
             console.log(response);

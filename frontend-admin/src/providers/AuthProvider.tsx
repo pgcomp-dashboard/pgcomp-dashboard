@@ -13,7 +13,8 @@ interface ContextDefault {
     setChange: React.Dispatch<React.SetStateAction<number>>
 }
 
-export const AuthContext = createContext<ContextDefault>({ isLogged: false, setIsLogged: () => { }, token: '', setToken: () => { }, change: 0, setChange: () => { } });
+export const AuthContext = createContext<ContextDefault>({ isLogged: false, setIsLogged: () => { }, token: '', setToken: () => { },
+  change: 0, setChange: () => { } });
 
 export const AuthProvider = (props: AuthContextProps) => {
     const [isLogged, setIsLogged] = useState(false);
