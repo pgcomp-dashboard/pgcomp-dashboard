@@ -43,7 +43,7 @@ function Session(props: SessionProps) {
 
     useEffect(() => {
         getData();
-    }, [props.type]);
+    }, [props.type, change]);
 
     console.log(sessionItems);
 
