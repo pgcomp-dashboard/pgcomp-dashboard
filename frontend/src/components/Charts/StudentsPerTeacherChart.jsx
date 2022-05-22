@@ -12,11 +12,13 @@ import axios from 'axios';
 import { map } from 'lodash';
 import { useEffect, useState } from 'react';
 import Utils from '../../Utils.js'
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    ChartDataLabels,
     Title,
     Tooltip,
     Legend
@@ -39,7 +41,23 @@ function StudentsPerTeacherChart({ filter }) {
             title: {
                 display: false
             },
-        }
+            datalabels: {
+                color: 'grey',
+                anchor: 'end',
+                align: 'top',
+                offset: 6,
+                display: true,
+                font: {
+                    weight: 'bold'
+                }
+            },
+        },
+        scales: {
+            y: {
+              beginAtZero: true,
+              suggestedMax: 17
+            }
+          }
     }
 
     const getData = (selectedFilter = []) => {
