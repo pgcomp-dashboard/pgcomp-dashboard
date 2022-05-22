@@ -74,7 +74,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
         Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']);
         Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
-        Route::apiResource('areas', AreaController::class)->except(['destroy']);
+        Route::apiResource('areas', AreaController::class);
         Route::apiResource('subareas', SubareaController::class)->except(['destroy']);
         Route::apiResource('users', UserAdminController::class)->except(['destroy']);
 
@@ -84,6 +84,8 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
         Route::apiResource('professors.productions', ProfessorProductionController::class)
             ->except(['destroy']);
+
+        Route::get('all_subareas_per_area', [AreaController::class, 'subareaPerArea']);
     });
 });
 
@@ -95,3 +97,5 @@ Route::get('healthcheck', function (Request $request) {
 });
 
 Route::post('login', [AuthController::class, 'login']);
+
+Route::apiResource('areas', AreaController::class);

@@ -1,13 +1,12 @@
 import { List } from '@mui/material';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
 import SessionItem from '../SessionItem/SessionItem';
 import styles from './Session.module.css'
 import Utils from '../../Utils'
-import { AuthContext } from '../../providers/AuthProvider';
-import axios from 'axios';
 import React from 'react';
+import { api } from '../../services/api';
 
 interface SessionProps {
     type: string;
@@ -15,7 +14,8 @@ interface SessionProps {
 
 function Session(props: SessionProps) {
     const [modalOpened, setModalOpened] = useState(false);
-    const { token } = useContext(AuthContext);
+
+    const [sessionItems, setSessionItems] = useState([]);
 
     const handleModalOpen = () => {
         setModalOpened(true);
@@ -26,32 +26,35 @@ function Session(props: SessionProps) {
     }
 
     const mockedChilds = [
-        {name: 'child 1', type: 'qualis'},
-        {name: 'child 2', type: 'qualis'},
+        { name: 'child 1', type: 'qualis' },
+        { name: 'child 2', type: 'qualis' },
     ]
 
-    let config = {
-        method: 'get',
-        url: 'https://mate85-api.litiano.dev.br/api/portal/admin/areas',
-        headers: {
-            'Authorization': token
-        }
+    const getData = () => {
+            api.get(props.type).then((response: any) => {
+                if (response && response.status === 200 && response.data.data){
+                    setSessionItems(response.data.data);
+                }
+            });
     }
 
     useEffect(() => {
-      axios(config).then((response: any) => {
-        console.log(response);
-      })  
-    }, []);
+        getData();
+    }, [props.type]);
+
+    console.log(sessionItems);
 
     return (
         <div className={styles['Session']}>
             <AddSessionItemButton type={Utils.nameTypes[props.type]} handleOpen={handleModalOpen} />
             <List disablePadding>
-                <SessionItem name='test' type='qualis' children={mockedChilds} />
+            { sessionItems && sessionItems.length ? 
+                sessionItems.map((sessionItem: any) => {
+                    return <SessionItem {...sessionItem} type={props.type} children={mockedChilds} key={sessionItem.id} />
+                }) : null }
             </List>
 
-            <SessionItemDialog type={Utils.nameTypes[props.type]} open={modalOpened} handleClose={handleModalClose} />
+            <SessionItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={modalOpened} handleClose={handleModalClose} />
         </div>
     )
 }
