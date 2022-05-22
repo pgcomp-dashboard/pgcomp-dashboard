@@ -112,43 +112,28 @@ class Production extends BaseModel
 
     public function totalProductionsPerYear($user_type, $course_id, $publisher_type): array
     {
-        $years = DB::table('productions')
-            ->where('year', '>=', 2014)
-            ->select(DB::raw('min(productions.year) as min, max(productions.year) as max'))
-            ->get();
-
-        $data = DB::table('productions')
-            ->where('year', '>=', 2014)
-            ->when($publisher_type, function ($query, $publisher_type) {
-                $query->where('productions.publisher_type', '=', $publisher_type);
-            })
-            ->when($user_type, function ($query, $user_type) {
-                $query->join('users_productions', "users_productions.productions_id", '=', 'productions.id');
-                $query->join('users', 'users.id', '=', 'users_productions.users_id');
-                $query->where('users.type', '=', $user_type);
-            })
-            ->when($course_id, function ($query, $course_id) {
-                $query->where('users.course_id', '=', $course_id);
-            })
-            ->select(DB::raw('distinct productions.id, productions.year'))
-            ->select(DB::raw('productions.year, count(productions.id) as production_count'))
-            ->groupBy('productions.year')
-            ->orderBy('productions.year')
-            ->get();
-
-        $dataYear = [];
-        $dataCount = [];
-
-        for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
-            $dataYear[] = $year;
-            if ($data->isNotEmpty() && $data[0]->year == $year) {
-                $dataCount[] = $data->shift()->production_count;
-            } else {
-                $dataCount[] = 0;
-            }
+        $years = range(2014, Carbon::now()->year);
+        $data = [];
+        foreach ($years as $year) {
+            $data[] = Production::where('year', $year)
+                ->when($publisher_type, function(Builder $builder, $publisherType) {
+                    $builder->where('publisher_type', $publisherType);
+                })
+                ->when($user_type, function (Builder $builder, $userType) {
+                    $builder->whereHas('isWroteBy', function (Builder $builder) use ($userType) {
+                        $builder->where('type', $userType);
+                    });
+                })
+                ->when($course_id, function (Builder $builder, $courseId) {
+                    $builder->whereHas('isWroteBy', function (Builder $builder) use ($courseId) {
+                        $builder->where('course_id', $courseId);
+                    });
+                })
+                ->distinct()
+                ->count();
         }
 
-        return [$dataYear, $dataCount];
+        return compact('years', 'data');
     }
 
     public function totalProductionsPerCourse($pattern): array

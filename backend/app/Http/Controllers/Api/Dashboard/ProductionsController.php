@@ -22,21 +22,20 @@ class ProductionsController extends Controller
             'conference' => Conference::class,
             default => null
         };
-        
-        $user_type = [
-            "docente" => ["professor", null],
-            "mestrando" => ["student", "1"],
-            "doutorando" => ["student", "2"],
-            null => [null,null]
-        ];
 
-        $filter = $user_type[$request->input("user_type")];
+        $filter = match ($request->input('user_type')) {
+            'docente' => ['professor', null],
+            'mestrando' => ['student', '1'],
+            'doutorando' => ['student', '2'],
+            default => [null, null]
+        };
 
-        $keyReturnPattern = ['years', 'data'];
         $productions = new Production();
-        $data = $productions
-                    ->totalProductionsPerYear(user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
-        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
+        return $productions->totalProductionsPerYear(
+            user_type: $filter[0],
+            course_id: $filter[1],
+            publisher_type: $publisher_type
+        );
     }
 
     public function studentsProductions()
