@@ -29,6 +29,17 @@ function PieChart({ filter, type }) {
                 display: false,
                 text: 'Chart.js Pie Chart',
             },
+            datalabels: {
+                color: 'grey',
+                anchor: 'end',
+                align: 'end',
+                clamp: true,
+                offset: 4,
+                display: true,
+                font: {
+                    weight: 'bold'
+                }
+            },
         }
     }
 

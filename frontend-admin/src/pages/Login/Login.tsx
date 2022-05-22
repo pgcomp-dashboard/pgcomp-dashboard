@@ -4,17 +4,13 @@ import { AuthContext } from "../../providers/AuthProvider";
 import React from 'react';
 
 import styles from "./Login.module.css";
-import { api } from "../../services/api";
 
-function LoginPage() {
+import { api } from "../../services/api";
+function LoginPage(props: any) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { setIsLogged, setToken } = useContext(AuthContext);
-
-    const getCsrfCookie = async () => {
-        await api.get('https://mate85-api.litiano.dev.br/api/csrf-cookie')
-    }
+    const { token, setToken } = useContext(AuthContext);
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.currentTarget.value;
@@ -32,19 +28,17 @@ function LoginPage() {
         }).then((response: any) => {
             console.log(response);
 
-            if (response.status === 200) { 
-                api.defaults.headers.common['Authorization'] = "Bearer " + response.data
-                setIsLogged(true);
-                setToken("Bearer " + response.data);
+            if (response.status === 200) {
+
+                const bearer = "Bearer " + response.data;
+                setToken(bearer);
+
+                api.defaults.headers.common['Authorization'] = bearer;
              }
         }).catch(function (response: any) {
             console.log(response);
         });
     }
-
-    useEffect(() => {
-        getCsrfCookie();
-    }, []);
 
     return (
         <div className={styles.login_page}>

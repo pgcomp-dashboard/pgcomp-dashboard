@@ -8,7 +8,9 @@ function Toolbar(){
     return (
         <div className={className}>
             <div>
-                <img src={icLogo} height={70} />
+                <a href='http://localhost:3000'>
+                    <img src={icLogo} height={70} />
+                </a>
             </div>
 
             <UserMenu />
