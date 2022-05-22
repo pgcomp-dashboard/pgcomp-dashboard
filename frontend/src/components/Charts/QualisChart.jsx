@@ -54,6 +54,8 @@ function QualisChart({ filter }) {
             },
             y: {
                 stacked: true,
+                beginAtZero: true,
+                suggestedMax: 100
             },
         },
         plugins: {
