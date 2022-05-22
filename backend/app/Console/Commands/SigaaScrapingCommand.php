@@ -6,6 +6,7 @@ use App\Domain\Sigaa\DefenseScraping;
 use App\Domain\Sigaa\StudentScraping;
 use App\Domain\Sigaa\TeacherScraping;
 use App\Enums\UserType;
+use App\Models\Program;
 use App\Models\User;
 use Exception;
 use Illuminate\Console\Command;
@@ -129,14 +130,28 @@ class SigaaScrapingCommand extends Command
     private function updateDefended(array $data)
     {
         foreach ($data as $item) {
+            $programId = Program::where('sigaa_id', $item['programId'])->first(['id'])->id;
             $user = User::where('type', UserType::STUDENT->value)
                 ->where('name', $item['student'])
-                ->where('program_id', $item['programId'])
+                ->where('program_id', $programId)
                 ->first();
+
             if ($user) {
-                $user->defended_at = $data['date'];
+                $user->defended_at = $item['date'];
                 $user->save();
                 $this->info("{$user->name} defendeu.");
+            } else {
+                $registration = User::whereNotNull('registration')
+                    ->orderBy('registration')
+                    ->first(['registration'])
+                    ->registration;
+
+                User::createOrUpdateStudent([
+                    'registration' => $registration -1,
+                    'name' => $item['student'],
+                    'course_id' => $item['course_id'],
+                    'program_id' => $programId,
+                ]);
             }
         }
     }
