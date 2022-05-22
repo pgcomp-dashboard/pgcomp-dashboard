@@ -7,6 +7,7 @@ set -e
 cd /var/www/html/backend || exit
 
 composer dump-autoload -o
+php artisan scribe:generate --force || echo "scribe:generate error"
 php artisan optimize
 php artisan storage:link
 
