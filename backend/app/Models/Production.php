@@ -136,65 +136,29 @@ class Production extends BaseModel
         return compact('years', 'data');
     }
 
-    public function totalProductionsPerCourse($pattern): array
+    public function totalProductionsPerCourse($publisherType): array
     {
-        $totalOfCourses = DB::table('courses')
-            ->select(DB::raw('distinct courses.id'))
-            ->get();
-        $totalOfCourses = count($totalOfCourses);
-
-        $years = DB::table('productions')
-            ->where('year', '>=', 2014)
-            ->select(DB::raw('min(productions.year) as min, max(productions.year) as max'))
-            ->get();
-
-        $coursesName = Course::all('name');
-        $coursesProductions = array();
-
-        for ($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
-            $data = DB::table('productions')
-                ->select(DB::raw('productions.year, count(distinct productions.id) as total'))
-                ->join('users_productions', 'productions.id',
-                    '=', 'users_productions.productions_id')
-                ->join('users', 'users.id', '=', 'users_productions.users_id')
-                ->join('courses', 'courses.id', '=', 'users.course_id')
-                ->where('courses.id', '=', $nCourse)
-                ->where('users.type', '=', UserType::STUDENT)
-                ->where('year', '>=', 2014)
-                ->groupBy('productions.year', 'courses.id')
-                ->get();
-            $coursesProductions[$nCourse] = $data;
-        }
-
-        $data = array();
-        $allYears = array();
-        for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
-            $allYears[] = $year;
-        }
-
-        for ($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
-            $auxData = $coursesProductions[$nCourse];
-            $newTempData = array();
-            $countIterations = 0;
-            $dataSize = count($auxData);
-
-            for ($year = $years[0]->min; $year <= $years[0]->max; $year++) {
-                if ($countIterations < $dataSize &&
-                    $auxData[$countIterations]->year == $year) {
-                    $newTempData[] = $auxData[$countIterations]->total;
-                    $countIterations++;
-                } else {
-                    $newTempData[] = 0;
-                }
+        $years = range(2014, Carbon::now()->year);
+        $courses = Course::all();
+        $data = [];
+        /** @var Course $course */
+        foreach ($courses as $course) {
+            $courseData = ['label' => $course->name, 'data' => []];
+            foreach ($years as $year) {
+                $courseData['data'][] = Production::where('year', $year)
+                    ->when($publisherType, function(Builder $builder, $publisherType) {
+                        $builder->where('publisher_type', $publisherType);
+                    })
+                    ->whereHas('isWroteBy', function (Builder $builder) use ($course) {
+                        $builder->where('course_id', $course->id);
+                    })
+                    ->distinct()
+                    ->count();
             }
-            $data[$nCourse - 1] = $newTempData;
+            $data[] = $courseData;
         }
 
-        $dataWithLabels = array();
-        for ($nCourse = 1; $nCourse <= $totalOfCourses; $nCourse++) {
-            $dataWithLabels[] = ['label' => $coursesName[$nCourse - 1]->name, 'data' => $data[$nCourse - 1]];
-        }
-        return [$pattern[0] => $allYears, $pattern[1] => $dataWithLabels];
+        return compact('years', 'data');
     }
 
     public function findAllUserProductions($user, $production){

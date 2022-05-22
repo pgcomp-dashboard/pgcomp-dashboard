@@ -1,6 +1,7 @@
 .nav--toolbar {
     position: fixed;
     justify-content: space-around;
+    
   }
 
   .toolbar--input--container {
@@ -10,7 +11,7 @@
   .toolbar--links {
     position: absolute;
     right: 0;
-    height: 120vh;
+    height: 90vh;
     text-decoration: none;
     padding: 20px;
     top: -3vh;
@@ -19,11 +20,9 @@
     flex-direction: column;
     color: white;
     align-items: left;
-    width: 60vh;
-    line-height: 140px;
-  }
-
-  .toolbar--links .show {
+    width: 400px;
+    justify-content: space-evenly;
+    margin-top: -10px;
     
   }
 
@@ -34,16 +33,19 @@
       cursor: pointer;
   }
 
-  .toolbar--links li:hover {
-    background-color: #3a3939;
-}
+ 
 
   .toolbar--links a {
-    font-size: 25px;
+    font-size: 22px;
     color: inherit;
     text-decoration: none;
     display: flex;
     align-items: center;
+  }
+
+  .toolbar--links a:hover{
+    color: #00B03B;
+    transition: 0.2s;
   }
 
   .nav--active {

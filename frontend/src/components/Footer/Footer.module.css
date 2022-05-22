@@ -1,21 +1,69 @@
 .footer__ufba { 
     width: 100%;
-    left: 0;
-    bottom: 0;
-    width: 100%;
     background-color: #0B3665;
     color: white;
     height: 24vh;
-    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    
 }
 
 .footer__left {
-    margin-left: 15%;
-    float: left;
+    display: flex;
+    flex-direction: column;
+    margin: 70px 0px 0px 49px;
+}
+
+.footer__left  h2{
+    font-size: 36px;
+    font-weight: 500px;
+    margin: 0 0;
+}
+
+.footer__left h5 {
+    font-size: 14px;
+    font-weight: 500px;
+    margin: 8px 0 0 0;
+}
+
+.footer__left h3 {
+    font-size: 18px;
+    font-weight: 500px;
+    margin: 8px 0 0 0;
 }
 
 .footer__right {
-    margin-right: 15%;
-    margin-top: 3vh;
-    float: right;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 12px;
+    margin: 0 80px;
 }
+
+.footer__right a {
+    margin: 0 16px;
+    columns: white  ;
+}
+
+/* unvisited link */
+.footer__right a:link {
+    color: white;
+  }
+  
+  /* visited link */
+  .footer__right a:visited {
+    color: white;
+  }
+  
+  /* mouse over link */
+  .footer__right a:hover {
+    color: white;
+  }
+  
+  /* selected link */
+  .footer__right a:active {
+    color: white;
+  }
+
