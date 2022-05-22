@@ -5,8 +5,6 @@ import App from "./App";
 import { CookiesProvider } from "react-cookie";
 
 ReactDOM.render(
-    <CookiesProvider>
-        <App />
-    </CookiesProvider>,
+        <App />,
     document.getElementById("root")
 );
