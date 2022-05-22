@@ -36,14 +36,16 @@ export function App() {
                     icon={ShowChartIcon}
                     filterOptions={Utils.universityFilter}
                     chart={ProductionsAmountChart} />
-                
-                <DataCard title="Produção por discentes"
+
+                {/*
+                    <DataCard title="Produção por discentes"
                     minWidth="100%"
                     minHeight="300px"
                     idSession="productions-per-student"
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityFilter}
-                    chart={ProductionPerStudentChart} />
+                    chart={ProductionPerStudentChart} /> 
+                */} 
 
                 <DataCard title="Qualis"
                     minWidth="100%"

@@ -25,6 +25,8 @@ class DashboardController extends Controller
                     $belongsToMany->whereNull('defended_at');
                 } elseif ($userType === '60') {
                     $belongsToMany->whereNotNull('defended_at');
+                } elseif ($userType === 'completed') {
+                    $belongsToMany->whereNotNull('defended_at');
                 }
             }])
             ->get($attributes);

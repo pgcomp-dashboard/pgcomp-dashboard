@@ -184,7 +184,7 @@ return [
          * Add a Try It Out button to your endpoints so consumers can test endpoints right from their browser.
          * Don't forget to enable CORS headers for your endpoints.
          */
-        'enabled' => true,
+        'enabled' => false,
 
         /**
          * The base URL for the API tester to use (for example, you can set this to your staging URL).
@@ -210,13 +210,13 @@ return [
         /*
          * Set this to true if any endpoints in your API use authentication.
          */
-        'enabled' => true,
+        'enabled' => false,
 
         /*
          * Set this to true if your API should be authenticated by default. If so, you must also set `enabled` (above) to true.
          * You can then use @unauthenticated or @authenticated on individual endpoints to change their status from the default.
          */
-        'default' => true,
+        'default' => false,
 
         /*
          * Where is the auth value meant to be sent in a request?
