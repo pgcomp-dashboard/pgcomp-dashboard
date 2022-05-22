@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styles from './ProductionTypeFilter.module.css'
 
 function ProductionTypeFilter({ setPublisherType }) {
-    const [allClass, setAllClass] = useState('');
+    const [allClass, setAllClass] = useState(styles['selected']);
     const [journalClass, setJournalClass] = useState('');
     const [conferenceClass, setConferenceClass] = useState('');
 
@@ -12,7 +12,7 @@ function ProductionTypeFilter({ setPublisherType }) {
                 if (allClass) {
                     setAllClass('');
                 } else {
-                    setAllClass('selected');
+                    setAllClass(styles['selected']);
                     setJournalClass('');
                     setConferenceClass('');
                 }
@@ -22,7 +22,7 @@ function ProductionTypeFilter({ setPublisherType }) {
                 if (journalClass) {
                     setJournalClass('');
                 } else {
-                    setJournalClass('selected');
+                    setJournalClass(styles['selected']);
                     setAllClass('');
                     setConferenceClass('');
                 }
@@ -32,7 +32,7 @@ function ProductionTypeFilter({ setPublisherType }) {
                 if (conferenceClass) {
                     setConferenceClass('');
                 } else {
-                    setConferenceClass('selected');
+                    setConferenceClass(styles['selected']);
                     setJournalClass('');
                     setAllClass('');
                 }
