@@ -24,6 +24,16 @@
     cursor: pointer;
 }
 
+.production__type.selected{
+    background-color: #00B03B;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    color: #FFFFFF;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
 
 .filter__title {
     font-size: 14px;
