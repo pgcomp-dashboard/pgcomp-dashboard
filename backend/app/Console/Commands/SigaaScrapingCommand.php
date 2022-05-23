@@ -157,7 +157,7 @@ class SigaaScrapingCommand extends Command
                     'program_id' => $programId,
                 ]);
             }
-            if ($teacher) {
+            if ($teacher && $user->advisors()->where('id', $teacher->id)->doesntExist()) {
                 $user->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
             }
         }
