@@ -74,6 +74,10 @@ O layout da aplicação está disponível no Figma:
 
 <p align="center">
   <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/lg1DOxE.png" width="500px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/fEXAEFO.png" width="500px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/gqsQFG9.png" width="500px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/Y1eFejQ.png" width="500px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/0FyV6VZ.png" width="500px">
 </p>
 
 ### Frontend (Dashboard)
@@ -83,7 +87,6 @@ O layout da aplicação está disponível no Figma:
   <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="500px">
   <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iOdt54H.png" width="500px">
   <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/viwTjMD.png" width="500px">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="500px">
 </p>
 
 ---
