@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import styles from './ProductionTypeFilter.module.css'
+import styles from './ProductionTypeFilter.module.css';
+import { Tooltip } from '@mui/material';
 
 function ProductionTypeFilter({ setPublisherType }) {
     const [allClass, setAllClass] = useState(styles['selected']);
@@ -44,9 +45,9 @@ function ProductionTypeFilter({ setPublisherType }) {
 
             <div className={styles['filter__title']}>Produções publicadas em:</div>
             <div className={styles['production__types']}>
-                <span className={styles['production__type'] + ' ' + allClass} onClick={() => { setPublisherType(null); addSelectedClass('all'); }}>Tudo</span>
-                <span className={styles['production__type'] + ' ' + journalClass} onClick={() => { setPublisherType('journal'); addSelectedClass('journal'); }}>Revista</span>
-                <span className={styles['production__type'] + ' ' + conferenceClass} onClick={() => { setPublisherType('conference'); addSelectedClass('conference'); }}>Conferências</span>
+                <Tooltip title="Clique sobre o item para filtrar"><span className={styles['production__type'] + ' ' + allClass} onClick={() => { setPublisherType(null); addSelectedClass('all'); }}>Tudo</span></Tooltip>
+                <Tooltip title="Clique sobre o item para filtrar"><span className={styles['production__type'] + ' ' + journalClass} onClick={() => { setPublisherType('journal'); addSelectedClass('journal'); }}>Revista</span></Tooltip>
+                <Tooltip title="Clique sobre o item para filtrar"><span className={styles['production__type'] + ' ' + conferenceClass} onClick={() => { setPublisherType('conference'); addSelectedClass('conference'); }}>Conferências</span></Tooltip>
             </div>
 
         </div>

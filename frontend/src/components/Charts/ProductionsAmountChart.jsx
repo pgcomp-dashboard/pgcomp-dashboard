@@ -41,7 +41,17 @@ function ProductionsAmountChart({ filter }) {
             },
             datalabels: {
                 display: false
-              }
+              },
+              datalabels: {
+                color: 'grey',
+                anchor: 'end',
+                align: 'top',
+                offset: 6,
+                display: true,
+                font: {
+                    weight: 'bold'
+                }
+            },
         },
         elements: {
             bar: {
@@ -51,7 +61,7 @@ function ProductionsAmountChart({ filter }) {
         scales: {
             y: {
               beginAtZero: true,
-              suggestedMax: 50
+              suggestedMax: 105
             }
           }
     }

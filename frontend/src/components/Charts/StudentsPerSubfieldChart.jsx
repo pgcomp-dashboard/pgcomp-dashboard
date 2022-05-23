@@ -1,7 +1,7 @@
-import PieChart from "./PieChart"
+import BarSubFields from "./BarSubFields"
 
 function StudentsPerSubfieldChart({ filter }) {
-    return <PieChart type={'subfields'} filter={filter} />
+    return <BarSubFields type={'subfields'} filter={filter} />
 }
 
 export default StudentsPerSubfieldChart

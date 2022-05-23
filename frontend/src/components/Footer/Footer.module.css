@@ -1,36 +1,43 @@
 .footer__ufba { 
-    width: 100%;
+    box-sizing: border-box;
+    width: 100vw;
     background-color: #0B3665;
     color: white;
-    height: 24vh;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding: 50px 70px;
     
 }
 
 .footer__left {
     display: flex;
     flex-direction: column;
-    margin: 70px 0px 0px 49px;
 }
 
 .footer__left  h2{
     font-size: 36px;
-    font-weight: 500px;
+    font-weight: 500;
     margin: 0 0;
 }
 
 .footer__left h5 {
     font-size: 14px;
-    font-weight: 500px;
+    font-weight: 500;
     margin: 8px 0 0 0;
 }
 
-.footer__left h3 {
+.footer__left h3 a {
     font-size: 18px;
-    font-weight: 500px;
+    font-weight: 500;
     margin: 8px 0 0 0;
+    text-decoration: none;
+    color: #fff;
+}
+
+.footer__left h3 a:hover{
+    color: rgb(172, 172, 172);
+    transition: 0.3s;
 }
 
 .footer__right {
@@ -39,7 +46,6 @@
     justify-content: space-evenly;
     align-items: center;
     padding: 12px;
-    margin: 0 80px;
 }
 
 .footer__right a {
@@ -59,11 +65,20 @@
   
   /* mouse over link */
   .footer__right a:hover {
-    color: white;
+    color: rgb(172, 172, 172);
+    transition: 0.3s;
   }
   
   /* selected link */
   .footer__right a:active {
     color: white;
+  }
+
+  @media (max-width:800px){
+      .footer__ufba{
+          flex-direction: column;
+          text-align: center;
+          gap:20px;
+      }
   }
 

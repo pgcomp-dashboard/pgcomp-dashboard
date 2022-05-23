@@ -67,7 +67,7 @@ export function App() {
                     minWidth="100%"
                     minHeight="350px"
                     idSession="students-per-field"
-                    height="250px"
+                    height="450px"
                     type="fields"
                     icon={PieChartIcon}
                     filterOptions={Utils.studentsFilter}
@@ -77,9 +77,9 @@ export function App() {
                     minWidth="100%"
                     minHeight="350px"
                     idSession="students-per-subfield"
-                    height="250px"
+                    height="400px"
                     type="subfields"
-                    icon={PieChartIcon}
+                    icon={AssessmentIcon}
                     filterOptions={Utils.studentsFilter}
                     chart={StudentsPerSubfieldChart} />
             </div>
