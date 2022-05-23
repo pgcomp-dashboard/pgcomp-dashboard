@@ -70,22 +70,20 @@ O layout da aplicação está disponível no Figma:
   <img alt="Made by tgmarinho" src="https://img.shields.io/badge/Acessar%20Layout%20-Figma-%2304D361">
 </a>
 
-<h1>Inseris AQUI imagens sobre a aplicação.</h1>
-
 ### Frontend-admin
 
 <p align="center">
-  <img alt="Front-admin" title="#AUFBAProduz" src="" width="200px">
-
-  <img alt="Front-admin" title="#AUFBAProduz" src="" width="200px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/lg1DOxE.png" width="500px">
 </p>
 
-### Frontend
+### Frontend (Dashboard)
 
 <p align="center">
-  <img alt="Front-dash" title="#AUFBAProduz" src="" width="200px">
-
-  <img alt="Front-dash" title="#AUFBAProduz" src="" width="200px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iuNYhJC.png" width="500px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="500px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iOdt54H.png" width="500px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/viwTjMD.png" width="500px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="500px">
 </p>
 
 ---
