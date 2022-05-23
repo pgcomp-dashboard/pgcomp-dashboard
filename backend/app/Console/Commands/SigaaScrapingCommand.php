@@ -136,6 +136,10 @@ class SigaaScrapingCommand extends Command
                 ->where('program_id', $programId)
                 ->first();
 
+            $teacher = User::where('type', UserType::PROFESSOR->value)
+                ->where('name', $item['teacher'])
+                ->first(['id']);
+
             if ($user) {
                 $user->defended_at = $item['date'];
                 $user->save();
@@ -146,12 +150,15 @@ class SigaaScrapingCommand extends Command
                     ->first(['registration'])
                     ->registration;
 
-                User::createOrUpdateStudent([
+                $user = User::createOrUpdateStudent([
                     'registration' => $registration -1,
                     'name' => $item['student'],
                     'course_id' => $item['course_id'],
                     'program_id' => $programId,
                 ]);
+            }
+            if ($teacher) {
+                $user->advisors()->attach($teacher->id);
             }
         }
     }
