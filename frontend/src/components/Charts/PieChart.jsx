@@ -1,6 +1,6 @@
 import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Utils from '../../Utils.js'
@@ -16,8 +16,16 @@ function PieChart({ filter, type }) {
     const [backgroundColors, setBackgroundColors] = useState(null);
 
     const options = {
-        labels: {
-            render: 'label'
+        elements: {
+            bar: {
+                borderWidth: 2,
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                suggestedMax: 50
+            },
         },
         maintainAspectRatio: false,
         responsive: true,
