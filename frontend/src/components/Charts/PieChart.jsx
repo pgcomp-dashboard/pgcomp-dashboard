@@ -84,7 +84,7 @@ function PieChart({ filter, type }) {
         getData(filter);
     }, [filter]);
 
-    return chartData ? <Pie width={250} height={250} options={options} data={chartData} /> : null;
+    return chartData ? <Pie width={300} height={300} options={options} data={chartData} /> : null;
 }
 
 export default PieChart
