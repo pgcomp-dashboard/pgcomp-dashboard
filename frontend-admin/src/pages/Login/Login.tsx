@@ -6,6 +6,7 @@ import React from 'react';
 import styles from "./Login.module.css";
 
 import { api } from "../../services/api";
+import axios from 'axios';
 function LoginPage(props: any) {
 
     const [email, setEmail] = useState('');
@@ -39,6 +40,12 @@ function LoginPage(props: any) {
             console.log(response);
         });
     }
+
+    useEffect(() => {   
+        axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie').then((response) => {
+            console.log(response);
+        })
+    }, []);
 
     return (
         <div className={styles.login_page}>
