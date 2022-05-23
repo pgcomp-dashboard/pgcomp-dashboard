@@ -158,7 +158,7 @@ class SigaaScrapingCommand extends Command
                 ]);
             }
             if ($teacher) {
-                $user->advisors()->attach($teacher->id);
+                $user->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
             }
         }
     }
