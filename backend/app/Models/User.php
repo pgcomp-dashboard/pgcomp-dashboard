@@ -266,8 +266,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function advisedes(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
-            ->wherePivot('relation_type', UserRelationType::ADVISOR)
-            ->whereNull('defended_at');
+            ->wherePivot('relation_type', UserRelationType::ADVISOR);
 
     }
 
@@ -280,8 +279,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function coadviseees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
-            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR)
-            ->whereNull('defended_at');
+            ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
     }
 
     public function subareasMasterFilter(): array

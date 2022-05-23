@@ -5,11 +5,13 @@ namespace App\Console\Commands;
 use App\Domain\Sigaa\DefenseScraping;
 use App\Domain\Sigaa\StudentScraping;
 use App\Domain\Sigaa\TeacherScraping;
+use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use App\Models\Program;
 use App\Models\User;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -93,7 +95,17 @@ class SigaaScrapingCommand extends Command
             try {
                 $user = \DB::transaction(function () use ($student) {
                     $user = User::createOrUpdateStudent($student);
-                    $user->advisors()->sync($this->getAdvisorIds($student['teachers']));
+                    $allTeachers = $this->getAdvisorIds($student['teachers']);
+
+                    $advisors = Arr::where($allTeachers, function ($i) {
+                        return $i['relation_type'] === UserRelationType::ADVISOR->value;
+                    });
+                    $user->advisors()->sync($advisors);
+
+                    $coAdvisors = Arr::where($allTeachers, function ($i) {
+                        return $i['relation_type'] === UserRelationType::CO_ADVISOR->value;
+                    });
+                    $user->coadvisors()->sync($coAdvisors);
 
                     return $user;
                 });
@@ -157,8 +169,8 @@ class SigaaScrapingCommand extends Command
                     'program_id' => $programId,
                 ]);
             }
-            if ($teacher) {
-                $user->advisors()->attach($teacher->id);
+            if ($teacher && $user->advisors()->where('id', $teacher->id)->doesntExist()) {
+                $user->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
             }
         }
     }
