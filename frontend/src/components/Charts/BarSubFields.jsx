@@ -1,6 +1,6 @@
 import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Utils from '../../Utils.js'
@@ -16,26 +16,36 @@ function PieChart({ filter, type }) {
     const [backgroundColors, setBackgroundColors] = useState(null);
 
     const options = {
+        elements: {
+            bar: {
+                borderWidth: 2,
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                suggestedMax: 75
+            },
+        },
         maintainAspectRatio: false,
         responsive: true,
         plugins: {
             legend: {
-                display: true,
+                display: false,
             },
             title: {
                 display: false,
                 text: 'Chart.js Pie Chart',
             },
             datalabels: {
-                color: 'white',
-                anchor: 'center',
-                align: 'center',
+                color: 'grey',
+                anchor: 'end',
+                align: 'end',
                 clamp: true,
                 offset: 4,
                 display: true,
                 font: {
-                    weight: 'bold',
-                    size: 20
+                    weight: 'bold'
                 }
             },
         }
@@ -46,7 +56,7 @@ function PieChart({ filter, type }) {
             .then(({ data }) => {
                 const labels = data[type];
                 const dataChart = data.data;
-                const newBackgroundColors = ['#7CBB00','#FF6C6C','#3098DC',]
+                const newBackgroundColors = Utils.generateColorsArray(data.data.length);
 
                 if (!backgroundColors){
                     setBackgroundColors(newBackgroundColors);
@@ -82,7 +92,7 @@ function PieChart({ filter, type }) {
         getData(filter);
     }, [filter]);
 
-    return chartData ? <Pie width={300} height={300} options={options} data={chartData} /> : null;
+    return chartData ? <Bar width={300} height={300} options={options} data={chartData} /> : null;
 }
 
 export default PieChart

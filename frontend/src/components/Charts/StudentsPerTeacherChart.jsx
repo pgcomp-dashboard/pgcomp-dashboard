@@ -34,6 +34,7 @@ function StudentsPerTeacherChart({ filter }) {
             },
         },
         responsive: true,
+        
         plugins: {
             legend: {
                 display: false,
