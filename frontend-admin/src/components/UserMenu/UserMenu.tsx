@@ -13,14 +13,14 @@ function UserMenu() {
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-    const {isLogged} = useContext(AuthContext)
+    const {token} = useContext(AuthContext)
     const [userName, setUsername] = useState();
 
     useEffect(() => {
-        if(isLogged){
-            api.get('https://mate85-api.litiano.dev.br/api/user').then(response => setUsername(response.data.name))
-        }
-    }, [isLogged])
+            api.get('https://mate85-api.litiano.dev.br/api/user').then(response => {
+            setUsername(response.data.name)
+        })
+    }, [token])
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -39,12 +39,12 @@ function UserMenu() {
                 aria-expanded={open ? 'true' : undefined}>
                 <AccountCircleIcon color="primary" fontSize='inherit' style={iconStyle} />
 
-                {!isLogged ? 
+                {!token ? 
                     <div><a href="/">Entrar</a></div> 
                     : 
                     <div className={styles['user__menu__welcome']}>
                         <span>Olá,</span>
-                        <span className={styles['user__menu__name']}>{userName}</span>
+                        <span className={styles['user__menu__name']}>{userName || "Fulano"}</span>
                     </div>
                 }
                 
