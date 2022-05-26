@@ -13,7 +13,7 @@ function UserMenu() {
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-    const {token} = useContext(AuthContext)
+    const {token, setToken} = useContext(AuthContext)
     const [userName, setUsername] = useState();
 
     useEffect(() => {
@@ -25,9 +25,11 @@ function UserMenu() {
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
-
+    
     const handleClose = () => {
         setAnchorEl(null);
+        setToken("");
+        localStorage.removeItem("token");
     };
 
     return (
