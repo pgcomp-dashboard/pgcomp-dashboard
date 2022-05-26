@@ -73,11 +73,11 @@ O layout da aplicação está disponível no Figma:
 ### Frontend-admin
 
 <p align="center">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/lg1DOxE.png" width="500px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/fEXAEFO.png" width="500px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/gqsQFG9.png" width="500px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/Y1eFejQ.png" width="500px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/0FyV6VZ.png" width="500px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/lg1DOxE.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/fEXAEFO.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/gqsQFG9.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/Y1eFejQ.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/0FyV6VZ.png" width="400px">
 </p>
 
 ### Frontend (Dashboard)
@@ -95,11 +95,11 @@ O layout da aplicação está disponível no Figma:
 
 ### Diagrama da Aplicação Web
 
-<img alt="Diagrama-app-web" title="#AUFBAProduz" src="https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/uploads/7078520d539cd701b7a642385173d7b2/modelo_aufbaproduz.drawio__10_.png" width="400px">
+<img alt="Diagrama-app-web" title="#AUFBAProduz" src="https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/uploads/7078520d539cd701b7a642385173d7b2/modelo_aufbaproduz.drawio__10_.png" width="500px">
 
 ### Diagrama do Banco de Dados
 
-<img alt="Diagrama-bd" title="#AUFBAProduz" src="https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/uploads/f96f0bc33ba3848a3a654916905c36ae/ufbafaz.png" width="400px">
+<img alt="Diagrama-bd" title="#AUFBAProduz" src="https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/uploads/f96f0bc33ba3848a3a654916905c36ae/ufbafaz.png" width="500px">
 
 
 ---
