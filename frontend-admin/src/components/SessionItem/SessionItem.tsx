@@ -88,8 +88,8 @@ function SessionItem(props: any) {
 
 
             <Collapse in={expandChildren} timeout="auto" unmountOnExit>
-                {props.children ? props.children.map((item: SessionItemProps) => {
-                    return <SessionItem name={item.name} type={item.type} isChildren={true} />
+                {props.children ? props.children.map((item: SessionItemProps, index: number) => {
+                    return <SessionItem name={item.name} type={item.type} isChildren={true} key={`${item.type}-${index}`}/>
                 }) : null}
             </Collapse>
 
