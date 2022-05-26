@@ -578,4 +578,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return $belongsToMany;
     }
+
+
 }

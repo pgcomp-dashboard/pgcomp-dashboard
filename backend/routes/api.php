@@ -98,4 +98,4 @@ Route::get('healthcheck', function (Request $request) {
 
 Route::post('login', [AuthController::class, 'login']);
 
-Route::apiResource('areas', AreaController::class);
+Route::apiResource('users', UserAdminController::class);
