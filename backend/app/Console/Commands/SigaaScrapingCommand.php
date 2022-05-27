@@ -101,6 +101,11 @@ class SigaaScrapingCommand extends Command
                         return $i['relation_type'] === UserRelationType::ADVISOR->value;
                     });
                     $user->advisors()->sync($advisors);
+                    $advisor = $user->advisors()->first();
+                    if ($advisor) {
+                        $user->subarea_id = $advisor->subarea_id;
+                        $user->save();
+                    }
 
                     $coAdvisors = Arr::where($allTeachers, function ($i) {
                         return $i['relation_type'] === UserRelationType::CO_ADVISOR->value;
@@ -153,6 +158,10 @@ class SigaaScrapingCommand extends Command
                 ->first(['id']);
 
             if ($user) {
+                $advisor = $user->advisors()->first();
+                if ($advisor) {
+                    $user->subarea_id = $advisor->subarea_id;
+                }
                 $user->defended_at = $item['date'];
                 $user->save();
                 $this->info("{$user->name} defendeu.");
@@ -167,6 +176,7 @@ class SigaaScrapingCommand extends Command
                     'name' => $item['student'],
                     'course_id' => $item['course_id'],
                     'program_id' => $programId,
+                    'subarea_id' => $teacher?->subarea_id,
                 ]);
             }
             if ($teacher && $user->advisors()->where('id', $teacher->id)->doesntExist()) {

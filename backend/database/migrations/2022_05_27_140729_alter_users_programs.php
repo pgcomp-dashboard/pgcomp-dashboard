@@ -13,12 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users_programs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('program_id')->constrained();
-            $table->dateTime('started_at');
-            $table->dateTime('finished_at')->nullable();
+        Schema::table('users_programs', function (Blueprint $table) {
+            $table->timestamps();
         });
     }
 
@@ -29,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users_programs');
+        Schema::table('users_programs', function (Blueprint $table) {
+            //
+        });
     }
 };
