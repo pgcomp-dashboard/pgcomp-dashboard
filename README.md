@@ -73,20 +73,20 @@ O layout da aplicação está disponível no Figma:
 ### Frontend-admin
 
 <p align="center">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/lg1DOxE.png" width="500px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/fEXAEFO.png" width="500px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/gqsQFG9.png" width="500px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/Y1eFejQ.png" width="500px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/0FyV6VZ.png" width="500px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/lg1DOxE.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/fEXAEFO.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/gqsQFG9.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/Y1eFejQ.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/0FyV6VZ.png" width="400px">
 </p>
 
 ### Frontend (Dashboard)
 
 <p align="center">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iuNYhJC.png" width="500px">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="500px">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iOdt54H.png" width="500px">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/viwTjMD.png" width="500px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iuNYhJC.png" width="400px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="400px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iOdt54H.png" width="400px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/viwTjMD.png" width="400px">
 </p>
 
 ---

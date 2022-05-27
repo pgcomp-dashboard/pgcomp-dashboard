@@ -575,42 +575,4 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return $belongsToMany;
     }
-
-    public function tes()
-    {
-        $duplicateds = DB::table('user_user')
-            ->select(['professor_user_id', 'student_user_id', 'relation_type', DB::raw('COUNT(*) as qty')])
-            ->groupBy(['professor_user_id', 'student_user_id', 'relation_type'])
-            ->havingRaw('COUNT(*) > 1')
-            ->get();
-
-        foreach ($duplicateds as $duplicated) {
-            echo DB::table('user_user')
-                ->where('professor_user_id', $duplicated->professor_user_id)
-                ->where('student_user_id', $duplicated->student_user_id)
-                ->where('relation_type', $duplicated->relation_type)
-                ->limit($duplicated->qty - 1)
-                ->delete();
-        }
-
-        $co = User::where('type', 'professor')
-            ->doesntHave('advisedes')
-            ->pluck('id');
-            User::whereIn('id', $co)->update(['type' => 'student']);
-        foreach ($co as $c) {
-            $c->coadviseees()->sync([]);
-        }
-
-        $co = User::where('type', 'professor')
-            ->doesntHave('advisedes')
-            ->get();
-        foreach ($co as $c) {
-            $c->coadviseees()->sync([]);
-        }
-
-        User::where('type', 'professor')
-            ->whereNull('subarea_id')
-            ->get(['name']);
-
-    }
 }
