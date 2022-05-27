@@ -38,13 +38,32 @@ function ProductionsAmountChart({ filter }) {
             title: {
                 display: false,
                 text: 'Chart.js Line Chart'
-            }
+            },
+            datalabels: {
+                display: false
+              },
+              datalabels: {
+                color: 'grey',
+                anchor: 'end',
+                align: 'top',
+                offset: 6,
+                display: true,
+                font: {
+                    weight: 'bold'
+                }
+            },
         },
         elements: {
             bar: {
                 borderWidth: 1,
             },
         },
+        scales: {
+            y: {
+              beginAtZero: true,
+              suggestedMax: 105
+            }
+          }
     }
 
     const getData = (selectedFilter = []) => {

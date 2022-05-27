@@ -21,7 +21,7 @@ const SessionItemDialog = (props: any) => {
     const [itemName, setItemName] = useState(props.fields);
     const [formFields, setFormFields] = useState({});
 
-    const { token } = useContext(AuthContext);
+    const { token, change, setChange } = useContext(AuthContext);
 
     const forms: any = {
         'areas': <AreaForm areaName={props.area_name} setFormFields={setFormFields} />,
@@ -41,6 +41,8 @@ const SessionItemDialog = (props: any) => {
         } else {
             createItem(config, props.typeAttr, {name: itemName});
         }
+
+        setChange(change + 1);
     }
 
 

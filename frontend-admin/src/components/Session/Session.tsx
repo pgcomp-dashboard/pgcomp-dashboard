@@ -1,10 +1,12 @@
 import { List } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
 import SessionItem from '../SessionItem/SessionItem';
 import styles from './Session.module.css'
 import Utils from '../../Utils'
+import { AuthContext } from '../../providers/AuthProvider';
+import axios from 'axios';
 import React from 'react';
 import { api } from '../../services/api';
 
@@ -14,6 +16,7 @@ interface SessionProps {
 
 function Session(props: SessionProps) {
     const [modalOpened, setModalOpened] = useState(false);
+    const { token, change } = useContext(AuthContext);
 
     const [sessionItems, setSessionItems] = useState([]);
 
@@ -40,7 +43,7 @@ function Session(props: SessionProps) {
 
     useEffect(() => {
         getData();
-    }, [props.type]);
+    }, [props.type, change]);
 
     console.log(sessionItems);
 
@@ -48,10 +51,10 @@ function Session(props: SessionProps) {
         <div className={styles['Session']}>
             <AddSessionItemButton type={Utils.nameTypes[props.type]} handleOpen={handleModalOpen} />
             <List disablePadding>
-            { sessionItems && sessionItems.length ? 
-                sessionItems.map((sessionItem: any) => {
-                    return <SessionItem {...sessionItem} type={props.type} children={mockedChilds} key={sessionItem.id} />
-                }) : null }
+                {sessionItems && sessionItems.length ?
+                    sessionItems.map((sessionItem: any) => {
+                        return <SessionItem {...sessionItem} type={props.type} children={mockedChilds} key={sessionItem.id} />
+                    }) : null}
             </List>
 
             <SessionItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={modalOpened} handleClose={handleModalClose} />

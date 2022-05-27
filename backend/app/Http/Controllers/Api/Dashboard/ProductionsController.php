@@ -22,24 +22,23 @@ class ProductionsController extends Controller
             'conference' => Conference::class,
             default => null
         };
-        
-        $user_type = [
-            "docente" => ["professor", null],
-            "mestrando" => ["student", "1"],
-            "doutorando" => ["student", "2"],
-            null => [null,null]
-        ];
 
-        $filter = $user_type[$request->input("user_type")];
+        $filter = match ($request->input('user_type')) {
+            'docente' => ['professor', null],
+            'mestrando' => ['student', '1'],
+            'doutorando' => ['student', '2'],
+            default => [null, null]
+        };
 
-        $keyReturnPattern = ['years', 'data'];
         $productions = new Production();
-        $data = $productions
-                    ->totalProductionsPerYear(user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
-        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
+        return $productions->totalProductionsPerYear(
+            user_type: $filter[0],
+            course_id: $filter[1],
+            publisher_type: $publisher_type
+        );
     }
 
-    public function studentsProductions()
+    public function studentsProductions(Request $request)
     {
         // TODO: Retornar lista de anos no JSON
         // TODO: Retornar JSON na estrutura de lista abaixo
@@ -54,7 +53,13 @@ class ProductionsController extends Controller
         //      'data': generateValues(NUMBER_OF_ITEMS),TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //  }
         //}
+        $publisherType = match ($request->input('publisher_type')){
+            'journal' => Journal::class,
+            'conference' => Conference::class,
+            default => null
+        };
+
         $production = new Production();
-        return $production->totalProductionsPerCourse(['year', 'data']);
+        return $production->totalProductionsPerCourse($publisherType);
     }
 }

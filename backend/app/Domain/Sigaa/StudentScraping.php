@@ -58,6 +58,9 @@ class StudentScraping extends BaseScraping
                 'coorientador' => UserRelationType::CO_ADVISOR->value,
                 default => throw new Exception("Unknow relation type {$typeStr}")
             };
+            if ($type === UserRelationType::CO_ADVISOR->value) {
+                continue;
+            }
             $teachers[] = [
                 'siape' => $this->getSiapeIdFromUrl($teacherElement->attr('href')),
                 'name' => Str::of($teacherElement->text())->before('(')->trim()->title()->value(),

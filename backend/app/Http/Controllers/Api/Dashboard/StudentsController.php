@@ -23,9 +23,7 @@ class StudentsController extends Controller
                 $builder->where('course_id', 1);
             } elseif ($selectedFilter === 'doutorando') {
                 $builder->where('course_id', 2);
-            } elseif ($selectedFilter === '50') {
-                $builder->whereNull('defended_at');
-            } elseif ($selectedFilter === '60') {
+            } elseif ($selectedFilter === 'completed') {
                 $builder->whereNotNull('defended_at');
             }
         };
@@ -54,9 +52,7 @@ class StudentsController extends Controller
                 $builder->where('course_id', 1);
             } elseif ($selectedFilter === 'doutorando') {
                 $builder->where('course_id', 2);
-            } elseif ($selectedFilter === '50') {
-                $builder->whereNull('defended_at');
-            } elseif ($selectedFilter === '60') {
+            } elseif ($selectedFilter === 'completed') {
                 $builder->whereNotNull('defended_at');
             }
         };

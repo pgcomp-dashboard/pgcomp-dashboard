@@ -50,23 +50,20 @@ class QualisController extends Controller
 
     public function productionPerQualis(Request $request) {
 
-        $publisher_type = match ($request->input("publisher_type")){
+        $publisher_type = match ($request->input('publisher_type')){
             'journal' => Journal::class,
             'conference' => Conference::class,
             default => null
         };
-        
-        $user_type = [
-            "docente" => ["professor", null],
-            "mestrando" => ["student", "1"],
-            "doutorando" => ["student", "2"],
-            null => [null,null]
-        ];
 
-        $filter = $user_type[$request->input("user_type")];
-        
+        $filter = match ($request->input('user_type')) {
+            'docente' => ['professor', null],
+            'mestrando' => ['student', '1'],
+            'doutorando' => ['student', '2'],
+            default => [null, null]
+        };
+
         $qualis = new StratumQualis();
-        return $qualis->totalProductionsPerQualisNew(['years', 'data'], user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
+        return $qualis->totalProductionsPerQualis(user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
     }
-
 }

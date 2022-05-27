@@ -8,7 +8,9 @@ function Toolbar(){
     return (
         <div className={className}>
             <div>
-                <img src={icLogo} height={70} />
+                <a href='https://mate85.litiano.dev.br/'>
+                    <img src={icLogo} height={70} />
+                </a>
             </div>
 
             <UserMenu />

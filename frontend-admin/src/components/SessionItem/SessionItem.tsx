@@ -30,10 +30,10 @@ function SessionItem(props: any) {
     }
 
     const nameProperty: any = {
-        'areas': 'area_name',
-        'qualis' : 'code',
-        'professors': 'name',
-        'students': 'name'
+        'areas': props.area_name,
+        'qualis' : `${props.code} = ${props.score}`,
+        'professors': props.name,
+        'students': props.name
     }
 
     const editProperties: any = {
@@ -67,7 +67,7 @@ function SessionItem(props: any) {
         <>
             <ListItem disablePadding style={childrenStyle}>
                 <div className={styles['SessionItem']}>
-                    <div>{props[nameProperty[props.type]]}</div>
+                    <div>{nameProperty[props.type]}</div>
                     <div>
                         <EditIcon style={iconsStyle} onClick={() => setModalOpened(true)} />
                         <DeleteIcon style={iconsStyle} onClick={() => setDeleteModalOpened(true)} />
