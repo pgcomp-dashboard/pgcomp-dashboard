@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Validation\Rule;
 
-class UsersPrograms extends BaseModel
+class UsersProgram extends BaseModel
 {
     protected $fillable = [
         'user_id',
@@ -17,6 +17,14 @@ class UsersPrograms extends BaseModel
         'started_at' => 'datetime',
         'finished_at' => 'datetime'
     ];
+
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function program(){
+        return $this->belongsTo(Program::class, 'program_id');
+    }
 
     public static function creationRules(): array
     {
