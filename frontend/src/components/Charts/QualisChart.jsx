@@ -55,13 +55,16 @@ function QualisChart({ filter }) {
             y: {
                 stacked: true,
                 beginAtZero: true,
-                suggestedMax: 100
+                suggestedMax: 50
             },
         },
         plugins: {
             title: {
                 display: false
             },
+            datalabels: {
+                display: false
+              }
         }
     }
 

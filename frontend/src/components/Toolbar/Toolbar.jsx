@@ -28,9 +28,11 @@ function Toolbar({ setShowBurgerMenu }) {
                 <img src={icLogo} height={70} alt="Logo dashboard pgcomp"/>
             </div>
             <div>
-                <button className={styles.button__login}>
-                    Login
-                </button>
+                <a href='https://mate85-admin.litiano.dev.br/'>
+                    <button className={styles.button__login}>
+                        Login
+                    </button>
+                </a>
             </div>
         </div>
     )

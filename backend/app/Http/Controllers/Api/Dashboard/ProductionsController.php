@@ -38,7 +38,7 @@ class ProductionsController extends Controller
         );
     }
 
-    public function studentsProductions()
+    public function studentsProductions(Request $request)
     {
         // TODO: Retornar lista de anos no JSON
         // TODO: Retornar JSON na estrutura de lista abaixo
@@ -53,7 +53,13 @@ class ProductionsController extends Controller
         //      'data': generateValues(NUMBER_OF_ITEMS),TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //  }
         //}
+        $publisherType = match ($request->input('publisher_type')){
+            'journal' => Journal::class,
+            'conference' => Conference::class,
+            default => null
+        };
+
         $production = new Production();
-        return $production->totalProductionsPerCourse(['year', 'data']);
+        return $production->totalProductionsPerCourse($publisherType);
     }
 }

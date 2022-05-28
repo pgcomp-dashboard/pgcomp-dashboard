@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api\PanelAdmin;
 
 use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Models\BaseModel;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Models\UsersProgram;
 
-class UserController extends BaseApiResourceController
+class UserProgramController extends BaseApiResourceController
 {
+
     protected function modelClass(): string|BaseModel
     {
-        return User::class;
+        return UsersProgram::class;
     }
 }

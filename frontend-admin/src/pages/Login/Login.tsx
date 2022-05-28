@@ -41,12 +41,6 @@ function LoginPage(props: any) {
         });
     }
 
-    useEffect(() => {   
-        axios.get('https://mate85-api.litiano.dev.br/api/csrf-cookie').then((response) => {
-            console.log(response);
-        })
-    }, []);
-
     return (
         <div className={styles.login_page}>
             <div className={styles.login_page__action_container}>

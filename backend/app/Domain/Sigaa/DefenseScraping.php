@@ -22,7 +22,7 @@ class DefenseScraping extends BaseScraping
             if ($tdCount === 1) {
                 $course = $item->find('td')->first()->text();
                 $course = Str::of($course)->trim()->value();
-                $course_id = $this->getCourseId($course);
+                $course_id = $this->getCourseId($course) ?? $course_id;
             } elseif ($tdCount === 3) {
                 $line = $item->find('td')->eq(1);
 

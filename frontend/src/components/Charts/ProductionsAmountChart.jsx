@@ -38,7 +38,20 @@ function ProductionsAmountChart({ filter }) {
             title: {
                 display: false,
                 text: 'Chart.js Line Chart'
-            }
+            },
+            datalabels: {
+                display: false
+              },
+              datalabels: {
+                color: 'grey',
+                anchor: 'end',
+                align: 'top',
+                offset: 6,
+                display: true,
+                font: {
+                    weight: 'bold'
+                }
+            },
         },
         elements: {
             bar: {
@@ -48,7 +61,7 @@ function ProductionsAmountChart({ filter }) {
         scales: {
             y: {
               beginAtZero: true,
-              suggestedMax: 100
+              suggestedMax: 105
             }
           }
     }

@@ -14,7 +14,6 @@ class StudentController extends BaseApiResourceController
     public function store(Request $request)
     {
         $request->merge(['type' => UserType::STUDENT->value]);
-
         return parent::store($request);
     }
 
