@@ -23,6 +23,7 @@ interface namePropertyProps {
 }
 
 function SessionItem(props: any) {
+    console.log(props);
     const iconsStyle = {
         height: '30px',
         width: '35px',
@@ -31,17 +32,21 @@ function SessionItem(props: any) {
 
     const nameProperty: any = {
         'areas': props.area_name,
-        'qualis' : `${props.code} = ${props.score}`,
+        'qualis': `${props.code} = ${props.score}`,
         'professors': props.name,
         'students': props.name
     }
 
     const editProperties: any = {
-        'areas': ['area_name'],
+        'areas': props.isChildren ? ['subarea_name'] : ['area_name'],
         'qualis': ["score", "code"],
         'professors': ["name"],
         'students': ["name"]
     }
+
+    const showEdit = props.type === 'areas' || props.type === 'qualis';
+    const showDelete = props.type === 'areas';
+    const showChildrens = props.type === 'areas';
 
     const [expandChildren, setExpandChildren] = useState(false);
 
@@ -61,26 +66,35 @@ function SessionItem(props: any) {
         setDeleteModalOpened(false);
     }
 
+    console.log(editProperties);
+
     const childrenStyle = props.isChildren ? { marginLeft: '15px' } : {};
 
     return (
         <>
             <ListItem disablePadding style={childrenStyle}>
                 <div className={styles['SessionItem']}>
-                    <div>{nameProperty[props.type]}</div>
+                    <div>{props.isChildren ? props.subarea_name : nameProperty[props.type]}</div>
                     <div>
-                        <EditIcon style={iconsStyle} onClick={() => setModalOpened(true)} />
-                        <DeleteIcon style={iconsStyle} onClick={() => setDeleteModalOpened(true)} />
-                        {props.isChildren ? null : expandChildren ? <ExpandLessIcon style={iconsStyle} onClick={() => setExpandChildren(!expandChildren)} /> :
-                            <ExpandMoreIcon style={iconsStyle} onClick={() => setExpandChildren(!expandChildren)} />}
+
+                        {showEdit ? <EditIcon style={iconsStyle} onClick={() => setModalOpened(true)} /> : null}
+
+                        {showDelete ? <DeleteIcon style={iconsStyle} onClick={() => setDeleteModalOpened(true)} /> : null}
+
+                        {showChildrens ? (props.isChildren ? null : expandChildren ?
+                            <ExpandLessIcon style={iconsStyle} onClick={() => setExpandChildren(!expandChildren)} /> :
+                            <ExpandMoreIcon style={iconsStyle} onClick={() => setExpandChildren(!expandChildren)} />) : null}
                     </div>
                 </div>
             </ListItem>
 
-            <SessionItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={modalOpened} handleClose={handleModalClose}
+            <SessionItemDialog
+                type={Utils.nameTypes[props.type]}
+                typeAttr={props.type}
+                open={modalOpened}
+                handleClose={handleModalClose}
                 id={props.id}
-                isEdit={true} 
-                {...editProperties[props.type].reduce((fields: object, editable: string) => ({...fields, [editable]: props[editable]}), {})} />
+                isEdit={true} />
 
             <DeleteItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={deleteModalOpened} handleClose={handleDeleteModalClose}
                 id={props.id} />
@@ -88,8 +102,8 @@ function SessionItem(props: any) {
 
 
             <Collapse in={expandChildren} timeout="auto" unmountOnExit>
-                {props.children ? props.children.map((item: SessionItemProps, index: number) => {
-                    return <SessionItem name={item.name} type={item.type} isChildren={true} key={`${item.type}-${index}`}/>
+                {props.children ? props.children.map((item: SessionItemProps) => {
+                    return <SessionItem name={item.name} isChildren={true} {...item} type={item.type} />
                 }) : null}
             </Collapse>
 
