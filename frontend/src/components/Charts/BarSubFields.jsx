@@ -67,7 +67,7 @@ function PieChart({ filter, type }) {
                     labels,
                     datasets:
                         [{
-                            label: 'Students',
+                            label: 'Alunos',
                             data: dataChart,
                             backgroundColor: !backgroundColors ? newBackgroundColors : backgroundColors,
                             borderColor: !backgroundColors ? newBackgroundColors : backgroundColors,
