@@ -9,6 +9,8 @@ import Utils from '../../Utils'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
 import React from 'react';
 import DeleteItemDialog from '../DeleteItemDialog/DeleteItemDialog';
+import ArticleIcon from '@mui/icons-material/Article';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
 interface SessionItemProps {
     name?: string,
@@ -45,8 +47,12 @@ function SessionItem(props: any) {
     }
 
     const showEdit = props.type === 'areas' || props.type === 'qualis';
+
     const showDelete = props.type === 'areas';
+
     const showChildrens = props.type === 'areas';
+
+    const showProductions = props.type === 'professors' || props.type === 'students';
 
     const [expandChildren, setExpandChildren] = useState(false);
 
@@ -84,6 +90,13 @@ function SessionItem(props: any) {
                         {showChildrens ? (props.isChildren ? null : expandChildren ?
                             <ExpandLessIcon style={iconsStyle} onClick={() => setExpandChildren(!expandChildren)} /> :
                             <ExpandMoreIcon style={iconsStyle} onClick={() => setExpandChildren(!expandChildren)} />) : null}
+
+                        {showProductions ?
+                            <>
+                                <ArticleIcon style={iconsStyle} />
+                                <AccountBoxIcon style={iconsStyle} />
+                            </>
+                            : null}
                     </div>
                 </div>
             </ListItem>
