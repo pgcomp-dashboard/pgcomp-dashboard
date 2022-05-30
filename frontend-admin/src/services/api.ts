@@ -1,3 +1,4 @@
 import axios, { AxiosInstance } from "axios";
-
-export const api: AxiosInstance = axios.create({ baseURL: "https://mate85-api.litiano.dev.br/api/portal/admin" });
+import config from "../config/config";
+const baseURL = 'https://mate85-api.litiano.dev.br/api/portal/admin'
+export const api: AxiosInstance = axios.create({ baseURL: baseURL });

@@ -11,6 +11,11 @@ use Illuminate\Http\Response;
 
 class ProductionController extends BaseApiResourceController
 {
+
+    protected $selectColumns = ['users.name', 'productions.id', 'productions.title', 'productions.year',
+        'productions.publisher_type', 'productions.publisher_id', 'productions.last_qualis',
+        'productions.doi'];
+
     protected function modelClass(): string|BaseModel
     {
         return Production::class;
@@ -25,8 +30,7 @@ class ProductionController extends BaseApiResourceController
 
     public function studentQuery($students){
         $this->query = $this->newBaseQuery()
-            ->select('productions.id', 'productions.title', 'productions.year',
-                'productions.publisher_type', 'productions.publisher_id')
+            ->select($this->selectColumns)
             ->join('users_productions', 'id', '=', 'users_productions.productions_id')
             ->join('users', 'users_productions.users_id', '=', 'users.id')
             ->where('users.type', '=', UserType::STUDENT)
@@ -35,8 +39,7 @@ class ProductionController extends BaseApiResourceController
 
     public function professorQuery($professors){
         $this->query = $this->newBaseQuery()
-            ->select('productions.id', 'productions.title', 'productions.year',
-                'productions.publisher_type', 'productions.publisher_id')
+            ->select($this->selectColumns)
             ->join('users_productions', 'id', '=', 'users_productions.productions_id')
             ->join('users', 'users_productions.users_id', '=', 'users.id')
             ->where('users.type', '=', UserType::PROFESSOR)
