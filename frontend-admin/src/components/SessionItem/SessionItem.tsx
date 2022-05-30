@@ -11,6 +11,7 @@ import React from 'react';
 import DeleteItemDialog from '../DeleteItemDialog/DeleteItemDialog';
 import ArticleIcon from '@mui/icons-material/Article';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import { useNavigate } from 'react-router-dom';
 
 interface SessionItemProps {
     name?: string,
@@ -25,7 +26,7 @@ interface namePropertyProps {
 }
 
 function SessionItem(props: any) {
-    console.log(props);
+    const navigate = useNavigate();
     const iconsStyle = {
         height: '30px',
         width: '35px',
@@ -72,8 +73,6 @@ function SessionItem(props: any) {
         setDeleteModalOpened(false);
     }
 
-    console.log(editProperties);
-
     const childrenStyle = props.isChildren ? { marginLeft: '15px' } : {};
 
     return (
@@ -94,7 +93,7 @@ function SessionItem(props: any) {
                         {showProductions ?
                             <>
                                 <ArticleIcon style={iconsStyle} />
-                                <AccountBoxIcon style={iconsStyle} />
+                                <AccountBoxIcon style={iconsStyle} onClick={() => navigate(`/${props.type}/${props.id}`, {replace: false})} />
                             </>
                             : null}
                     </div>

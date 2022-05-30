@@ -50,8 +50,6 @@ function Session() {
         getData();
     }, [sessionType, change]);
 
-    console.log(sessionItems);
-
     return (
         <div className={styles['Session']}>
             {showAdd ? <AddSessionItemButton type={Utils.nameTypes[sessionType]} handleOpen={handleModalOpen} /> : null}
