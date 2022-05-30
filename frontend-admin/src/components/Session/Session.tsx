@@ -6,19 +6,24 @@ import SessionItem from '../SessionItem/SessionItem';
 import styles from './Session.module.css'
 import Utils from '../../Utils'
 import { AuthContext } from '../../providers/AuthProvider';
-import axios from 'axios';
 import React from 'react';
 import { api } from '../../services/api';
+import { useMatch } from 'react-router-dom';
 
-interface SessionProps {
-    type: string;
-}
+// interface SessionProps {
+//     type?: string;
+// }
 
-function Session(props: SessionProps) {
+function Session() {
     const [modalOpened, setModalOpened] = useState(false);
     const { token, change } = useContext(AuthContext);
 
     const [sessionItems, setSessionItems] = useState([]);
+
+    const match = useMatch(":sessionType/*");
+    const sessionType = match?.params.sessionType || "areas";
+
+    const showAdd = sessionType === 'areas';
 
     const handleModalOpen = () => {
         setModalOpened(true);
@@ -34,30 +39,28 @@ function Session(props: SessionProps) {
     ]
 
     const getData = () => {
-            api.get(props.type).then((response: any) => {
-                if (response && response.status === 200 && response.data.data){
-                    setSessionItems(response.data.data);
-                }
-            });
+        api.get((sessionType === 'areas' ? 'all_subareas_per_area' : sessionType)).then((response: any) => {
+            if (response && response.status === 200) {
+                setSessionItems(response.data.data ? response.data.data : response.data);
+            }
+        });
     }
 
     useEffect(() => {
         getData();
-    }, [props.type, change]);
-
-    console.log(sessionItems);
+    }, [sessionType, change]);
 
     return (
         <div className={styles['Session']}>
-            <AddSessionItemButton type={Utils.nameTypes[props.type]} handleOpen={handleModalOpen} />
+            {showAdd ? <AddSessionItemButton type={Utils.nameTypes[sessionType]} handleOpen={handleModalOpen} /> : null}
             <List disablePadding>
                 {sessionItems && sessionItems.length ?
                     sessionItems.map((sessionItem: any) => {
-                        return <SessionItem {...sessionItem} type={props.type} children={mockedChilds} key={sessionItem.id} />
+                        return <SessionItem {...sessionItem} type={sessionType} children={sessionType === 'areas' ? sessionItem.subareas : []} key={sessionItem.id} />
                     }) : null}
             </List>
 
-            <SessionItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={modalOpened} handleClose={handleModalClose} />
+            <SessionItemDialog type={Utils.nameTypes[sessionType]} typeAttr={sessionType} open={modalOpened} handleClose={handleModalClose} />
         </div>
     )
 }

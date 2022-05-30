@@ -13,4 +13,5 @@ class UserController extends BaseApiResourceController
     {
         return User::class;
     }
+
 }
