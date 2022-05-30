@@ -23,6 +23,7 @@ function App() {
                         <Route path='qualis' element={<Session />} />
                         <Route path='professors' element={<Session />} />
                         <Route path="professors/:id/productions" element={<UserProductions />} />
+                        <Route path="students/:id/productions" element={<UserProductions />} />
                         <Route path='students' element={<Session />} />
                         <Route index element={null} />
                     </Route>
