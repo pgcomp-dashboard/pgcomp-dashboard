@@ -13,8 +13,10 @@ class StudentController extends BaseApiResourceController
 {
     public function store(Request $request)
     {
-        $request->merge(['type' => UserType::STUDENT->value]);
-        return parent::store($request);
+        $user = User::createOrUpdateStudent($request->all());
+        $advisor = $request->input("advisor_id");
+        $user->advisors()->sync($advisor);
+        return $user;
     }
 
     protected function newBaseQuery(): Builder
