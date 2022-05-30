@@ -5,30 +5,34 @@ import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import SessionItem from '../SessionPanel/SessionPanel';
 import React from 'react';
+import { useMatch } from 'react-router-dom';
 
-interface SessionsPanelProps {
-    setSelectedSession: any,
-    selectedSession: string
-}
+// interface SessionsPanelProps {
+//     setSelectedSession: any,
+//     selectedSession: string
+// }
 
-function SessionsPanel({ setSelectedSession, selectedSession }: SessionsPanelProps) {
+function SessionsPanel() {
 
     const iconStyle = {
         'height': '42px',
         'width': '42px'
     }
 
+    const match = useMatch(":sessionType/*")
+    const sessionType = match?.params.sessionType
+
     return (
         <div className={styles['SessionsPanel']}>
             <ul>
-                <SessionItem icon={<PieChartOutlinedIcon style={iconStyle} />} label={'Áreas e sub-áreas'} setSelectedSession={setSelectedSession}
-                    session='areas' isSelected={'areas' == selectedSession} />
-                <SessionItem icon={<BarChartOutlinedIcon style={iconStyle} />} label={'Qualis'} setSelectedSession={setSelectedSession}
-                    session='qualis' isSelected={'qualis' == selectedSession} />
-                <SessionItem icon={<BadgeOutlinedIcon style={iconStyle} />} label={'Docente'} setSelectedSession={setSelectedSession}
-                    session='professors' isSelected={'professors' == selectedSession} />
-                <SessionItem icon={<SchoolOutlinedIcon style={iconStyle} />} label={'Discente'} setSelectedSession={setSelectedSession}
-                    session='students' isSelected={'students' == selectedSession} />
+                <SessionItem icon={<PieChartOutlinedIcon style={iconStyle} />} label={'Áreas e sub-áreas'} 
+                    session='areas' isSelected={'areas' == sessionType} />
+                <SessionItem icon={<BarChartOutlinedIcon style={iconStyle} />} label={'Qualis'} 
+                    session='qualis' isSelected={'qualis' == sessionType} />
+                <SessionItem icon={<BadgeOutlinedIcon style={iconStyle} />} label={'Docente'} 
+                    session='professors' isSelected={'professors' == sessionType} />
+                <SessionItem icon={<SchoolOutlinedIcon style={iconStyle} />} label={'Discente'} 
+                    session='students' isSelected={'students' == sessionType} />
             </ul>
         </div>
     )

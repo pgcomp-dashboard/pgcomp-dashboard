@@ -1,18 +1,20 @@
 import styles from './SessionPanel.module.css';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface SessionPanelProps {
     label: string;
     icon: any,
     session: string,
-    setSelectedSession: any,
+    // setSelectedSession: any,
     isSelected: boolean
 }
 
-function SessionPanel({ label, icon, session, setSelectedSession, isSelected }: SessionPanelProps) {
+function SessionPanel({ label, icon, session, isSelected }: SessionPanelProps) {
     const style = isSelected ? { color: 'yellow', marginLeft: '7px' } : { marginLeft: '7px' };
+    const navigate = useNavigate()
     return (
-        <li onClick={() => setSelectedSession(session)} className={styles['SessionPanel']}>
+        <li onClick={() => navigate(session, {replace: false})} className={styles['SessionPanel']}>
             {icon}
 
             <span style={style}>
