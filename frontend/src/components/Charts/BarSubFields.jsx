@@ -4,6 +4,7 @@ import { Bar } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Utils from '../../Utils.js'
+import { useNavigate } from 'react-router-dom';
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -14,6 +15,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 function PieChart({ filter, type }) {
     const [chartData, setChartData] = useState(null);
     const [backgroundColors, setBackgroundColors] = useState(null);
+    const history = useNavigate();
 
     const options = {
         elements: {
@@ -73,10 +75,30 @@ function PieChart({ filter, type }) {
                             borderColor: !backgroundColors ? newBackgroundColors : backgroundColors,
                             borderWidth: 1
                         }]
-                };
+                }
+
+                
 
                 setChartData(pieData)
 
+            })
+
+            .catch((error) => {
+
+                if(error.response.status == 500){
+                    history('/erro')
+                    console.log(error)
+                }
+
+                else if(error.response.status == 404){
+                    history('/*')
+                    console.log(error)
+                }
+                
+                else{
+                    console.log(error)
+                }
+                
             });
     }
 
