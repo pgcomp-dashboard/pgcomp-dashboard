@@ -1,4 +1,4 @@
-import { List } from '@mui/material';
+import { List, Pagination } from '@mui/material';
 import { useState, useEffect, useContext } from 'react';
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
@@ -8,7 +8,7 @@ import Utils from '../../Utils'
 import { AuthContext } from '../../providers/AuthProvider';
 import React from 'react';
 import { api } from '../../services/api';
-import { useMatch } from 'react-router-dom';
+import { useMatch, useSearchParams } from 'react-router-dom';
 
 // interface SessionProps {
 //     type?: string;
@@ -17,11 +17,16 @@ import { useMatch } from 'react-router-dom';
 function Session() {
     const [modalOpened, setModalOpened] = useState(false);
     const { token, change } = useContext(AuthContext);
+    const [totalPages, setTotalPage] = useState(0)
+    const [searchParams, setSearchParams] = useSearchParams();
+
 
     const [sessionItems, setSessionItems] = useState([]);
 
-    const match = useMatch(":sessionType/*")
-    const sessionType = match?.params.sessionType || "areas"
+    const match = useMatch(":sessionType/*");
+    const sessionType = match?.params.sessionType || "areas";
+
+    const showAdd = sessionType === 'areas';
 
     const handleModalOpen = () => {
         setModalOpened(true);
@@ -37,28 +42,36 @@ function Session() {
     ]
 
     const getData = () => {
-            api.get(sessionType).then((response: any) => {
-                if (response && response.status === 200 && response.data.data){
-                    setSessionItems(response.data.data);
-                }
-            });
+        api.get((sessionType === 'areas' ? 'all_subareas_per_area' : sessionType), {params: { page: searchParams.get('page')}}).then((response: any) => {
+            if (response && response.status === 200) {
+                setSessionItems(response.data.data ? response.data.data : response.data);
+                setTotalPage(response.data.last_page)
+            }
+        });
     }
 
     useEffect(() => {
         getData();
-    }, [sessionType, change]);
-
-    console.log(sessionItems);
+    }, [sessionType, change, searchParams]);
 
     return (
         <div className={styles['Session']}>
-            <AddSessionItemButton type={Utils.nameTypes[sessionType]} handleOpen={handleModalOpen} />
+            {showAdd ? <AddSessionItemButton type={Utils.nameTypes[sessionType]} handleOpen={handleModalOpen} /> : null}
             <List disablePadding>
                 {sessionItems && sessionItems.length ?
                     sessionItems.map((sessionItem: any) => {
-                        return <SessionItem {...sessionItem} type={sessionType} children={mockedChilds} key={sessionItem.id} />
+                        return <SessionItem {...sessionItem} type={sessionType} children={sessionType === 'areas' ? sessionItem.subareas : []} key={sessionItem.id} />
                     }) : null}
             </List>
+            <Pagination
+                className={styles['pagination']}
+                count={totalPages} 
+                defaultPage={1} 
+                page={Number(searchParams.get("page")) || 1} 
+                onChange={(_,v) => setSearchParams({page: `${v}`})}
+            />
+
+
 
             <SessionItemDialog type={Utils.nameTypes[sessionType]} typeAttr={sessionType} open={modalOpened} handleClose={handleModalClose} />
         </div>
