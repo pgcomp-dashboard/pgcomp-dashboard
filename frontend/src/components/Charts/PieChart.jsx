@@ -4,6 +4,7 @@ import { Pie } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Utils from '../../Utils.js'
+import { useNavigate } from 'react-router-dom';
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -14,6 +15,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 function PieChart({ filter, type }) {
     const [chartData, setChartData] = useState(null);
     const [backgroundColors, setBackgroundColors] = useState(null);
+    const history = useNavigate();
 
     const options = {
         maintainAspectRatio: false,
@@ -57,7 +59,7 @@ function PieChart({ filter, type }) {
                     labels,
                     datasets:
                         [{
-                            label: 'Students',
+                            label: 'Alunos',
                             data: dataChart,
                             backgroundColor: !backgroundColors ? newBackgroundColors : backgroundColors,
                             borderColor: !backgroundColors ? newBackgroundColors : backgroundColors,
@@ -67,6 +69,24 @@ function PieChart({ filter, type }) {
 
                 setChartData(pieData)
 
+            })
+
+            .catch((error) => {
+
+                if(error.response.status == 500){
+                    history('/erro')
+                    console.log(error)
+                }
+
+                else if(error.response.status == 404){
+                    history('/*')
+                    console.log(error)
+                }
+                
+                else{
+                    console.log(error)
+                }
+                
             });
     }
 
