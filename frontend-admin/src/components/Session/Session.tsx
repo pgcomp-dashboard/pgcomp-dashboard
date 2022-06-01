@@ -36,13 +36,8 @@ function Session() {
         setModalOpened(false);
     }
 
-    const mockedChilds = [
-        { name: 'child 1', type: 'qualis' },
-        { name: 'child 2', type: 'qualis' },
-    ]
-
     const getData = () => {
-        api.get((sessionType === 'areas' ? 'all_subareas_per_area' : sessionType), {params: { page: searchParams.get('page')}}).then((response: any) => {
+        api.get((sessionType === 'areas' ? 'all_subareas_per_area' : sessionType), { params: { page: searchParams.get('page') } }).then((response: any) => {
             if (response && response.status === 200) {
                 setSessionItems(response.data.data ? response.data.data : response.data);
                 setTotalPage(response.data.last_page)
@@ -52,23 +47,30 @@ function Session() {
 
     useEffect(() => {
         getData();
-    }, [sessionType, change, searchParams]);
+    }, [sessionType, searchParams]);
 
+
+    useEffect(() => {
+        setTimeout(() => {
+            getData();
+        }, 1000);
+    }, [change]);
+    
     return (
         <div className={styles['Session']}>
             {showAdd ? <AddSessionItemButton type={Utils.nameTypes[sessionType]} handleOpen={handleModalOpen} /> : null}
             <List disablePadding>
                 {sessionItems && sessionItems.length ?
                     sessionItems.map((sessionItem: any) => {
-                        return <SessionItem {...sessionItem} type={sessionType} children={sessionType === 'areas' ? sessionItem.subareas : []} key={sessionItem.id} />
+                        return <SessionItem {...sessionItem} type={sessionType} children={sessionType === 'areas' ? sessionItem.subarea : []} key={sessionItem.id} />
                     }) : null}
             </List>
             <Pagination
                 className={styles['pagination']}
-                count={totalPages} 
-                defaultPage={1} 
-                page={Number(searchParams.get("page")) || 1} 
-                onChange={(_,v) => setSearchParams({page: `${v}`})}
+                count={totalPages}
+                defaultPage={1}
+                page={Number(searchParams.get("page")) || 1}
+                onChange={(_, v) => setSearchParams({ page: `${v}` })}
             />
 
 

@@ -12,6 +12,7 @@ import DeleteItemDialog from '../DeleteItemDialog/DeleteItemDialog';
 import ArticleIcon from '@mui/icons-material/Article';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { useNavigate } from 'react-router-dom';
+import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 
 interface SessionItemProps {
     name?: string,
@@ -47,17 +48,19 @@ function SessionItem(props: any) {
         'students': ["name"]
     }
 
-    const showEdit = props.type === 'areas' || props.type === 'qualis';
+    const showEdit = props.type === 'areas' || props.type === 'subareas' || props.type === 'qualis';
 
-    const showDelete = props.type === 'areas';
+    const showDelete = props.type === 'areas' || props.type === 'subareas';
 
-    const showChildrens = props.type === 'areas';
+    const showChildrens = props.type === 'areas' || props.type === 'subareas';
 
     const showProductions = props.type === 'professors' || props.type === 'students';
 
     const [expandChildren, setExpandChildren] = useState(false);
 
     const [modalOpened, setModalOpened] = useState(false);
+
+    const [subItemModalOpened, setSubItemModalOpened] = useState(false);
 
     const [deleteModalOpened, setDeleteModalOpened] = useState(false);
 
@@ -67,6 +70,14 @@ function SessionItem(props: any) {
 
     const handleModalClose = () => {
         setModalOpened(false);
+    }
+
+    const handleSubItemModalOpen = () => {
+        setSubItemModalOpened(true);
+    }
+
+    const handleSubItemModalClose = () => {
+        setSubItemModalOpened(false);
     }
 
     const handleDeleteModalClose = () => {
@@ -93,7 +104,7 @@ function SessionItem(props: any) {
                         {showProductions ?
                             <>
                                 <ArticleIcon style={iconsStyle} />
-                                <AccountBoxIcon style={iconsStyle} onClick={() => navigate(`/${props.type}/${props.id}`, {replace: false})} />
+                                <AccountBoxIcon style={iconsStyle} onClick={() => navigate(`/${props.type}/${props.id}`, { replace: false })} />
                             </>
                             : null}
                     </div>
@@ -106,16 +117,29 @@ function SessionItem(props: any) {
                 open={modalOpened}
                 handleClose={handleModalClose}
                 id={props.id}
+                areaId={props.area_id}
+                {...props}
                 isEdit={true} />
+
+
+            <SessionItemDialog
+                type={'sub-área'}
+                typeAttr={'subareas'}
+                open={subItemModalOpened}
+                handleClose={handleSubItemModalClose}
+                id={props.id}
+                areaId={props.id}
+                isEdit={false} />
 
             <DeleteItemDialog type={Utils.nameTypes[props.type]} typeAttr={props.type} open={deleteModalOpened} handleClose={handleDeleteModalClose}
                 id={props.id} />
 
 
-
             <Collapse in={expandChildren} timeout="auto" unmountOnExit>
+                {props.isChildren ? null : <AddSessionItemButton type='sub-área' handleOpen={handleSubItemModalOpen} width='50%' />
+                }
                 {props.children ? props.children.map((item: SessionItemProps) => {
-                    return <SessionItem name={item.name} isChildren={true} {...item} type={item.type} />
+                    return <SessionItem name={item.name} isChildren={true} {...item} type='subareas' />
                 }) : null}
             </Collapse>
 
