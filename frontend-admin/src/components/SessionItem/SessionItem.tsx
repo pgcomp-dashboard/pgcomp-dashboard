@@ -135,7 +135,6 @@ function SessionItem(props: any) {
                 id={props.id} />
 
 
-
             <Collapse in={expandChildren} timeout="auto" unmountOnExit>
                 {props.isChildren ? null : <AddSessionItemButton type='sub-área' handleOpen={handleSubItemModalOpen} width='50%' />
                 }

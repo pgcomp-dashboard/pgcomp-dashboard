@@ -27,7 +27,6 @@ function LoginPage(props: any) {
         api.post('https://mate85-api.litiano.dev.br/api/login', {
             email, password
         }).then((response: any) => {
-            console.log(response);
 
             if (response.status === 200) {
 

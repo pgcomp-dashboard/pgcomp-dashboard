@@ -35,7 +35,6 @@ const SessionItemDialog = (props: any) => {
     }
 
     const save = () => {
-        console.log(formFields);
         if (props.isEdit) {
             updateItem({ fields: formFields, type: props.typeAttr, id: props.id })
         } else {
