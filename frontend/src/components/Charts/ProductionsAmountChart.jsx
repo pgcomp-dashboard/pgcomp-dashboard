@@ -13,6 +13,7 @@ import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
     CategoryScale,
@@ -27,6 +28,7 @@ ChartJS.register(
 function ProductionsAmountChart({ filter }) {
     const [chartData, setChartData] = useState(null);
     const [publisherType, setPublisherType] = useState(null);
+    const history = useNavigate();
 
     const options = {
         type: 'line',
@@ -91,6 +93,23 @@ function ProductionsAmountChart({ filter }) {
                 }
 
                 setChartData(productionsData);
+            })
+            .catch((error) => {
+
+                if(error.response.status == 500){
+                    history('/erro')
+                    console.log(error)
+                }
+
+                else if(error.response.status == 404){
+                    history('/*')
+                    console.log(error)
+                }
+                
+                else{
+                    console.log(error)
+                }
+                
             });
     }
 
