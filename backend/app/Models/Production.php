@@ -89,6 +89,11 @@ class Production extends BaseModel
         return $this->belongsToMany(User::class, 'users_productions', 'productions_id', 'users_id');
     }
 
+    public function isWroteByT($user): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'users_productions', 'productions_id', 'users_id');
+    }
+
     public function publisher(): MorphTo
     {
         return $this->morphTo();
