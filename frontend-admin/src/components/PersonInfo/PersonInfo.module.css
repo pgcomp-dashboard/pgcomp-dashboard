@@ -1,0 +1,20 @@
+.PersonInfo {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.person__info {
+    width: 100%;
+    height: 100%;
+}
+
+.person__info p {
+    font-size: 20px;;
+}
+
+.upload__section {
+    margin-top: 30px;
+    text-align: right;
+}
