@@ -5,13 +5,14 @@ import React from 'react';
 
 interface AddSessionItemProps {
     type: string,
-    handleOpen: any
+    handleOpen: any,
+    width?: string
 }
 
 function AddSessionItemButton(props: AddSessionItemProps) {
     return (
         <div className={styles['AddSessionItemButton']}>
-            <Button variant="outlined" startIcon={<AddIcon />} sx={{ width: '100%' }} onClick={props.handleOpen}>
+            <Button variant="outlined" startIcon={<AddIcon />} sx={{ width: props.width ?? '100%' }} onClick={props.handleOpen}>
                 Adicionar {props.type}
             </Button>
         </div>

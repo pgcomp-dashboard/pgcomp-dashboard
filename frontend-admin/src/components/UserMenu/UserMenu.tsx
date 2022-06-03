@@ -18,7 +18,7 @@ function UserMenu() {
 
     useEffect(() => {
             api.get('https://mate85-api.litiano.dev.br/api/user').then(response => {
-            setUsername(response.data.name)
+            setUsername(response.data.name.split(" ")[0])
         })
     }, [token])
 
@@ -28,9 +28,12 @@ function UserMenu() {
     
     const handleClose = () => {
         setAnchorEl(null);
+    };
+
+    const logout = () => {
         setToken("");
         localStorage.removeItem("token");
-    };
+    }
 
     return (
         <div className={styles['UserMenu']}>
@@ -59,7 +62,7 @@ function UserMenu() {
                 MenuListProps={{
                     'aria-labelledby': 'basic-button',
                 }}>
-                <MenuItem onClick={handleClose}>Sair</MenuItem>
+                <MenuItem onClick={e => {handleClose(); logout()}}>Sair</MenuItem>
             </Menu>
         </div>
     )

@@ -7,13 +7,15 @@ module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.jsx'),
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        filename: 'bundle.js',
+        publicPath: '/'
     },
     resolve: {
         extensions: ['.js', '.jsx'],
     },
     devServer: {
         static: path.resolve(__dirname, 'public'),
+        historyApiFallback: true
     },
     plugins: [
         new HtmlWebpackPlugin({
