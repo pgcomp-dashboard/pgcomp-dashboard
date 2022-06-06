@@ -30,6 +30,7 @@ function ProductionsAmountChart({ filter }) {
     const [publisherType, setPublisherType] = useState(null);
     const history = useNavigate();
 
+    {/*Configurações do chartjs*/}
     const options = {
         type: 'line',
         responsive: true,
@@ -68,6 +69,7 @@ function ProductionsAmountChart({ filter }) {
           }
     }
 
+    //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de linha com o filtro selecionado
     const getData = (selectedFilter = []) => {
         axios.get('https://mate85-api.litiano.dev.br/api/dashboard/all_production', {
             params: {

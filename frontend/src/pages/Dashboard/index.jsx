@@ -20,14 +20,17 @@ function Dashboard() {
 
     return (
         <div>
-
+            {/*rendereiza o header*/}
             <Toolbar setShowBurgerMenu={setShowBurgerMenu} />
 
+            {/*rendereiza o menu hamburguer*/}
             <BurgerMenu showBurgerMenu={showBurgerMenu} />
 
             <Title />
 
             <div className={styles.cards__container}>
+
+                {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Quantidade de produções científicas"
                     minWidth="100%"
                     minHeight="300px"
@@ -36,7 +39,7 @@ function Dashboard() {
                     filterOptions={Utils.universityFilter}
                     chart={ProductionsAmountChart} />
 
-            
+                {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Qualis"
                     minWidth="100%"
                     minHeight="300px"
@@ -45,6 +48,7 @@ function Dashboard() {
                     filterOptions={Utils.universityFilter}
                     chart={QualisChart} />
 
+                {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Alunos por docente"
                     minWidth="100%"
                     minHeight="400px"
@@ -53,6 +57,7 @@ function Dashboard() {
                     filterOptions={Utils.studentsFilter}
                     chart={StudentsPerTeacherChart} />
 
+                {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Alunos por área"
                     minWidth="100%"
                     minHeight="350px"
@@ -62,7 +67,8 @@ function Dashboard() {
                     icon={PieChartIcon}
                     filterOptions={Utils.studentsFilter}
                     chart={StudentsPerFieldChart} />
-
+                
+                {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Alunos por subárea"
                     minWidth="100%"
                     minHeight="350px"

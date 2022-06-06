@@ -36,6 +36,7 @@ function ProductionPerStudentChart({ filter }) {
     const [publisherType, setPublisherType] = useState(null);
     const history = useNavigate();
 
+    {/* configurações do gráfico Chart.js*/ }
     const options = {
         elements: {
             bar: {
@@ -63,6 +64,7 @@ function ProductionPerStudentChart({ filter }) {
         'Doutorado': 'rgb(255, 108, 108)'
     }
 
+    
     const getData = (selectedFilter = []) => {
         axios.get('https://mate85-api.litiano.dev.br/api/dashboard/students_production', {
             params: {

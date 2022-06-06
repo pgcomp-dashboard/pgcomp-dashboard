@@ -11,7 +11,8 @@ import AdminPanel from './pages/AdminPanel/AdminPanel';
 import DefaultPage from './pages/DefaultPage/DefaultPage';
 import NewPasswordPage from "./pages/NewPassword/NewPassword";
 import { AuthProvider } from './providers/AuthProvider';
-
+import NotFound from './pages/NotFound';
+import Erro500 from './pages/Erro500';
 function App() {
     
     return (
@@ -30,6 +31,8 @@ function App() {
                         <Route index element={null} />
                     </Route>
                     <Route path="/login" element={<LoginPage/>} />
+                    <Route path="*" element={<NotFound/>} />
+                    <Route path="/erro" element={<Erro500/>} />
                 </Routes>
                 <Footer />
             </div>
