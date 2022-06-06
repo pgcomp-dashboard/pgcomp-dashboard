@@ -17,6 +17,7 @@ function PieChart({ filter, type }) {
     const [backgroundColors, setBackgroundColors] = useState(null);
     const history = useNavigate();
 
+    {/* configurações do gráfico Chart.js*/ }
     const options = {
         maintainAspectRatio: false,
         responsive: true,
@@ -42,7 +43,7 @@ function PieChart({ filter, type }) {
             },
         }
     }
-
+//função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de pizza montado com as cores definidas no newBackgroundColors
     const getData = (selectedFilter = []) => {
         axios.get(`https://mate85-api.litiano.dev.br/api/dashboard/${type}`, { params: { selectedFilter } })
             .then(({ data }) => {

@@ -3,6 +3,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 
+//select de filtro, mostrando ao usuário os filtros disponíveis no Utils.js
 function DefaultFilter({ filter, setFilter, options }) {
     return (
         <>

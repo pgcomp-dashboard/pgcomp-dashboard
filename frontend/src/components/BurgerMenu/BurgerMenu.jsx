@@ -3,6 +3,7 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import PieChartIcon from '@mui/icons-material/PieChart';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 
+// menu hamburguer  que recebe um state para abrir e fechar ao clicar
 function BurgerMenu({ showBurgerMenu }) {
     const styleIn = {
         transform: "translateX(100%)",
