@@ -1,21 +1,32 @@
 .footer__ufba {
     position: relative;
-    left: 0;
-    bottom: 0;
-    background-color: #0B3665;
     width: 100%;
     color: white;
-    height: 18vh;
-    padding: 10px;
-}
-
-.footer__left {
-    margin-left: 15%;
-    float: left;
+    display: flex;
+    background: #0B3665;
+    justify-content: space-between;
+    padding: 0 200px;
+    height: 30vh;
+    align-items: center;
+    
 }
 
 .footer__right {
-    margin-right: 15%;
     margin-top: 3vh;
-    float: right;
+}
+
+.footer__left a:link {
+    color: white;
+    text-decoration: none;
+  }
+  
+  /* visited link */
+.footer__left a:visited {
+    color: white;
+}
+  
+  /* mouse over link */
+.footer__left a:hover {
+    color: rgb(172, 172, 172);
+    transition: 0.3s;
 }
