@@ -1,8 +1,6 @@
 .login_page {
   display: flex;
   height: 70vh;
-  justify-content: space-between;
-  padding: 0 200px;
  
 }
 
@@ -10,6 +8,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  width: 50%;
   
 }
 
@@ -109,7 +109,10 @@
 
 .login_page__hero{
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  width: 50%;
 }
 
 

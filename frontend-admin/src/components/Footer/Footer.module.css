@@ -5,14 +5,29 @@
     display: flex;
     background: #0B3665;
     justify-content: space-between;
-    padding: 0 200px;
-    height: 30vh;
+    height: 25vh;
     align-items: center;
     
 }
 
 .footer__right {
-    margin-top: 3vh;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer__left{
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+.footer__left h2,h3,h5{
+    height: 10px;
 }
 
 .footer__left a:link {
