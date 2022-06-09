@@ -10,11 +10,7 @@ function Footer() {
     <footer className={styles.footer__ufba}>
       <div className={styles.footer__left}>
         <h2>Universidade Federal da Bahia</h2>
-        <h5>
-          Avenida Milton Santos, s\n - Campus de Ondina, PAF 2 <br /> CEP:
-          40.170-110 Salvador-Bahia{" "}
-        </h5>
-
+        <h5>Avenida Milton Santos, s\n - Campus de Ondina, PAF 2 <br /> CEP: 40.170-110 Salvador-Bahia </h5>
         <h3><a href="https://www.ufba.br" target="__blank">Site Oficial</a>  |  <a href="https://www.ufba.br/contatos" target="__blank">Contato</a> |  <a href="https://www.ufba.br/historico" target="__blank">Sobre a UFBA </a></h3>
       </div>
 
