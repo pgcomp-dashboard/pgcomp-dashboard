@@ -592,4 +592,13 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return $belongsToMany;
     }
+
+    public function findUserSubareas($id){
+        $user = User::findOrFail($id);
+        $user['subareas'] = User::where('users.id', '=' , $id)
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'subareas.id', '=', 'users_subareas.subareas_id')
+            ->get(['users_subareas.subareas_id', 'subareas.subarea_name']);
+        return $user;
+    }
 }

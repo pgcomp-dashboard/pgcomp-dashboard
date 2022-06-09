@@ -28,6 +28,10 @@ class ProfessorController extends BaseApiResourceController
         return $professor;
     }
 
+    public function show(int $id){
+        return (new \App\Models\User)->findUserSubareas($id);
+    }
+
     protected function newBaseQuery(): Builder
     {
         return parent::newBaseQuery()->where('type', UserType::PROFESSOR);
