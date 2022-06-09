@@ -117,7 +117,9 @@ Este projeto é divido em quatro partes:
 ### Pré-requisitos
 
 Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
-[Git](https://git-scm.com), [Docker](https://www.docker.com/). 
+[Git](https://git-scm.com), [Docker](https://www.docker.com/).
+
+**OBSERVAÇÃO:** Caso esteja usando Windows, você deverá [instalar o WSL 2](https://docs.microsoft.com/pt-br/windows/wsl/install) para emular um terminal Linux.
 
 #### :cloud: Instalando Git e Docker
 

@@ -17,6 +17,7 @@ function PieChart({ filter, type }) {
     const [backgroundColors, setBackgroundColors] = useState(null);
     const history = useNavigate();
 
+    {/* configurações do gráfico Chart.js*/ }
     const options = {
         elements: {
             bar: {
@@ -52,7 +53,8 @@ function PieChart({ filter, type }) {
             },
         }
     }
-
+    
+    //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias geradas pelo newBackgroundColors
     const getData = (selectedFilter = []) => {
         axios.get(`https://mate85-api.litiano.dev.br/api/dashboard/${type}`, { params: { selectedFilter } })
             .then(({ data }) => {

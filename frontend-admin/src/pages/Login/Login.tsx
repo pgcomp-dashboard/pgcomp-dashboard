@@ -60,9 +60,9 @@ function LoginPage(props: any) {
 
                     <button onClick={handleLogin}>Acessar</button>
 
-                    <a target="_blank" href="#!" rel="noreferrer">
+                    {/*<a target="_blank" href="#!" rel="noreferrer">
                         Esqueceu a senha?
-                    </a>
+                    </a>*/}
                 </div>
             </div>
 

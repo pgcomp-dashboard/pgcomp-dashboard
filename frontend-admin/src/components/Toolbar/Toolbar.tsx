@@ -7,7 +7,7 @@ function Toolbar(){
     const className = styles['nav__toolbar'];
     return (
         <div className={className}>
-            <div>
+            <div className = {styles['nav__img']}>
                 <a href='https://mate85.litiano.dev.br/'>
                     <img src={icLogo} height={70} />
                 </a>
