@@ -7,6 +7,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -57,6 +58,11 @@ class Subarea extends BaseModel
         return $this->belongsTo(Area::class, 'area_id');
     }
 
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'users_subareas','subareas_id', 'users_id');
+    }
+
     public function updateRules(): array
     {
         return [
@@ -68,11 +74,6 @@ class Subarea extends BaseModel
                 'required',
             ],
         ];
-    }
-
-    public function users(): HasMany
-    {
-        return $this->hasMany(User::class, 'subarea_id', 'id');
     }
 
     public function students(): HasMany

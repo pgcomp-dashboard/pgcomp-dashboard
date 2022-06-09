@@ -14,4 +14,30 @@ class UserController extends BaseApiResourceController
         return User::class;
     }
 
+    public function store(Request $request)
+    {
+        $user = parent::store($request);
+        $subareas = $request->input("subareas");
+        $this->saveSubareas($user, $subareas);
+        return $user;
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $user = parent::update($request, $id);
+        $subareas = $request->input("subareas");
+        $this->saveSubareas($user, $subareas);
+        return $user;
+    }
+
+    public function saveUserSubarea(){
+        $data = User::whereNotNull('subarea_id')->get(['id', 'subarea_id']);
+        return (new \App\Models\User)->saveUsersSubareas($data);
+    }
+
+    protected function saveSubareas($user, $subareas){
+        foreach($subareas as $subarea)
+            $user->subareas()->sync($subarea);
+    }
+
 }

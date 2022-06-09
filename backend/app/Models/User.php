@@ -209,6 +209,16 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
     }
 
+    public function subareas(): BelongsToMany
+    {
+        return $this->belongsToMany(Subarea::class, 'users_subareas', 'users_id', 'subareas_id');
+    }
+
+    public function subarea(): BelongsTo
+    {
+        return $this->belongsTo(Subarea::class, 'subarea_id');
+    }
+
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class, 'program_id');
@@ -241,7 +251,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return [
             'name' => 'string|max:255',
-            'subarea' => [
+            'subarea_id' => [
                 'nullable',
                 'int',
                 Rule::exists(Subarea::class, 'id')
@@ -279,6 +289,13 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     {
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
             ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
+    }
+
+    public function saveUsersSubareas($data){
+        foreach($data as $userSubarea){
+            $localUser = User::find($userSubarea['id']);
+            $localUser->subareas()->attach($userSubarea['subarea_id']);
+        }
     }
 
     public function subareasMasterFilter(): array
