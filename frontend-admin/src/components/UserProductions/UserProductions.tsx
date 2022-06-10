@@ -6,27 +6,34 @@ import { api } from "../../services/api";
 import styles from "./UserProductions.module.css"
 import EditProductionDialog from "./EditProductionDialog";
 
-interface ProductionProps {
+export interface ProductionProps {
   id: number,
   title: string,
   year: number,
   publisher_id: number,
   publisher_type: string,
+  publisher_name: string,
   name: string,
   doi: string,
   last_qualis: string,
-  handleOpen: React.Dispatch<React.SetStateAction<boolean>>
+  handleOpen: (production: ProductionProps) => void
 }
 
 
 
 export default function UserProductions(){
   const [productions, setProductions] = useState<ProductionProps[]>([]);
+  const [selectedProduction, setSelectedProduction] = useState<ProductionProps>({id: 0, title: "", year: 0, publisher_id: 0, publisher_type: "", name: "", doi: "", last_qualis: "", handleOpen: () => {}})
   const [totalPages, setTotalPage] = useState(0)
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false)
   const {pathname} = useLocation()
   const match = useMatch(":userType/*")
+
+  const handleOpenEdit = (production : ProductionProps) => {
+    setSelectedProduction(production);
+    setModalOpen(true);
+  }
 
   const userType = {
     "professors" : "docente",
@@ -47,7 +54,7 @@ export default function UserProductions(){
       <h4>Publicações do {userType[match?.params.userType as UserKey]}</h4>
       <List>
         {productions.map(item => (
-            <ProductionDetails key={item.id} {...item} handleOpen={setModalOpen}/>
+            <ProductionDetails key={item.id} {...item} handleOpen={handleOpenEdit}/>
         ))}
       </List>
       <Pagination
@@ -57,7 +64,11 @@ export default function UserProductions(){
         page={Number(searchParams.get("page"))} 
         onChange={(_,v) => setSearchParams({page: `${v}`})}
       />
-      <EditProductionDialog modalOpen={modalOpen} setModalOpen={setModalOpen} />
+      <EditProductionDialog 
+        modalOpen={modalOpen} 
+        setModalOpen={setModalOpen}
+         production={selectedProduction}
+        />
     </div>
   )
 }
@@ -76,9 +87,9 @@ function ProductionDetails(props: ProductionProps){
         <p>Autores: {props.name} </p>
         <p>Doi:{props.doi}</p>
         <p>Nota Qualis: {props.last_qualis}</p>
-        <p>Publicação: </p>
+        <p>Publicação: {props.publisher_name}</p>
       </div>
-      <EditIcon style={iconsStyle} onClick={() => props.handleOpen(true)}/>
+      <EditIcon style={iconsStyle} onClick={() => props.handleOpen(props)}/>
     </ListItem>
   )
 }
