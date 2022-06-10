@@ -328,7 +328,16 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             $course_id = 2;
         }
 
-        if($course_id > 0) {
+        if($course_id == 0 && $selectedFilter != 'completed'){
+            $data = DB::table('users')
+                ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+                ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+                ->join('areas', 'areas.id', '=', 'subareas.area_id')
+                ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+                ->where('users.type', '=', UserType::STUDENT)
+                ->groupBy('areas.area_name')
+                ->get();
+        }elseif($course_id > 0) {
             $data = DB::table('users')
                 ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
                 ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
