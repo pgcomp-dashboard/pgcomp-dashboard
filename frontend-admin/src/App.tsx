@@ -24,10 +24,11 @@ function App() {
                         <Route path='areas' element={<Session />} />
                         <Route path='qualis' element={<Session />} />
                         <Route path='professors' element={<Session />} />
+                        <Route path='professors/:id' element={<PersonInfo />} /> 
                         <Route path="professors/:id/productions" element={<UserProductions />} />
-                        <Route path="students/:id/productions" element={<UserProductions />} />
                         <Route path='students' element={<Session />} />
                         <Route path='students/:id' element={<PersonInfo />} /> 
+                        <Route path="students/:id/productions" element={<UserProductions />} />
                         <Route index element={null} />
                     </Route>
                     <Route path="/login" element={<LoginPage/>} />
