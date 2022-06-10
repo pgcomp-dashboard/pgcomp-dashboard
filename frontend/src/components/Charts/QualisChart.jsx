@@ -11,6 +11,7 @@ import {
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
     CategoryScale,
@@ -24,6 +25,7 @@ ChartJS.register(
 function QualisChart({ filter }) {
     const [chartData, setChartData] = useState(null);
     const [publisherType, setPublisherType] = useState(null);
+    const history = useNavigate();
 
     const qualisCategoriesColors = {
         'A1': '#7CBB00',
@@ -67,7 +69,7 @@ function QualisChart({ filter }) {
               }
         }
     }
-
+//função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de Qualis montado com as cores definidas no qualisCategoriesColors
     const getData = (selectedFilter = []) => {
         const endpointFilter = selectedFilter && !(Array.isArray(selectedFilter)) && selectedFilter !== 'default' ? '/' + qualisFilters[selectedFilter] : '';
         const url = 'https://mate85-api.litiano.dev.br/api/dashboard/production_per_qualis'
@@ -99,6 +101,23 @@ function QualisChart({ filter }) {
                 };
 
                 setChartData(qualisData);
+            })
+            .catch((error) => {
+
+                if(error.response.status == 500){
+                    history('/erro')
+                    console.log(error)
+                }
+
+                else if(error.response.status == 404){
+                    history('/*')
+                    console.log(error)
+                }
+                
+                else{
+                    console.log(error)
+                }
+                
             });
     }
 

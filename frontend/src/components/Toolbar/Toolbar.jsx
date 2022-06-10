@@ -2,7 +2,7 @@ import styles from './Toolbar.module.css'
 import icLogo from '../../assets/ic_logo.png'
 import { useState } from 'react'
 
-
+//função que verifica o estado de clique do menu hamburguer
 function Toolbar({ setShowBurgerMenu }) {
     const [toggleClass, setToggleClass] = useState('');
 

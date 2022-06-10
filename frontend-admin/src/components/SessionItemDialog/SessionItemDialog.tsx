@@ -2,8 +2,9 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/
 import React, { useState } from "react"
 import { useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
-import { createItem, updateItem, updateItemRefactor } from '../../services/ItemsService';
-import {AreaForm, QualisForm} from "../../forms"
+import { createItem, updateItem } from '../../services/ItemsService';
+import { AreaForm, QualisForm } from "../../forms"
+import { SubAreaForm } from "../../forms/SubAreaForm";
 
 interface SessionItemDialogProps {
     open: boolean,
@@ -18,13 +19,12 @@ interface SessionItemDialogProps {
 }
 
 const SessionItemDialog = (props: any) => {
-    const [itemName, setItemName] = useState(props.fields);
     const [formFields, setFormFields] = useState({});
 
     const { token, change, setChange } = useContext(AuthContext);
-
     const forms: any = {
         'areas': <AreaForm areaName={props.area_name} setFormFields={setFormFields} />,
+        'subareas': <SubAreaForm subAreaName={props.subarea_name} areaId={props.areaId} id={props.id} setFormFields={setFormFields} />,
         'qualis': <QualisForm score={props.score} setFormFields={setFormFields} />
     }
 
@@ -36,10 +36,9 @@ const SessionItemDialog = (props: any) => {
 
     const save = () => {
         if (props.isEdit) {
-            // updateItem(config, props.typeAttr, {name: itemName, id: props.id});
-            updateItemRefactor({fields: formFields, type: props.typeAttr, id: props.id})
+            updateItem({ fields: formFields, type: props.typeAttr, id: props.id })
         } else {
-            createItem(config, props.typeAttr, {name: itemName});
+            createItem(config, props.typeAttr, formFields);
         }
 
         setChange(change + 1);

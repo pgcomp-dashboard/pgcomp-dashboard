@@ -13,9 +13,24 @@ class StudentController extends BaseApiResourceController
 {
     public function store(Request $request)
     {
-        $request->merge(['type' => UserType::STUDENT->value]);
+        $user = User::createOrUpdateStudent($request->all());
+        $advisor = $request->input("advisor_id");
+        $subareas = $request->input("subareas");
+        $user->advisors()->sync($advisor);
+        $this->saveSubareas($user, $subareas);
+        return $user;
+    }
 
-        return parent::store($request);
+    public function update(Request $request, int $id)
+    {
+        $user = parent::update($request, $id);
+        $subareas = $request->input("subareas");
+        $this->saveSubareas($user, $subareas);
+        return $user;
+    }
+
+    public function show(int $id){
+        return (new \App\Models\User)->findUserSubareas($id);
     }
 
     protected function newBaseQuery(): Builder
@@ -26,5 +41,10 @@ class StudentController extends BaseApiResourceController
     protected function modelClass(): string|BaseModel
     {
         return User::class;
+    }
+
+    protected function saveSubareas($user, $subareas){
+        foreach($subareas as $subarea)
+        $user->subareas()->sync($subarea);
     }
 }

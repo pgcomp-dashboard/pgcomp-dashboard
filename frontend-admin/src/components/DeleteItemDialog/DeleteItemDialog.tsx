@@ -14,7 +14,7 @@ interface DeleteItemDialogProps {
 }
 
 function DeleteItemDialog(props: DeleteItemDialogProps) {
-    const { token } = useContext(AuthContext);
+    const { token, change, setChange } = useContext(AuthContext);
 
     const config: any = {
         headers: {
@@ -24,6 +24,7 @@ function DeleteItemDialog(props: DeleteItemDialogProps) {
 
     const deleteFn = () => {
         deleteItem(config, props.typeAttr, props.id);
+        setChange(change + 1);
     }
 
     return (

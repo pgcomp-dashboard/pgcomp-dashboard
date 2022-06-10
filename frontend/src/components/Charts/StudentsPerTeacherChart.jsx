@@ -13,6 +13,7 @@ import { map } from 'lodash';
 import { useEffect, useState } from 'react';
 import Utils from '../../Utils.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
     CategoryScale,
@@ -26,6 +27,7 @@ ChartJS.register(
 
 function StudentsPerTeacherChart({ filter }) {
     const [chartData, setChartData] = useState(null);
+    const history = useNavigate();
 
     const options = {
         elements: {
@@ -61,8 +63,10 @@ function StudentsPerTeacherChart({ filter }) {
           }
     }
 
+    //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias
     const getData = (selectedFilter = []) => {
-        axios.get('https://mate85-api.litiano.dev.br/api/dashboard/total_students_per_advisor', { params: { user_type: selectedFilter } }).then(({ data }) => {
+        axios.get('https://mate85-api.litiano.dev.br/api/dashboard/total_students_per_advisor', { params: { user_type: selectedFilter } })
+        .then(({ data }) => {
             const labels = map(data, 'name');
 
             const teachersData = {
@@ -76,6 +80,24 @@ function StudentsPerTeacherChart({ filter }) {
             };
 
             setChartData(teachersData);
+        })
+
+        .catch((error) => {
+
+            if(error.response.status == 500){
+                history('/erro')
+                console.log(error)
+            }
+
+            else if(error.response.status == 404){
+                history('/*')
+                console.log(error)
+            }
+            
+            else{
+                console.log(error)
+            }
+            
         });
     }
 

@@ -17,28 +17,23 @@ class AreaController extends BaseApiResourceController
 
     public function destroy(int $id)
     {
-        $areas = Area::where('id', $id)->withCount(['users'])->get();
-        if(count($areas) > 0 and $areas[0]->users_count == 0){
+        $msg = "Operação não pode ser concluída: usuários cadastrados com essa área";
+
+        $areas = Area::where('id', $id)->withCount(['usersInSubarea'])->get();
+        if(count($areas) > 0 and $areas[0]->users_in_subarea_count == 0){
             $areas = Area::where('id', $id)->with('subarea')->get();
             foreach($areas[0]->subarea as $subarea){
                 Subarea::deleteInstance($subarea->id);
             }
             return parent::destroy($id);
+        }elseif(count($areas) == 0){
+            return abort(406, "área não cadastrada");
         }else{
-            return abort(406);
+            return abort(406, $msg);
         }
     }
 
     public function subareaPerArea(){
-        $areas = Area::with('subarea')->get();
-        $data = [];
-        foreach($areas as $area){
-           $subareasName = [];
-           foreach($area->subarea as $subarea){
-               $subareasName[] = ['subarea_name' => $subarea->subarea_name];
-           }
-           $data[] = array_merge(["area_name" => $area->area_name], ["subareas" => $subareasName]);
-        }
-        return $data;
+        return Area::with('subarea')->get();
     }
 }

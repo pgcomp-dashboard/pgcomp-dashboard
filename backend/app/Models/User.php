@@ -125,7 +125,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     protected $hidden = [
         'password',
         'remember_token',
-        'is_admin',
         'two_factor_recovery_codes',
         'two_factor_secret',
         'email_verified_at',
@@ -210,6 +209,16 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
     }
 
+    public function subareas(): BelongsToMany
+    {
+        return $this->belongsToMany(Subarea::class, 'users_subareas', 'users_id', 'subareas_id');
+    }
+
+    public function subarea(): BelongsTo
+    {
+        return $this->belongsTo(Subarea::class, 'subarea_id');
+    }
+
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class, 'program_id');
@@ -242,7 +251,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return [
             'name' => 'string|max:255',
-            'subarea' => [
+            'subarea_id' => [
                 'nullable',
                 'int',
                 Rule::exists(Subarea::class, 'id')
@@ -282,11 +291,19 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->wherePivot('relation_type', UserRelationType::CO_ADVISOR);
     }
 
+    public function saveUsersSubareas($data){
+        foreach($data as $userSubarea){
+            $localUser = User::find($userSubarea['id']);
+            $localUser->subareas()->attach($userSubarea['subarea_id']);
+        }
+    }
+
     public function subareasMasterFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
-            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users_subareas.subareas_id) as subarea_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.course_id', '=', 1)
             ->groupBy('subareas.subarea_name')
@@ -302,10 +319,61 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return [$dataSubfields, $dataCount];
     }
 
+    public function areasFilter($selectedFilter): array
+    {
+        $course_id = 0;
+        if ($selectedFilter === 'mestrando') {
+            $course_id = 1;
+        } elseif ($selectedFilter === 'doutorando') {
+            $course_id = 2;
+        }
+
+        if($course_id == 0 && $selectedFilter != 'completed'){
+            $data = DB::table('users')
+                ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+                ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+                ->join('areas', 'areas.id', '=', 'subareas.area_id')
+                ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+                ->where('users.type', '=', UserType::STUDENT)
+                ->groupBy('areas.area_name')
+                ->get();
+        }elseif($course_id > 0) {
+            $data = DB::table('users')
+                ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+                ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+                ->join('areas', 'areas.id', '=', 'subareas.area_id')
+                ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+                ->where('users.type', '=', UserType::STUDENT)
+                ->where('users.course_id', '=', $course_id)
+                ->groupBy('areas.area_name')
+                ->get();
+        }elseif($selectedFilter === 'completed'){
+            $data = DB::table('users')
+                ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+                ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+                ->join('areas', 'areas.id', '=', 'subareas.area_id')
+                ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
+                ->where('users.type', '=', UserType::STUDENT)
+                ->whereNotNull('defended_at')
+                ->groupBy('areas.area_name')
+                ->get();
+        }
+
+        $dataFields = [];
+        $dataCount = [];
+        for ($counter = 0; $counter < count($data); $counter++) {
+            $dataFields[$counter] = $data[$counter]->area_name;
+            $dataCount[$counter] = $data[$counter]->area_count;
+        }
+
+        return [$dataFields, $dataCount];
+    }
+
     public function areasMasterFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
             ->join('areas', 'areas.id', '=', 'subareas.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
@@ -326,7 +394,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasDoctorFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
             ->join('areas', 'areas.id', '=', 'subareas.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
@@ -347,8 +416,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function subareasDoctorFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
-            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users_subareas.subareas_id) as subarea_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.course_id', '=', 2)
             ->groupBy('subareas.subarea_name')
@@ -368,7 +438,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasActiveFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
             ->join('areas', 'areas.id', '=', 'subareas.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
@@ -389,8 +460,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function subareasActiveFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
-            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users_subareas.subareas_id) as subarea_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '=', null)
             ->groupBy('subareas.subarea_name')
@@ -409,7 +481,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasNotActiveFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
             ->join('areas', 'areas.id', '=', 'subareas.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
@@ -430,8 +503,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function subareasNotActiveFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
-            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users_subareas.subareas_id) as subarea_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '!=', null)
             ->groupBy('subareas.subarea_name')
@@ -451,7 +525,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasCompletedFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
             ->join('areas', 'areas.id', '=', 'subareas.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
@@ -472,8 +547,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function subareasCompletedFilter(): array
     {
         $data = DB::table('users')
-            ->join('subareas', 'users.subarea_id', '=', 'subareas.id')
-            ->select(DB::raw('subareas.subarea_name, count(users.subarea_id) as subarea_count'))
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
+            ->select(DB::raw('subareas.subarea_name, count(users_subareas.subareas_id) as subarea_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '!=', null)
             ->groupBy('subareas.subarea_name')
@@ -575,5 +651,14 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         ;
 
         return $belongsToMany;
+    }
+
+    public function findUserSubareas($id){
+        $user = User::findOrFail($id);
+        $user['subareas'] = User::where('users.id', '=' , $id)
+            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
+            ->join('subareas', 'subareas.id', '=', 'users_subareas.subareas_id')
+            ->get(['users_subareas.subareas_id', 'subareas.subarea_name']);
+        return $user;
     }
 }

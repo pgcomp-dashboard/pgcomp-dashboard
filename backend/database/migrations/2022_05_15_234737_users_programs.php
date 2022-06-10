@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('program_id')->constrained();
-            $table->date('started_at');
-            $table->date('finished_at')->nullable();
+            $table->dateTime('started_at');
+            $table->dateTime('finished_at')->nullable();
         });
     }
 

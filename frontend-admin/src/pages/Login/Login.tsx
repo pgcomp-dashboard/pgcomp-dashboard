@@ -27,7 +27,6 @@ function LoginPage(props: any) {
         api.post('https://mate85-api.litiano.dev.br/api/login', {
             email, password
         }).then((response: any) => {
-            console.log(response);
 
             if (response.status === 200) {
 
@@ -61,9 +60,9 @@ function LoginPage(props: any) {
 
                     <button onClick={handleLogin}>Acessar</button>
 
-                    <a target="_blank" href="#!" rel="noreferrer">
+                    {/*<a target="_blank" href="#!" rel="noreferrer">
                         Esqueceu a senha?
-                    </a>
+                    </a>*/}
                 </div>
             </div>
 

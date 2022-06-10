@@ -11,6 +11,7 @@ import {
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
     CategoryScale,
@@ -33,7 +34,9 @@ const generateValues = (numberOfValues) => {
 function ProductionPerStudentChart({ filter }) {
     const [chartData, setChartData] = useState(null);
     const [publisherType, setPublisherType] = useState(null);
+    const history = useNavigate();
 
+    {/* configurações do gráfico Chart.js*/ }
     const options = {
         elements: {
             bar: {
@@ -61,6 +64,7 @@ function ProductionPerStudentChart({ filter }) {
         'Doutorado': 'rgb(255, 108, 108)'
     }
 
+    
     const getData = (selectedFilter = []) => {
         axios.get('https://mate85-api.litiano.dev.br/api/dashboard/students_production', {
             params: {
@@ -87,6 +91,23 @@ function ProductionPerStudentChart({ filter }) {
                 }
 
                 setChartData(productionStudentData);
+            })
+            .catch((error) => {
+
+                if(error.response.status == 500){
+                    history('/erro')
+                    console.log(error)
+                }
+
+                else if(error.response.status == 404){
+                    history('/*')
+                    console.log(error)
+                }
+                
+                else{
+                    console.log(error)
+                }
+                
             });
     }
 

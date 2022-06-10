@@ -13,6 +13,7 @@ import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
     CategoryScale,
@@ -27,7 +28,9 @@ ChartJS.register(
 function ProductionsAmountChart({ filter }) {
     const [chartData, setChartData] = useState(null);
     const [publisherType, setPublisherType] = useState(null);
+    const history = useNavigate();
 
+    {/*Configurações do chartjs*/}
     const options = {
         type: 'line',
         responsive: true,
@@ -66,6 +69,7 @@ function ProductionsAmountChart({ filter }) {
           }
     }
 
+    //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de linha com o filtro selecionado
     const getData = (selectedFilter = []) => {
         axios.get('https://mate85-api.litiano.dev.br/api/dashboard/all_production', {
             params: {
@@ -91,6 +95,23 @@ function ProductionsAmountChart({ filter }) {
                 }
 
                 setChartData(productionsData);
+            })
+            .catch((error) => {
+
+                if(error.response.status == 500){
+                    history('/erro')
+                    console.log(error)
+                }
+
+                else if(error.response.status == 404){
+                    history('/*')
+                    console.log(error)
+                }
+                
+                else{
+                    console.log(error)
+                }
+                
             });
     }
 

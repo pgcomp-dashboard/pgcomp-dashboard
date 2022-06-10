@@ -4,6 +4,7 @@ import { Bar } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Utils from '../../Utils.js'
+import { useNavigate } from 'react-router-dom';
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -14,7 +15,9 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 function PieChart({ filter, type }) {
     const [chartData, setChartData] = useState(null);
     const [backgroundColors, setBackgroundColors] = useState(null);
+    const history = useNavigate();
 
+    {/* configurações do gráfico Chart.js*/ }
     const options = {
         elements: {
             bar: {
@@ -50,7 +53,8 @@ function PieChart({ filter, type }) {
             },
         }
     }
-
+    
+    //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias geradas pelo newBackgroundColors
     const getData = (selectedFilter = []) => {
         axios.get(`https://mate85-api.litiano.dev.br/api/dashboard/${type}`, { params: { selectedFilter } })
             .then(({ data }) => {
@@ -67,16 +71,36 @@ function PieChart({ filter, type }) {
                     labels,
                     datasets:
                         [{
-                            label: 'Students',
+                            label: 'Alunos',
                             data: dataChart,
                             backgroundColor: !backgroundColors ? newBackgroundColors : backgroundColors,
                             borderColor: !backgroundColors ? newBackgroundColors : backgroundColors,
                             borderWidth: 1
                         }]
-                };
+                }
+
+                
 
                 setChartData(pieData)
 
+            })
+
+            .catch((error) => {
+
+                if(error.response.status == 500){
+                    history('/erro')
+                    console.log(error)
+                }
+
+                else if(error.response.status == 404){
+                    history('/*')
+                    console.log(error)
+                }
+                
+                else{
+                    console.log(error)
+                }
+                
             });
     }
 
