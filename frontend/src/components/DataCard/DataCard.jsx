@@ -5,7 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import { useState } from 'react';
 import DefaultFilter from '../Filters/DefaultFilter';
 
-
+//Renderiza o card de gráfico, recebendo alguns dados por props, como: Título, tamanhos, as opções de filtros, ícones e qual gráfico será renderizado
 function DataCard(props) {
     const [filter, setFilter] = useState('default');
     const iconStyle = { width: 50, height: 50 };

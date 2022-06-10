@@ -1,0 +1,31 @@
+.session {
+  width: 100%;
+}
+
+.item {
+  justify-content: space-between;
+}
+
+.item:nth-child(odd) {
+  background-color: #E0E0E0;
+}
+
+.details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.details p{
+  flex: 50%;
+}
+
+.details p:nth-child(1){
+  flex: 100%;
+  font-weight: bold;
+}
+
+.pagination ul {
+  justify-content: center;
+}

@@ -2,10 +2,13 @@ import { useState } from 'react';
 import styles from './ProductionTypeFilter.module.css';
 import { Tooltip } from '@mui/material';
 
+
+//Pega o botao do filtro de publicações clicado e altera para selecionado, retornando o setPublisherType com a opção selecionada e estilizando na cor verde
 function ProductionTypeFilter({ setPublisherType }) {
     const [allClass, setAllClass] = useState(styles['selected']);
     const [journalClass, setJournalClass] = useState('');
     const [conferenceClass, setConferenceClass] = useState('');
+
 
     const addSelectedClass = (button) => {
         switch (button) {

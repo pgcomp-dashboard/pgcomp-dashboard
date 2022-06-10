@@ -1,13 +1,16 @@
 .login_page {
   display: flex;
-  flex: 1;
+  height: 70vh;
+ 
 }
 
 .login_page__action_container {
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  width: 50%;
+  
 }
 
 .login_page__action_container > h1 {
@@ -21,6 +24,7 @@
 .login_page__form {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .login_page__form__input_container {
@@ -81,17 +85,14 @@
 
 .login_page__form > a {
   margin-top: 12px;
-
   font-weight: 300;
   font-size: 12px;
   line-height: 18px;
   text-align: center;
   text-decoration: none;
   color: #044783;
-
   transition-property: color;
   transition-duration: 0.3s;
-
   cursor: pointer;
 }
 
@@ -103,21 +104,15 @@
   display: flex;
   width: 4px;
   min-height: 100%;
-  margin-right: 80px;
-  margin-left: 80px;
-
   background-color: #7a7a7a;
 }
 
-.login_page__hero {
+.login_page__hero{
   display: flex;
-  flex: 1;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
+  width: 50%;
 }
 
-.login_page__hero > img {
-  max-width: 500px;
-  min-width: 400px;
-  margin-right: auto;
-  margin-left: auto;
-}
+

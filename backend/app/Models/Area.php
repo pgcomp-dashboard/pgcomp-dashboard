@@ -95,4 +95,9 @@ class Area extends BaseModel
         return $this->hasManyThrough(User::class, Subarea::class, 'area_id', 'subarea_id')
             ->where('type', UserType::STUDENT);
     }
+
+    public function usersInSubarea(){
+        return $this->hasManyThrough(UsersSubarea::class, Subarea::class,
+            'area_id', 'subareas_id');
+    }
 }
