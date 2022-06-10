@@ -17,7 +17,12 @@ class StudentsController extends Controller
         //        'data' => [12, 3, 5,]];
 
         $selectedFilter = $request->input('selectedFilter');
+        $keyReturnPattern = ['fields', 'data'];
+        $user = new User();
+        $data = $user->areasFilter($selectedFilter);
 
+        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
+        /*
         $filter = function(Builder $builder) use ($selectedFilter) {
             if ($selectedFilter === 'mestrando') {
                 $builder->where('course_id', 1);
@@ -27,6 +32,7 @@ class StudentsController extends Controller
                 $builder->whereNotNull('defended_at');
             }
         };
+
         $areas = Area::withCount([
             'students' => $filter
         ])->whereHas('students', $filter)
@@ -37,6 +43,7 @@ class StudentsController extends Controller
             'fields' => $areas->pluck('area_name')->toArray(),
             'data' => $areas->pluck('students_count')->toArray(),
         ];
+        */
     }
 
 
@@ -56,6 +63,7 @@ class StudentsController extends Controller
                 $builder->whereNotNull('defended_at');
             }
         };
+
         $areas = Subarea::withCount([
             'students' => $filter
         ])->whereHas('students', $filter)
