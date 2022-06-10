@@ -51,7 +51,7 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('subfields', [StudentsController::class, 'studentsSubarea']);
     Route::get('subfields/master', [StudentsController::class,  'studentsMasterDegreeSubareas']);
     Route::get('subfields/doctorate', [StudentsController::class, 'studentsDoctorateDegreeSubareas']);
-    Route::get('subfields/active', [StudentsController::class, 'studentsActiveAreas']);
+    Route::get('subfields/active', [StudentsController::class, 'studentsActiveSubareas']);
     Route::get('subfields/disabled', [StudentsController::class, 'studentsNotActiveSubareas']);
     Route::get('subfields/completed', [StudentsController::class, 'studentsCompletedSubareas']);
 

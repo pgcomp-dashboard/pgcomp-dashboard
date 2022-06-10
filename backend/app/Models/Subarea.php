@@ -63,6 +63,12 @@ class Subarea extends BaseModel
         return $this->belongsToMany(User::class, 'users_subareas','subareas_id', 'users_id');
     }
 
+    public function user(): HasMany
+    {
+        return $this->hasMany(User::class, 'subarea_id', 'id');
+    }
+
+
     public function updateRules(): array
     {
         return [
@@ -76,7 +82,7 @@ class Subarea extends BaseModel
         ];
     }
 
-    public function students(): HasMany
+    public function students()
     {
         return $this->users()->where('type', UserType::STUDENT);
     }
