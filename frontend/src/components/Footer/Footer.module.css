@@ -4,10 +4,16 @@
     background-color: #0B3665;
     color: white;
     display: flex;
+    justify-content: center;
+    padding: 20px 0;
+        
+}
+
+.footer__section{
+    width: 87%;
+    display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 50px 70px;
-    
 }
 
 .footer__left {
@@ -73,6 +79,12 @@
   .footer__right a:active {
     color: white;
   }
+
+  @media (min-width: 1280px){
+    .footer__section{
+        width: 1200px;
+    }
+}
 
   @media (max-width:800px){
       .footer__ufba{
