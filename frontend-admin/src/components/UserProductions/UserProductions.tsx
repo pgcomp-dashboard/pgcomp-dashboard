@@ -12,7 +12,9 @@ export interface ProductionProps {
   year: number,
   publisher_id: number,
   publisher_type: string,
-  publisher: { name: string },
+  publisher: {
+    name: string
+  }
   name: string,
   doi: string,
   last_qualis: string,
@@ -23,7 +25,7 @@ export interface ProductionProps {
 
 export default function UserProductions(){
   const [productions, setProductions] = useState<ProductionProps[]>([]);
-  const [selectedProduction, setSelectedProduction] = useState<ProductionProps>({id: 0, title: "", year: 0, publisher_id: 0, publisher_type: "", publisher: { name: ''}, name: "", doi: "", last_qualis: "", handleOpen: () => {}})
+  const [selectedProduction, setSelectedProduction] = useState<ProductionProps>({id: 0, title: "", year: 0, publisher_id: 0, publisher_type: "", publisher: {name: ""}, name: "", doi: "", last_qualis: "", handleOpen: () => {}})
   const [totalPages, setTotalPage] = useState(0)
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false)
@@ -93,3 +95,4 @@ function ProductionDetails(props: ProductionProps){
     </ListItem>
   )
 }
+
