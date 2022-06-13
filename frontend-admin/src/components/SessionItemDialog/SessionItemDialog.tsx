@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert } from '@mui/material';
 import React, { useState } from "react"
 import { useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
@@ -21,6 +21,14 @@ interface SessionItemDialogProps {
 const SessionItemDialog = (props: any) => {
     const [formFields, setFormFields] = useState({});
 
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+    const closeSnackbar = () => {
+        setSnackbarOpen(false);
+    };
+
     const { token, change, setChange } = useContext(AuthContext);
     const forms: any = {
         'areas': <AreaForm areaName={props.area_name} setFormFields={setFormFields} />,
@@ -34,11 +42,24 @@ const SessionItemDialog = (props: any) => {
         }
     }
 
-    const save = () => {
+    const save = async () => {
+        let response;
         if (props.isEdit) {
-            updateItem({ fields: formFields, type: props.typeAttr, id: props.id })
+            response = await updateItem({ fields: formFields, type: props.typeAttr, id: props.id })
         } else {
-            createItem(config, props.typeAttr, formFields);
+            response = await createItem(config, props.typeAttr, formFields);
+        }
+
+        if (response) {
+            if (response.success) {
+                setSnackbarMessage(response?.message);
+                setSnackbarOpen(true);
+            } else {
+                setSnackbarMessage(response?.message);
+                setSnackbarOpen(true);
+                setSnackbarSeverity('error');
+                return;
+            }
         }
 
         setChange(change + 1);
@@ -46,20 +67,29 @@ const SessionItemDialog = (props: any) => {
 
 
     return (
-        <Dialog open={props.open} onClose={props.handleClose}>
-            <DialogTitle>{props.isEdit ? 'Editar' : 'Adicionar'} {props.type.toLowerCase()}</DialogTitle>
+        <>
+            <Dialog open={props.open} onClose={props.handleClose}>
+                <DialogTitle>{props.isEdit ? 'Editar' : 'Adicionar'} {props.type.toLowerCase()}</DialogTitle>
 
-            <DialogContent>
+                <DialogContent>
 
-                {forms[props.typeAttr]}
+                    {forms[props.typeAttr]}
 
-            </DialogContent>
+                </DialogContent>
 
-            <DialogActions>
-                <Button onClick={props.handleClose}> Cancelar </Button>
-                <Button onClick={() => { save(); props.handleClose(); }}>Salvar</Button>
-            </DialogActions>
-        </Dialog>
+                <DialogActions>
+                    <Button onClick={props.handleClose}> Cancelar </Button>
+                    <Button onClick={() => { save(); props.handleClose(); }}>Salvar</Button>
+                </DialogActions>
+            </Dialog>
+            <Snackbar open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={closeSnackbar}>
+                {snackbarSeverity === 'success' ?
+                    <Alert severity="success" onClose={closeSnackbar} sx={{ width: '100%' }}>{snackbarMessage}</Alert> :
+                    <Alert severity="error" onClose={closeSnackbar} sx={{ width: '100%' }}>{snackbarMessage}</Alert>}
+            </Snackbar>
+        </>
     )
 }
 
