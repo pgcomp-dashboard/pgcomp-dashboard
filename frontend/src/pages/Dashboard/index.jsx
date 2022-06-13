@@ -71,7 +71,7 @@ function Dashboard() {
                 {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Alunos por subárea"
                     minWidth="100%"
-                    minHeight="350px"
+                    minHeight="400px"
                     idSession="students-per-subfield"
                     height="400px"
                     type="subfields"
