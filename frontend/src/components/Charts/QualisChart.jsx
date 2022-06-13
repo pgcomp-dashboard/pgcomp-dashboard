@@ -131,11 +131,28 @@ function QualisChart({ filter }) {
         getData(filter);
     }, [filter, publisherType]);
 
+    const toolTipDatasetStyle= {
+        display: "flex",
+        justifyContent: "flex-start"
+
+    };
+
+    const toolTip = {
+        fontSize: "14px",
+        color: "#3D3D3D",
+        fontWeight: "bold",
+
+        cursor: "pointer",
+    }
+      
     return (
         chartData ?
             <>
                 <ProductionTypeFilter setPublisherType={setPublisherType} />
-                <Bar options={options} data={chartData} />
+                <div style={toolTipDatasetStyle}>
+                    <p style={toolTip}>Clique em alguma categoria para filtrar: </p>
+                </div>
+                <Bar title="Clique sobre o item para filtrar" options={options} data={chartData} />
             </>
             : null
 
