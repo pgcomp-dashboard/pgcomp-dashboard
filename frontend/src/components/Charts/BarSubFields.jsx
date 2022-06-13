@@ -27,7 +27,7 @@ function PieChart({ filter, type }) {
         scales: {
             y: {
                 beginAtZero: true,
-                suggestedMax: 75
+                suggestedMax: 110
             },
         },
         maintainAspectRatio: false,

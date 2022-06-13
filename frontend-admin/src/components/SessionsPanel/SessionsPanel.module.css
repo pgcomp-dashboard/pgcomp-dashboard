@@ -1,7 +1,8 @@
 .SessionsPanel {
     display: flex;
     flex-direction: column;
-    width: 30%;
+    width: 25%;
+    height: fit-content;
     border-radius: 10px;
     background-color:#292929;
     color: white;
@@ -10,15 +11,14 @@
 
 .SessionsPanel ul {
     list-style: none;
-    margin-top: 30px;
-    margin-bottom: 30px;
+    margin: 64px 0 64px 0;
 } 
 
 .SessionsPanel li {
     font-size: 25px;
     line-height: 124px;
-    padding: 10px;
     cursor: pointer;
+    margin: 0;
 }
 
 .SessionsPanel li:hover {
