@@ -82,6 +82,9 @@ class Production extends BaseModel
         static::creating(function (self $production) {
             $production->setQualis();
         });
+        static::updating(function (self $production) {
+            $production->setQualis();
+        });
     }
 
     public function isWroteBy(): BelongsToMany
