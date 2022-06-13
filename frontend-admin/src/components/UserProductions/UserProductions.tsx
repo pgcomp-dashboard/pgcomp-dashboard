@@ -12,7 +12,7 @@ export interface ProductionProps {
   year: number,
   publisher_id: number,
   publisher_type: string,
-  publisher_name: string,
+  publisher: { name: string },
   name: string,
   doi: string,
   last_qualis: string,
@@ -23,7 +23,7 @@ export interface ProductionProps {
 
 export default function UserProductions(){
   const [productions, setProductions] = useState<ProductionProps[]>([]);
-  const [selectedProduction, setSelectedProduction] = useState<ProductionProps>({id: 0, title: "", year: 0, publisher_id: 0, publisher_type: "", publisher_name: '', name: "", doi: "", last_qualis: "", handleOpen: () => {}})
+  const [selectedProduction, setSelectedProduction] = useState<ProductionProps>({id: 0, title: "", year: 0, publisher_id: 0, publisher_type: "", publisher: { name: ''}, name: "", doi: "", last_qualis: "", handleOpen: () => {}})
   const [totalPages, setTotalPage] = useState(0)
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false)
@@ -59,13 +59,13 @@ export default function UserProductions(){
       </List>
       <Pagination
         className={styles['pagination']}
-        count={totalPages} 
-        defaultPage={1} 
-        page={Number(searchParams.get("page"))} 
+        count={totalPages}
+        defaultPage={1}
+        page={Number(searchParams.get("page"))}
         onChange={(_,v) => setSearchParams({page: `${v}`})}
       />
-      <EditProductionDialog 
-        modalOpen={modalOpen} 
+      <EditProductionDialog
+        modalOpen={modalOpen}
         setModalOpen={setModalOpen}
          production={selectedProduction}
         />
@@ -87,7 +87,7 @@ function ProductionDetails(props: ProductionProps){
         <p>Autores: {props.name} </p>
         <p>Doi:{props.doi}</p>
         <p>Nota Qualis: {props.last_qualis}</p>
-        <p>Publicação: {props.publisher_name}</p>
+        <p>Publicação: {props.publisher?.name}</p>
       </div>
       <EditIcon style={iconsStyle} onClick={() => props.handleOpen(props)}/>
     </ListItem>
