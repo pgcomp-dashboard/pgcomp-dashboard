@@ -51,7 +51,7 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('subfields', [StudentsController::class, 'studentsSubarea']);
     Route::get('subfields/master', [StudentsController::class,  'studentsMasterDegreeSubareas']);
     Route::get('subfields/doctorate', [StudentsController::class, 'studentsDoctorateDegreeSubareas']);
-    Route::get('subfields/active', [StudentsController::class, 'studentsActiveAreas']);
+    Route::get('subfields/active', [StudentsController::class, 'studentsActiveSubareas']);
     Route::get('subfields/disabled', [StudentsController::class, 'studentsNotActiveSubareas']);
     Route::get('subfields/completed', [StudentsController::class, 'studentsCompletedSubareas']);
 
@@ -76,7 +76,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']);
         Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
-        Route::apiResource('subareas', SubareaController::class)->except(['destroy']);
+        Route::apiResource('subareas', SubareaController::class);
         Route::apiResource('users', UserAdminController::class)->except(['destroy']);
 
         Route::apiResource('students', StudentAdminController::class)->except(['destroy']);
@@ -100,4 +100,3 @@ Route::get('healthcheck', function (Request $request) {
 });
 
 Route::post('login', [AuthController::class, 'login']);
-

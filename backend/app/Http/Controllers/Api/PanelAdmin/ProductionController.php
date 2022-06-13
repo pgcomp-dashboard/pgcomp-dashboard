@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Models\BaseModel;
 use App\Models\Production;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class ProductionController extends BaseApiResourceController
 {
@@ -22,7 +21,6 @@ class ProductionController extends BaseApiResourceController
     }
 
     public function store(Request $request){
-        $production = new Production();
         $saveProduction = parent::store($request);
         $saveProduction->saveInterTable($request->input("users_id"));
         return $saveProduction;
