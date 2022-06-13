@@ -28,6 +28,7 @@ class ProductionController extends BaseApiResourceController
 
     public function studentQuery($students){
         $this->query = $this->newBaseQuery()
+            ->with('publisher')
             ->select($this->selectColumns)
             ->join('users_productions', 'id', '=', 'users_productions.productions_id')
             ->join('users', 'users_productions.users_id', '=', 'users.id')
@@ -37,6 +38,7 @@ class ProductionController extends BaseApiResourceController
 
     public function professorQuery($professors){
         $this->query = $this->newBaseQuery()
+            ->with('publisher')
             ->select($this->selectColumns)
             ->join('users_productions', 'id', '=', 'users_productions.productions_id')
             ->join('users', 'users_productions.users_id', '=', 'users.id')
