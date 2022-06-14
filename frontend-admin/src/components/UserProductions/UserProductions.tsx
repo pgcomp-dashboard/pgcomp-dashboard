@@ -12,7 +12,7 @@ export interface ProductionProps {
   year: number,
   publisher_id: number,
   publisher_type: string,
-  publisher: {
+  publisher?: {
     name: string
   }
   name: string,
@@ -25,11 +25,11 @@ export interface ProductionProps {
 
 export default function UserProductions(){
   const [productions, setProductions] = useState<ProductionProps[]>([]);
-  const [selectedProduction, setSelectedProduction] = useState<ProductionProps>({id: 0, title: "", year: 0, publisher_id: 0, publisher_type: "", publisher: {name: ""}, name: "", doi: "", last_qualis: "", handleOpen: () => {}})
+  const [selectedProduction, setSelectedProduction] = useState<ProductionProps | undefined>()
   const [totalPages, setTotalPage] = useState(0)
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false)
-  const {pathname} = useLocation()
+  const {pathname, key: navigateKey} = useLocation()
   const match = useMatch(":userType/*")
 
   const handleOpenEdit = (production : ProductionProps) => {
@@ -49,7 +49,7 @@ export default function UserProductions(){
       setProductions(response.data.data)
       setTotalPage(response.data.last_page)
     });
-  }, [pathname, searchParams])
+  }, [searchParams, navigateKey])
 
   return (
     <div className={styles['session']}>
@@ -62,14 +62,18 @@ export default function UserProductions(){
       <Pagination
         className={styles['pagination']}
         count={totalPages} 
-        defaultPage={1} 
-        page={Number(searchParams.get("page"))} 
+        page={Number(searchParams.get("page")) || 1} 
         onChange={(_,v) => setSearchParams({page: `${v}`})}
       />
       <EditProductionDialog 
         modalOpen={modalOpen} 
         setModalOpen={setModalOpen}
-         production={selectedProduction}
+        publisher={{
+            publisher_type: selectedProduction?.publisher_type || "", 
+            name: selectedProduction?.publisher?.name || "",
+            id: selectedProduction?.publisher_id
+        }}
+        productionId={selectedProduction?.id}
         />
     </div>
   )
@@ -89,7 +93,7 @@ function ProductionDetails(props: ProductionProps){
         <p>Autores: {props.name} </p>
         <p>Doi:{props.doi}</p>
         <p>Nota Qualis: {props.last_qualis}</p>
-        <p>Publicação: {props.publisher.name}</p>
+        <p>Publicação: {props.publisher?.name || "Sem dados da publicação"}</p>
       </div>
       <EditIcon style={iconsStyle} onClick={() => props.handleOpen(props)}/>
     </ListItem>
