@@ -65,8 +65,8 @@ export default function UserProductions(){
         page={Number(searchParams.get("page")) || 1} 
         onChange={(_,v) => setSearchParams({page: `${v}`})}
       />
-      <EditProductionDialog 
-        modalOpen={modalOpen} 
+      <EditProductionDialog
+        modalOpen={modalOpen}
         setModalOpen={setModalOpen}
         publisher={{
             publisher_type: selectedProduction?.publisher_type || "", 
@@ -99,3 +99,4 @@ function ProductionDetails(props: ProductionProps){
     </ListItem>
   )
 }
+
