@@ -1,4 +1,7 @@
-import { List, Pagination } from '@mui/material';
+import Backdrop from '@mui/material/Backdrop'
+import List from '@mui/material/List'
+import CircularProgress from '@mui/material/CircularProgress'
+import Pagination from '@mui/material/Pagination'
 import { useState, useEffect, useContext } from 'react';
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
@@ -16,9 +19,10 @@ import { useMatch, useSearchParams, useNavigate } from 'react-router-dom';
 
 function Session() {
     const [modalOpened, setModalOpened] = useState(false);
-    const { token, change } = useContext(AuthContext);
+    const { change } = useContext(AuthContext);
     const [totalPages, setTotalPage] = useState(0)
     const [searchParams, setSearchParams] = useSearchParams();
+    const [loading, setLoading] = useState(false)
 
 
     const [sessionItems, setSessionItems] = useState([]);
@@ -42,6 +46,7 @@ function Session() {
             if (response && response.status === 200) {
                 setSessionItems(response.data.data ? response.data.data : response.data);
                 setTotalPage(response.data.last_page)
+                setLoading(false)
             }
         })
 
@@ -65,6 +70,8 @@ function Session() {
     }
 
     useEffect(() => {
+        setLoading(true)
+        setSessionItems([])
         getData();
     }, [sessionType, searchParams]);
 
@@ -78,10 +85,19 @@ function Session() {
     return (
         <div className={styles['Session']}>
             {showAdd ? <AddSessionItemButton type={Utils.nameTypes[sessionType]} handleOpen={handleModalOpen} /> : null}
+            {loading ? <Backdrop
+                    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                    open={loading}
+                >
+                    <CircularProgress color="inherit" />
+            </Backdrop> : null}
             <List disablePadding>
                 {sessionItems && sessionItems.length ?
                     sessionItems.map((sessionItem: any) => {
-                        return <SessionItem {...sessionItem} type={sessionType} children={sessionType === 'areas' ? sessionItem.subarea : []} key={sessionItem.id} />
+                        return <SessionItem {...sessionItem} 
+                                    type={sessionType} 
+                                    children={sessionType === 'areas' ? sessionItem.subarea : []} 
+                                    key={sessionItem.id} />
                     }) : null}
             </List>
             <Pagination
