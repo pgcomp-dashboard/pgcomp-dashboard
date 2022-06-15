@@ -55,9 +55,13 @@ export default function UserProductions(){
     <div className={styles['session']}>
       <h4>Publicações do {userType[match?.params.userType as UserKey]}</h4>
       <List>
-        {productions.map(item => (
+        {
+          productions.length > 0 ? 
+          productions.map(item => (
             <ProductionDetails key={item.id} {...item} handleOpen={handleOpenEdit}/>
-        ))}
+          )) 
+          : `Não foram encontradas publicações do ${userType[match?.params.userType as UserKey]}`
+        }
       </List>
       <Pagination
         className={styles['pagination']}
