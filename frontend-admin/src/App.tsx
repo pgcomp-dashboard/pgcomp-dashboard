@@ -13,6 +13,7 @@ import NewPasswordPage from "./pages/NewPassword/NewPassword";
 import { AuthProvider } from './providers/AuthProvider';
 import NotFound from './pages/NotFound';
 import Erro500 from './pages/Erro500';
+import XmlUpload from './components/XmlUpload/XmlUpload';
 function App() {
     
     return (
@@ -26,9 +27,11 @@ function App() {
                         <Route path='professors' element={<Session />} />
                         <Route path='professors/:id' element={<PersonInfo />} /> 
                         <Route path="professors/:id/productions" element={<UserProductions />} />
+                        <Route path="professors/:id/xml-upload" element={<XmlUpload />} />
                         <Route path='students' element={<Session />} />
                         <Route path='students/:id' element={<PersonInfo />} /> 
                         <Route path="students/:id/productions" element={<UserProductions />} />
+                        <Route path="students/:id/xml-upload" element={<XmlUpload />} />
                         <Route index element={null} />
                     </Route>
                     <Route path="/login" element={<LoginPage/>} />

@@ -1,13 +1,14 @@
 import { Button, Card, CardContent, CardHeader } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useMatch } from "react-router-dom";
+import { useMatch, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import styles from './PersonInfo.module.css';
 import UploadIcon from '@mui/icons-material/Upload';
 
 
 function PersonInfo(props: any) {
+    const navigate = useNavigate();
     const match = useMatch(":sessionType/:id");
     const sessionType = match?.params.sessionType;
     const id = match?.params.id;
@@ -58,7 +59,7 @@ function PersonInfo(props: any) {
                 </Card>
             </div>
             <div className={styles['upload__section']}>
-                <Button variant="outlined" startIcon={<UploadIcon />}>
+                <Button variant="outlined" startIcon={<UploadIcon />} onClick={() => { navigate(`/${sessionType}/${id}/xml-upload`) }}>
                     Carregar XML do Lattes do {buttonText[sessionType]}
                 </Button>
             </div>
