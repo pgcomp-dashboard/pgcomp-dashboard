@@ -15,8 +15,8 @@ import { useMatch } from 'react-router-dom';
 function SessionsPanel() {
 
     const iconStyle = {
-        'height': '42px',
-        'width': '42px'
+        'height': '58px',
+        'width': '58px'
     }
 
     const match = useMatch(":sessionType/*")

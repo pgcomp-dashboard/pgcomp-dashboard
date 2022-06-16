@@ -49,7 +49,7 @@ function UserMenu() {
                     : 
                     <div className={styles['user__menu__welcome']}>
                         <span>Olá,</span>
-                        <span className={styles['user__menu__name']}>{userName || "Fulano"}</span>
+                        <span className={styles['user__menu__name']}>{userName}</span>
                     </div>
                 }
                 

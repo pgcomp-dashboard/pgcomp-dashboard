@@ -49,7 +49,7 @@ function PieChart({ filter, type }) {
             .then(({ data }) => {
                 const labels = data[type];
                 const dataChart = data.data;
-                const newBackgroundColors = ['#7CBB00','#FF6C6C','#3098DC',]
+                const newBackgroundColors = ['#7CBB00','#FF6C6C','#3098DC',"#f1c232"]
 
                 if (!backgroundColors){
                     setBackgroundColors(newBackgroundColors);

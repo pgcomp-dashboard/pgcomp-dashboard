@@ -24,13 +24,13 @@ class SubareaController extends BaseApiResourceController{
         if(count($subarea) == 0 || $confirm){
             return parent::store($request);
         }else{
-            return $msg;
+            return abort(406, $msg);
         }
     }
 
     public function destroy(int $id)
     {
-        $msg = "Operação não pode ser concluída: usuários cadastrados com essa subárea";
+        $msg = "Erro: usuários cadastrados com essa subárea";
 
         $subareas = Subarea::where('id', $id)->withCount(['users'])->get();
         if(count($subareas) > 0 and $subareas[0]->users_count == 0){
