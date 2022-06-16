@@ -336,6 +336,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
                 ->where('users.type', '=', UserType::STUDENT)
                 ->groupBy('areas.area_name')
+                ->orderBy('areas.area_name', 'asc')
                 ->get();
         }elseif($course_id > 0) {
             $data = DB::table('users')
@@ -346,6 +347,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 ->where('users.type', '=', UserType::STUDENT)
                 ->where('users.course_id', '=', $course_id)
                 ->groupBy('areas.area_name')
+                ->orderBy('areas.area_name', 'asc')
                 ->get();
         }elseif($selectedFilter === 'completed'){
             $data = DB::table('users')
@@ -356,6 +358,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 ->where('users.type', '=', UserType::STUDENT)
                 ->whereNotNull('defended_at')
                 ->groupBy('areas.area_name')
+                ->orderBy('areas.area_name', 'asc')
                 ->get();
         }
 
@@ -379,6 +382,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.course_id', '=', 1)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
@@ -401,6 +405,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.course_id', '=', 2)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
@@ -445,6 +450,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '=', null)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
@@ -488,6 +494,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '!=', null)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
@@ -532,6 +539,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '!=', null)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
