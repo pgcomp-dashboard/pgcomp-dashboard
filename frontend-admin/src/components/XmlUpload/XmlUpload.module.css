@@ -1,0 +1,21 @@
+.XmlUpload {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.XmlUpload p {
+    font-size: 22px;
+    color: black;
+}
+
+.upload__session label {
+    height: 200px !important;
+    min-width: 900px !important;
+    margin-left: 20%;
+    font-size: 40px !important;
+}
+
+.upload__session span {
+    font-size: 22px !important;
+}
