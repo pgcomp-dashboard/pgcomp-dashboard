@@ -20,7 +20,6 @@ interface SessionItemDialogProps {
 
 const SessionItemDialog = (props: any) => {
     const [formFields, setFormFields] = useState({});
-
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -84,6 +83,10 @@ const SessionItemDialog = (props: any) => {
             </Dialog>
             <Snackbar open={snackbarOpen}
                 autoHideDuration={6000}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                }}
                 onClose={closeSnackbar}>
                 {snackbarSeverity === 'success' ?
                     <Alert severity="success" onClose={closeSnackbar} sx={{ width: '100%' }}>{snackbarMessage}</Alert> :
