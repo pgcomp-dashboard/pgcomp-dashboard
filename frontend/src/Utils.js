@@ -21,7 +21,7 @@ const universityFilter = [
         value: 'doutorando'
     },
     {
-        label: 'Docente',
+        label: 'Docentes',
         value: 'docente'
     },
 ]
