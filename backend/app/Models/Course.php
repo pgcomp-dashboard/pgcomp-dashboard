@@ -33,13 +33,19 @@ class Course extends BaseModel
         'name',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
             'name' => 'required|string|max:255',
         ];
     }
-
+    
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [

@@ -83,11 +83,11 @@ function PieChart({ filter, type }) {
                     history('/*')
                     console.log(error)
                 }
-                
+
                 else{
                     console.log(error)
                 }
-                
+
             });
     }
 

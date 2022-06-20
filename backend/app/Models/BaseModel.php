@@ -101,16 +101,34 @@ abstract class BaseModel extends Model
         return $this->filterable;
     }
 
+    /**
+     * Checks if we can sort by a certain field
+     *
+     * @param string  field for verification
+     * @return bool verification result. true or false
+     */
     public function canSortBy(string $field): bool
     {
         return in_array($field, $this->getSortable()) || in_array('*', $this->getSortable());
     }
 
+    /**
+     * Checks if we can filter by a certain field
+     *
+     * @param string  field for verification
+     * @return bool verification result. true or false
+     */
     public function canFilterBy(string $field): bool
     {
         return in_array($field, $this->getFilterable()) || in_array('*', $this->getFilterable());
     }
 
+    /**
+     * Check if a given key is a cast data
+     *
+     * @param string  key for verification
+     * @return bool verification result. true or false
+     */
     public function isDateCast(string $key): bool
     {
         return $this->hasCast(
@@ -119,6 +137,12 @@ abstract class BaseModel extends Model
         );
     }
 
+    /**
+     * Check if a given key is a number cast
+     *
+     * @param string  key for verification
+     * @return bool verification result. true or false
+     */
     public function isNumberCast(string $key): bool
     {
         return $this->hasCast($key, ['int', 'integer', 'float', 'real', 'double', 'decimal']);

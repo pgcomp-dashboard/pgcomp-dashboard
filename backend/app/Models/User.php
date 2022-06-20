@@ -142,6 +142,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'is_admin' => false,
     ];
 
+     /**
+      * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -178,6 +181,12 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         ];
     }
 
+    /**
+     * Create or update a user of type student
+     *
+     * @param array array with user data
+     * @return User instance of user model
+     */
     public static function createOrUpdateStudent(array $data): User
     {
         $data['type'] = UserType::STUDENT->value;
@@ -191,6 +200,12 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         );
     }
 
+    /**
+     * Create or update a user of type professor
+     *
+     * @param array array with user data
+     * @return User instance of user model
+     */
     public static function createOrUpdateTeacher(array $data): User
     {
         $data['type'] = UserType::PROFESSOR->value;
@@ -204,41 +219,82 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         );
     }
 
+    /**
+     * Establishes a relationship of belongsToMany with the production model
+     *
+     * @return BelongsToMany Relation of belongsToMany user -> production
+     */
     public function writerOf(): BelongsToMany
     {
         return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
     }
 
+    /**
+     * Establishes a relationship of belongsToMany with the subarea model
+     *
+     * @return BelongsToMany Relation of belongisToMany user -> subarea
+     */
     public function subareas(): BelongsToMany
     {
         return $this->belongsToMany(Subarea::class, 'users_subareas', 'users_id', 'subareas_id');
     }
 
+    /**
+     * Establishes a relationship of belongsTo with the subarea model
+     *
+     * @return BelongsTo Relation of belongisTo user -> subarea
+     */
     public function subarea(): BelongsTo
     {
         return $this->belongsTo(Subarea::class, 'subarea_id');
     }
 
+    /**
+     * Establishes a relationship of belongsTo with the program model
+     *
+     * @return BelongsTo Relation of belongisTo user -> sprogram
+     */
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class, 'program_id');
     }
 
+    /**
+     * Find a user based on a given name
+     *
+     * @param string $UserName, a string of user`name
+     * @return User  instance of user model.
+     */
     public function findUserByName($UserName): User
     {
         return User::where('name', $UserName)->firstOrFail();
     }
 
+    /**
+     * Find a user with type professor based on your siape
+     *
+     * @param int $siape teacher's siape
+     * @return User  instance of user model.
+     */
     public function findProfessorBySiape(int $siape): User
     {
         return User::where('siape', $siape)->firstOrFail();
     }
 
+    /**
+     * Find a user with type student  based on your registration
+     *
+     * @param int $registration of user
+     * @return User  instance of user model.
+     */
     public function findStudentByRegistration($registration): User
     {
         return User::where('registration', $registration)->firstOrFail();
     }
 
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         $courseIdRules = [
@@ -266,6 +322,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         ];
     }
 
+    /**
+     * Establishes a relationship of belongsToMany with the production model
+     *
+     * @return BelongsToMany Relation of belongsToMany user -> production
+     */
     public function advisors(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_user', 'student_user_id', 'professor_user_id')
@@ -336,6 +397,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
                 ->where('users.type', '=', UserType::STUDENT)
                 ->groupBy('areas.area_name')
+                ->orderBy('areas.area_name', 'asc')
                 ->get();
         }elseif($course_id > 0) {
             $data = DB::table('users')
@@ -346,6 +408,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 ->where('users.type', '=', UserType::STUDENT)
                 ->where('users.course_id', '=', $course_id)
                 ->groupBy('areas.area_name')
+                ->orderBy('areas.area_name', 'asc')
                 ->get();
         }elseif($selectedFilter === 'completed'){
             $data = DB::table('users')
@@ -356,6 +419,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 ->where('users.type', '=', UserType::STUDENT)
                 ->whereNotNull('defended_at')
                 ->groupBy('areas.area_name')
+                ->orderBy('areas.area_name', 'asc')
                 ->get();
         }
 
@@ -379,6 +443,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.course_id', '=', 1)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
@@ -401,6 +466,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.course_id', '=', 2)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
@@ -445,6 +511,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '=', null)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
@@ -488,6 +555,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '!=', null)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];
@@ -532,6 +600,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '!=', null)
             ->groupBy('areas.area_name')
+            ->orderBy('areas.area_name')
             ->get();
 
         $dataFields = [];

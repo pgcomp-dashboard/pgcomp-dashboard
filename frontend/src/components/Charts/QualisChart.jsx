@@ -113,11 +113,11 @@ function QualisChart({ filter }) {
                     history('/*')
                     console.log(error)
                 }
-                
+
                 else{
                     console.log(error)
                 }
-                
+
             });
     }
 
@@ -141,10 +141,10 @@ function QualisChart({ filter }) {
         fontSize: "14px",
         color: "#3D3D3D",
         fontWeight: "bold",
-
+        marginLeft: "17em",
         cursor: "pointer",
     }
-      
+
     return (
         chartData ?
             <>

@@ -30,6 +30,10 @@
     height: 10px;
 }
 
+.footer__left h3{
+    margin-left: -26px;
+}
+
 .footer__left a:link {
     color: white;
     text-decoration: none;

@@ -40,6 +40,9 @@ class Subarea extends BaseModel
         'area_id',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -53,22 +56,39 @@ class Subarea extends BaseModel
         ];
     }
 
+    /**
+     * Establishes a relationship of belonging with the area model
+     *
+     * @return BelongsTo Relation of belonging subarea -> area
+    */
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class, 'area_id');
     }
 
+    /**
+     * Establishes a relationship of belongsToMany with the users model
+     *
+     * @return BelongsToMany Relation of belonging sinto subarea and users
+    */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'users_subareas','subareas_id', 'users_id');
     }
 
+    /**
+     * Establish a has-many relationship with the user model
+     *
+     * @return HasMany Relation that an subarea has more than one user
+     */
     public function user(): HasMany
     {
         return $this->hasMany(User::class, 'subarea_id', 'id');
     }
 
-
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [
@@ -82,11 +102,22 @@ class Subarea extends BaseModel
         ];
     }
 
+    /**
+     * Within a given subarea, returns users of type student
+     *
+     * @return array with all users student in subarea
+     */
     public function students()
     {
         return $this->users()->where('type', UserType::STUDENT);
     }
 
+    /**
+     * Delete an instance of
+     *
+     * @param int $id, id of the subarea that needs to be deleted
+     * @return static subarea model that was deleted
+     */
     public static function deleteInstance($id){
         return Subarea::destroy($id);
     }

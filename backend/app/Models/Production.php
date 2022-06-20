@@ -63,6 +63,9 @@ class Production extends BaseModel
         'doi',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -75,6 +78,10 @@ class Production extends BaseModel
         ];
     }
 
+    /**
+     * boot the model by setting the production qualis
+     *
+     */
     protected static function boot()
     {
         parent::boot();
@@ -87,16 +94,29 @@ class Production extends BaseModel
         });
     }
 
+    /**
+     * Establishes a relationship of belonging-to-many with the user model. When the user write the production.
+     *
+     * @return BelongsTo a user can have several products
+     */
     public function isWroteBy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'users_productions', 'productions_id', 'users_id');
     }
 
+    /**
+     * Establishes a relationship of belonging-to-many with the user model. When the user write the production.
+     *
+     * @return BelongsTo a user can have several products
+     */
     public function publisher(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [
@@ -108,11 +128,22 @@ class Production extends BaseModel
         ];
     }
 
+    /**
+     * Insert related models when working with many-to-many relations
+     *
+     * @param int id to create the relationship between production and user
+     */
     public function saveInterTable($users_id)//: void
     {
         $this->isWroteBy()->attach($users_id);
     }
 
+    /**
+     * @param string the type of the user, if he is a student or a teacher
+     * @param int course id
+     * @param string type of publisher
+     * @return array returns an array containing the amount by total production separated by year
+     */
     public function totalProductionsPerYear($user_type, $course_id, $publisher_type): array
     {
         $years = range(2014, Carbon::now()->year);
@@ -139,6 +170,10 @@ class Production extends BaseModel
         return compact('years', 'data');
     }
 
+    /**
+     * @param string the type and publication (journal or conference)
+     * @return array returns an array containing publications of the desired type separated by course
+     */
     public function totalProductionsPerCourse($publisherType): array
     {
         $years = range(2014, Carbon::now()->year);
@@ -164,6 +199,11 @@ class Production extends BaseModel
         return compact('years', 'data');
     }
 
+    /**
+     * @param int id of user
+     * @param int id of production
+     * @return stdClass production of a given user
+     */
     public function findAllUserProductions($user, $production){
         $data = DB::table('productions')
             ->select('productions.id')
@@ -175,6 +215,11 @@ class Production extends BaseModel
         return $data;
     }
 
+    /**
+     * Does the mapping and sets the stratum qualis of a given production
+     *
+     * @return void
+     */
     protected function setQualis(): void
     {
         if ($this->publisher) {

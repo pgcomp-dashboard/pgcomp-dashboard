@@ -11,6 +11,9 @@ class UsersSubarea extends BaseModel
         'subareas_id',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -27,6 +30,9 @@ class UsersSubarea extends BaseModel
         ];
     }
 
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [
@@ -43,6 +49,11 @@ class UsersSubarea extends BaseModel
         ];
     }
 
+    /**
+     * Establish a has-many relationship with the user model
+     *
+     * @return HasMany Relation that an usersSubarea has more than one users
+     */
     public function users(){
         $this->HasMany(User::class);
     }

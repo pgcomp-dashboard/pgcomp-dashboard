@@ -65,6 +65,9 @@ class Journal extends BaseModel
         'logs',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -85,6 +88,9 @@ class Journal extends BaseModel
         ];
     }
 
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [
@@ -105,6 +111,11 @@ class Journal extends BaseModel
         ];
     }
 
+    /**
+     * Establishes a relationship of belonging with the stratumQualis model
+     *
+     * @return BelongsTo Relation of belonging journal -> stratumQualis
+     */
     public function stratumQualis(): BelongsTo
     {
         return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');
