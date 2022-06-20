@@ -48,7 +48,7 @@ function ProductionTypeFilter({ setPublisherType }) {
 
             <div className={styles['filter__title']}>Produções publicadas em:</div>
             <div className={styles['production__types']}>
-                <Tooltip title="Clique sobre o item para filtrar"><span className={styles['production__type'] + ' ' + allClass} onClick={() => { setPublisherType(null); addSelectedClass('all'); }}>Tudo</span></Tooltip>
+                <Tooltip title="Clique sobre o item para filtrar"><span className={styles['production__type'] + ' ' + allClass} onClick={() => { setPublisherType(null); addSelectedClass('all'); }}>Todos</span></Tooltip>
                 <Tooltip title="Clique sobre o item para filtrar"><span className={styles['production__type'] + ' ' + journalClass} onClick={() => { setPublisherType('journal'); addSelectedClass('journal'); }}>Revista</span></Tooltip>
                 <Tooltip title="Clique sobre o item para filtrar"><span className={styles['production__type'] + ' ' + conferenceClass} onClick={() => { setPublisherType('conference'); addSelectedClass('conference'); }}>Conferências</span></Tooltip>
             </div>
