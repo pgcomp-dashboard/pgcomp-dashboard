@@ -50,6 +50,9 @@ class Program extends BaseModel
         'started_at' => 'datetime',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -60,6 +63,9 @@ class Program extends BaseModel
         ];
     }
 
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [
@@ -69,21 +75,42 @@ class Program extends BaseModel
         ];
     }
 
+    /**
+     * Establish a has-many relationship with the user model
+     *
+     * @return HasMany Relation that an program has more than one user
+     */
     public function users(): HasMany
     {
         return $this->hasMany(User::class, 'program_id');
     }
 
+    /**
+     * Establish a has-many relationship with the user type professor model
+     *
+     * @return HasMany Relation that an program has more than one user with type professor
+     */
     public function professors(): HasMany
     {
         return $this->users()->where('type', UserType::PROFESSOR->value);
     }
 
+    /**
+     * Establish a has-many relationship with the user type student model
+     *
+     * @return HasMany Relation that an program has more than one user with type student
+     */
     public function students(): HasMany
     {
         return $this->users()->where('type', UserType::STUDENT->value);
     }
 
+    /**
+     * Receives a given column and a pattern and returns all courses per column
+     *
+     * @return Collection with all courses separeted by columns
+     * @return array Relation that an program has more than one user
+     */
     public function findAllCoursesByColumns($columns, $pattern): Collection|array
     {
         /**

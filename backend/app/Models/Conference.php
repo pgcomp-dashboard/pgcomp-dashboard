@@ -88,6 +88,9 @@ class Conference extends BaseModel
         'qualis_without_induction_id' => 'integer',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -114,6 +117,10 @@ class Conference extends BaseModel
         ];
     }
 
+
+    /**
+     * @return array update rules to validate attributes.
+    */
     public function updateRules(): array
     {
         return [
@@ -140,6 +147,11 @@ class Conference extends BaseModel
         ];
     }
 
+    /**
+     * Establishes a relationship of belonging with the stratumQualis model
+     *
+     * @return BelongsTo Relation of belonging conference -> stratumQualis
+     */
     public function stratumQualis(): BelongsTo
     {
         return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');

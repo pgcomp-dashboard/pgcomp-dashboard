@@ -18,14 +18,27 @@ class UsersProgram extends BaseModel
         'finished_at' => 'datetime'
     ];
 
+    /**
+     * Establishes a relationship of belonging with the user model
+     *
+     * @return BelongsTo Relation of belonging usersProgram -> user
+    */
     public function user(){
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * Establishes a relationship of belonging with the program model
+     *
+     * @return BelongsTo Relation of belonging usersProgram -> program
+    */
     public function program(){
         return $this->belongsTo(Program::class, 'program_id');
     }
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -45,6 +58,9 @@ class UsersProgram extends BaseModel
         ];
     }
 
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [

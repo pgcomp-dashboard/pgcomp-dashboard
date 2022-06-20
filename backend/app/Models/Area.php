@@ -41,6 +41,9 @@ class Area extends BaseModel
         'program_id',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -54,6 +57,12 @@ class Area extends BaseModel
         ];
     }
 
+    /**
+     * Create or update an area in the database
+     *
+     * @param array array counting the model area fields
+     * @return \App\Models\Area an instance of the area model
+     */
     public static function createOrUpdateArea(array $data): Area
     {
         return Area::updateOrCreate(
@@ -62,16 +71,29 @@ class Area extends BaseModel
         );
     }
 
+    /**
+     * Establishes a relationship of belonging with the program model
+     *
+     * @return BelongsTo Relation of belonging area -> program
+     */
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class, 'program_id');
     }
 
+    /**
+     * Establish a has-many relationship with the subarea model
+     *
+     * @return HasMany Relation that an area has more than one subarea
+     */
     public function subarea(): HasMany
     {
         return $this->hasMany(Subarea::class, 'area_id', 'id');
     }
 
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [
@@ -85,17 +107,32 @@ class Area extends BaseModel
         ];
     }
 
+    /**
+     * Establish a relationship of, has-many-through, with the users model
+     *
+     * @return HasManyThrough An area has more than one user from a given subarea
+     */
     public function users(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, Subarea::class, 'area_id', 'subarea_id');
     }
 
+    /**
+     * Establish a relationship of, has-many-through, with the users model with students type
+     *
+     * @return HasManyThrough An area has more than one user with students type from a given subarea
+     */
     public function students(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, Subarea::class, 'area_id', 'subarea_id')
             ->where('type', UserType::STUDENT);
     }
 
+    /**
+     * Establish a relationship of, has-many-through, with the usersSubarea model and subarea
+     *
+     * @return HasManyThrough An area has more than one usersSubarea with  from a given subarea
+     */
     public function usersInSubarea(){
         return $this->hasManyThrough(UsersSubarea::class, Subarea::class,
             'area_id', 'subareas_id');

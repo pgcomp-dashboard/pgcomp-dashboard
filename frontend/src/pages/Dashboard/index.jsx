@@ -67,7 +67,7 @@ function Dashboard() {
                     icon={PieChartIcon}
                     filterOptions={Utils.studentsFilter}
                     chart={StudentsPerFieldChart} />
-                
+
                 {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Alunos por subárea"
                     minWidth="100%"

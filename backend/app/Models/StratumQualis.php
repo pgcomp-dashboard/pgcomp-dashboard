@@ -35,6 +35,9 @@ class StratumQualis extends BaseModel
         'score',
     ];
 
+    /**
+     * @return array creation rules to validate attributes.
+     */
     public static function creationRules(): array
     {
         return [
@@ -43,11 +46,21 @@ class StratumQualis extends BaseModel
         ];
     }
 
+    /**
+     * finds a certain stratuns qualis from a code
+     *
+     * @param string code
+     * @param array columns
+     * @return self stratumQualis by code
+     */
     public static function findByCode(string $code, array $columns = ['*']): self
     {
         return self::where('code', $code)->firstOrFail($columns);
     }
 
+    /**
+     * @return array update rules to validate attributes.
+     */
     public function updateRules(): array
     {
         return [
@@ -56,6 +69,14 @@ class StratumQualis extends BaseModel
         ];
     }
 
+    /**
+     * Returns an array with all productions separated by qualis
+     *
+     * @param string $user_type indicating whether you are a teacher or student
+     * @param int $course_id  id do course.
+     * @param string $publichser_type can be conference or journal
+     * @return array array with productions separated by qualis
+     */
     public function totalProductionsPerQualis($user_type, $course_id, $publisher_type): array
     {
         $years = range(2014, Carbon::now()->year);
