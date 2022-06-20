@@ -29,9 +29,9 @@ function SessionsPanel() {
                     session='areas' isSelected={'areas' == sessionType} />
                 <SessionItem icon={<BarChartOutlinedIcon style={iconStyle} />} label={'Qualis'} 
                     session='qualis' isSelected={'qualis' == sessionType} />
-                <SessionItem icon={<BadgeOutlinedIcon style={iconStyle} />} label={'Docente'} 
+                <SessionItem icon={<BadgeOutlinedIcon style={iconStyle} />} label={'Docentes'} 
                     session='professors' isSelected={'professors' == sessionType} />
-                <SessionItem icon={<SchoolOutlinedIcon style={iconStyle} />} label={'Discente'} 
+                <SessionItem icon={<SchoolOutlinedIcon style={iconStyle} />} label={'Discentes'} 
                     session='students' isSelected={'students' == sessionType} />
             </ul>
         </div>
