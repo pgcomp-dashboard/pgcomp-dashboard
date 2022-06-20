@@ -141,7 +141,6 @@ function QualisChart({ filter }) {
         fontSize: "14px",
         color: "#3D3D3D",
         fontWeight: "bold",
-        marginLeft: "17em",
         cursor: "pointer",
     }
 
@@ -152,7 +151,7 @@ function QualisChart({ filter }) {
                 <div style={toolTipDatasetStyle}>
                     <p style={toolTip}>Clique em alguma categoria para filtrar: </p>
                 </div>
-                <Bar title="Clique sobre o item para filtrar" options={options} data={chartData} />
+                <Bar options={options} data={chartData} />
             </>
             : null
 

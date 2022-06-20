@@ -1,7 +1,7 @@
 .UserMenu {
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-aroun;
     cursor: pointer;
     width: 130px;
 }
@@ -9,11 +9,11 @@
 
 .user__menu__welcome {
     font-size: 22px;
-    margin-left: 5px;
+    margin-right: 150px;
     display: flex;
     flex-direction: column;
     text-align: left;
-    
+
 }
 
 .user__menu__name {
