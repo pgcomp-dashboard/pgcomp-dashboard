@@ -18,6 +18,7 @@ function DeleteItemDialog(props: DeleteItemDialogProps) {
 
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
     const closeSnackbar = () => {
         setSnackbarOpen(false);
@@ -34,9 +35,13 @@ function DeleteItemDialog(props: DeleteItemDialogProps) {
             const response = await deleteItem(config, props.typeAttr, props.id);
             if (!response?.success) {
                 setSnackbarMessage(response?.message);
+                setSnackbarSeverity('error');
                 setSnackbarOpen(true);
                 return;
             }
+
+            setSnackbarMessage(response?.message);
+            setSnackbarOpen(true);
 
             setChange(change + 1);
         } catch (e: any) {
@@ -53,10 +58,17 @@ function DeleteItemDialog(props: DeleteItemDialogProps) {
                     <Button onClick={() => { deleteFn(); props.handleClose(); }}>Confirmar</Button>
                 </DialogActions>
             </Dialog>
+
             <Snackbar open={snackbarOpen}
                 autoHideDuration={6000}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                }}
                 onClose={closeSnackbar}>
-                <Alert severity="error" onClose={closeSnackbar} sx={{ width: '100%' }}>{snackbarMessage}</Alert>
+                {snackbarSeverity === 'success' ?
+                    <Alert severity="success" onClose={closeSnackbar} sx={{ width: '100%' }}>{snackbarMessage}</Alert> :
+                    <Alert severity="error" onClose={closeSnackbar} sx={{ width: '100%' }}>{snackbarMessage}</Alert>}
             </Snackbar>
         </>
     )
