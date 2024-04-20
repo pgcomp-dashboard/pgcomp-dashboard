@@ -65,7 +65,7 @@ function StudentsPerTeacherChart({ filter }) {
 
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias
     const getData = (selectedFilter = []) => {
-        axios.get('https://mate85-api.litiano.dev.br/api/dashboard/total_students_per_advisor', { params: { user_type: selectedFilter } })
+        axios.get('http://localhost:8000/api/dashboard/total_students_per_advisor', { params: { user_type: selectedFilter } })
         .then(({ data }) => {
             const labels = map(data, 'name');
 
