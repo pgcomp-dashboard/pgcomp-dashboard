@@ -14,6 +14,7 @@ import { AuthProvider } from './providers/AuthProvider';
 import NotFound from './pages/NotFound';
 import Erro500 from './pages/Erro500';
 import XmlUpload from './components/XmlUpload/XmlUpload';
+import Dashboard from './pages/Dashboard';
 function App() {
     
     return (
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/login" element={<LoginPage/>} />
                     <Route path="*" element={<NotFound/>} />
                     <Route path="/erro" element={<Erro500/>} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                 </Routes>
                 <Footer />
             </div>

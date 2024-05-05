@@ -1,0 +1,35 @@
+.ProductionTypeFilter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.production__types {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 7px;
+    margin-bottom: 10px;
+}
+
+.production__type {
+    background-color: #3D3D3D;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    color: #FFFFFF;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.production__type.selected{
+    background-color: #00B03B;
+    pointer-events: none;
+}
+
+
+.filter__title {
+    font-size: 14px;
+}
