@@ -20,9 +20,8 @@ function App() {
     return (
         <AuthProvider>
             <div className={styles.App}>
-                <Toolbar />
                 <Routes>
-                    <Route element={<DefaultPage />}>
+                    <Route element={<Dashboard />}>
                         <Route path='areas' element={<Session />} />
                         <Route path='qualis' element={<Session />} />
                         <Route path='professors' element={<Session />} />

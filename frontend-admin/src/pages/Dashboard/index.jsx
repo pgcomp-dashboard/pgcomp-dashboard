@@ -1,4 +1,4 @@
-import Toolbar from "../../components/Toolbar/Toolbar";
+import ToolbarDashboard from "../../components/ToolbarDashboard/ToolbarDashboard";
 import styles from "./Dashboard.module.css"
 import Title from "../../components/Title/Title";
 import DataCard from "../../components/DataCard/DataCard";
@@ -21,7 +21,7 @@ function Dashboard() {
     return (
         <div>
             {/*rendereiza o header*/}
-            <Toolbar setShowBurgerMenu={setShowBurgerMenu} />
+            <ToolbarDashboard setShowBurgerMenu={setShowBurgerMenu} />
 
             {/*rendereiza o menu hamburguer*/}
             <BurgerMenu showBurgerMenu={showBurgerMenu} />

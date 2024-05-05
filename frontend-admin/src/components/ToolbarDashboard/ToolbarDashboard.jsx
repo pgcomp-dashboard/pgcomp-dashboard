@@ -3,7 +3,7 @@ import icLogo from '../../assets/ic_logo.png'
 import { useState } from 'react'
 
 //função que verifica o estado de clique do menu hamburguer
-function Toolbar({ setShowBurgerMenu }) {
+function ToolbarDashboard({ setShowBurgerMenu }) {
     const [toggleClass, setToggleClass] = useState('');
 
     const onToggleBurger = () => {
@@ -28,7 +28,7 @@ function Toolbar({ setShowBurgerMenu }) {
                 <img src={icLogo} height={70} alt="Logo dashboard pgcomp"/>
             </div>
             <div>
-                <a href='https://mate85-admin.litiano.dev.br/'>
+                <a href='/login'>
                     <button className={styles.button__login}>
                         Login
                     </button>
@@ -38,4 +38,4 @@ function Toolbar({ setShowBurgerMenu }) {
     )
 }
 
-export default Toolbar
+export default ToolbarDashboard
