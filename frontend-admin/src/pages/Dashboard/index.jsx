@@ -79,8 +79,6 @@ function Dashboard() {
                     filterOptions={Utils.studentsFilter}
                     chart={StudentsPerSubfieldChart} />
             </div>
-
-            <FooterDashboard />
         </div>
     )
 }

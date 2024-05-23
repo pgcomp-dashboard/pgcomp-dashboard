@@ -21,7 +21,7 @@ function App() {
         <AuthProvider>
             <div className={styles.App}>
                 <Routes>
-                    <Route element={<Dashboard />}>
+                    <Route path='/admin' element={<DefaultPage />}>
                         <Route path='areas' element={<Session />} />
                         <Route path='qualis' element={<Session />} />
                         <Route path='professors' element={<Session />} />
@@ -37,7 +37,7 @@ function App() {
                     <Route path="/login" element={<LoginPage/>} />
                     <Route path="*" element={<NotFound/>} />
                     <Route path="/erro" element={<Erro500/>} />
-                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/" element={<Dashboard />} />
                 </Routes>
                 <Footer />
             </div>
