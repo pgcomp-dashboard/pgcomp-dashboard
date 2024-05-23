@@ -12,6 +12,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
 import { useNavigate } from 'react-router-dom';
+import Utils from '../../Utils.js'
 
 ChartJS.register(
     CategoryScale,
@@ -66,7 +67,7 @@ function ProductionPerStudentChart({ filter }) {
 
     
     const getData = (selectedFilter = []) => {
-        axios.get('http://localhost:8000/api/dashboard/students_production', {
+        axios.get(`${Utils.baseUrl}/api/dashboard/students_production`, {
             params: {
                 selectedFilter,
                 publisher_type: publisherType

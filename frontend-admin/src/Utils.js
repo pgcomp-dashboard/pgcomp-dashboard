@@ -41,5 +41,6 @@ const studentsFilter = [
     }
 ];
 
+const baseUrl = 'http://localhost:8000';
 
-export default { universityFilter, studentsFilter, generateColorsArray }
+export default { universityFilter, studentsFilter, generateColorsArray, baseUrl }
