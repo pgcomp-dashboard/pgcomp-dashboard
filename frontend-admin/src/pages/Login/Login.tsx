@@ -4,6 +4,7 @@ import { AuthContext } from "../../providers/AuthProvider";
 import React from 'react';
 
 import styles from "./Login.module.css";
+import Utils from '../../Utils.js'
 
 import { api } from "../../services/api";
 import axios from 'axios';
@@ -24,7 +25,7 @@ function LoginPage(props: any) {
     }
 
     const handleLogin = () => {
-        api.post(`https://mate85-api.litiano.dev.br/api/login`, {
+        api.post(`${Utils.baseUrl}/api/login`, {
             email, password
         }).then((response: any) => {
 

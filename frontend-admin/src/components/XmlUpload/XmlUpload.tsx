@@ -34,7 +34,7 @@ export default function XmlUpload() {
         let formData = new FormData();
 
         formData.append('file', file);
-        axios.post('https://mate85-api.litiano.dev.br/api/portal/user/lattes-update', formData, {
+        axios.post('https://aufbaproduz-api.dovalle.app.br/api/portal/user/lattes-update', formData, {
             headers: {
                 'Authorization': token
             }
