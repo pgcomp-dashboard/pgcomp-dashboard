@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! [ -x "$(command -v docker-compose)" ]; then
+if ! [ -x "$(command -v docker compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
   exit 1
 fi
@@ -54,21 +54,21 @@ fi
 echo "### Creating letsencrypt path..."
 for domain in "${domains[@]}"; do
   path="/etc/letsencrypt/live/$domain"
-  docker-compose run -T --rm --entrypoint "mkdir -p $path" certbot
+  docker compose run -T --rm --entrypoint "mkdir -p $path" certbot
   echo
 done
 
 echo "### Downloading nginx ssl config..."
 nginx_config_url="https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf"
 nginx_config_url2="https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem"
-docker-compose run -T --rm --entrypoint "wget -O /etc/letsencrypt/options-ssl-nginx.conf $nginx_config_url" certbot
-docker-compose run -T --rm --entrypoint "wget -O /etc/letsencrypt/ssl-dhparams.pem $nginx_config_url2" certbot
+docker compose run -T --rm --entrypoint "wget -O /etc/letsencrypt/options-ssl-nginx.conf $nginx_config_url" certbot
+docker compose run -T --rm --entrypoint "wget -O /etc/letsencrypt/ssl-dhparams.pem $nginx_config_url2" certbot
 echo
 
 for domain in "${domains[@]}"; do
   echo "### Creating dummy certificate for $domain ..."
   path="/etc/letsencrypt/live/$domain"
-  docker-compose run -T --rm --entrypoint "\
+  docker compose run -T --rm --entrypoint "\
     sh -c '\
       test ! -f $path/privkey.pem && \
       openssl req -x509 -nodes -newkey rsa:1024 -days 1 \
@@ -79,12 +79,12 @@ for domain in "${domains[@]}"; do
 done
 
 echo "### Starting nginx ..."
-docker-compose up -d nginx
+docker compose up -d nginx
 echo
 
 for domain in "${domains[@]}"; do
   echo "### Deleting dummy certificate for $domain ..."
-  docker-compose run -T --rm --entrypoint "\
+  docker compose run -T --rm --entrypoint "\
     sh -c '\
       test ! -f /etc/letsencrypt/renewal/$domain.conf && \
       rm -rf /etc/letsencrypt/live/$domain'" certbot
@@ -105,7 +105,7 @@ for domain in "${domains[@]}"; do
   echo "### Requesting Let's Encrypt certificate for $domain ..."
   if [ "$include_www" != "0" ]; then www_domain_arg="-d www.$domain"; fi
 
-  docker-compose run -T --rm --entrypoint "\
+  docker compose run -T --rm --entrypoint "\
     sh -c '\
     test ! -f /etc/letsencrypt/renewal/$domain.conf && \
     certbot certonly --webroot -w /var/www/certbot \
@@ -120,6 +120,6 @@ for domain in "${domains[@]}"; do
 done
 
 echo "### Reloading nginx ..."
-docker-compose exec -T nginx sh -c 'test -f /etc/letsencrypt/restart-nginx && nginx -s reload && rm /etc/letsencrypt/restart-nginx'
+docker compose exec -T nginx sh -c 'test -f /etc/letsencrypt/restart-nginx && nginx -s reload && rm /etc/letsencrypt/restart-nginx'
 
 exit 0

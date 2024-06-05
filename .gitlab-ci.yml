@@ -79,8 +79,8 @@ deploy:
           docker pull $CI_REGISTRY_IMAGE/nginx && \
           docker pull $CI_REGISTRY_IMAGE/php && \
           docker pull $CI_REGISTRY_IMAGE/php | grep \"Image is up to date\" || \
-            (docker-compose exec -T php php backend/artisan down | 2>/dev/null) && \
-          docker-compose up -d && \
+            (docker compose exec -T php php backend/artisan down | 2>/dev/null) && \
+          docker compose up -d && \
           docker image prune -f"
   only:
     - main
