@@ -3,9 +3,9 @@ stages:
   - deploy
 
 variables:
-  DEPLOY_FOLDER: "mate85-deploy"
-  DOMAINS: "mate85.litiano.dev.br mate85-api.litiano.dev.br mate85-admin.litiano.dev.br"
-  EMAIL: "litiano.moura@ufba.br"
+  DEPLOY_FOLDER: "aufbaproduz-1"
+  DOMAINS: "aufbaproduz.dovalle.app.br aufbaproduz-api.dovalle.app.br aufbaproduz-admin.dovalle.app.br"
+  EMAIL: "guilherme.valle@ufba.br"
 
 docker-build:
   image: docker:latest

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import hero from "../../assets/login.svg";
+
 import { AuthContext } from "../../providers/AuthProvider";
 import React from 'react';
 
@@ -24,7 +24,7 @@ function LoginPage(props: any) {
     }
 
     const handleLogin = () => {
-        api.post('https://mate85-api.litiano.dev.br/api/login', {
+        api.post(`https://mate85-api.litiano.dev.br/api/login`, {
             email, password
         }).then((response: any) => {
 
@@ -44,35 +44,27 @@ function LoginPage(props: any) {
 
     return (
         <div className={styles.login_page}>
-            <div className={styles.login_page__action_container}>
-                <h1>Painel de Administração</h1>
+            
+            <h1>Painel de Administração</h1>
 
-                <div className={styles.login_page__form}>
-                    <div className={styles.login_page__form__input_container}>
-                        <span>E-mail:</span>
-                        <input type="email" placeholder="fulano.beltrano@ufba.br" onChange={handleEmailChange}
-                            value={email} />
-                    </div>
-
-                    <div className={styles.login_page__form__input_container}>
-                        <span>Senha:</span>
-                        <input type="password" placeholder="Senha" onChange={handlePasswordChange}
-                            value={password} />
-                    </div>
-
-                    <button onClick={handleLogin}>Acessar</button>
-
-                    {/*<a target="_blank" href="#!" rel="noreferrer">
-                        Esqueceu a senha?
-                    </a>*/}
-                </div>
+            <div className={styles.login_page__form__input_container}>
+                <span>E-mail:</span>
+                <input type="email" placeholder="fulano.beltrano@ufba.br" onChange={handleEmailChange}
+                    value={email} />
             </div>
 
-            <div className={styles.login_page__divider} />
-
-            <div className={styles.login_page__hero}>
-                <img alt="Login" src={hero} />
+            <div className={styles.login_page__form__input_container}>
+                <span>Senha:</span>
+                <input type="password" placeholder="Senha" onChange={handlePasswordChange}
+                    value={password} />
             </div>
+
+            <button onClick={handleLogin}>Acessar</button>
+
+            {/*<a target="_blank" href="#!" rel="noreferrer">
+                Esqueceu a senha?
+            </a>*/}
+                
         </div>
     );
 }

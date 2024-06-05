@@ -66,7 +66,7 @@ function ProductionPerStudentChart({ filter }) {
 
     
     const getData = (selectedFilter = []) => {
-        axios.get('https://mate85-api.litiano.dev.br/api/dashboard/students_production', {
+        axios.get('http://localhost:8000/api/dashboard/students_production', {
             params: {
                 selectedFilter,
                 publisher_type: publisherType

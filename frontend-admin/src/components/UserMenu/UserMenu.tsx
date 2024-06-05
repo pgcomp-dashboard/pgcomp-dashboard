@@ -25,7 +25,7 @@ function UserMenu() {
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
-    
+
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -44,15 +44,15 @@ function UserMenu() {
                 aria-expanded={open ? 'true' : undefined}>
                 <AccountCircleIcon color="primary" fontSize='inherit' style={iconStyle} />
 
-                {!token ? 
-                    <div><a href="/">Entrar</a></div> 
-                    : 
+                {!token ?
+                    <div><a href="/">Entrar</a></div>
+                    :
                     <div className={styles['user__menu__welcome']}>
                         <span>Olá,</span>
                         <span className={styles['user__menu__name']}>{userName}</span>
                     </div>
                 }
-                
+
             </Button>
 
             <Menu id="user-menu"

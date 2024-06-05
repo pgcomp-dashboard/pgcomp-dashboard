@@ -14,14 +14,14 @@ import { AuthProvider } from './providers/AuthProvider';
 import NotFound from './pages/NotFound';
 import Erro500 from './pages/Erro500';
 import XmlUpload from './components/XmlUpload/XmlUpload';
+import Dashboard from './pages/Dashboard';
 function App() {
     
     return (
         <AuthProvider>
             <div className={styles.App}>
-                <Toolbar />
                 <Routes>
-                    <Route element={<DefaultPage />}>
+                    <Route path='/admin' element={<DefaultPage />}>
                         <Route path='areas' element={<Session />} />
                         <Route path='qualis' element={<Session />} />
                         <Route path='professors' element={<Session />} />
@@ -37,6 +37,7 @@ function App() {
                     <Route path="/login" element={<LoginPage/>} />
                     <Route path="*" element={<NotFound/>} />
                     <Route path="/erro" element={<Erro500/>} />
+                    <Route path="/" element={<Dashboard />} />
                 </Routes>
                 <Footer />
             </div>

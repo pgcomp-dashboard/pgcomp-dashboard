@@ -38,6 +38,7 @@ services:
       test: [ "CMD", "mysqladmin", "ping", "-p$$MYSQL_ROOT_PASSWORD" ]
       retries: 3
       timeout: 5s
+    user: mysql
   redis:
     image: redis:alpine
     healthcheck:

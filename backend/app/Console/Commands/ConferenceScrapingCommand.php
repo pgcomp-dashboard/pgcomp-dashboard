@@ -63,13 +63,20 @@ class ConferenceScrapingCommand extends Command
 
         $this->getOutput()->info('Salvadno dados...');
         $this->withProgressBar($data, function ($item) {
+            print_r($item);
             try {
+                if (!isset($item['Qualis 2016'])) {
+                    throw new ModelNotFoundException('ERROR');
+                }
                 $item['Qualis 2016'] = in_array($item['Qualis 2016'], ['nulo', 'C']) ? '-' : $item['Qualis 2016'];
                 $item['qualis_2016_id'] = StratumQualis::findByCode($item['Qualis 2016'], ['id'])->id;
             } catch (ModelNotFoundException) {
                 $item['qualis_2016_id'] = null;
             }
             try {
+                if (!isset($item['Qualis_Sem_Inducao'])) {
+                    throw new ModelNotFoundException('ERROR');
+                }
                 $item['Qualis_Sem_Inducao'] = in_array($item['Qualis_Sem_Inducao'], ['nulo', 'C']) ?
                     '-' : $item['Qualis_Sem_Inducao'];
                 $item['qualis_without_induction_id'] = StratumQualis::findByCode($item['Qualis_Sem_Inducao'], ['id'])->id;
@@ -77,6 +84,9 @@ class ConferenceScrapingCommand extends Command
                 $item['qualis_without_induction_id'] = null;
             }
             try {
+                if (!isset($item['Qualis_Final'])) {
+                    throw new ModelNotFoundException('ERROR');
+                }
                 $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ?
                     '-' : $item['Qualis_Final'];
                 $item['stratum_qualis_id'] = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
@@ -88,23 +98,10 @@ class ConferenceScrapingCommand extends Command
                 Conference::updateOrCreate(
                     [
                         'initials' => $item['sigla'],
-                        'name' => $item['conferencia'],
+                        'name' => $item['evento'],
                     ],
                     [
-                        'category' => $item['categoria'],
-                        'link' => $item['link'],
-                        'ce_indicated' => $item['CE_Indicou'],
-                        'h5' => $item['h5'],
                         'last_qualis' => $item['Qualis_Final'],
-                        'logs' => $item['logs'],
-                        'h5_old' => $item['h5_old'],
-                        'use_scholar' => $item['Uso do Scholar'] === '1',
-                        'qualis_2016' => $item['Qualis 2016'],
-                        'qualis_without_induction' => $item['Qualis_Sem_Inducao'],
-                        'sbc_adjustment_or_event' => $item['Ajuste ou evento SBC'],
-                        'qualis_2016_id' => $item['qualis_2016_id'],
-                        'qualis_without_induction_id' => $item['qualis_without_induction_id'],
-                        'stratum_qualis_id' => $item['stratum_qualis_id'],
                     ]
                 );
             } catch (ValidationException $exception) {
