@@ -1,0 +1,53 @@
+.nav--toolbar {
+    position: fixed;
+    justify-content: space-around;
+    
+  }
+
+  .toolbar--input--container {
+    display: none;
+  }
+
+  .toolbar--links {
+    position: absolute;
+    right: 0;
+    height: 90vh;
+    text-decoration: none;
+    padding: 20px;
+    top: -3vh;
+    background-color: #292929;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    align-items: left;
+    width: 400px;
+    justify-content: space-evenly;
+    margin-top: -10px;
+    
+  }
+
+  .toolbar--links li {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+  }
+
+ 
+
+  .toolbar--links a {
+    font-size: 22px;
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .toolbar--links a:hover{
+    color: #00B03B;
+    transition: 0.2s;
+  }
+
+  .nav--active {
+    transform: translateX(0%);
+  }

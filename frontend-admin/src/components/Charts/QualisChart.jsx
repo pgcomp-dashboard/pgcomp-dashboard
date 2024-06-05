@@ -12,6 +12,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
 import { useNavigate } from 'react-router-dom';
+import Utils from '../../Utils.js'
 
 ChartJS.register(
     CategoryScale,
@@ -72,7 +73,7 @@ function QualisChart({ filter }) {
 //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de Qualis montado com as cores definidas no qualisCategoriesColors
     const getData = (selectedFilter = []) => {
         const endpointFilter = selectedFilter && !(Array.isArray(selectedFilter)) && selectedFilter !== 'default' ? '/' + qualisFilters[selectedFilter] : '';
-        const url = 'http://localhost:8000/api/dashboard/production_per_qualis'
+        const url = `${Utils.baseUrl}/api/dashboard/production_per_qualis`
         axios.get(url, {
             params: {
                 publisher_type: publisherType,
