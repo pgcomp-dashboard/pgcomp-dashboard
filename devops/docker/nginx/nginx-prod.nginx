@@ -1,20 +1,20 @@
 # Backend laravel HTTP -> HTTPS
 server {
     listen 80;
-    server_name mate85-api.litiano.dev.br;
+    server_name aufbaproduz-api.dovalle.app.br;
 
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
 
     location / {
-        return 301 https://mate85-api.litiano.dev.br$request_uri;
+        return 301 https://aufbaproduz-api.dovalle.app.br$request_uri;
     }
 }
 # Backend laravel HTTPS
 server {
     listen 443 ssl http2;
-    server_name mate85-api.litiano.dev.br;
+    server_name aufbaproduz-api.dovalle.app.br;
     root /var/www/html/backend/public;
 
     add_header X-Frame-Options "SAMEORIGIN";
@@ -28,8 +28,8 @@ server {
     client_body_buffer_size 512K;
     client_body_in_file_only clean;
 
-    ssl_certificate /etc/letsencrypt/live/mate85-api.litiano.dev.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mate85-api.litiano.dev.br/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/aufbaproduz-api.dovalle.app.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/aufbaproduz-api.dovalle.app.br/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -65,14 +65,14 @@ server {
 # Frontend HTTP -> HTTPS
 server {
     listen 80;
-    server_name mate85.litiano.dev.br;
+    server_name aufbaproduz.dovalle.app.br;
 
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
 
     location / {
-        return 301 https://mate85.litiano.dev.br$request_uri;
+        return 301 https://aufbaproduz.dovalle.app.br$request_uri;
     }
 }
 # Frontend HTTPS
@@ -82,10 +82,10 @@ server {
     index index.html;
     root /var/www/html/frontend/dist;
 
-    server_name mate85.litiano.dev.br;
+    server_name aufbaproduz.dovalle.app.br;
 
-    ssl_certificate /etc/letsencrypt/live/mate85.litiano.dev.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mate85.litiano.dev.br/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/aufbaproduz.dovalle.app.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/aufbaproduz.dovalle.app.br/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -132,14 +132,14 @@ server {
 # Frontend Admin HTTP -> HTTPS
 server {
     listen 80;
-    server_name mate85-admin.litiano.dev.br;
+    server_name aufbaproduz-admin.dovalle.app.br;
 
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
 
     location / {
-        return 301 https://mate85-admin.litiano.dev.br$request_uri;
+        return 301 https://aufbaproduz-admin.dovalle.app.br$request_uri;
     }
 }
 # Frontend Admin HTTPS
@@ -149,10 +149,10 @@ server {
     index index.html;
     root /var/www/html/frontend-admin/build;
 
-    server_name mate85-admin.litiano.dev.br;
+    server_name aufbaproduz-admin.dovalle.app.br;
 
-    ssl_certificate /etc/letsencrypt/live/mate85-admin.litiano.dev.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mate85-admin.litiano.dev.br/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/aufbaproduz-admin.dovalle.app.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/aufbaproduz-admin.dovalle.app.br/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -208,8 +208,8 @@ server {
     listen 443 ssl default_server;
     server_name _;
 
-    ssl_certificate /etc/letsencrypt/live/mate85.litiano.dev.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mate85.litiano.dev.br/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/aufbaproduz.dovalle.app.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/aufbaproduz.dovalle.app.br/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 

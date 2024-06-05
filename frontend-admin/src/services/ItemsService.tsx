@@ -11,7 +11,7 @@ async function createItem(config: any, type: string, item: any): Promise<any> {
     switch (type) {
         case 'areas':
             config.method = 'post';
-            config.url = 'https://mate85-api.litiano.dev.br/api/portal/admin/areas';
+            config.url = 'https://aufbaproduz-api.dovalle.app.br/api/portal/admin/areas';
             config.data = { ...item }
             await axios(config).catch((error: any) => {
                 if (error && error.response && error.response.data && error.response.data.message) {
@@ -23,7 +23,7 @@ async function createItem(config: any, type: string, item: any): Promise<any> {
             return responseObj;
         case 'subareas':
             config.method = 'post';
-            config.url = 'https://mate85-api.litiano.dev.br/api/portal/admin/subareas';
+            config.url = 'https://aufbaproduz-api.dovalle.app.br/api/portal/admin/subareas';
             config.data = { ...item, program_id: 1 }
             await axios(config).catch((error: any) => {
                 if (error && error.response && error.response.data && error.response.data.message) {
@@ -56,7 +56,7 @@ async function deleteItem(config: any, type: string, id: number | undefined): Pr
     switch (type) {
         case 'areas':
             config.method = 'delete';
-            config.url = `https://mate85-api.litiano.dev.br/api/portal/admin/areas/${id}`;
+            config.url = `https://aufbaproduz-api.dovalle.app.br/api/portal/admin/areas/${id}`;
             await axios(config)
                 .catch((error: any) => {
                     if (error && error.response && error.response.data && error.response.data.message) {
@@ -67,7 +67,7 @@ async function deleteItem(config: any, type: string, id: number | undefined): Pr
             return responseObj;
         case 'subareas':
             config.method = 'delete';
-            config.url = `https://mate85-api.litiano.dev.br/api/portal/admin/subareas/${id}`;
+            config.url = `https://aufbaproduz-api.dovalle.app.br/api/portal/admin/subareas/${id}`;
             await axios(config)
                 .catch((error: any) => {
                     if (error && error.response && error.response.data && error.response.data.message) {

@@ -17,7 +17,7 @@ function UserMenu() {
     const [userName, setUsername] = useState();
 
     useEffect(() => {
-            api.get('https://mate85-api.litiano.dev.br/api/user').then(response => {
+            api.get('https://aufbaproduz-api.dovalle.app.br/api/user').then(response => {
             setUsername(response.data.name.split(" ")[0])
         })
     }, [token])

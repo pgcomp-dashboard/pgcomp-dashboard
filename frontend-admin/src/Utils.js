@@ -41,6 +41,6 @@ const studentsFilter = [
     }
 ];
 
-const baseUrl = 'http://localhost:8000';
+const baseUrl = 'https://aufbaproduz-api.dovalle.app.br';
 
 export default { universityFilter, studentsFilter, generateColorsArray, baseUrl }

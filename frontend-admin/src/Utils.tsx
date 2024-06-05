@@ -10,5 +10,6 @@ const nameTypes: nameTypesLayout = {
     professors: 'Docente',
     students: 'Discente'
 }
+const baseUrl = 'https://aufbaproduz-api.dovalle.app.br';
 
-export default { nameTypes }
+export default { nameTypes, baseUrl }

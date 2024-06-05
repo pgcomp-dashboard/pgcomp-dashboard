@@ -36,7 +36,7 @@ services:
     entrypoint: "/bin/sh /prod-command.sh"
     restart: always
     healthcheck:
-      test: [ "CMD", "curl", "--fail", "https://mate85.litiano.dev.br/api/healthcheck" ]
+      test: [ "CMD", "curl", "--fail", "https://aufbaproduz.dovalle.app.br/api/healthcheck" ]
       retries: 3
       timeout: 5s
   certbot:
