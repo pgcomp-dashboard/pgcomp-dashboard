@@ -56,7 +56,7 @@ function PieChart({ filter, type }) {
     
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias geradas pelo newBackgroundColors
     const getData = (selectedFilter = []) => {
-        axios.get(`http://localhost:8000/api/dashboard/${type}`, { params: { selectedFilter } })
+        axios.get(`${Utils.baseUrl}/api/dashboard/${type}`, { params: { selectedFilter } })
             .then(({ data }) => {
                 const labels = data[type];
                 const dataChart = data.data;
