@@ -1,11 +1,11 @@
 #!/bin/bash
 
+user="www-data"
+currentCrontab="$(crontab -u $user -l || echo echo -e "${currentCrontab}" | crontab -u $user -)"
+command="* * * * * cd /var/www/html/backend && php artisan schedule:run >> /dev/null 2>&1"
+
 # exit immediately if any command returns != 0
 set -e
-
-user="www-data"
-currentCrontab="$(crontab -u $user -l)"
-command="* * * * * cd /var/www/html/backend && php artisan schedule:run >> /dev/null 2>&1"
 
 if [[ "${currentCrontab}" == *"artisan schedule:run"* ]]; then
   echo "Crontab already installed"
