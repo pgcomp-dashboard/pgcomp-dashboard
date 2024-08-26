@@ -10,7 +10,7 @@ import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton'
 import SessionItemDialog from '../SessionItemDialog/SessionItemDialog';
 import SessionItem from '../SessionItem/SessionItem';
 import styles from './Session.module.css'
-import Utils from '../../Utils'
+import Utils from '../../Utils.js'
 import { AuthContext } from '../../providers/AuthProvider';
 import React from 'react';
 import { api } from '../../services/api';
@@ -28,10 +28,9 @@ function Session() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [loading, setLoading] = useState(false)
 
-
     const [sessionItems, setSessionItems] = useState([]);
 
-    const match = useMatch(":sessionType/*");
+    const match = useMatch("/admin/:sessionType/*");
     const sessionType = match?.params.sessionType || "areas";
 
     const showAdd = sessionType === 'areas';
