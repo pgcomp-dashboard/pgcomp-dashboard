@@ -36,7 +36,7 @@ function LoginPage(props: any) {
 
                 api.defaults.headers.common['Authorization'] = bearer;
              }
-             document.location.href="/areas";
+             document.location.href="/admin";
 
         }).catch(function (response: any) {
             console.log(response);
