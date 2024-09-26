@@ -59,7 +59,7 @@ function PersonInfo(props: any) {
                 </Card>
             </div>
             <div className={styles['upload__section']}>
-                <Button variant="outlined" startIcon={<UploadIcon />} onClick={() => { navigate(`/${sessionType}/${id}/xml-upload`) }}>
+                <Button variant="outlined" startIcon={<UploadIcon />} onClick={() => { navigate(`/admin/${sessionType}/${id}/xml-upload`) }}>
                     Carregar XML do Lattes do {buttonText[sessionType]}
                 </Button>
             </div>
