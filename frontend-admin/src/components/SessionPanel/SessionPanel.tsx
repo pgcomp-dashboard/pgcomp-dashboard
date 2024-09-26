@@ -11,7 +11,7 @@ interface SessionPanelProps {
 }
 
 function SessionPanel({ label, icon, session, isSelected }: SessionPanelProps) {
-    const style = isSelected ? { color: 'yellow', marginLeft: '7px' } : { marginLeft: '7px' };
+    const style = isSelected ? { color: 'yellow', marginLeft: '7px' } : { marginLeft: '7px', color: 'white' };
     const navigate = useNavigate()
     return (
         <li onClick={() => navigate(session, {replace: false})} className={styles['SessionPanel']}>

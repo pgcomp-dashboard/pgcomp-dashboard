@@ -103,8 +103,8 @@ function SessionItem(props: any) {
 
                         {showProductions ?
                             <>
-                                <ArticleIcon style={iconsStyle} onClick={() => navigate(`/${props.type}/${props.id}/productions`)} />
-                                <AccountBoxIcon style={iconsStyle} onClick={() => navigate(`/${props.type}/${props.id}`, { replace: false })} />
+                                <ArticleIcon style={iconsStyle} onClick={() => navigate(`/admin/${props.type}/${props.id}/productions`)} />
+                                <AccountBoxIcon style={iconsStyle} onClick={() => navigate(`/admin/${props.type}/${props.id}`, { replace: false })} />
                             </>
                             : null}
                     </div>
