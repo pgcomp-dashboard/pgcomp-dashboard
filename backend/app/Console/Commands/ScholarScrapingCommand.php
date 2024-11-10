@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use QueryPath\DOMQuery;
+use Symfony\Component\Panther\Client as PantherClient;
+use Symfony\Component\Panther\DomCrawler\Crawler;
 
 class ConferenceScrapingCommand extends Command
 {
@@ -138,6 +140,6 @@ class ConferenceScrapingCommand extends Command
     }
 
     private function saveTeacherArticles($teacher_page_dom) {
-
+        $client = PantherClient::createChromeClient();
     }
 }

@@ -19,7 +19,8 @@
         "laravel/sanctum": "^2.14",
         "laravel/telescope": "^4.7",
         "laravel/tinker": "^2.7",
-        "querypath/querypath": "^3.0"
+        "querypath/querypath": "^3.0",
+        "symfony/panther": "^2.1"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
