@@ -39,7 +39,7 @@ class ConferenceScrapingCommand extends Command
         $ufba_teachers = User::where('type', '=', 'professor')->get()->pluck('name');
         $not_found_teachers = [];
 
-        foreach($ufba_teachers as $ufba_teacher) {
+        foreach(['Ricardo Rios'] as $ufba_teacher) {
             $this->getOutput()->info('Tentando buscar dados do professor ' . $ufba_teacher . "... \n");
 
             $name_queries = $this->getNameQueriesFromTeacherName($ufba_teacher);
@@ -47,25 +47,22 @@ class ConferenceScrapingCommand extends Command
     
             foreach ($name_queries as $name_query) {
                 $authors_list = $this->getAuthorsByQuery($name_query);    
+                $author_page_url = NULL;
 
                 foreach ($authors_list as $author) {
-                    $profile_link = $author->find('h3.gs_ai_name a');
-                    
-                    if (!$profile_link->length) {
+                    $author_page_url = $this->getAuthorPageUrl($author);
+
+                    if (!$author_page_url) {
                         continue;
                     }
-
-                    $author_page_dom = $this->getAuthorPageDomQuery($profile_link->attr('href'));
                     
-                    if ($this->isUfbaTeacher($author_page_dom)) {
-                        $is_ufba_teacher = TRUE;
-                        break;
-                    }
+                    $is_ufba_teacher = TRUE;
+                    break;
                 }
 
                 if ($is_ufba_teacher){
                     $this->getOutput()->info("\nBuscando artigos do professor " . $ufba_teacher . "\n");
-                    $this->saveTeacherArticles($author_page_dom);
+                    $this->saveTeacherArticles($author_page_url);
                     break;
                 }
             }
@@ -139,7 +136,53 @@ class ConferenceScrapingCommand extends Command
         return $combinations;
     }
 
-    private function saveTeacherArticles($teacher_page_dom) {
-        $client = PantherClient::createChromeClient();
+    private function getAuthorPageUrl($author_div) {
+        $profile_link = $author_div->find('h3.gs_ai_name a');
+        
+        if (!$profile_link->length) {
+            return FALSE;
+        }
+        
+        $author_page_dom = $this->getAuthorPageDomQuery($profile_link->attr('href'));
+                    
+        if ($this->isUfbaTeacher($author_page_dom)) {
+            return $profile_link->attr('href');
+        }
+
+        return FALSE;
+    }
+
+    private function saveTeacherArticles($author_url) {
+        $client = PantherClient::createChromeClient(null, ['--no-sandbox', '--disable-dev-shm-usage', '--headless', '--remote-debugging-port=9222']);
+        $page_url = 'https://scholar.google.com' . $author_url;
+
+        print_r($page_url);
+
+        $client->request('GET', $page_url);
+        $crawler = $client->waitFor('#gsc_bpf');
+
+        $show_more_button = $client->getCrawler()->filter('#gsc_bpf_more');
+
+        if ($show_more_button->count() > 0) {
+            print_r("\n\nBotão encontrado\n\n");
+            $show_more_button->click();
+            sleep(5);
+        }
+
+        $form_action = $author_url . '&view_op=list_works';
+
+
+
+        $crawler->filterXPath("//form[@action='{$form_action}']")->each(function (Crawler $row){
+            $rows_on_node = $row->filter('table tr')->count();
+            if ($rows_on_node > 0) {
+                $row->filter('table tr')->each(function (Crawler $table_row){
+                   if ($table_row->filter('td')->count()) {
+                    print_r("\n\n td value: " . $table_row->filter('td')->text() . "\n\n");
+                    // Aqui temos os artigos
+                   }
+                });
+            }    
+        });
     }
 }
