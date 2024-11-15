@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Conference;
+use App\Models\Journal;
 use App\Models\StratumQualis;
 use App\Models\User;
 use GuzzleHttp\Client;
@@ -14,7 +15,7 @@ use QueryPath\DOMQuery;
 use Symfony\Component\Panther\Client as PantherClient;
 use Symfony\Component\Panther\DomCrawler\Crawler;
 
-class ConferenceScrapingCommand extends Command
+class ScholarScrapingCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -164,25 +165,57 @@ class ConferenceScrapingCommand extends Command
         $show_more_button = $client->getCrawler()->filter('#gsc_bpf_more');
 
         if ($show_more_button->count() > 0) {
-            print_r("\n\nBotão encontrado\n\n");
+            print_r("\n\nBotão de show more encontrado\n\n");
             $show_more_button->click();
+            print_r("\n\nClique no botão show more executado. Aguardando 5 segundos...\n\n");
             sleep(5);
         }
 
         $form_action = $author_url . '&view_op=list_works';
-
-
 
         $crawler->filterXPath("//form[@action='{$form_action}']")->each(function (Crawler $row){
             $rows_on_node = $row->filter('table tr')->count();
             if ($rows_on_node > 0) {
                 $row->filter('table tr')->each(function (Crawler $table_row){
                    if ($table_row->filter('td')->count()) {
-                    print_r("\n\n td value: " . $table_row->filter('td')->text() . "\n\n");
-                    // Aqui temos os artigos
+                    $citation_href = $table_row->filter('td')->filter('a')->attr('href');
+                    $article = $this->getArticleData($citation_href);
+                    
+                    if (isset($article['Journal'])) {
+                        $journal_query = Journal::where('name', 'LIKE', '%' . $article['Journal'])->first();
+                        if ($journal_query) {
+                            print_r("\n\nJournal encontrado: "  . $journal_query->name . "\n\n");
+                        } else {
+                            print_r("\n\nJournal não encontrado: "  . $article['Journal'] . "\n\n");
+
+                        }
+                    } else {
+                        print_r("\n\n Artigo não processado: " . $citation_href . "\n\n");
+                    }
+
                    }
                 });
             }    
         });
+    }
+
+    private function getArticleData($article_url) {
+        $page_url = 'https://scholar.google.com' . $article_url;
+        $client = new Client();
+        $html = $client->get($page_url);
+        $article_data = [];
+
+        $dom = html5qp($html->getBody()->getContents());
+
+        $dom->find('.gs_scl')->each(function ($idx, $dom_element) use (&$article_data){
+            $div = qp($dom_element);
+            $field = $div->find('.gsc_oci_field')->text();
+            $value = $div->find('.gsc_oci_value')->text();
+            if (!empty($field) && !empty($value)) {
+                $article_data[trim($field)] = trim($value);
+            }
+        });
+
+        return $article_data;
     }
 }
