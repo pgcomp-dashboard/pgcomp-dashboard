@@ -40,14 +40,14 @@ class ScholarScrapingCommand extends Command
         $ufba_teachers = User::where('type', '=', 'professor')->get()->pluck('name');
         $not_found_teachers = [];
 
-        foreach(['Ricardo Rios'] as $ufba_teacher) {
+        foreach (['Ricardo Rios'] as $ufba_teacher) {
             $this->getOutput()->info('Tentando buscar dados do professor ' . $ufba_teacher . "... \n");
 
             $name_queries = $this->getNameQueriesFromTeacherName($ufba_teacher);
             $is_ufba_teacher = FALSE;
-    
+
             foreach ($name_queries as $name_query) {
-                $authors_list = $this->getAuthorsByQuery($name_query);    
+                $authors_list = $this->getAuthorsByQuery($name_query);
                 $author_page_url = NULL;
 
                 foreach ($authors_list as $author) {
@@ -56,12 +56,12 @@ class ScholarScrapingCommand extends Command
                     if (!$author_page_url) {
                         continue;
                     }
-                    
+
                     $is_ufba_teacher = TRUE;
                     break;
                 }
 
-                if ($is_ufba_teacher){
+                if ($is_ufba_teacher) {
                     $this->getOutput()->info("\nBuscando artigos do professor " . $ufba_teacher . "\n");
                     $this->saveTeacherArticles($author_page_url);
                     break;
@@ -74,7 +74,7 @@ class ScholarScrapingCommand extends Command
 
             continue;
         }
-        
+
         print_r("\nProfessores não encontrados \n");
         print_r(join(" ", $not_found_teachers));
         print_r("\n\n");
@@ -104,17 +104,19 @@ class ScholarScrapingCommand extends Command
         return html5qp($html->getBody()->getContents());
     }
 
-    private function isUfbaTeacher(DOMQuery $author_dom) {
+    private function isUfbaTeacher(DOMQuery $author_dom)
+    {
         $description = $author_dom->find('.gsc_prf_il');
-        
+
         if ($description && str_contains(strtolower($description->text()), 'ufba')) {
             return TRUE;
         }
 
         return FALSE;
-    }   
+    }
 
-    private function getNameQueriesFromTeacherName($teacher_name) {
+    private function getNameQueriesFromTeacherName($teacher_name)
+    {
         $combinations = [$teacher_name];
 
         $name_parts = explode(' ', $teacher_name);
@@ -125,7 +127,7 @@ class ScholarScrapingCommand extends Command
 
         $first_name = $name_parts[0];
 
-         for ($i = 1; $i < count($name_parts); $i++) {
+        for ($i = 1; $i < count($name_parts); $i++) {
             if (in_array(strtolower($name_parts[$i]), ["de", "do", "da", "dos", "das"])) {
                 continue;
             }
@@ -137,15 +139,16 @@ class ScholarScrapingCommand extends Command
         return $combinations;
     }
 
-    private function getAuthorPageUrl($author_div) {
+    private function getAuthorPageUrl($author_div)
+    {
         $profile_link = $author_div->find('h3.gs_ai_name a');
-        
+
         if (!$profile_link->length) {
             return FALSE;
         }
-        
+
         $author_page_dom = $this->getAuthorPageDomQuery($profile_link->attr('href'));
-                    
+
         if ($this->isUfbaTeacher($author_page_dom)) {
             return $profile_link->attr('href');
         }
@@ -153,7 +156,8 @@ class ScholarScrapingCommand extends Command
         return FALSE;
     }
 
-    private function saveTeacherArticles($author_url) {
+    private function saveTeacherArticles($author_url)
+    {
         $client = PantherClient::createChromeClient(null, ['--no-sandbox', '--disable-dev-shm-usage', '--headless', '--remote-debugging-port=9222']);
         $page_url = 'https://scholar.google.com' . $author_url;
 
@@ -173,33 +177,40 @@ class ScholarScrapingCommand extends Command
 
         $form_action = $author_url . '&view_op=list_works';
 
-        $crawler->filterXPath("//form[@action='{$form_action}']")->each(function (Crawler $row){
+        $crawler->filterXPath("//form[@action='{$form_action}']")->each(function (Crawler $row) {
             $rows_on_node = $row->filter('table tr')->count();
             if ($rows_on_node > 0) {
-                $row->filter('table tr')->each(function (Crawler $table_row){
-                   if ($table_row->filter('td')->count()) {
-                    $citation_href = $table_row->filter('td')->filter('a')->attr('href');
-                    $article = $this->getArticleData($citation_href);
-                    
-                    if (isset($article['Journal'])) {
-                        $journal_query = Journal::where('name', 'LIKE', '%' . $article['Journal'])->first();
-                        if ($journal_query) {
-                            print_r("\n\nJournal encontrado: "  . $journal_query->name . "\n\n");
+                $row->filter('table tr')->each(function (Crawler $table_row) {
+                    if ($table_row->filter('td')->count()) {
+                        $citation_href = $table_row->filter('td')->filter('a')->attr('href');
+                        $article = $this->getArticleData($citation_href);
+
+                        if (isset($article['Journal']) || isset($article['Source']) || isset($article['Publisher'])) {
+                            $param = isset($article['Journal']) ? 'Journal' : (isset($article['Source']) ? 'Source' : 'Publisher');
+                            $journal_query = Journal::where('name', 'LIKE', '%' . $article[$param])->first();
+                            if ($journal_query) {
+                                print_r("\n\n{$param} encontrado: "  . $journal_query->name . "\n\n");
+                            } else {
+                                print_r("\n\n{$param}  não encontrado: "  . $article[$param] . "\n\n");
+                            }
+                        } else if (isset($article['Conference'])) {
+                            $journal_query = Conference::where('name', 'LIKE', '%' . $article['Conference'])->first();
+                            if ($journal_query) {
+                                print_r("\n\Conference encontrado: "  . $journal_query->name . "\n\n");
+                            } else {
+                                print_r("\n\Conference não encontrado: "  . $article['Conference'] . "\n\n");
+                            }
                         } else {
-                            print_r("\n\nJournal não encontrado: "  . $article['Journal'] . "\n\n");
-
+                            print_r("\n\n Artigo não processado: " . $citation_href . "\n\n");
                         }
-                    } else {
-                        print_r("\n\n Artigo não processado: " . $citation_href . "\n\n");
                     }
-
-                   }
                 });
-            }    
+            }
         });
     }
 
-    private function getArticleData($article_url) {
+    private function getArticleData($article_url)
+    {
         $page_url = 'https://scholar.google.com' . $article_url;
         $client = new Client();
         $html = $client->get($page_url);
@@ -207,10 +218,11 @@ class ScholarScrapingCommand extends Command
 
         $dom = html5qp($html->getBody()->getContents());
 
-        $dom->find('.gs_scl')->each(function ($idx, $dom_element) use (&$article_data){
+        $dom->find('.gs_scl')->each(function ($idx, $dom_element) use (&$article_data) {
             $div = qp($dom_element);
             $field = $div->find('.gsc_oci_field')->text();
             $value = $div->find('.gsc_oci_value')->text();
+
             if (!empty($field) && !empty($value)) {
                 $article_data[trim($field)] = trim($value);
             }
