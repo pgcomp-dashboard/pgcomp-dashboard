@@ -47,10 +47,12 @@ class ScholarScrapingCommand extends Command
             $is_ufba_teacher = FALSE;
 
             foreach ($name_queries as $name_query) {
+                print_r('request 1');
                 $authors_list = $this->getAuthorsByQuery($name_query);
                 $author_page_url = NULL;
 
                 foreach ($authors_list as $author) {
+                    print_r('request 2');
                     $author_page_url = $this->getAuthorPageUrl($author);
 
                     if (!$author_page_url) {
@@ -63,6 +65,7 @@ class ScholarScrapingCommand extends Command
 
                 if ($is_ufba_teacher) {
                     $this->getOutput()->info("\nBuscando artigos do professor " . $ufba_teacher . "\n");
+                    print_r('request 3');
                     $this->saveTeacherArticles($author_page_url);
                     break;
                 }
@@ -82,12 +85,32 @@ class ScholarScrapingCommand extends Command
         return 0;
     }
 
+    private function getProxy() {
+        $proxyIp = '52.67.10.183';
+        $proxyPort = '80';
+        return "http://{$proxyIp}:{$proxyPort}";
+    }
+
+    private function getClient() {
+        return new Client([
+            'proxy' => $this->getProxy(),
+            'timeout' => 0,
+            // 'verify' => storage_path('cacert.pem'),
+            'connect_timeout' => 0,
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept-Language' => 'en-US,en;q=0.9',
+                'Referer' => 'https://scholar.google.com/',
+            ],
+        ]);
+    }
+
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function getAuthorsByQuery($string): DOMQuery
     {
-        $client = new Client();
+        $client = $this->getClient();
         $query = str_replace(' ', '+', $string);
         $url = 'https://scholar.google.com/citations?hl=en&view_op=search_authors&mauthors=' . $query;
         $html = $client->get($url);
@@ -97,7 +120,7 @@ class ScholarScrapingCommand extends Command
 
     protected function getAuthorPageDomQuery($query): DOMQuery
     {
-        $client = new Client();
+        $client = $this->getClient();
         $url = 'https://scholar.google.com' . $query;
         $html = $client->get($url);
 
@@ -158,7 +181,9 @@ class ScholarScrapingCommand extends Command
 
     private function saveTeacherArticles($author_url)
     {
-        $client = PantherClient::createChromeClient(null, ['--no-sandbox', '--disable-dev-shm-usage', '--headless', '--remote-debugging-port=9222']);
+        $proxy_server = $this->getProxy();
+        $client = PantherClient::createChromeClient(null, ['--no-sandbox', '--disable-dev-shm-usage', 
+        '--headless', '--remote-debugging-port=9222', "--proxy-server={$proxy_server}"]);
         $page_url = 'https://scholar.google.com' . $author_url;
 
         print_r($page_url);
@@ -176,58 +201,78 @@ class ScholarScrapingCommand extends Command
         }
 
         $form_action = $author_url . '&view_op=list_works';
-
-        $crawler->filterXPath("//form[@action='{$form_action}']")->each(function (Crawler $row) {
+        $production_found = 0;
+        $production_not_found = 0;
+        $crawler->filterXPath("//form[@action='{$form_action}']")->each(function (Crawler $row) 
+            use (&$production_found, &$production_not_found) {
             $rows_on_node = $row->filter('table tr')->count();
             if ($rows_on_node > 0) {
-                $row->filter('table tr')->each(function (Crawler $table_row) {
+                $row->filter('table tr')->each(function (Crawler $table_row) use (&$production_found, &$production_not_found) {
                     if ($table_row->filter('td')->count()) {
                         $citation_href = $table_row->filter('td')->filter('a')->attr('href');
                         $article = $this->getArticleData($citation_href);
+
+                        if ($article === 'get_error') {
+                            print_r("Produções encontradas: " . $production_found);
+                            print_r("Produções não encontradas: " . $production_not_found);
+                            die;
+                        }
 
                         if (isset($article['Journal']) || isset($article['Source']) || isset($article['Publisher'])) {
                             $param = isset($article['Journal']) ? 'Journal' : (isset($article['Source']) ? 'Source' : 'Publisher');
                             $journal_query = Journal::where('name', 'LIKE', '%' . $article[$param])->first();
                             if ($journal_query) {
+                                $production_found += 1;
                                 print_r("\n\n{$param} encontrado: "  . $journal_query->name . "\n\n");
                             } else {
+                                $production_not_found += 1;
                                 print_r("\n\n{$param}  não encontrado: "  . $article[$param] . "\n\n");
                             }
                         } else if (isset($article['Conference'])) {
                             $journal_query = Conference::where('name', 'LIKE', '%' . $article['Conference'])->first();
                             if ($journal_query) {
+                                $production_found += 1;
                                 print_r("\n\Conference encontrado: "  . $journal_query->name . "\n\n");
                             } else {
+                                $production_not_found += 1;
                                 print_r("\n\Conference não encontrado: "  . $article['Conference'] . "\n\n");
                             }
                         } else {
+                            $production_not_found += 1;
                             print_r("\n\n Artigo não processado: " . $citation_href . "\n\n");
                         }
                     }
                 });
             }
         });
+
+        print_r("Produções encontradas: " . $production_found);
+        print_r("Produções não encontradas: " . $production_not_found);
     }
 
     private function getArticleData($article_url)
     {
         $page_url = 'https://scholar.google.com' . $article_url;
-        $client = new Client();
-        $html = $client->get($page_url);
-        $article_data = [];
-
-        $dom = html5qp($html->getBody()->getContents());
-
-        $dom->find('.gs_scl')->each(function ($idx, $dom_element) use (&$article_data) {
-            $div = qp($dom_element);
-            $field = $div->find('.gsc_oci_field')->text();
-            $value = $div->find('.gsc_oci_value')->text();
-
-            if (!empty($field) && !empty($value)) {
-                $article_data[trim($field)] = trim($value);
-            }
-        });
-
-        return $article_data;
+        try {
+            $client = $this->getClient();
+            $html = $client->get($page_url);
+            $article_data = [];
+    
+            $dom = html5qp($html->getBody()->getContents());
+    
+            $dom->find('.gs_scl')->each(function ($idx, $dom_element) use (&$article_data) {
+                $div = qp($dom_element);
+                $field = $div->find('.gsc_oci_field')->text();
+                $value = $div->find('.gsc_oci_value')->text();
+    
+                if (!empty($field) && !empty($value)) {
+                    $article_data[trim($field)] = trim($value);
+                }
+            });
+    
+            return $article_data;
+        } catch(\Exception $e) {
+            return 'get_error';
+        }
     }
 }
