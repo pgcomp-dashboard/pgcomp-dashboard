@@ -68,6 +68,8 @@ function PieChart({ filter, type }) {
                         }]
                 };
 
+                console.log("pieData", pieData);
+
                 setChartData(pieData)
 
             })
@@ -102,6 +104,8 @@ function PieChart({ filter, type }) {
 
         getData(filter);
     }, [filter]);
+
+    console.log('pieData options', options);
 
     return chartData ? <Pie width={300} height={300} options={options} data={chartData} /> : null;
 }

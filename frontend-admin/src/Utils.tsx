@@ -10,6 +10,6 @@ const nameTypes: nameTypesLayout = {
     professors: 'Docente',
     students: 'Discente'
 }
-const baseUrl = 'https://aufbaproduz-api.dovalle.app.br';
+const baseUrl = 'http://localhost:8000';
 
 export default { nameTypes, baseUrl }

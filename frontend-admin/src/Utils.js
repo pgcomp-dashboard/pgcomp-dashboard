@@ -1,3 +1,5 @@
+import MobileDetect from 'mobile-detect';
+
 function generateColorsArray(numberOfColors) {
     const colorsArray = [];
     let r, g, b;
@@ -49,6 +51,21 @@ const nameTypes = {
     students: 'Discente'
 }
 
-const baseUrl = 'https://aufbaproduz-api.dovalle.app.br';
 
-export default { universityFilter, studentsFilter, generateColorsArray, baseUrl, nameTypes }
+function determineIfMobile(width = 992) {
+    let mobileDetect = new MobileDetect(window.navigator.userAgent);
+  
+    if (mobileDetect.mobile() !== null) {
+      return true;
+    }
+  
+    if (window.innerWidth <= width) {
+      return true;
+    }
+  
+    return false;
+  }
+  
+const baseUrl = 'http://localhost:8000';
+
+export default { universityFilter, studentsFilter, generateColorsArray, baseUrl, nameTypes, determineIfMobile }

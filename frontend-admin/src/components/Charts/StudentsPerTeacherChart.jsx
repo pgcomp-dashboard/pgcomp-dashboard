@@ -1,4 +1,4 @@
-import { Bar } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -25,18 +25,18 @@ ChartJS.register(
     Legend
 );
 
-function StudentsPerTeacherChart({ filter }) {
+function StudentsPerTeacherChart({ filter, isMobile }) {
     const [chartData, setChartData] = useState(null);
     const history = useNavigate();
+    console.log('isMobile', isMobile);
 
-    const options = {
+    const [options, setOptions] =  useState({
         elements: {
             bar: {
                 borderWidth: 2,
             },
         },
         responsive: true,
-        
         plugins: {
             legend: {
                 display: false,
@@ -48,8 +48,8 @@ function StudentsPerTeacherChart({ filter }) {
                 color: 'grey',
                 anchor: 'end',
                 align: 'top',
-                offset: 6,
                 display: true,
+                clamp: true,
                 font: {
                     weight: 'bold'
                 }
@@ -60,23 +60,42 @@ function StudentsPerTeacherChart({ filter }) {
               beginAtZero: true,
               suggestedMax: 17
             }
-          }
-    }
+          },
+    })
 
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias
     const getData = (selectedFilter = []) => {
         axios.get(`${Utils.baseUrl}/api/dashboard/total_students_per_advisor`, { params: { user_type: selectedFilter } })
         .then(({ data }) => {
-            const labels = map(data, 'name');
-
+            const aggregateData = (data, threshold = 5, withOthers = true) => {
+                const aggregated = data.reduce((acc, item) => {
+                    if (item.advisedes_count <= threshold) {
+                        acc.others += item.advisedes_count;
+                    } else {
+                        acc.labels.push(item.name);
+                        acc.values.push(item.advisedes_count);
+                    }
+                    return acc;
+                }, { labels: [], values: [], others: 0 });
+            
+                if (aggregated.others > 0 && withOthers) {
+                    aggregated.labels.push('Outros');
+                    aggregated.values.push(aggregated.others);
+                }
+            
+                return aggregated;
+            };
+            
+            const { labels, values } = aggregateData(data, (isMobile ? 15 : 0), true);
             const teachersData = {
                 labels,
                 datasets: [
                     {
                         label: 'Número de alunos',
-                        data: map(data, 'advisedes_count'),
-                        backgroundColor: Utils.generateColorsArray(data.length)
-                    }]
+                        data: values,
+                        backgroundColor: Utils.generateColorsArray(labels.length),
+                    },
+                ],
             };
 
             setChartData(teachersData);
@@ -109,11 +128,43 @@ function StudentsPerTeacherChart({ filter }) {
     useEffect(() => {
         if (filter == 'default') filter = [];
 
+        if (isMobile) {
+            setOptions({
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                    },
+                    title: {
+                        display: false,
+                        text: 'Chart.js Pie Chart',
+                    },
+                    datalabels: {
+                        color: 'white',
+                        anchor: 'center',
+                        align: 'center',
+                        clamp: true,
+                        offset: 4,
+                        display: true,
+                        font: {
+                            weight: 'bold',
+                            size: 20
+                        }
+                    },
+                }
+            });
+        }
+
         getData(filter);
-    }, [filter]);
+    }, [filter, isMobile]);
+
+    console.log('SPT data', chartData);
+    console.log('SPT options', options);
 
     return (
-        chartData ? <Bar options={options} data={chartData} /> : null
+        chartData ? (isMobile ? <Pie width={300} height={300} options={options} data={chartData} /> : 
+            <Bar options={options} data={chartData} />) : null
 
     )
 }

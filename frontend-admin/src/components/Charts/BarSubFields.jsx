@@ -1,6 +1,6 @@
 import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Utils from '../../Utils.js'
@@ -12,13 +12,13 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 //TODO: mudar de nome a classe e chamar de field. criar um novo componente de subfield
 //TODO: get na url 'dashboard/subfields'
 
-function PieChart({ filter, type }) {
+function PieChart({ filter, type, isMobile }) {
     const [chartData, setChartData] = useState(null);
     const [backgroundColors, setBackgroundColors] = useState(null);
     const history = useNavigate();
 
     {/* configurações do gráfico Chart.js*/ }
-    const options = {
+    const [options, setOptions] = useState({
         elements: {
             bar: {
                 borderWidth: 2,
@@ -52,7 +52,7 @@ function PieChart({ filter, type }) {
                 }
             },
         }
-    }
+    })
     
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias geradas pelo newBackgroundColors
     const getData = (selectedFilter = []) => {
@@ -113,10 +113,39 @@ function PieChart({ filter, type }) {
     useEffect(() => {
         if (filter == 'default') filter = [];
 
-        getData(filter);
-    }, [filter]);
+        if (isMobile) {
+            setOptions({
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                    },
+                    title: {
+                        display: false,
+                        text: 'Chart.js Pie Chart',
+                    },
+                    datalabels: {
+                        color: 'white',
+                        anchor: 'center',
+                        align: 'center',
+                        clamp: true,
+                        offset: 4,
+                        display: true,
+                        font: {
+                            weight: 'bold',
+                            size: 20
+                        }
+                    },
+                }
+            });
+        }
 
-    return chartData ? <Bar width={300} height={300} options={options} data={chartData} /> : null;
+        getData(filter);
+    }, [filter, isMobile]);
+
+    return chartData ? (isMobile ? <Pie width={300} height={300} options={options} data={chartData} /> : 
+        <Bar width={300} height={300} options={options} data={chartData} />) : null;
 }
 
 export default PieChart

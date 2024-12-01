@@ -13,10 +13,23 @@ import StudentsPerSubfieldChart from "../../components/Charts/StudentsPerSubfiel
 import StudentsPerFieldChart from "../../components/Charts/StudentsPerFieldChart";
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import BurgerMenu from "../../components/BurgerMenu/BurgerMenu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function Dashboard() {
     const [showBurgerMenu, setShowBurgerMenu] = useState(false);
+    const [isMobile, setIsMobile] = useState(Utils.determineIfMobile());
+
+    const handleResize = () => {
+        setIsMobile(Utils.determineIfMobile());
+    }
+
+    useEffect(() => {
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        }
+    })
 
     return (
         <div>
@@ -37,7 +50,8 @@ function Dashboard() {
                     idSession="productions-amount"
                     icon={ShowChartIcon}
                     filterOptions={Utils.universityFilter}
-                    chart={ProductionsAmountChart} />
+                    chart={ProductionsAmountChart}
+                    isMobile={isMobile} />
 
                 {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Qualis"
@@ -46,7 +60,8 @@ function Dashboard() {
                     idSession={"qualis"}
                     icon={AssessmentIcon}
                     filterOptions={Utils.universityFilter}
-                    chart={QualisChart} />
+                    chart={QualisChart}
+                    isMobile={isMobile} />
 
                 {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Alunos por docente"
@@ -55,7 +70,8 @@ function Dashboard() {
                     idSession="students-per-teacher"
                     icon={AssessmentIcon}
                     filterOptions={Utils.studentsFilter}
-                    chart={StudentsPerTeacherChart} />
+                    chart={StudentsPerTeacherChart}
+                    isMobile={isMobile} />
 
                 {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Alunos por área"
@@ -66,7 +82,8 @@ function Dashboard() {
                     type="fields"
                     icon={PieChartIcon}
                     filterOptions={Utils.studentsFilter}
-                    chart={StudentsPerFieldChart} />
+                    chart={StudentsPerFieldChart}
+                    isMobile={isMobile} />
 
                 {/*rendereiza o card com o gráfico passado via props*/}
                 <DataCard title="Alunos por subárea"
@@ -77,7 +94,8 @@ function Dashboard() {
                     type="subfields"
                     icon={AssessmentIcon}
                     filterOptions={Utils.studentsFilter}
-                    chart={StudentsPerSubfieldChart} />
+                    chart={StudentsPerSubfieldChart}
+                    isMobile={isMobile} />
             </div>
         </div>
     )
