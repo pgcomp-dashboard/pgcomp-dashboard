@@ -30,7 +30,7 @@ export default function UserProductions(){
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false)
   const {pathname, key: navigateKey} = useLocation()
-  const match = useMatch("/admin/:userType/*")
+  const match = useMatch("/admin/:userType/:userId/*");
 
   const handleOpenEdit = (production : ProductionProps) => {
     setSelectedProduction(production);
@@ -45,7 +45,7 @@ export default function UserProductions(){
   type UserKey = keyof typeof userType
 
   useEffect(() => {
-    api.get(pathname, {params: { page: searchParams.get('page')}}).then(response => {
+    api.get(`${match?.params.userType}/${match?.params.userId}/productions`, {params: { page: searchParams.get('page')}}).then(response => {
       setProductions(response.data.data)
       setTotalPage(response.data.last_page)
     });
