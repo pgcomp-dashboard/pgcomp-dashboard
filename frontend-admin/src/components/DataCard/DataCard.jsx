@@ -25,7 +25,7 @@ function DataCard(props) {
                     }
                 />
                 <CardContent>
-                    <props.chart filter={filter} />
+                    <props.chart filter={filter} isMobile={props.isMobile} />
                 </CardContent>
             </Card>
         </div>
