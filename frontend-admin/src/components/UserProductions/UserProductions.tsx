@@ -30,7 +30,7 @@ export default function UserProductions(){
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false)
   const {pathname, key: navigateKey} = useLocation()
-  const match = useMatch(":userType/*")
+  const match = useMatch("/admin/:userType/*")
 
   const handleOpenEdit = (production : ProductionProps) => {
     setSelectedProduction(production);

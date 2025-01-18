@@ -9,7 +9,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 
 function PersonInfo(props: any) {
     const navigate = useNavigate();
-    const match = useMatch(":sessionType/:id");
+    const match = useMatch("/admin/:sessionType/:id");
     const sessionType = match?.params.sessionType;
     const id = match?.params.id;
 
@@ -42,9 +42,9 @@ function PersonInfo(props: any) {
     if (sessionType !== undefined && personData !== {}) {
         return <div className={styles['PersonInfo']}>
             <div className={styles['person__info']}>
-                <Card sx={{ width: '100%', height: '50%' }}>
+                <Card sx={{ width: '100%', height: '50%', backgroundColor: 'white' }}>
                     <CardHeader title={`Informações do ${sessionTypes[sessionType]} ${personData.name}`}
-                        sx={{ backgroundColor: '#292929', color: 'white' }}
+                        sx={{ color: 'white' }}
                         titleTypographyProps={{ variant: 'h5' }}>
                     </CardHeader>
                     <CardContent>
@@ -58,11 +58,11 @@ function PersonInfo(props: any) {
                     </CardContent>
                 </Card>
             </div>
-            <div className={styles['upload__section']}>
+            {/* <div className={styles['upload__section']}>
                 <Button variant="outlined" startIcon={<UploadIcon />} onClick={() => { navigate(`/admin/${sessionType}/${id}/xml-upload`) }}>
                     Carregar XML do Lattes do {buttonText[sessionType]}
                 </Button>
-            </div>
+            </div> */}
         </div>;
 
     }
