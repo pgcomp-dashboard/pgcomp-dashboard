@@ -148,7 +148,7 @@ $ sudo chmod 755 $DESTINATION
 
 ```bash
 # Clonando repositório
-$ git clone -b develop https://gitlab.com/aufbaproduz/aufbaproduz.git
+$ git clone https://github.com/fleap-dev/pgcomp-dashboard.git
 
 ```
 
@@ -237,22 +237,17 @@ As seguintes ferramentas foram usadas na construção do projeto:
 ---
 
 ## 👨‍💻 Contribuidores
-- **Gestor do Projeto:**
-    - Diego Corrêa
 
-- **Frontend:**
-    - Guilherme do Valle
-    - Matheus Aguiar
-    - Iury Assunção
-
-- **Backend:**
-    - Mateus Carvalho
-    - Litiano Moura
-
-- **Documentação:**
-    - Mayki Oliveira
-    - Denis Boaventura
-
-- **Teste:**
-    - Ayran Campos
-    - Matheus Novais
+- Felipe Paixão
+- Lucas Lopes
+- Lucas França
+- Harrison Borges
+- Paulo Sérgio
+- Rodrigo dos Santos
+- Matheus Nascimento
+- Tatiana Dias
+- Augusto Perin
+- Jurgen Fink
+- Júlia Brito
+- Juliana Nascimento
+- Gustavo Coelho
