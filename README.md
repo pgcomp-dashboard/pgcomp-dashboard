@@ -1,4 +1,4 @@
-<h1 align="center">Dashboard de Produção Científica - UFBA</h1>
+<h1 align="center">Dashboard do PGCOMP</h1>
 
 
 
