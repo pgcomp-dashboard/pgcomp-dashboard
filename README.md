@@ -238,6 +238,9 @@ As seguintes ferramentas foram usadas na construção do projeto:
 
 ## 👨‍💻 Contribuidores
 
+Esse projeto é baseado em um projeto original diponível [AQUI](https://gitlab.com/aufbaproduz/aufbaproduz).
+
+### Autores atuais
 - Felipe Paixão
 - Lucas Lopes
 - Lucas França
@@ -247,7 +250,15 @@ As seguintes ferramentas foram usadas na construção do projeto:
 - Matheus Nascimento
 - Tatiana Dias
 - Augusto Perin
-- Jurgen Fink
-- Júlia Brito
-- Juliana Nascimento
-- Gustavo Coelho
+
+### Autores do projeto original
+- Diego Corrêa
+- Guilherme do Valle
+- Matheus Aguiar
+- Iury Assunção
+- Mateus Carvalho
+- Litiano Moura
+- Mayki Oliveira
+- Denis Boaventura
+- Ayran Campos
+- Matheus Novais
