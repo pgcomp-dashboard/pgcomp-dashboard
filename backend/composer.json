@@ -5,32 +5,35 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
-        "php": "^8.0.2",
+        "php": "^8.3",
         "ext-dom": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
         "ext-zip": "*",
         "aws/aws-sdk-php": "^3.221",
+        "doctrine/dbal": "^3.0",
         "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
-        "knuckleswtf/scribe": "^3.28",
+        "knuckleswtf/scribe": "^5.0",
         "laravel/fortify": "^1.11",
-        "laravel/framework": "^9.2",
-        "laravel/sanctum": "^2.14",
-        "laravel/telescope": "^4.7",
+        "laravel/framework": "^12.0",
+        "laravel/sanctum": "^4.0",
+        "laravel/telescope": "^5.0",
         "laravel/tinker": "^2.7",
+        "pestphp/pest": "^3.0",
+        "predis/predis": "*",
         "querypath/querypath": "^3.0",
         "symfony/panther": "^2.1"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^2.12",
+        "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
         "lucascudo/laravel-pt-br-localization": "^1.2",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^6.1",
-        "phpunit/phpunit": "^9.5.10",
-        "spatie/laravel-ignition": "^1.0"
+        "nunomaduro/collision": "^8.1",
+        "phpunit/phpunit": "^11.0",
+        "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -75,7 +78,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true
