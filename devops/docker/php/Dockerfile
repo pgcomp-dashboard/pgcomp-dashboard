@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-alpine AS base
+FROM php:8.3-fpm-alpine AS base
 
 ARG UID=1000
 ARG GID=1000
@@ -28,6 +28,7 @@ COPY devops/docker/php/commands/wait-for-mysql.bash /wait-for-mysql.bash
 ######################### Develop #############################################
 FROM base AS develop
 
+RUN apk add --no-cache linux-headers
 RUN pecl install xdebug
 RUN docker-php-ext-enable xdebug
 

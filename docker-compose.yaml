@@ -1,13 +1,14 @@
 version: '3.8'
 services:
   php:
-    image: litiano/php-mate85
-#    build:
-#      context: devops/docker/php
-#      target: develop
-#      args:
-#        - UID=${UID-1000}
-#        - GID=${GID-1000}
+    # image: litiano/php-mate85
+    build:
+     #context: devops/docker/php
+     target: develop
+     dockerfile: devops/docker/php/Dockerfile
+     args:
+       - UID=${UID-1000}
+       - GID=${GID-1000}
     volumes:
       - ./backend:/var/www/html
       - ./devops/docker/php/dev.ini:/usr/local/etc/php/conf.d/dev.ini
