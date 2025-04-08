@@ -27,8 +27,7 @@
 
 Este projeto foi realizado por meio da disciplina Tópicos em Sistemas de Informação e WEB I, ministrada pelo professor Frederico Araújo Durão. O mesmo visa disponibilizar através de um Dashboard público, visualizações gráficas acerca das publicações realizadas pelo Programa de Pós-Graduação em Ciência da Computação (PGCOMP).
 
-[Acessar Documentação do Projeto](https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/home)
-[Requisitos atualizados](https://docs.google.com/document/d/12PHxVdrMQvNQfNyzKNS9bahFkavDp2HwbpmjvzFArY0/edit?usp=drivesdk)
+[Acessar Documentação do Projeto](https://github.com/pgcomp-dashboard/pgcomp-dashboard/wiki)
 
 ---
 
