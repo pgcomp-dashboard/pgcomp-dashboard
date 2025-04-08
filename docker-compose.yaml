@@ -1,13 +1,14 @@
 version: '3.8'
+
 services:
   php:
-    image: litiano/php-mate85
-#    build:
-#      context: devops/docker/php
-#      target: develop
-#      args:
-#        - UID=${UID-1000}
-#        - GID=${GID-1000}
+    build:
+      context: .
+      dockerfile: devops/docker/php/Dockerfile
+      target: develop
+      args:
+        - UID=${UID-1000}
+        - GID=${GID-1000}
     volumes:
       - ./backend:/var/www/html
       - ./devops/docker/php/dev.ini:/usr/local/etc/php/conf.d/dev.ini
@@ -19,6 +20,7 @@ services:
     depends_on:
       - mysql
       - redis
+
   mysql:
     build:
       context: devops/docker/mysql
@@ -39,12 +41,14 @@ services:
       retries: 3
       timeout: 5s
     user: mysql
+
   redis:
     image: redis:alpine
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       retries: 3
       timeout: 5s
+
   node:
     image: node:16.14-slim
     user: node
@@ -54,6 +58,7 @@ services:
     entrypoint: tail -f /dev/null
     ports:
       - '3000:3000'
+
   frontend-admin:
     image: node:16.14-slim
     user: node
@@ -63,6 +68,7 @@ services:
     entrypoint: tail -f /dev/null
     ports:
       - '4000:4000'
+
   nginx:
     image: nginx:stable-alpine
     volumes:
@@ -76,13 +82,15 @@ services:
       test: [ "CMD", "curl", "--fail", "http://localhost:80/api/healthcheck" ]
       retries: 3
       timeout: 5s
+
   phpmyadmin:
     image: phpmyadmin
     ports:
       - '8080:80'
     environment:
       - PMA_HOST=mysql
+
   mailhog:
-    image: 'mailhog/mailhog:latest'
+    image: mailhog/mailhog:latest
     ports:
       - '8025:8025'
