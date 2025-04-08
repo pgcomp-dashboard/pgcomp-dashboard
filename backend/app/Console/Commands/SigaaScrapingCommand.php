@@ -12,6 +12,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -93,7 +94,7 @@ class SigaaScrapingCommand extends Command
     {
         foreach ($students as $student) {
             try {
-                $user = \DB::transaction(function () use ($student) {
+                $user = DB::transaction(function () use ($student) {
                     $user = User::createOrUpdateStudent($student);
                     $allTeachers = $this->getAdvisorIds($student['teachers']);
 

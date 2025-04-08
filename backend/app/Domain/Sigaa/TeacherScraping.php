@@ -17,7 +17,7 @@ class TeacherScraping extends BaseScraping
     {
         $dom = $this->getDOMQuery('https://sigaa.ufba.br/sigaa/public/programa/equipe.jsf', ['id' => $programId]);
         $program = $this->getProgram($programId, $dom);
-        $items = $dom->find('div#listagem_tabela table#table_lt tr')->getIterator();
+        $items = $dom->find('#equipePrograma table#table_lt tr')->getIterator();
         $teachers = [];
         foreach ($items as $item) {
             if ($item->hasClass('campos')) {
