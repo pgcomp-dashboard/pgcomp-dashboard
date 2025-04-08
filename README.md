@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://www.ufba.br/">
-    <img alt="Feito por AUFBAProduz" src="https://img.shields.io/badge/feito%20por-AUFBAProduz-%237519C1">
+    <img alt="Feito por PGComp Dashboard Team" src="https://img.shields.io/badge/feito%20por-PGComp%20Dashboard%20Team-orange">
   </a>
 </p>
 
@@ -66,8 +66,8 @@ Além disso, existe o frontend-admin, no qual um usuário do tipo Admin, após l
 
 O layout da aplicação está disponível no Figma:
 
-<a href="https://www.figma.com/file/9M697aFVIxaRZ3gWmGwrrc/new-dashboard-pgcomp?node-id=0%3A1">
-  <img alt="Made by tgmarinho" src="https://img.shields.io/badge/Acessar%20Layout%20-Figma-%2304D361">
+<a href="https://www.figma.com/design/Mx3VAlEXphCa124t9gl3Qb/dashboard-pgcomp-2025">
+  <img alt="Special thanks to tgmarinho" src="https://img.shields.io/badge/Acessar%20Layout%20-Figma-%2304D361">
 </a>
 
 ### Frontend-admin
@@ -171,6 +171,7 @@ $ php artisan migrate
 $ exit
 
 # O servidor phpmyadmin será iniciado na porta:8080 - acesse http://localhost:8080
+# É possível que o Windows ignore os comandos após o '&&', se isso acontecer é recomendado rodar cada comando individualmente.
 ```
 
 
@@ -232,7 +233,7 @@ As seguintes ferramentas foram usadas na construção do projeto:
 
 #### **Utilitários**
 
--   Protótipo:  **[Figma](https://www.figma.com/)**  →  **[Protótipo (Dashboard Publicações UFBA)](https://www.figma.com/file/9M697aFVIxaRZ3gWmGwrrc/new-dashboard-pgcomp?node-id=0%3A1)**
+-   Protótipo:  **[Figma](https://www.figma.com/)**  →  **[Protótipo (Dashboard Publicações UFBA)](https://www.figma.com/design/Mx3VAlEXphCa124t9gl3Qb/dashboard-pgcomp-2025)**
 
 ---
 
@@ -250,6 +251,7 @@ Esse projeto é baseado em um projeto original diponível [AQUI](https://gitlab.
 - Matheus Nascimento
 - Tatiana Dias
 - Augusto Perin
+- Gustavo Coelho
 
 ### Autores do projeto original
 - Diego Corrêa
