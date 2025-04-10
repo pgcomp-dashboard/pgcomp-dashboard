@@ -106,98 +106,53 @@ O layout da aplicação está disponível no Figma:
 
 ## 🚀 Executando o projeto
 
-Este projeto é divido em quatro partes:
-1. Backend [(pasta backend)](https://gitlab.com/aufbaproduz/aufbaproduz/-/tree/develop/backend)
-2. Frontend [(pasta frontend)](https://gitlab.com/aufbaproduz/aufbaproduz/-/tree/develop/frontend)
-3. DevOps [(pasta devops)](https://gitlab.com/aufbaproduz/aufbaproduz/-/tree/develop/devops)
-4. Frontend-admin [(pasta frontend-admin)](https://gitlab.com/aufbaproduz/aufbaproduz/-/tree/develop/frontend-admin)
+### Ambiente de desenvolvimento
 
-💡Tanto o Frontend quanto o Mobile precisam que o Backend esteja sendo executado para funcionar.
+Aqui estão as instruções para executar os componentes desse projeto em ambiente de *desenvolvimento*.
 
-### Pré-requisitos
+#### Backend
 
-Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
-[Git](https://git-scm.com), [Docker](https://www.docker.com/).
+Para executar o Backend em ambiente de desenvolvimento, utilizamos o [Laravel Sail](https://laravel.com/docs/12.x/sail).
+*Portanto, é necessário o [Docker](https://www.docker.com/) ou ferramenta equivalente compatível com o Laravel Sail!*
 
-**OBSERVAÇÃO:** Caso esteja usando Windows, você deverá [instalar o WSL 2](https://docs.microsoft.com/pt-br/windows/wsl/install) para emular um terminal Linux.
+Essa ferramenta irá rodar o backend junto com *todas dependências necessárias* (e.g. MySQL, Redis).
 
-#### :cloud: Instalando Git e Docker
-
-- Para instalar o Git siga este [passo a passo](https://git-scm.com/book/pt-br/v2/Come%C3%A7ando-Instalando-o-Git).
-- Para instalar o Docker e Docker-compose, siga o passo a passo abaixo:
-```bash
-# Instalando
-$ curl -fsSL https://get.docker.com/ | sh
-
-# Adcionando o seu usuário ao grupo docker (retira a necessidade de utilização do sudo)
-$ sudo usermod -aG docker <user>
-# Substitua <user> por seu usuário
-
-# Instalando docker-compose
-# Buscando a última versão
-$ VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K.*\d')
-# Indicando local de instalação
-$ DESTINATION=/usr/local/bin/docker-compose
-# Instalando
-$ sudo curl -L https://github.com/docker/compose/releases/download/${VERSION}/docker-compose-$(uname -s)-$(uname -m) -o $DESTINATION
-# Distribuindo permissões de usuário
-$ sudo chmod 755 $DESTINATION
+Após clonar o repositório, execute esse comando na pasta `backend/`:
+```sh
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/opt \
+    -w /opt \
+    laravelsail/php80-composer:latest \
+    composer install --ignore-platform-reqs
 ```
 
-#### :on: Clonado o repositório, subindo e startando containers
-
-```bash
-# Clonando repositório
-$ git clone https://github.com/fleap-dev/pgcomp-dashboard.git
-
+Após isso, sempre que quiser rodar o backend junto com as dependências, só precisará executar:
+```sh
+./vendor/bin/sail up -d
 ```
 
-```bash
-# Subindo os containers do projeto
-$ docker-compose up -d
+Tudo será executado dentro de Containers. Dessa forma, para rodar comandos que precisem do PHP/Composer, será necessário rodar eles dentro do container.
+O script do Laravel Sail facilita isso.
 
-# Startando os containers do projeto
-$ docker-compose start
-
+Por exemplo, para rodar um comando da aplicação, podemos fazer:
+```sh
+./vendor/bin/sail artisan scraping:example
 ```
 
-#### 🎲 Rodando o Backend (servidor)
-
-```bash
-$ docker-compose exec php bash
-$ composer install
-$ ! test -f .env && cp .env.example .env && php artisan key:generate
-$ php artisan migrate
-$ exit
-
-# O servidor phpmyadmin será iniciado na porta:8080 - acesse http://localhost:8080
-# É possível que o Windows ignore os comandos após o '&&', se isso acontecer é recomendado rodar cada comando individualmente.
+Para executar um SHELL dentro do container, use:
+```sh
+./vendor/bin/sail shell
 ```
 
+#### Frontend
+_TODO_
 
-#### 🧭 Rodando a Aplicação Web
+#### Admin
+_TODO_
 
-##### Página do Dashboard (Frontend)
-
-```bash
-$ docker-compose exec node bash
-$ npm install
-$ yarn webpack serve --port 3000
-$ exit
-
-# A aplicação será aberta na porta:3000 - acesse http://localhost:3000
-```
-
-##### Painel Administrativo (Frontend-admin)
-
-```bash
-$ docker-compose exec frontend-admin bash
-$ npm install
-$ npm start
-$ exit
-
-# A aplicação será aberta na porta:4000 - acesse http://localhost:4000
-```
+### Ambiente de produção
+_TODO_
 
 ---
 
