@@ -127,6 +127,11 @@ docker run --rm \
     composer install --ignore-platform-reqs
 ```
 
+Copie o arquivo `.env.example` para `.env`:
+```sh
+! test -f .env && cp .env.example .env
+```
+
 Após isso, sempre que quiser rodar o backend junto com as dependências, só precisará executar:
 ```sh
 ./vendor/bin/sail up -d
