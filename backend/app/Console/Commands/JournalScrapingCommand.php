@@ -52,9 +52,9 @@ class JournalScrapingCommand extends Command
                 ],
                 [
                     'name' => $item['periodico'],
-                    'sbc_adjustment' => $item['Ajuste_SBC'],
-                    'scopus_url' => $item['link_scopus'],
-                    'percentile' => $item['percentil'],
+                    'sbc_adjustment' => in_array($item['Ajuste_SBC'], ['nulo']) ? null : $item['Ajuste_SBC'],
+                    'scopus_url' => in_array($item['link_scopus'], ['nulo']) ? null : $item['link_scopus'],
+                    'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
                     'last_qualis' => $item['Qualis_Final'],
                     'update_date' => $this->stringToDate($item['data-atualizacao']),
                     'tentative_date' => $this->stringToDate($item['data-tentativa']),
