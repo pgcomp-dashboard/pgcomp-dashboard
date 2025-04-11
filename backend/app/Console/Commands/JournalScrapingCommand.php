@@ -10,6 +10,7 @@ use Google\Service\Sheets;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class JournalScrapingCommand extends Command
@@ -33,17 +34,9 @@ class JournalScrapingCommand extends Command
      */
     public function handle(): int
     {
-        $sheet = $this->getSheet();
-
-        $this->getOutput()->info('Buscando dados...');
-        // [PERIÓDICOS]_PlanilhaNovoQualis-ScriptPython
-        $values = $sheet->spreadsheets_values
-            ->get('10sObNyyL7veHGFbOyizxM8oVsppQoWV-0ALrDr8FxQ0', 'A:I')
-            ->values;
+        $data = $this->getSheet();
 
         $this->getOutput()->info('Ajustando dados...');
-        $header = collect(array_shift($values));
-        $data = collect($values)->transform(fn($item) => $header->combine($item)->all());
 
         $this->getOutput()->info('Salvando dados...');
         $this->withProgressBar($data, function ($item) {
@@ -59,9 +52,9 @@ class JournalScrapingCommand extends Command
                 ],
                 [
                     'name' => $item['periodico'],
-                    'sbc_adjustment' => $item['Ajuste_SBC'],
-                    'scopus_url' => $item['link_scopus'],
-                    'percentile' => $item['percentil'],
+                    'sbc_adjustment' => in_array($item['Ajuste_SBC'], ['nulo']) ? null : $item['Ajuste_SBC'],
+                    'scopus_url' => in_array($item['link_scopus'], ['nulo']) ? null : $item['link_scopus'],
+                    'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
                     'last_qualis' => $item['Qualis_Final'],
                     'update_date' => $this->stringToDate($item['data-atualizacao']),
                     'tentative_date' => $this->stringToDate($item['data-tentativa']),
@@ -88,14 +81,24 @@ class JournalScrapingCommand extends Command
         return null;
     }
 
-    protected function getSheet(): Sheets
-    {
-        $cliente = new Client();
-        $cliente->setAuthConfig(base_path('google-ufba.json'));
 
-        $cliente->setApplicationName('mate85-sheets');
-        $cliente->addScope(Sheets::SPREADSHEETS_READONLY);
+    protected function getSheet(): Collection {
+        // Fetch and parse the CSV
+        $csvString = file_get_contents("https://docs.google.com/spreadsheets/d/10sObNyyL7veHGFbOyizxM8oVsppQoWV-0ALrDr8FxQ0/export?format=csv");
 
-        return new Sheets($cliente);
+        $lines = array_filter(explode(PHP_EOL, $csvString));
+
+        // Parse each line into an array
+        $rows = array_map('str_getcsv', $lines);
+
+        // Extract header
+        $headers = array_shift($rows);
+
+        // Create collection with header as keys
+        $collection = collect($rows)->map(function ($row) use ($headers) {
+            return array_combine($headers, $row);
+        });
+
+        return $collection;
     }
 }
