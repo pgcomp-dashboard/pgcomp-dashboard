@@ -18,7 +18,7 @@ class ConferenceScrapingCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'qualis:conference-scraping';
+    protected $signature = 'scraping:qualis-conference-scraping';
 
     /**
      * The console command description.

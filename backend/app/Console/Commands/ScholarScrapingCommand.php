@@ -22,7 +22,7 @@ class ScholarScrapingCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'scholar:productions-scraping';
+    protected $signature = 'scraping:scholar-productions-scraping';
 
     /**
      * The console command description.

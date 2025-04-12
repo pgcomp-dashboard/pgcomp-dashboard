@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 class AreaSubareaCommand extends Command
 {
-    protected $signature = 'area-subarea';
+    protected $signature = 'scraping:area-subarea-scraping';
 
     protected $description = 'Área Sub-area';
 

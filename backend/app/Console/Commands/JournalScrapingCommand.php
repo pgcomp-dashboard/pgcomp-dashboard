@@ -20,7 +20,7 @@ class JournalScrapingCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'qualis:journal-scraping';
+    protected $signature = 'scraping:qualis-journal-scraping';
 
     /**
      * The console command description.
