@@ -24,7 +24,7 @@ class SigaaScrapingCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'sigaa:scraping {programId=1820 : ID do curso no site SIGAA}';
+    protected $signature = 'scraping:sigaa-scraping {programId=1820 : ID do curso no site SIGAA}';
 
     /**
      * The console command description.

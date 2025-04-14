@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class LattesCommand extends Command
 {
-    protected $signature = 'lattes:load-files';
+    protected $signature = 'load:lattes-files-load';
 
     protected $description = 'Load Lattes files';
 

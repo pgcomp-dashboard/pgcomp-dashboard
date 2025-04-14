@@ -40,14 +40,14 @@ php artisan migrate #(ou importar dump do banco de dados)
 
 # SIGAA Web Scraping
 docker-compose exec php bash
-php artisan sigaa:scraping --help
-php artisan sigaa:scraping ID_DO_PROGRAMA #(o ID do PGCOMP é 1820)
-php artisan area-subarea
-php artisan qualis:conference-scraping
-php artisan qualis:journal-scraping
+php artisan scraping:sigaa-scraping --help
+php artisan scraping:sigaa-scraping ID_DO_PROGRAMA #(o ID do PGCOMP é 1820)
+php artisan scraping:area-subarea-scraping
+php artisan scraping:qualis-conference-scraping
+php artisan scraping:qualis-journal-scraping
 
 # Carregando arquivos xml do lattes
-php artisan lattes:load-files
+php artisan load:lattes-files-load
 
 # Recriar base de dados
 docker-compose exec php bash
