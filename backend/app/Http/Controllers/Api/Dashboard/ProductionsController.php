@@ -30,8 +30,7 @@ class ProductionsController extends Controller
             default => [null, null]
         };
 
-        $productions = new Production();
-        return $productions->totalProductionsPerYear(
+        return Production::totalProductionsPerYear(
             user_type: $filter[0],
             course_id: $filter[1],
             publisher_type: $publisher_type

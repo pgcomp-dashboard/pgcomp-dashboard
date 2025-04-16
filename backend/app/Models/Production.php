@@ -139,12 +139,12 @@ class Production extends BaseModel
     }
 
     /**
-     * @param string the type of the user, if he is a student or a teacher
-     * @param int course id
-     * @param string type of publisher
+     * @param ?string $user_type the type of the user, if he is a student or a teacher
+     * @param ?string $course_id course_id
+     * @param ?string $publisher_type type of publisher
      * @return array returns an array containing the amount by total production separated by year
      */
-    public function totalProductionsPerYear($user_type, $course_id, $publisher_type): array
+    public static function totalProductionsPerYear(?string $user_type, ?string $course_id, ?string $publisher_type): array
     {
         $years = range(2014, Carbon::now()->year);
         $data = [];
