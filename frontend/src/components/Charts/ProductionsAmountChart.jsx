@@ -42,9 +42,9 @@ function ProductionsAmountChart({ filter }) {
                 display: false,
                 text: 'Chart.js Line Chart'
             },
-            datalabels: {
-                display: false
-              },
+            // datalabels: {
+            //     display: false
+            //   },
               datalabels: {
                 color: 'grey',
                 anchor: 'end',
