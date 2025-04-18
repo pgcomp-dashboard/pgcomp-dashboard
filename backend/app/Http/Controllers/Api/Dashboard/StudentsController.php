@@ -3,76 +3,45 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\Area;
-use App\Models\Subarea;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class StudentsController extends Controller
 {
-    public function studentsArea(Request $request)
+
+    public function studentCountPerSubArea(Request $request)
+    {
+        $data = $request->validate([
+            'selectedFilter' => 'nullable|string|in:mestrando,doutorando,completed',
+        ]);
+
+        $filter = $data['selectedFilter'] ?? null;
+
+        $data = User::userCountPerSubArea($filter);
+
+        return [
+            'fields' => array_keys($data),
+            'data'   => array_values($data),
+        ];
+    }
+
+    public function studentCountPerArea(Request $request)
     {
         //return ['fields' => ['CG', 'Análise de Dados', 'I.A',],
         //        'data' => [12, 3, 5,]];
 
-        $selectedFilter = $request->input('selectedFilter');
-        $keyReturnPattern = ['fields', 'data'];
-        $user = new User();
-        $data = $user->areasFilter($selectedFilter);
+        $data = $request->validate([
+            'selectedFilter' => 'nullable|string|in:mestrando,doutorando,completed',
+        ]);
 
-        return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
-        /*
-        $filter = function(Builder $builder) use ($selectedFilter) {
-            if ($selectedFilter === 'mestrando') {
-                $builder->where('course_id', 1);
-            } elseif ($selectedFilter === 'doutorando') {
-                $builder->where('course_id', 2);
-            } elseif ($selectedFilter === 'completed') {
-                $builder->whereNotNull('defended_at');
-            }
-        };
+        $filter = $data['selectedFilter'] ?? null;
 
-        $areas = Area::withCount([
-            'students' => $filter
-        ])->whereHas('students', $filter)
-            ->orderBy('area_name')
-            ->get();
+        $data = User::userCountPerArea($filter);
 
         return [
-            'fields' => $areas->pluck('area_name')->toArray(),
-            'data' => $areas->pluck('students_count')->toArray(),
-        ];
-        */
-    }
-
-
-    public function studentsSubarea(Request $request)
-    {
-        //return ['subfields' => ['CG', 'Análise de Dados', 'I.A',],
-        //        'data' => [12, 3, 5,]];
-
-        $selectedFilter = $request->input('selectedFilter');
-
-        $filter = function(Builder $builder) use ($selectedFilter) {
-            if ($selectedFilter === 'mestrando') {
-                $builder->where('course_id', 1);
-            } elseif ($selectedFilter === 'doutorando') {
-                $builder->where('course_id', 2);
-            } elseif ($selectedFilter === 'completed') {
-                $builder->whereNotNull('defended_at');
-            }
-        };
-
-        $areas = Subarea::withCount([
-            'students' => $filter
-        ])->whereHas('students', $filter)
-            ->orderBy('subarea_name')
-            ->get();
-
-        return [
-            'subfields' => $areas->pluck('subarea_name')->toArray(),
-            'data' => $areas->pluck('students_count')->toArray(),
+            'fields' => array_keys($data),
+            'data'   => array_values($data),
         ];
     }
 
@@ -92,6 +61,7 @@ class StudentsController extends Controller
 
         $keyReturnPattern = ['subfields', 'data'];
         $user = new User();
+        die("NOT IMPLEMENTED");
         $data = $user->subareasMasterFilter();
 
         return [$keyReturnPattern[0] => $data[0], $keyReturnPattern[1] => $data[1]];
