@@ -21,7 +21,7 @@ class StudentsController extends Controller
         $data = User::userCountPerSubArea($filter);
 
         return [
-            'fields' => array_keys($data),
+            'subfields' => array_keys($data),
             'data'   => array_values($data),
         ];
     }
