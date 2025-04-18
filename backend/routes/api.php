@@ -48,14 +48,14 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
 
     Route::get('production_per_qualis', [QualisController::class, 'productionPerQualis']);
 
-    Route::get('subfields', [StudentsController::class, 'studentsSubarea']);
+    Route::get('subfields', [StudentsController::class, 'studentCountPerSubArea']);
     Route::get('subfields/master', [StudentsController::class,  'studentsMasterDegreeSubareas']);
     Route::get('subfields/doctorate', [StudentsController::class, 'studentsDoctorateDegreeSubareas']);
     Route::get('subfields/active', [StudentsController::class, 'studentsActiveSubareas']);
     Route::get('subfields/disabled', [StudentsController::class, 'studentsNotActiveSubareas']);
     Route::get('subfields/completed', [StudentsController::class, 'studentsCompletedSubareas']);
 
-    Route::get('fields', [StudentsController::class, 'studentsArea']);
+    Route::get('fields', [StudentsController::class, 'studentCountPerArea']);
     Route::get("fields/master", [StudentsController::class, 'studentsMasterDegreeAreas']);
     Route::get("fields/doctorate", [StudentsController::class, 'studentsDoctorateDegreeArea']);
     Route::get("fields/active", [StudentsController::class, 'studentsActiveAreas']);
