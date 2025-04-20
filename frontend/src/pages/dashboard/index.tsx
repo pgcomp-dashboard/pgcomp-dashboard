@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import PublicationsChart from '@/components/charts/publications';
+import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
 // import QualityMetricsChart from '@/components/quality-metrics-chart';
 // import StudentsByFacultyChart from '@/components/students-by-faculty-chart';
 // import StudentsByAreaChart from '@/components/students-by-area-chart';
@@ -199,20 +200,23 @@ export default function Dashboard() {
 
         <section id="area" className="space-y-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Students by Area</CardTitle>
-              <Tabs defaultValue="all">
+            <Tabs defaultValue="all">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Alunos por área</CardTitle>
                 <TabsList>
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="humanities">Humanities</TabsTrigger>
-                  <TabsTrigger value="sciences">Sciences</TabsTrigger>
-                  <TabsTrigger value="engineering">Engineering</TabsTrigger>
+                  <TabsTrigger value="all">Todos</TabsTrigger>
+                  <TabsTrigger value="mestrando">Mestrandos</TabsTrigger>
+                  <TabsTrigger value="doutorando">Doutorandos</TabsTrigger>
+                  <TabsTrigger value="completed">Concluídos</TabsTrigger>
                 </TabsList>
-              </Tabs>
-            </CardHeader>
-            <CardContent>
-              {/*<StudentsByAreaChart />*/}
-            </CardContent>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value='all'><StudentsPerFieldChart /></TabsContent>
+                <TabsContent value='mestrando'><StudentsPerFieldChart filter='mestrando' /></TabsContent>
+                <TabsContent value='doutorando'><StudentsPerFieldChart filter='doutorando' /></TabsContent>
+                <TabsContent value='completed'><StudentsPerFieldChart filter='completed' /></TabsContent>
+              </CardContent>
+            </Tabs>
           </Card>
         </section>
 
