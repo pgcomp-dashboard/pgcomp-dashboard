@@ -1,6 +1,6 @@
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer } from 'recharts';
-
+import { Line, LineChart, CartesianGrid, XAxis, YAxis, Legend  } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import '@/services/api';
 
 // Sample data for publications over years
 const data = [
@@ -37,29 +37,27 @@ export default function PublicationsChart({ filter }: {
         }}
         className="h-[400px]"
       >
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="year" />
-            <YAxis />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="journals"
-              stroke="#5B9279"
-              strokeWidth={2}
-              activeDot={{ r: 8 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="conferences"
-              stroke="#8FCB9B"
-              strokeWidth={2}
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="year" />
+          <YAxis />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <Legend />
+          <Line
+            type="monotone"
+            dataKey="journals"
+            stroke="#5B9279"
+            strokeWidth={2}
+            activeDot={{ r: 8 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="conferences"
+            stroke="#8FCB9B"
+            strokeWidth={2}
+            activeDot={{ r: 8 }}
+          />
+        </LineChart>
       </ChartContainer>
     </div>
   );
