@@ -54,7 +54,7 @@ return [
              * The route can be referenced by name or path here. Wildcards are supported.
              */
             'include' => [
-                // 'users.index', 'healthcheck*'
+                // 'users.dashboard', 'healthcheck*'
             ],
 
             /*

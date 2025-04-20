@@ -71,7 +71,7 @@ function ProductionsAmountChart({ filter }) {
 
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de linha com o filtro selecionado
     const getData = (selectedFilter = []) => {
-        axios.get('http://localhost:8000/api/dashboard/all_production', {
+        axios.get('http://localhost:80/api/dashboard/all_production', {
             params: {
                 user_type: selectedFilter,
                 publisher_type: publisherType
