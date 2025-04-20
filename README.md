@@ -127,6 +127,8 @@ docker run --rm \
     composer install --ignore-platform-reqs
 ```
 
+> **Nota**: Nessa fase, é normal acontecer um erro relacionado ao Redis após o script `postAutoloadDump`. Isso acontece porque a imagem usada no comando acima contém apenas as dependências mínimas para rodar o composer. Após o bootstrap, a imagem que será usada terá todas dependências necessárias para o resto do projeto.
+
 Copie o arquivo `.env.example` para `.env`:
 ```sh
 ! test -f .env && cp .env.example .env
