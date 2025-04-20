@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import PublicationsChart from '@/components/charts/publications';
+import PublicationsChart from '@/components/charts/Publications.tsx';
 import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
 // import QualityMetricsChart from '@/components/quality-metrics-chart';
 // import StudentsByFacultyChart from '@/components/students-by-faculty-chart';
