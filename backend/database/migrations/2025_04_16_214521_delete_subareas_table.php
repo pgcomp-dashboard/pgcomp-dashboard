@@ -23,6 +23,7 @@ return new class extends Migration
         Schema::table('areas', function (Blueprint $table) {
             $table->renameColumn('area_name', 'area');
             $table->string('subarea', 255)->after('area');
+            $table->index(['area', 'subarea']);
         });
     }
 
