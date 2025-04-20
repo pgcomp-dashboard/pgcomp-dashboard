@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class StudentsController extends Controller
 {
 
-    public function studentCountPerSubArea(Request $request)
+    public function studentCountPerSubArea(Request $request): array
     {
         $data = $request->validate([
             'selectedFilter' => 'nullable|string|in:mestrando,doutorando,completed',
@@ -26,7 +26,7 @@ class StudentsController extends Controller
         ];
     }
 
-    public function studentCountPerArea(Request $request)
+    public function studentCountPerArea(Request $request): array
     {
         //return ['fields' => ['CG', 'Análise de Dados', 'I.A',],
         //        'data' => [12, 3, 5,]];
@@ -37,12 +37,7 @@ class StudentsController extends Controller
 
         $filter = $data['selectedFilter'] ?? null;
 
-        $data = User::userCountPerArea($filter);
-
-        return [
-            'fields' => array_keys($data),
-            'data'   => array_values($data),
-        ];
+        return User::userCountPerArea($filter);
     }
 
 }
