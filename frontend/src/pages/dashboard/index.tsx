@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import PublicationsChart from '@/components/charts/Publications.tsx';
 import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
+import StudentsPerSubfieldChart from '@/components/charts/StudentsPerSubfieldChart.tsx';
 // import QualityMetricsChart from '@/components/quality-metrics-chart';
 // import StudentsByFacultyChart from '@/components/students-by-faculty-chart';
 // import StudentsByAreaChart from '@/components/students-by-area-chart';
@@ -222,26 +223,23 @@ export default function Dashboard() {
 
         <section id="subarea" className="space-y-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Students by Subarea</CardTitle>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="ml-auto">
-                    Filter <ChevronDown className="ml-2 h-4 w-4"/>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>All</DropdownMenuItem>
-                  <DropdownMenuItem>Computer Science</DropdownMenuItem>
-                  <DropdownMenuItem>Mathematics</DropdownMenuItem>
-                  <DropdownMenuItem>Physics</DropdownMenuItem>
-                  <DropdownMenuItem>Chemistry</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </CardHeader>
-            <CardContent>
-              {/*<StudentsBySubareaChart />*/}
-            </CardContent>
+            <Tabs defaultValue="all">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Alunos por sub-área</CardTitle>
+                <TabsList>
+                  <TabsTrigger value="all">Todos</TabsTrigger>
+                  <TabsTrigger value="mestrando">Mestrandos</TabsTrigger>
+                  <TabsTrigger value="doutorando">Doutorandos</TabsTrigger>
+                  <TabsTrigger value="completed">Concluídos</TabsTrigger>
+                </TabsList>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value='all'><StudentsPerSubfieldChart /></TabsContent>
+                <TabsContent value='mestrando'><StudentsPerSubfieldChart filter='mestrando' /></TabsContent>
+                <TabsContent value='doutorando'><StudentsPerSubfieldChart filter='doutorando' /></TabsContent>
+                <TabsContent value='completed'><StudentsPerSubfieldChart filter='completed' /></TabsContent>
+              </CardContent>
+            </Tabs>
           </Card>
         </section>
       </main>
