@@ -33,26 +33,23 @@ Responsável pelo serviço de recuperação dos dados (através de web scraping)
 
 ### Iniciar projeto backend
 ```bash
+
 # Iniciar projeto backend
-docker-compose exec php bash
-composer install
-php artisan migrate #(ou importar dump do banco de dados)
+./vendor/bin/sail artisan migrate #(ou importar dump do banco de dados)
 
 # SIGAA Web Scraping
-docker-compose exec php bash
-php artisan scraping:sigaa-scraping --help
-php artisan scraping:sigaa-scraping ID_DO_PROGRAMA #(o ID do PGCOMP é 1820)
-php artisan scraping:area-subarea-scraping
-php artisan scraping:qualis-conference-scraping
-php artisan scraping:qualis-journal-scraping
+./vendor/bin/sail artisan scraping:sigaa-scraping --help
+./vendor/bin/sail artisan scraping:sigaa-scraping ID_DO_PROGRAMA #(o ID do PGCOMP é 1820)
+./vendor/bin/sail artisan scraping:area-subarea-scraping
+./vendor/bin/sail artisan scraping:qualis-conference-scraping
+./vendor/bin/sail artisan scraping:qualis-journal-scraping
 
 # Carregando arquivos xml do lattes
-php artisan load:lattes-files-load
+./vendor/bin/sail artisan load:lattes-files-load
 
 # Recriar base de dados
-docker-compose exec php bash
-php artisan migrate:fresh #(Isso apagará todos os dados!)
+./vendor/bin/sail artisan migrate:fresh #(Isso apagará todos os dados!)
 
 # Inserir dados falsos
-php artisan db:seed #(Somente deve ser executado após de realizar o scraping)
+./vendor/bin/sail artisan db:seed #(Somente deve ser executado após de realizar o scraping)
 ```
