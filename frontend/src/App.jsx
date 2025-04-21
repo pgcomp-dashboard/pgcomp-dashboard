@@ -14,7 +14,6 @@ export function App() {
             <Route path="/erro" element={<Erro500/>} /> 
         </Routes>
             
-       
     )
 }
 
