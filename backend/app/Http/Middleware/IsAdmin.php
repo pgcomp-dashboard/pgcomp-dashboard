@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,9 +15,10 @@ class IsAdmin
      * Handle an incoming request.
      *
      * @param Request $request
-     * @param Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @param Closure(Request): (Response|RedirectResponse) $next
      * @return Response|RedirectResponse
      * @throws AuthenticationException
+     * @throws AuthorizationException
      */
     public function handle(Request $request, Closure $next)
     {
@@ -26,7 +28,7 @@ class IsAdmin
             throw new AuthenticationException();
         }
         if (!$user->is_admin) {
-            throw new AuthenticationException('Unauthorized.');
+            throw new AuthorizationException('Unauthorized.');
         }
 
         return $next($request);
