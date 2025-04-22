@@ -74,6 +74,10 @@ export class ApiService {
   async delete(endpoint: string, headers: Record<string, string> = {}): Promise<unknown> {
     return this.request(endpoint, 'DELETE', undefined, headers);
   }
+
+  async totalProductionsPerYear(filter?: 'journal' | 'conference'): Promise<{ [key: string]: number }> {
+    return await this.get(filter ? '/api/dashboard/all_production?publisher_type=${filter}' : '/api/dashboard/all_production') as { [key: string]: number };
+  }
   
   async studentsPerField(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? `/api/dashboard/fields?selectedFilter=${filter}` : '/api/dashboard/fields') as { [key: string]: number };
