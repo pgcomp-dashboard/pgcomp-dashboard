@@ -157,15 +157,11 @@ Para executar um SHELL dentro do container, use:
 Para instalar o ambiente frontend, é necessário rodar o seguinte comando dentro da pasta `frontend/`:
 ```sh
 npm install
-# or
-yarn install
 ```
 
 Para rodar o ambiente de desenvolvimento somente é necessário executar o seguinte comando:
 ```sh
 npm run dev
-# or
-yarn dev
 ```
 
 #### Admin
