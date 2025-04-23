@@ -1,6 +1,5 @@
 import SessionsPanel from '../../components/SessionsPanel/SessionsPanel';
 import styles from '../../App.module.css';
-import React from 'react';
 import { Outlet } from 'react-router';
 
 
