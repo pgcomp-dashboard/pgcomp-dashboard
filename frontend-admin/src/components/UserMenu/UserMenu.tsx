@@ -4,7 +4,8 @@ import MenuItem from '@mui/material/MenuItem';
 import { Button, Menu } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
-import { api } from '../../services/api';
+import { api } from '@/services/api.ts';
+
 function UserMenu() {
   const iconStyle = {
     'height': '42px',
@@ -17,7 +18,7 @@ function UserMenu() {
   const [ userName, setUsername ] = useState();
 
   useEffect(() => {
-    api.get('https://aufbaproduz-api.dovalle.app.br/api/user').then(response => {
+    api.get('/api/user').then(response => {
       setUsername(response.data.name.split(' ')[0]);
     });
   }, [ token ]);
@@ -63,7 +64,7 @@ function UserMenu() {
           'aria-labelledby': 'basic-button',
         }}>
         <MenuItem onClick={e => {
-          handleClose(); logout(); 
+          handleClose(); logout();
         }}>Sair</MenuItem>
       </Menu>
     </div>

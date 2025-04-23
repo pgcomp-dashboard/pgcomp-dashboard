@@ -8,12 +8,11 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import axios from 'axios';
-import { map } from 'lodash';
 import { useEffect, useState } from 'react';
 import Utils from '../../Utils.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useNavigate } from 'react-router';
+import api from '@/services/api';
 
 ChartJS.register(
     CategoryScale,
@@ -65,7 +64,7 @@ function StudentsPerTeacherChart({ filter, isMobile }) {
 
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias
     const getData = (selectedFilter = []) => {
-        axios.get(`${Utils.baseUrl}/api/dashboard/total_students_per_advisor`, { params: { user_type: selectedFilter } })
+        api.get(`/api/dashboard/total_students_per_advisor`, { params: { user_type: selectedFilter } })
         .then(({ data }) => {
             const aggregateData = (data, threshold = 5, withOthers = true) => {
                 const aggregated = data.reduce((acc, item) => {

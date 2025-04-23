@@ -8,11 +8,10 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
 import { useNavigate } from 'react-router';
-import Utils from '../../Utils.js'
+import api from '@/services/api';
 
 ChartJS.register(
     CategoryScale,
@@ -67,7 +66,7 @@ function ProductionPerStudentChart({ filter }) {
 
 
     const getData = (selectedFilter = []) => {
-        axios.get(`${Utils.baseUrl}/api/dashboard/students_production`, {
+        api.get(`/api/dashboard/students_production`, {
             params: {
                 selectedFilter,
                 publisher_type: publisherType

@@ -2,9 +2,8 @@ import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import Utils from '../../Utils.js'
 import { useNavigate } from 'react-router';
+import api from '@/services/api';
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -45,7 +44,7 @@ function PieChart({ filter, type }) {
     }
 //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de pizza montado com as cores definidas no newBackgroundColors
     const getData = (selectedFilter = []) => {
-        axios.get(`${Utils.baseUrl}/api/dashboard/${type}`, { params: { selectedFilter } })
+        api.get(`/api/dashboard/${type}`, { params: { selectedFilter } })
             .then(({ data }) => {
                 const labels = data[type];
                 const dataChart = data.data;

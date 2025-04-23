@@ -1,4 +1,5 @@
-import axios, { AxiosInstance } from 'axios';
-import config from '../config/config';
-const baseURL = 'https://aufbaproduz-api.dovalle.app.br/api/portal/admin';
-export const api: AxiosInstance = axios.create({ baseURL: baseURL });
+import axios from 'axios';
+
+const baseURL = import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost';
+
+export const api = axios.create({ baseURL: baseURL });

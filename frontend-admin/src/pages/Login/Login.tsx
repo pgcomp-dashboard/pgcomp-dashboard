@@ -4,10 +4,9 @@ import { AuthContext } from '../../providers/AuthProvider';
 import React from 'react';
 
 import styles from './Login.module.css';
-import Utils from '../../Utils.js';
 
-import { api } from '../../services/api';
-import axios from 'axios';
+import { api } from '@/services/api.ts';
+
 function LoginPage(props: any) {
 
   const [ email, setEmail ] = useState('');
@@ -25,7 +24,7 @@ function LoginPage(props: any) {
   };
 
   const handleLogin = () => {
-    api.post(`${Utils.baseUrl}/api/login`, {
+    api.post(`/api/login`, {
       email, password,
     }).then((response: any) => {
 
@@ -45,7 +44,7 @@ function LoginPage(props: any) {
 
   return (
     <div className={styles.login_page}>
-            
+
       <h1>Painel de Administração</h1>
 
       <div className={styles.login_page__form__input_container}>
@@ -65,7 +64,7 @@ function LoginPage(props: any) {
       {/*<a target="_blank" href="#!" rel="noreferrer">
                 Esqueceu a senha?
             </a>*/}
-                
+
     </div>
   );
 }
