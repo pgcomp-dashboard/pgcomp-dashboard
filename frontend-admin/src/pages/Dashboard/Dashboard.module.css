@@ -1,0 +1,14 @@
+.cards__container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.cards__container__horizontal{
+    display: flex;
+    column-gap: 50px;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    overflow: auto;
+}
