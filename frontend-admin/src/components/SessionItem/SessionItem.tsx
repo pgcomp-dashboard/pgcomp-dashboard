@@ -11,7 +11,7 @@ import React from 'react';
 import DeleteItemDialog from '../DeleteItemDialog/DeleteItemDialog';
 import ArticleIcon from '@mui/icons-material/Article';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import AddSessionItemButton from '../AddSessionItemButton/AddSessionItemButton';
 
 interface SessionItemProps {

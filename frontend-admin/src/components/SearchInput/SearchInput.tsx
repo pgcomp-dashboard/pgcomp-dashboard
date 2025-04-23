@@ -1,7 +1,7 @@
 import SearchIcon from '@mui/icons-material/Search';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { ChangeEvent, FormEvent, useState } from 'react';
 
 
@@ -18,8 +18,8 @@ export default function SearchInput(){
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'row-reverse' }}>
-      <TextField 
-        size="small" 
+      <TextField
+        size="small"
         placeholder='Pesquisar docente...'
         value={search}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}

@@ -1,7 +1,7 @@
 import { Button, Card, CardContent, CardHeader } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useMatch, useNavigate } from 'react-router-dom';
+import { useMatch, useNavigate } from 'react-router';
 import { api } from '../../services/api';
 import styles from './PersonInfo.module.css';
 import UploadIcon from '@mui/icons-material/Upload';
@@ -16,7 +16,7 @@ function PersonInfo(props: any) {
   const defaultObj: any = {};
   const [ personData, setPersonData ] = useState(defaultObj);
   const [ subArea, setSubArea ] = useState('');
-    
+
   const sessionTypes: any = {
     'professors': 'docente',
     'students': 'discente',

@@ -14,7 +14,7 @@ import Utils from '../../Utils.js';
 import { AuthContext } from '../../providers/AuthProvider';
 import React from 'react';
 import { api } from '../../services/api';
-import { useMatch, useSearchParams, useNavigate } from 'react-router-dom';
+import { useMatch, useSearchParams, useNavigate } from 'react-router';
 import SearchInput from '../SearchInput/SearchInput';
 
 // interface SessionProps {
@@ -36,11 +36,11 @@ function Session() {
   const showAdd = sessionType === 'areas';
 
   //Verifica se a sessão é uma lista de docentes/discentes para mostrar o campo de busca e alterar os parâmetros da requisição
-  const isUsersListSession = sessionType === 'students' || sessionType === 'professors'; 
+  const isUsersListSession = sessionType === 'students' || sessionType === 'professors';
   const usersListParams = isUsersListSession ? {
     'filters[0][field]': searchParams.get('name') && 'name',
-    'filters[0][value]': searchParams.get('name'), 
-    order_by: 'name',  
+    'filters[0][value]': searchParams.get('name'),
+    order_by: 'name',
   } : null;
 
   const history = useNavigate();
@@ -78,7 +78,7 @@ function Session() {
         } else{
           console.log(error);
         }
-            
+
       });
   };
 
@@ -100,7 +100,7 @@ function Session() {
       getData();
     }, 1000);
   }, [ change ]);
-    
+
   return (
     <div className={styles['Session']}>
       {showAdd ? <AddSessionItemButton type={Utils.nameTypes[sessionType]} handleOpen={handleModalOpen} /> : null}
@@ -114,9 +114,9 @@ function Session() {
       <List disablePadding>
         {sessionItems && sessionItems.length ?
           sessionItems.map((sessionItem: any) => {
-            return <SessionItem {...sessionItem} 
-              type={sessionType} 
-              children={sessionType === 'areas' ? sessionItem.subarea : []} 
+            return <SessionItem {...sessionItem}
+              type={sessionType}
+              children={sessionType === 'areas' ? sessionItem.subarea : []}
               key={sessionItem.id} />;
           }) : null}
       </List>

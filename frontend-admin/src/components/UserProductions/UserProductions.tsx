@@ -1,7 +1,7 @@
 import { List, ListItem, Pagination } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import React, { useEffect, useState } from 'react';
-import { useLocation, useMatch,  useSearchParams } from 'react-router-dom';
+import { useLocation, useMatch,  useSearchParams } from 'react-router';
 import { api } from '../../services/api';
 import styles from './UserProductions.module.css';
 import EditProductionDialog from './EditProductionDialog';
@@ -56,24 +56,24 @@ export default function UserProductions(){
       <h4>Publicações do {userType[match?.params.userType as UserKey]}</h4>
       <List>
         {
-          productions.length > 0 ? 
+          productions.length > 0 ?
             productions.map(item => (
               <ProductionDetails key={item.id} {...item} handleOpen={handleOpenEdit}/>
-            )) 
+            ))
             : `Não foram encontradas publicações do ${userType[match?.params.userType as UserKey]}`
         }
       </List>
       <Pagination
         className={styles['pagination']}
-        count={totalPages} 
-        page={Number(searchParams.get('page')) || 1} 
+        count={totalPages}
+        page={Number(searchParams.get('page')) || 1}
         onChange={(_,v) => setSearchParams({ page: `${v}` })}
       />
       <EditProductionDialog
         modalOpen={modalOpen}
         setModalOpen={setModalOpen}
         publisher={{
-          publisher_type: selectedProduction?.publisher_type || '', 
+          publisher_type: selectedProduction?.publisher_type || '',
           name: selectedProduction?.publisher?.name || '',
           id: selectedProduction?.publisher_id,
         }}

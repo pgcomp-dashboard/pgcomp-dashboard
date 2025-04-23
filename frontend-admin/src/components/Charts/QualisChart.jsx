@@ -11,7 +11,7 @@ import {
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import Utils from '../../Utils.js'
 
 ChartJS.register(

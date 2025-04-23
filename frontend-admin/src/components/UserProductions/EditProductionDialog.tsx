@@ -1,6 +1,6 @@
 import { Dialog, DialogTitle, DialogActions, Button, DialogContent, Autocomplete, TextField, Snackbar, Alert } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { api } from '../../services/api';
 
 
@@ -61,7 +61,7 @@ export default function EditProductionDialog({ modalOpen, setModalOpen, publishe
         <DialogContent>
           <Autocomplete
             onChange={(_,v) => setSelectedValue(v)}
-            defaultValue={publisher} 
+            defaultValue={publisher}
             options={options}
             getOptionLabel={(option) => option.name!}
             groupBy={option => groups[option.publisher_type as keyof typeof groups]}
@@ -72,7 +72,7 @@ export default function EditProductionDialog({ modalOpen, setModalOpen, publishe
         <DialogActions>
           <Button onClick={() => setModalOpen(false)}> Cancelar </Button>
           <Button onClick={(_) => {
-            edit(); setModalOpen(false); 
+            edit(); setModalOpen(false);
           }}>Salvar</Button>
         </DialogActions>
       </Dialog>
@@ -82,6 +82,6 @@ export default function EditProductionDialog({ modalOpen, setModalOpen, publishe
         </Alert>
       </Snackbar>
     </>
-    
+
   );
 }
