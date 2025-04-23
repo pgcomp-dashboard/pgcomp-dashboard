@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@radix-ui/react-dialog": "^1.1.10",
@@ -22,6 +24,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.501.0",
+    "mobile-detect": "^1.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-drag-drop-files": "^3.0.1",
