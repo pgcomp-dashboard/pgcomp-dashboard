@@ -1,10 +1,9 @@
 import { Backdrop, CircularProgress } from '@mui/material';
-import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import { FileUploader } from 'react-drag-drop-files';
 import { useMatch } from 'react-router';
 import { AuthContext } from '../../providers/AuthProvider';
-import { api } from '../../services/api';
+import { api } from '@/services/api.ts';
 import styles from './XmlUpload.module.css';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
@@ -34,7 +33,7 @@ export default function XmlUpload() {
     const formData = new FormData();
 
     formData.append('file', file);
-    axios.post('https://aufbaproduz-api.dovalle.app.br/api/portal/user/lattes-update', formData, {
+    api.post('/api/portal/user/lattes-update', formData, {
       headers: {
         'Authorization': token,
       },

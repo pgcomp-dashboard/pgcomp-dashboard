@@ -11,10 +11,9 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
 import { useNavigate } from 'react-router';
-import Utils from '../../Utils.js'
+import api from '@/services/api';
 
 ChartJS.register(
     CategoryScale,
@@ -72,7 +71,7 @@ function ProductionsAmountChart({ filter }) {
 
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de linha com o filtro selecionado
     const getData = (selectedFilter = []) => {
-        axios.get(`${Utils.baseUrl}/api/dashboard/all_production`, {
+        api.get(`/api/dashboard/all_production`, {
             params: {
                 user_type: selectedFilter,
                 publisher_type: publisherType
