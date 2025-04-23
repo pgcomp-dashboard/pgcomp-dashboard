@@ -5,10 +5,10 @@ import React from 'react';
 export default function useToken() {
   const getToken = () => {
     const tokenString: any = localStorage.getItem('token');
-    return tokenString
+    return tokenString;
   };
 
-  const [token, setToken] = useState(getToken());
+  const [ token, setToken ] = useState(getToken());
 
   const saveToken = (userToken: any) => {
     localStorage.setItem('token', userToken);
@@ -17,6 +17,6 @@ export default function useToken() {
 
   return {
     setToken: saveToken,
-    token
-  }
+    token,
+  };
 }

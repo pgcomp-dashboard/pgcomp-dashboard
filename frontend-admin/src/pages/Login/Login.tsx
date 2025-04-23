@@ -1,73 +1,73 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from 'react';
 
-import { AuthContext } from "../../providers/AuthProvider";
+import { AuthContext } from '../../providers/AuthProvider';
 import React from 'react';
 
-import styles from "./Login.module.css";
-import Utils from '../../Utils.js'
+import styles from './Login.module.css';
+import Utils from '../../Utils.js';
 
-import { api } from "../../services/api";
+import { api } from '../../services/api';
 import axios from 'axios';
 function LoginPage(props: any) {
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const { token, setToken } = useContext(AuthContext);
+  const [ email, setEmail ] = useState('');
+  const [ password, setPassword ] = useState('');
+  const { token, setToken } = useContext(AuthContext);
 
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.currentTarget.value;
-        setEmail(newValue);
-    }
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.currentTarget.value;
+    setEmail(newValue);
+  };
 
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.currentTarget.value;
-        setPassword(newValue);
-    }
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.currentTarget.value;
+    setPassword(newValue);
+  };
 
-    const handleLogin = () => {
-        api.post(`${Utils.baseUrl}/api/login`, {
-            email, password
-        }).then((response: any) => {
+  const handleLogin = () => {
+    api.post(`${Utils.baseUrl}/api/login`, {
+      email, password,
+    }).then((response: any) => {
 
-            if (response.status === 200) {
+      if (response.status === 200) {
 
-                const bearer = "Bearer " + response.data;
-                setToken(bearer);
+        const bearer = 'Bearer ' + response.data;
+        setToken(bearer);
 
-                api.defaults.headers.common['Authorization'] = bearer;
-             }
-             document.location.href="/admin";
+        api.defaults.headers.common['Authorization'] = bearer;
+      }
+      document.location.href='/admin';
 
-        }).catch(function (response: any) {
-            console.log(response);
-        });
-    }
+    }).catch(function (response: any) {
+      console.log(response);
+    });
+  };
 
-    return (
-        <div className={styles.login_page}>
+  return (
+    <div className={styles.login_page}>
             
-            <h1>Painel de Administração</h1>
+      <h1>Painel de Administração</h1>
 
-            <div className={styles.login_page__form__input_container}>
-                <span>E-mail:</span>
-                <input type="email" placeholder="fulano.beltrano@ufba.br" onChange={handleEmailChange}
-                    value={email} />
-            </div>
+      <div className={styles.login_page__form__input_container}>
+        <span>E-mail:</span>
+        <input type="email" placeholder="fulano.beltrano@ufba.br" onChange={handleEmailChange}
+          value={email} />
+      </div>
 
-            <div className={styles.login_page__form__input_container}>
-                <span>Senha:</span>
-                <input type="password" placeholder="Senha" onChange={handlePasswordChange}
-                    value={password} />
-            </div>
+      <div className={styles.login_page__form__input_container}>
+        <span>Senha:</span>
+        <input type="password" placeholder="Senha" onChange={handlePasswordChange}
+          value={password} />
+      </div>
 
-            <button onClick={handleLogin}>Acessar</button>
+      <button onClick={handleLogin}>Acessar</button>
 
-            {/*<a target="_blank" href="#!" rel="noreferrer">
+      {/*<a target="_blank" href="#!" rel="noreferrer">
                 Esqueceu a senha?
             </a>*/}
                 
-        </div>
-    );
+    </div>
+  );
 }
 
 export default LoginPage;
