@@ -1,1 +1,1 @@
-export { default as ResetPasswordPage } from "./ResetPassword";
+export { default as ResetPasswordPage } from './ResetPassword';

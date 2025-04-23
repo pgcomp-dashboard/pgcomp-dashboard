@@ -6,66 +6,68 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
 import { api } from '../../services/api';
 function UserMenu() {
-    const iconStyle = {
-        'height': '42px',
-        'width': '42px'
-    }
+  const iconStyle = {
+    'height': '42px',
+    'width': '42px',
+  };
 
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-    const {token, setToken} = useContext(AuthContext)
-    const [userName, setUsername] = useState();
+  const [ anchorEl, setAnchorEl ] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const { token, setToken } = useContext(AuthContext);
+  const [ userName, setUsername ] = useState();
 
-    useEffect(() => {
-            api.get('https://aufbaproduz-api.dovalle.app.br/api/user').then(response => {
-            setUsername(response.data.name.split(" ")[0])
-        })
-    }, [token])
+  useEffect(() => {
+    api.get('https://aufbaproduz-api.dovalle.app.br/api/user').then(response => {
+      setUsername(response.data.name.split(' ')[0]);
+    });
+  }, [ token ]);
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-    const logout = () => {
-        setToken("");
-        localStorage.removeItem("token");
-    }
+  const logout = () => {
+    setToken('');
+    localStorage.removeItem('token');
+  };
 
-    return (
-        <div className={styles['UserMenu']}>
-            <Button
-                onClick={handleClick}
-                aria-controls={open ? 'basic-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}>
-                <AccountCircleIcon color="primary" fontSize='inherit' style={iconStyle} />
+  return (
+    <div className={styles['UserMenu']}>
+      <Button
+        onClick={handleClick}
+        aria-controls={open ? 'basic-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}>
+        <AccountCircleIcon color="primary" fontSize='inherit' style={iconStyle} />
 
-                {!token ?
-                    <div><a href="/">Entrar</a></div>
-                    :
-                    <div className={styles['user__menu__welcome']}>
-                        <span>Olá,</span>
-                        <span className={styles['user__menu__name']}>{userName}</span>
-                    </div>
-                }
+        {!token ?
+          <div><a href="/">Entrar</a></div>
+          :
+          <div className={styles['user__menu__welcome']}>
+            <span>Olá,</span>
+            <span className={styles['user__menu__name']}>{userName}</span>
+          </div>
+        }
 
-            </Button>
+      </Button>
 
-            <Menu id="user-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                    'aria-labelledby': 'basic-button',
-                }}>
-                <MenuItem onClick={e => {handleClose(); logout()}}>Sair</MenuItem>
-            </Menu>
-        </div>
-    )
+      <Menu id="user-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}>
+        <MenuItem onClick={e => {
+          handleClose(); logout(); 
+        }}>Sair</MenuItem>
+      </Menu>
+    </div>
+  );
 }
 
-export default UserMenu
+export default UserMenu;

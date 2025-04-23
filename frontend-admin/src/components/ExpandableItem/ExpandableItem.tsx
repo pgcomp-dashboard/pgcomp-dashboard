@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState } from 'react';
 import React from 'react';
 
 const ExpandableItem = (props: any) => {
-  const [open, setOpen] = useState(true);
+  const [ open, setOpen ] = useState(true);
 
   return props.render({ open, setOpen });
 };

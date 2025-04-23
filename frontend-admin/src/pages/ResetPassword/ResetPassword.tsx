@@ -1,6 +1,6 @@
-import { DashboardTemplate } from "../../templates";
+import { DashboardTemplate } from '../../templates';
 
-import styles from "./ResetPassword.module.css";
+import styles from './ResetPassword.module.css';
 
 function ResetPasswordPage() {
   return (
