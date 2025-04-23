@@ -10,6 +10,8 @@ import Erro500 from './pages/Erro500';
 import XmlUpload from './components/XmlUpload/XmlUpload';
 import { BrowserRouter, Routes, Route } from 'react-router';
 
+import './App.module.css';
+
 const queryClient = new QueryClient();
 
 function App() {
