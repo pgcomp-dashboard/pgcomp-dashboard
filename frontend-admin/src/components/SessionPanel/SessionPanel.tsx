@@ -1,6 +1,6 @@
 import styles from './SessionPanel.module.css';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 interface SessionPanelProps {
   label: string;

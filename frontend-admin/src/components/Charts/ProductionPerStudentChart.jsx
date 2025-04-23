@@ -11,7 +11,7 @@ import {
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import Utils from '../../Utils.js'
 
 ChartJS.register(
@@ -65,7 +65,7 @@ function ProductionPerStudentChart({ filter }) {
         'Doutorado': 'rgb(255, 108, 108)'
     }
 
-    
+
     const getData = (selectedFilter = []) => {
         axios.get(`${Utils.baseUrl}/api/dashboard/students_production`, {
             params: {
@@ -104,11 +104,11 @@ function ProductionPerStudentChart({ filter }) {
                     history('/*')
                     console.log(error)
                 }
-                
+
                 else{
                     console.log(error)
                 }
-                
+
             });
     }
 

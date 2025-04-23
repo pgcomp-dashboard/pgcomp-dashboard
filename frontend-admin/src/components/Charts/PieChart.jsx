@@ -4,7 +4,7 @@ import { Pie } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Utils from '../../Utils.js'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);

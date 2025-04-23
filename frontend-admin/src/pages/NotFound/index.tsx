@@ -1,6 +1,6 @@
 import styles from './Notfound.module.css';
 import imgErro from '../../assets/error.png';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import HomeIcon from '@mui/icons-material/Home';
 
 function NotFound() {
@@ -20,12 +20,12 @@ function NotFound() {
               <span>Voltar para o início</span>
             </Link>
           </div>
-                    
+
           <img src={imgErro} alt="Imagem de erro"/>
         </div>
 
       </section>
-        
+
     </div>
   );
 }

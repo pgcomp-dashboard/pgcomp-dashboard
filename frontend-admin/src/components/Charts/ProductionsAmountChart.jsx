@@ -13,7 +13,7 @@ import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProductionTypeFilter from '../Filters/ProductionTypeFilter';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import Utils from '../../Utils.js'
 
 ChartJS.register(
@@ -108,11 +108,11 @@ function ProductionsAmountChart({ filter }) {
                     history('/*')
                     console.log(error)
                 }
-                
+
                 else{
                     console.log(error)
                 }
-                
+
             });
     }
 

@@ -1,7 +1,7 @@
 import styles from './Erro.module.css';
 import Logo from '../../assets/ic_logo.png';
 import imgErro from '../../assets/error.png';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import HomeIcon from '@mui/icons-material/Home';
 
 function Erro500() {
@@ -21,12 +21,12 @@ function Erro500() {
               <span>Voltar para o início</span>
             </Link>
           </div>
-                    
+
           <img src={imgErro} alt="Imagem de erro"/>
         </div>
 
       </section>
-        
+
     </div>
   );
 }
