@@ -32,9 +32,8 @@ function App() {
               <Route index element={null}/>
             </Route>
             <Route path="/login" element={<LoginPage/>}/>
-            <Route path="*" element={<NotFound/>}/>
+            <Route path="*" element={<NotFoundPage/>}/>
             <Route path="/erro" element={<Erro500/>}/>
-            <Route path="/" element={<Dashboard/>}/>
             <Route path={'*'} element={<NotFoundPage/>}/>
           </Routes>
         </BrowserRouter>
