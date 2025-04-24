@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\PanelAdmin;
 
 use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Models\Area;
-use App\Models\Subarea;
+use App\Models\User;
 use App\Models\BaseModel;
 use Illuminate\Http\Request;
 
@@ -34,20 +34,19 @@ class AreaController extends BaseApiResourceController
 
     public function destroy(int $id)
     {
-        $msg = "Erro: usuários cadastrados com essa área";
+        $area = Area::find($id);
 
-        $areas = Area::where('id', $id)->withCount(['usersInSubarea'])->get();
-        if(count($areas) > 0 and $areas[0]->users_in_subarea_count == 0){
-            $areas = Area::where('id', $id)->with('subarea')->get();
-            foreach($areas[0]->subarea as $subarea){
-                Subarea::deleteInstance($subarea->id);
-            }
-            return parent::destroy($id);
-        }elseif(count($areas) == 0){
-            return abort(406, "área não cadastrada");
-        }else{
-            return abort(406, $msg);
+        if (!$area) {
+            return response()->json(['message' => 'Área não cadastrada'], 404);
         }
+
+        if ($area->users()->exists()) {
+            return response()->json(['message' => 'Erro: usuários cadastrados com essa área'], 406);
+        }
+        
+        $area->delete();
+
+        return response()->json(['message' => 'Área excluída com sucesso'], 200);
     }
 
     public function subareaPerArea(){
