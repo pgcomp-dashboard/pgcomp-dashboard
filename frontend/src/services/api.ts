@@ -75,6 +75,10 @@ export class ApiService {
     return this.request(endpoint, 'DELETE', undefined, headers);
   }
 
+  async totalStudentsPerAdvisor(filter?: 'journal' | 'conference'): Promise<{ [key: string]: number }> {
+    return await this.get(filter ? '/api/dashboard/total_students_per_advisor?publisher_type=${filter}' : '/api/dashboard/total_students_per_advisor') as { [key: string]: number };
+  }
+
   async totalProductionsPerYear(filter?: 'journal' | 'conference'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? '/api/dashboard/all_production?publisher_type=${filter}' : '/api/dashboard/all_production') as { [key: string]: number };
   }
