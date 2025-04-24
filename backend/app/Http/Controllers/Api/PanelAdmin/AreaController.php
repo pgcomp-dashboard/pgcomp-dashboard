@@ -50,6 +50,10 @@ class AreaController extends BaseApiResourceController
     }
 
     public function subareaPerArea(){
-        return Area::with('subarea')->get();
+        $areas = Area::select( 'id', 'area', 'subarea')->get();
+        if ($areas->isEmpty()) {
+            return response()->json(['message' => 'Nenhuma área encontrada'], 404);
+        }
+        return response()->json($areas, 200);
     }
 }
