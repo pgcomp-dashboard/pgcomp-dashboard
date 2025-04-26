@@ -25,7 +25,6 @@ class AreaSubareaCommand extends Command
         $dom = html5qp($html);
 
         // Get areas after the first h1 tag with the text "Área de Concentração"
-        $areas = $dom->find('h1:contains("Área de Concentração")')->text();
         $areas = $dom->find('.region.region-content .field-items ul > li')->getIterator();
 
         foreach ($areas as $area) {
@@ -42,9 +41,8 @@ class AreaSubareaCommand extends Command
     private function generateSubArea(string $areaName, string $areaUrl): void
     {
 
-        $this->info("Acessando a área: $areaName");
+        $this->info("\nAcessando a área: $areaName");
         $subAreas = $this->getSubAreas($areaName, $areaUrl);
-
         $rows = [];
         foreach ($subAreas as $subAreaName) {
             $area = Area::updateOrCreate(
