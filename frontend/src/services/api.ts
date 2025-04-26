@@ -38,14 +38,14 @@ export class ApiService {
       console.error(`Failed to fetch ${endpoint}:`, e);
       throw {
         code: 408,
-        errors: [ { description: String(e) } ],
+        errors: [{ description: String(e) }],
       } as ApiError;
     }
 
     if (!response.ok) {
       const error: ApiError = {
         code: response.status,
-        errors: [ { description: 'Request failed' } ],
+        errors: [{ description: 'Request failed' }],
       };
       try {
         const json = await response.json();
@@ -74,7 +74,7 @@ export class ApiService {
   async delete(endpoint: string, headers: Record<string, string> = {}): Promise<unknown> {
     return this.request(endpoint, 'DELETE', undefined, headers);
   }
-  
+
   async studentsPerField(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? `/api/dashboard/fields?selectedFilter=${filter}` : '/api/dashboard/fields') as { [key: string]: number };
   }
@@ -82,6 +82,11 @@ export class ApiService {
   async studentsPerSubfield(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? `/api/dashboard/subfields?selectedFilter=${filter}` : '/api/dashboard/subfields') as { [key: string]: number };
   }
+
+  async productionPerQualis(): Promise<{ [key: string]: number }> {
+    return await this.get('/api/dashboard/production_per_qualis') as { [key: string]: number };
+  }
+
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');
