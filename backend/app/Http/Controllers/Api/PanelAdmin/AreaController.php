@@ -7,6 +7,10 @@ use App\Models\Area;
 use App\Models\User;
 use App\Models\BaseModel;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+
+
 
 class AreaController extends BaseApiResourceController
 {
@@ -23,13 +27,17 @@ class AreaController extends BaseApiResourceController
             'subarea' => 'required|string|max:255',
         ]);
 
-        $areas = Area::where('area', $request->input('area'))->get();
-        if ($areas->isNotEmpty()) {
-            return response()->json(['message' => 'Erro: área já cadastrada'], 406);
+        if (Area::where('area', $validated['area'])->exists()) {
+            throw new ConflictHttpException('Erro: Área já cadastrada');
         }
 
         $area = Area::create($validated);
-        return response()->json($area, 201);
+
+        return response()->json([
+        'status' => 'success',
+        'message' => 'Área cadastrada com sucesso',
+        'data' => $area
+        ], 201);
     }
 
     public function destroy(int $id)
@@ -37,23 +45,31 @@ class AreaController extends BaseApiResourceController
         $area = Area::find($id);
 
         if (!$area) {
-            return response()->json(['message' => 'Área não cadastrada'], 404);
+            throw new NotFoundHttpException('Área não cadastrada');
         }
 
         if ($area->users()->exists()) {
-            return response()->json(['message' => 'Erro: usuários cadastrados com essa área'], 406);
+            throw new ConflictHttpException('Erro: Usuários cadastrados nessa área');
         }
         
         $area->delete();
 
-        return response()->json(['message' => 'Área excluída com sucesso'], 200);
+        return response()->json([
+        'status' => 'success',
+        'message' => 'Área excluída com sucesso'
+        ], 200);
     }
 
     public function subareaPerArea(){
         $areas = Area::select( 'id', 'area', 'subarea')->get();
         if ($areas->isEmpty()) {
-            return response()->json(['message' => 'Nenhuma área encontrada'], 404);
+            throw new NotFoundHttpException('Nenhuma área encontrada');
         }
-        return response()->json($areas, 200);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Áreas encontradas com sucesso',
+            'data' => $areas
+        ], 200);
     }
 }
