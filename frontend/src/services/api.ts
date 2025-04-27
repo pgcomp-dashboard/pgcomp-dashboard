@@ -6,6 +6,12 @@ export interface ApiError {
   }[]
 }
 
+interface Advisor {
+  id: number;
+  name: string;
+  advisedes_count: number;
+}
+
 export type RequestBodyType = BodyInit | null | undefined;
 
 export class ApiService {
@@ -75,8 +81,8 @@ export class ApiService {
     return this.request(endpoint, 'DELETE', undefined, headers);
   }
 
-  async totalStudentsPerAdvisor(filter?: 'journal' | 'conference'): Promise<{ [key: string]: number }> {
-    return await this.get(filter ? '/api/dashboard/total_students_per_advisor?publisher_type=${filter}' : '/api/dashboard/total_students_per_advisor') as { [key: string]: number };
+  async totalStudentsPerAdvisor(filter?: 'journal' | 'conference'): Promise<{ [key: string]: Advisor }> {
+    return await this.get(filter ? '/api/dashboard/total_students_per_advisor?publisher_type=${filter}' : '/api/dashboard/total_students_per_advisor') as { [key: string]: Advisor };
   }
 
   async totalProductionsPerYear(filter?: 'journal' | 'conference'): Promise<{ [key: string]: number }> {
