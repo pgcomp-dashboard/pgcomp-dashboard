@@ -37,10 +37,13 @@ Responsável pelo serviço de recuperação dos dados (através de web scraping)
 # Iniciar projeto backend
 ./vendor/bin/sail artisan migrate #(ou importar dump do banco de dados)
 
+# Gerar chave de autenticação
+./vendor/bin/sail artisan key:generate
+
 # SIGAA Web Scraping
-./vendor/bin/sail artisan scraping:sigaa-scraping --help
-./vendor/bin/sail artisan scraping:sigaa-scraping ID_DO_PROGRAMA #(o ID do PGCOMP é 1820)
 ./vendor/bin/sail artisan scraping:area-subarea-scraping
+./vendor/bin/sail artisan scraping:sigaa-scraping --help
+./vendor/bin/sail artisan scraping:sigaa-scraping
 ./vendor/bin/sail artisan scraping:qualis-conference-scraping
 ./vendor/bin/sail artisan scraping:qualis-journal-scraping
 

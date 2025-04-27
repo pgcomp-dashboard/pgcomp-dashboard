@@ -5,7 +5,7 @@ namespace App\Domain\Sigaa;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Log;
+use Illuminate\Support\Facades\Log;
 use QueryPath\DOMQuery;
 
 abstract class BaseScraping
