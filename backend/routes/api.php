@@ -1,10 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api\Dashboard\DashboardController;
-use App\Http\Controllers\Api\Dashboard\ProductionsController;
-use App\Http\Controllers\Api\Dashboard\ProgramsController;
-use App\Http\Controllers\Api\Dashboard\QualisController;
-use App\Http\Controllers\Api\Dashboard\StudentsController;
 use App\Http\Controllers\Api\PanelAdmin\AreaController;
 use App\Http\Controllers\Api\PanelAdmin\AuthController;
 use App\Http\Controllers\Api\PanelAdmin\ConferenceController;
@@ -42,15 +38,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     //TODO: Dar nomes melhores e mais padrao
-    Route::get('program', [ProgramsController::class, 'programName']);
-    Route::get('all_production', [ProductionsController::class, 'totalProductionsPerYear']);
-    Route::get('students_production', [ProductionsController::class, 'studentsProductions']);
-
-    Route::get('production_per_qualis', [QualisController::class, 'productionPerQualis']);
-
-    Route::get('subfields', [StudentsController::class, 'studentCountPerSubArea']);
-    Route::get('fields', [StudentsController::class, 'studentCountPerArea']);
-
+    Route::get('program', [DashboardController::class, 'programName']);
+    Route::get('all_production', [DashboardController::class, 'totalProductionsPerYear']);
+    Route::get('students_production', [DashboardController::class, 'studentsProductions']);
+    Route::get('production_per_qualis', [DashboardController::class, 'productionPerQualis']);
+    Route::get('subfields', [DashboardController::class, 'studentCountPerSubArea']);
+    Route::get('fields', [DashboardController::class, 'studentCountPerArea']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
 });
 
