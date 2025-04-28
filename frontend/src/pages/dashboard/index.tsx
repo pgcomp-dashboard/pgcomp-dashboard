@@ -136,7 +136,7 @@ export default function Dashboard() {
         </div>
       </header>
       <main className="flex-1 container py-6 space-y-8 w-full lg:px-16">
-        <section id="publications" className="space-y-4">
+        <section id="publications" className="space-y-4 h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -157,7 +157,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="quality" className="space-y-4">
+        <section id="quality" className="space-y-4 h-[500px]">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Produções por qualis</CardTitle>
@@ -175,7 +175,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="faculty" className="space-y-4">
+        <section id="faculty" className="space-y-4 h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -192,7 +192,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="area" className="space-y-4">
+        <section id="area" className="space-y-4 h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -214,7 +214,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="subarea" className="space-y-4">
+        <section id="subarea" className="space-y-4 h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
