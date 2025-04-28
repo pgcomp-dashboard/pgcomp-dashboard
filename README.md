@@ -186,9 +186,9 @@ Popular o Banco de Dados de Testes:
 Antes de executar os testes, é necessário preparar o banco de dados de testes:
 
 ```bash
-./vendor/bin/sail artisan migrate:fresh --env=testing
-./vendor/bin/sail artisan scraping:sigaa-scraping --env=testing
-./vendor/bin/sail artisan scraping:qualis-conference-scraping --env=testing
+./vendor/bin/sail artisan migrate:fresh --env=testing && \
+./vendor/bin/sail artisan scraping:sigaa-scraping --env=testing && \
+./vendor/bin/sail artisan scraping:qualis-conference-scraping --env=testing && \
 ./vendor/bin/sail artisan scraping:qualis-journal-scraping --env=testing
 ```
 
