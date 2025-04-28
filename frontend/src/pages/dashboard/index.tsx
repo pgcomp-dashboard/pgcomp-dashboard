@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router';
-import { ChevronDown, ExternalLink, Menu } from 'lucide-react';
+import { ExternalLink, Menu } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import PublicationsChart from '@/components/charts/Publications.tsx';
+import StudentsPerAdvisorChart from '@/components/charts/StudentsPerAdvisor.tsx';
 import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
 import StudentsPerSubfieldChart from '@/components/charts/StudentsPerSubfieldChart.tsx';
 import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
@@ -149,9 +149,9 @@ export default function Dashboard() {
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value={'all'}><PublicationsChart /></TabsContent>
-                <TabsContent value={'journals'}><PublicationsChart filter="journals" /></TabsContent>
-                <TabsContent value={'conferences'}><PublicationsChart filter="conferences" /></TabsContent>
+                <TabsContent value={'all'}><PublicationsChart/></TabsContent>
+                <TabsContent value={'journals'}><PublicationsChart filter="journal"/></TabsContent>
+                <TabsContent value={'conferences'}><PublicationsChart filter="conference"/></TabsContent>
               </CardContent>
             </Tabs>
           </Card>
@@ -177,25 +177,18 @@ export default function Dashboard() {
 
         <section id="faculty" className="space-y-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Students by Faculty</CardTitle>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="ml-auto">
-                    Filter <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>All</DropdownMenuItem>
-                  <DropdownMenuItem>Undergraduate</DropdownMenuItem>
-                  <DropdownMenuItem>Graduate</DropdownMenuItem>
-                  <DropdownMenuItem>PhD</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </CardHeader>
-            <CardContent>
-              {/*<StudentsByFacultyChart />*/}
-            </CardContent>
+            <Tabs defaultValue="all">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Quantidade de Alunos por Orientador</CardTitle>
+
+                <TabsList>
+                  <TabsTrigger value="all">Todos</TabsTrigger>
+                </TabsList>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value={'all'}><StudentsPerAdvisorChart/></TabsContent>
+              </CardContent>
+            </Tabs>
           </Card>
         </section>
 
