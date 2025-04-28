@@ -164,7 +164,10 @@ _TODO_
 ### Ambiente de produção
 _TODO_
 
-Para rodar os testes no ambiente de desenvolvimento você deve ter o backend configurado corretamente e seguir esse passo a passo.
+
+#### Testes
+
+Para rodar os testes no ambiente de desenvolvimento você deve ter o backend configurado corretamente antes de seguir esses passos.
 
 Criar o arquivo `.env.testing`
 
