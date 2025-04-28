@@ -165,7 +165,21 @@ npm run dev
 ```
 
 #### Admin
-_TODO_
+
+Para instalar o ambiente frontend, é necessário rodar o seguinte comando dentro da pasta `frontend-admin/`:
+```sh
+npm install
+```
+
+Caso haja erros, é necessário fazer a instalação pelo seguinte comando:
+```sh
+npm install --legacy-peer-deps
+```
+
+Após ter instalado o ambiente, para rodar o ambiente em sua máquina é necessário executar o seguinte comando:
+```sh
+npm run dev
+```
 
 ### Ambiente de produção
 _TODO_
