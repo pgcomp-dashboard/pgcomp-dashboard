@@ -99,7 +99,7 @@ O layout da aplicação está disponível no Figma:
 
 ### Diagrama do Banco de Dados
 
-<img alt="Diagrama-bd" title="#AUFBAProduz" src="https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/uploads/f96f0bc33ba3848a3a654916905c36ae/ufbafaz.png" width="500px">
+<img alt="Diagrama-bd" title="#AUFBAProduz" src="imgs/Untitled.png" width="500px">
 
 
 ---
