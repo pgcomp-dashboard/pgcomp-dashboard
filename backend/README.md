@@ -35,24 +35,12 @@ Responsável pelo serviço de recuperação dos dados (através de web scraping)
 ```bash
 
 # Iniciar projeto backend
-./vendor/bin/sail artisan migrate #(ou importar dump do banco de dados)
+./vendor/bin/sail artisan migrate:fresh #(Isso apagará todos os dados!)
 
 # Gerar chave de autenticação
 ./vendor/bin/sail artisan key:generate
 
-# SIGAA Web Scraping
-./vendor/bin/sail artisan scraping:area-subarea-scraping
-./vendor/bin/sail artisan scraping:sigaa-scraping --help
-./vendor/bin/sail artisan scraping:sigaa-scraping
-./vendor/bin/sail artisan scraping:qualis-conference-scraping
-./vendor/bin/sail artisan scraping:qualis-journal-scraping
+# Gerar principais dados
+./vendor/bin/sail artisan db:seed  # Inserir dados mockados
+./vendor/bin/sail artisan scraping:run # Executar todos os comandos de scraping
 
-# Carregando arquivos xml do lattes
-./vendor/bin/sail artisan load:lattes-files-load
-
-# Recriar base de dados
-./vendor/bin/sail artisan migrate:fresh #(Isso apagará todos os dados!)
-
-# Inserir dados falsos
-./vendor/bin/sail artisan db:seed #(Somente deve ser executado após de realizar o scraping)
-```
