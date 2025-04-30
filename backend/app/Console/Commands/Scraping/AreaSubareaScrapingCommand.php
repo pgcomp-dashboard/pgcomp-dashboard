@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Scraping;
 
 use App\Models\Area;
 
@@ -8,7 +8,7 @@ use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
-class AreaSubareaCommand extends Command
+class AreaSubareaScrapingCommand extends Command
 {
     protected $signature = 'scraping:area-subarea-scraping';
 

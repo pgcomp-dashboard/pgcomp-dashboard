@@ -36,7 +36,6 @@ class TeacherScraping extends BaseScraping
      */
     public function scrapingByProgram(int $programId): array
     {
-        $this->fillProfessorsWithArea();
 
         $dom = $this->getDOMQuery(self::SIGAA_URL, ['id' => $programId]);
         $items = $dom->find('#equipePrograma table#table_lt tr')->getIterator();
@@ -100,7 +99,7 @@ class TeacherScraping extends BaseScraping
      * Finds the professors with area and subarea and fills the professorsWithArea array
      * @return void
      */
-    private function fillProfessorsWithArea()
+    public function fillProfessorsWithArea(): array
     {
 
         // Access https://pgcomp.ufba.br/area-de-concentracao, get the areas and access its link to get the subareas
@@ -108,7 +107,7 @@ class TeacherScraping extends BaseScraping
 
         // Get areas after the first h1 tag with the text "Área de Concentração"
         $areas = $dom->find('.region.region-content .field-items ul > li')->getIterator();
-
+        $professors  =[];
         foreach ($areas as $area) {
             // Get the area name. Find until the first dot ".'
             $areaName = $area->text();
@@ -116,8 +115,10 @@ class TeacherScraping extends BaseScraping
 
             $areaLink = $area->find('a')->attr('href');
 
-            $this->getProfessors($areaName, $areaLink);
+
+            $professors = array_merge($this->getProfessors($areaName, $areaLink) ?? [], $professors);
         }
+        return $professors;
     }
 
     /**
@@ -126,7 +127,7 @@ class TeacherScraping extends BaseScraping
      * @param string $areaUrl URL of the area
      * @return void
      */
-    private function getProfessors(string $areaName, string $areaUrl): void
+    private function getProfessors(string $areaName, string $areaUrl): array|null
     {
         $dom = $this->getDOMQuery($areaUrl);
         if ($areaName == "Engenharia De Software") {
@@ -142,10 +143,10 @@ class TeacherScraping extends BaseScraping
             foreach ($nodes as $node) {
                 $professor = trim($node->textContent);
                 if (!empty($professor)) {
-                    $this->extractProfessorsAreaSubarea($professor, $areaName);
+                    return $this->extractProfessorsAreaSubarea($professor, $areaName);
                 }
             }
-            return;
+            return [];
         }
         // Access the area link and get the professors
         $divs = $dom->find('.field-items > .field-item.even')->children('div');
@@ -156,6 +157,7 @@ class TeacherScraping extends BaseScraping
             $professor = Str::of($professor)->trim()->title()->value();
             return $this->extractProfessorsAreaSubarea($professor, $areaName);
         }, $professors);
+        return $professors;
     }
 
     /**
@@ -164,7 +166,7 @@ class TeacherScraping extends BaseScraping
      * @param string $areaName Name of the area
      * @return void
      */
-    private function extractProfessorsAreaSubarea(string $professorName, string $areaName): void
+    private function extractProfessorsAreaSubarea(string $professorName, string $areaName): array|null
     {
         if (isset(self::MISS_MATCH_PROFESSORS[$professorName])) {
             $professorName = self::MISS_MATCH_PROFESSORS[$professorName];
@@ -179,12 +181,13 @@ class TeacherScraping extends BaseScraping
             })
             ->first();
         if (empty($user)) {
-            return;
+            return null;
         }
         $user->area_id = Area::where('area', $areaName)->inRandomOrder()->first()->id;
-        $this->professorsWithArea[$user->name] = [
-            'area_id' => $user->area_id,
-            'id' => $user->id,
+        $user->save();
+        return [
+            "name" => $professorName,
+            "area_id" => $user->area_id,
         ];
     }
 }

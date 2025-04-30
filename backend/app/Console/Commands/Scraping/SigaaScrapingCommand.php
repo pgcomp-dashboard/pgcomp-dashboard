@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Scraping;
 
 use App\Domain\Sigaa\DefenseScraping;
 use App\Domain\Sigaa\StudentScraping;
@@ -50,6 +50,11 @@ class SigaaScrapingCommand extends Command
             $teachers = $teacherScraping->scrapingByProgram((int)$programId);
             Storage::put("teachers-{$programId}.json", json_encode($teachers));
             $this->createOrUpdateTeachers($teachers);
+
+            $teachersWithArea = $teacherScraping->fillProfessorsWithArea();
+            $this->info('Professores com área preenchida com sucesso');
+
+
         } catch (Exception $e) {
             $this->error($e->getMessage());
         }
@@ -180,4 +185,5 @@ class SigaaScrapingCommand extends Command
             }
         }
     }
+
 }

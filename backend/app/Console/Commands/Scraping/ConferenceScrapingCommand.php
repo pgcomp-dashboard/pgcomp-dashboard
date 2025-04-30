@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Scraping;
 
 use App\Models\Conference;
 use App\Models\StratumQualis;
