@@ -63,7 +63,6 @@ class ConferenceScrapingCommand extends Command
 
         $this->getOutput()->info('Salvadno dados...');
         $this->withProgressBar($data, function ($item) {
-            print_r($item);
             try {
                 if (!isset($item['Qualis 2016'])) {
                     throw new ModelNotFoundException('ERROR');
