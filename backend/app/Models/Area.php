@@ -37,7 +37,6 @@ class Area extends BaseModel
 
     protected $fillable = [
         'area',
-        'subarea',
     ];
 
     /**
@@ -47,7 +46,6 @@ class Area extends BaseModel
     {
         return [
             'area' => 'required|string|max:255',
-            'subarea' => 'required|string|max:255',
         ];
     }
 
