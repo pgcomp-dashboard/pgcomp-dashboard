@@ -12,7 +12,7 @@ class Scraping extends Command
      *
      * @var string
      */
-    protected $signature = 'scraping:run {class?*}';
+    protected $signature = 'scraping:run {class?* : Classes de scraping a serem executadas, separadas por espaço e sem o namespace}';
 
     /**
      * The console command description.
@@ -48,7 +48,11 @@ class Scraping extends Command
             }
 
             try {
+                $this->info("Executando {$class}...");
+                $this->newLine();
                 $this->call($class);
+                $this->info(str_repeat('-', 100));
+                $this->newLine();
             } catch (Exception $e) {
                 $this->error("Erro ao executar {$class}: " . $e->getMessage());
             }
