@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Scraping;
 
 use App\Models\Conference;
 use App\Models\Journal;
@@ -182,7 +182,7 @@ class ScholarScrapingCommand extends Command
     private function saveTeacherArticles($author_url)
     {
         $proxy_server = $this->getProxy();
-        $client = PantherClient::createChromeClient(null, ['--no-sandbox', '--disable-dev-shm-usage', 
+        $client = PantherClient::createChromeClient(null, ['--no-sandbox', '--disable-dev-shm-usage',
         '--headless', '--remote-debugging-port=9222', "--proxy-server={$proxy_server}"]);
         $page_url = 'https://scholar.google.com' . $author_url;
 
@@ -203,7 +203,7 @@ class ScholarScrapingCommand extends Command
         $form_action = $author_url . '&view_op=list_works';
         $production_found = 0;
         $production_not_found = 0;
-        $crawler->filterXPath("//form[@action='{$form_action}']")->each(function (Crawler $row) 
+        $crawler->filterXPath("//form[@action='{$form_action}']")->each(function (Crawler $row)
             use (&$production_found, &$production_not_found) {
             $rows_on_node = $row->filter('table tr')->count();
             if ($rows_on_node > 0) {
@@ -257,19 +257,19 @@ class ScholarScrapingCommand extends Command
             $client = $this->getClient();
             $html = $client->get($page_url);
             $article_data = [];
-    
+
             $dom = html5qp($html->getBody()->getContents());
-    
+
             $dom->find('.gs_scl')->each(function ($idx, $dom_element) use (&$article_data) {
                 $div = qp($dom_element);
                 $field = $div->find('.gsc_oci_field')->text();
                 $value = $div->find('.gsc_oci_value')->text();
-    
+
                 if (!empty($field) && !empty($value)) {
                     $article_data[trim($field)] = trim($value);
                 }
             });
-    
+
             return $article_data;
         } catch(\Exception $e) {
             return 'get_error';
