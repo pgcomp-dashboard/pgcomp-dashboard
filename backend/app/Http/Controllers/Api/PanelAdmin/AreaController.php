@@ -31,6 +31,14 @@ class AreaController extends BaseApiResourceController
             throw new ConflictHttpException('Erro: Área já cadastrada');
         }
 
+        if (Area::where('subarea', $validated['subarea'])->exists()) {
+            throw new ConflictHttpException('Erro: Subarea já cadastrada');
+        }
+
+        if (Area::where('area', $validated['area'])->where('subarea', $validated['subarea'])->exists()) {
+            throw new ConflictHttpException('Erro: Já existe uma área que contém essa combinação com subarea');
+        }
+
         $area = Area::create($validated);
 
         return response()->json([
