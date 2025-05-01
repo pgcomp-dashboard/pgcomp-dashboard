@@ -20,6 +20,20 @@ class AreaController extends BaseApiResourceController
         return Area::class;
     }
 
+    public function show(int $id)
+    {
+        $area = Area::find($id);
+
+        if (!$area) {
+            throw new NotFoundHttpException('Área não encontrada');
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Área encontrada com sucesso',
+            'data' => $area
+        ], 200);
+    }
     public function store(Request $request)
     {
        $validated = $request->validate([
