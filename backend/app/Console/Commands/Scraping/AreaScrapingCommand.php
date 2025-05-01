@@ -8,11 +8,11 @@ use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
-class AreaSubareaScrapingCommand extends Command
+class AreaScrapingCommand extends Command
 {
-    protected $signature = 'scraping:area-subarea-scraping';
+    protected $signature = 'scraping:area-scraping';
 
-    protected $description = 'Área Sub-area';
+    protected $description = 'Área Scraping';
 
 
     public function handle()

@@ -33,7 +33,7 @@ class Scraping extends Command
         if (empty($classes)) {
             // load all classes from the scraping directory
             $classes = [
-                'AreaSubareaScrapingCommand',
+                'AreaScrapingCommand',
                 'SigaaScrapingCommand',
                 'ConferenceScrapingCommand',
                 'JournalScrapingCommand'
