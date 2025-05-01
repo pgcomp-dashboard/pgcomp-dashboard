@@ -167,9 +167,11 @@ class SigaaScrapingCommand extends Command
 
             if ($user) {
                 $advisor = $user->advisors()->first();
+
                 if ($advisor) {
                     $user->area_id = $advisor->area_id;
                 }
+
                 $user->defended_at = $item['date'];
                 $user->save();
                 $this->info("{$user->name} defendeu.");
@@ -179,17 +181,20 @@ class SigaaScrapingCommand extends Command
                     ->first(['registration'])
                     ->registration;
 
+                $areaId = User::where('type', UserType::PROFESSOR->value)
+                    ->where('id', $teacher?->id)
+                    ->whereNotNull(['id','area_id'])
+                    ->first(['area_id'])?->area_id;
+
                 $user = User::createOrUpdateStudent([
                     'registration' => $registration -1,
                     'name' => $item['student'],
                     'course_id' => $item['course_id'],
+                    'area_id' => $areaId,
                 ]);
             }
             if ($teacher && $user->advisors()->where('id', $teacher->id)->doesntExist()) {
                 $user->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
-                $advisor = $user->advisors()->first();
-                $user->area_id = $advisor->area_id;
-                $user->save();
             }
         }
     }
