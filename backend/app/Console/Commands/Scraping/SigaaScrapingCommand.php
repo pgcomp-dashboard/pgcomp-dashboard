@@ -187,6 +187,9 @@ class SigaaScrapingCommand extends Command
             }
             if ($teacher && $user->advisors()->where('id', $teacher->id)->doesntExist()) {
                 $user->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
+                $advisor = $user->advisors()->first();
+                $user->area_id = $advisor->area_id;
+                $user->save();
             }
         }
     }
