@@ -53,6 +53,11 @@ class SigaaScrapingCommand extends Command
 
             $teachersWithArea = $teacherScraping->fillProfessorsWithArea();
             $this->info('Professores com área preenchida com sucesso');
+            $this->table([
+                'Nome',
+                'ID Area',
+                'Observação'
+            ], $teachersWithArea);
 
 
         } catch (Exception $e) {
