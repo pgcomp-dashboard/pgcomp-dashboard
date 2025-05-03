@@ -6,6 +6,12 @@ export interface ApiError {
   }[]
 }
 
+interface Advisor {
+  id: number;
+  name: string;
+  advisedes_count: number;
+}
+
 export type RequestBodyType = BodyInit | null | undefined;
 
 export class ApiService {
@@ -38,14 +44,14 @@ export class ApiService {
       console.error(`Failed to fetch ${endpoint}:`, e);
       throw {
         code: 408,
-        errors: [ { description: String(e) } ],
+        errors: [{ description: String(e) }],
       } as ApiError;
     }
 
     if (!response.ok) {
       const error: ApiError = {
         code: response.status,
-        errors: [ { description: 'Request failed' } ],
+        errors: [{ description: 'Request failed' }],
       };
       try {
         const json = await response.json();
@@ -74,6 +80,14 @@ export class ApiService {
   async delete(endpoint: string, headers: Record<string, string> = {}): Promise<unknown> {
     return this.request(endpoint, 'DELETE', undefined, headers);
   }
+
+  async totalStudentsPerAdvisor(filter?: 'journal' | 'conference'): Promise<{ [key: string]: Advisor }> {
+    return await this.get(filter ? '/api/dashboard/total_students_per_advisor?publisher_type=${filter}' : '/api/dashboard/total_students_per_advisor') as { [key: string]: Advisor };
+  }
+
+  async totalProductionsPerYear(filter?: 'journal' | 'conference'): Promise<{ [key: string]: number }> {
+    return await this.get(filter ? '/api/dashboard/all_production?publisher_type=${filter}' : '/api/dashboard/all_production') as { [key: string]: number };
+  }
   
   async studentsPerField(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? `/api/dashboard/fields?selectedFilter=${filter}` : '/api/dashboard/fields') as { [key: string]: number };
@@ -82,6 +96,11 @@ export class ApiService {
   async studentsPerSubfield(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? `/api/dashboard/subfields?selectedFilter=${filter}` : '/api/dashboard/subfields') as { [key: string]: number };
   }
+
+  async productionPerQualis(): Promise<{ [key: string]: number }> {
+    return await this.get('/api/dashboard/production_per_qualis') as { [key: string]: number };
+  }
+
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');

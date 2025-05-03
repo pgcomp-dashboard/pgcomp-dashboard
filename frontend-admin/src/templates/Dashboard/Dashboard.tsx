@@ -1,6 +1,6 @@
-import { Toolbar, Footer } from "../../components";
+import { Toolbar, Footer } from '../../components';
 
-import styles from "./Dashboard.module.css";
+import styles from './Dashboard.module.css';
 
 interface Props {
   children: any

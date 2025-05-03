@@ -1,2 +1,2 @@
 import React from 'react';
-export { default as Toolbar } from "./Toolbar";
+export { default as Toolbar } from './Toolbar';

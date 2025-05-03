@@ -1,9 +1,9 @@
-import styles from "./Footer.module.css";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
+import styles from './Footer.module.css';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
 import React from 'react';
-import { grey } from "@mui/material/colors";
+import { grey } from '@mui/material/colors';
 
 function Footer() {
   return (
@@ -16,8 +16,8 @@ function Footer() {
 
       <div className={styles.footer__right}>
         <h2>
-          <a href='https://www.linkedin.com/school/ufba/?originalSubdomain=br' target="__blanck"><LinkedInIcon sx={{ color: grey[50] }} fontSize="large" /></a>{" "}
-          <a href='https://pt-br.facebook.com/pages/category/Specialty-School/Universidade-Federal-da-Bahia-UFBA-231509166876211/' target="__blanck"><FacebookIcon sx={{ color: grey[50] }} fontSize="large" /></a>{" "}
+          <a href='https://www.linkedin.com/school/ufba/?originalSubdomain=br' target="__blanck"><LinkedInIcon sx={{ color: grey[50] }} fontSize="large" /></a>{' '}
+          <a href='https://pt-br.facebook.com/pages/category/Specialty-School/Universidade-Federal-da-Bahia-UFBA-231509166876211/' target="__blanck"><FacebookIcon sx={{ color: grey[50] }} fontSize="large" /></a>{' '}
           <a href='https://twitter.com/ufba?lang=en' target="__blanck"><TwitterIcon sx={{ color: grey[50] }}  fontSize="large" /></a>
         </h2>
       </div>

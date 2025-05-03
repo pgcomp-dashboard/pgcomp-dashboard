@@ -99,7 +99,7 @@ O layout da aplicação está disponível no Figma:
 
 ### Diagrama do Banco de Dados
 
-<img alt="Diagrama-bd" title="#AUFBAProduz" src="https://gitlab.com/aufbaproduz/aufbaproduz/-/wikis/uploads/f96f0bc33ba3848a3a654916905c36ae/ufbafaz.png" width="500px">
+<img alt="Diagrama-bd" title="#AUFBAProduz" src="imgs/Untitled.png" width="500px">
 
 
 ---
@@ -153,13 +153,136 @@ Para executar um SHELL dentro do container, use:
 ```
 
 #### Frontend
-_TODO_
+
+Para instalar o ambiente frontend, é necessário rodar o seguinte comando dentro da pasta `frontend/`:
+```sh
+npm install
+```
+
+Para rodar o ambiente de desenvolvimento somente é necessário executar o seguinte comando:
+```sh
+npm run dev
+```
 
 #### Admin
 _TODO_
 
 ### Ambiente de produção
 _TODO_
+
+### Ambiente de produção
+_TODO_
+
+
+#### Testes
+
+Para rodar os testes no ambiente de desenvolvimento você deve ter o backend configurado corretamente antes de seguir esses passos.
+
+Criar o arquivo `.env.testing`
+
+Para garantir que os testes utilizem um banco de dados separado, é necessário criar o arquivo `.env.testing`,  você pode fazer manualmente copiando o `.env.example` e alterando a variável `DB_DATABASE` para testing, ou, rodar o seguinte comando no terminal dentro da pasta `backend`:
+
+```bash
+cp .env.example .env.testing
+sed -i 's/DB_DATABASE=laravel/DB_DATABASE=testing/' .env.testing
+```
+
+
+---
+
+Popular o Banco de Dados de Testes:
+
+Antes de executar os testes, é necessário preparar o banco de dados de testes:
+
+```bash
+./vendor/bin/sail artisan migrate:fresh --env=testing && \
+./vendor/bin/sail artisan scraping:sigaa-scraping --env=testing && \
+./vendor/bin/sail artisan scraping:qualis-conference-scraping --env=testing && \
+./vendor/bin/sail artisan scraping:qualis-journal-scraping --env=testing
+```
+
+Esses comandos aplicam as migrações e executam os seeders específicos para o ambiente de testes. Lembre-se de usar a flag `--env=testing`
+
+---
+
+
+Caso queira confirma que você está usando o env de teste:
+
+```bash
+./vendor/bin/sail artisan tinker --env=testing
+>>> config('database.connections.mysql.database')
+```
+
+O comando acima deve retornar `testing`.
+
+Alternativamente:
+
+```bash
+./vendor/bin/sail artisan env --env=testing
+```
+
+Esse comando deve retornar `testing` como o ambiente atual.
+
+---
+
+Rodar Todos os Testes:
+
+Para rodar todos os testes vamos usar phpunit através do laravel. Rode:
+
+```bash
+./vendor/bin/sail test
+```
+
+ou
+
+```bash
+./vendor/bin/sail php artisan test
+```
+
+Esses comandos rodam todos os testes e retornam todas as informações dos testes falhos.
+#### Visualização Simplificada dos Resultados
+
+Para obter uma visão geral dos resultados dos testes use o phpunit diretamente:
+
+```bash
+./vendor/bin/sail php ./vendor/bin/phpunit | head -n 20
+```
+
+Esse comando proporciona uma visão resumida dos resultados.
+#### Como ler os testes
+
+Para cada teste executado, a ferramenta de linha de comando do PHPUnit imprime um caractere diferente:
+
+- `.` → Impresso quando um teste é **bem-sucedido**.
+    
+- `F` → Impresso quando uma **asserção falha** enquanto o método de teste está executando.
+    
+- `E` → Impresso quando um **erro ocorre** enquanto o método de teste está executando.
+    
+- `R` → Impresso quando o teste foi marcado como **arriscado** (veja _Testes arriscados_).
+    
+- `S` → Impresso quando o teste é **pulado** (veja _Testes Incompletos e Pulados_).
+    
+- `I` → Impresso quando o teste é marcado como **incompleto ou ainda não implementado**.
+
+
+---
+
+Executar Testes Específicos:
+
+Para executar um conjunto específico de testes:
+
+```bash
+./vendor/bin/sail test --filter=ControllerAreaTest
+```
+
+Para executar um método de teste específico:
+
+```bash
+./vendor/bin/sail test --filter=ControllerAreaTest::test_createArea_syntax
+```
+
+Substitua `ControllerAreaTest::test_createArea_syntax` pelo nome completo do método de teste que deseja executar.
 
 ---
 
@@ -214,6 +337,7 @@ Esse projeto é baseado em um projeto original diponível [AQUI](https://gitlab.
 - Tatiana Dias
 - Augusto Perin
 - Gustavo Coelho
+- David Freitas
 
 ### Autores do projeto original
 - Diego Corrêa

@@ -1,6 +1,6 @@
-import { DashboardTemplate } from "../../templates";
+import { DashboardTemplate } from '../../templates';
 
-import styles from "./NewPassword.module.css";
+import styles from './NewPassword.module.css';
 
 function NewPasswordPage() {
   return (

@@ -1,2 +1,2 @@
-export * from './AreaForm'
-export * from './QualisForm'
+export * from './AreaForm';
+export * from './QualisForm';

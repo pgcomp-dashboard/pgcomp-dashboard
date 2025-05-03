@@ -2,9 +2,9 @@ import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Bar, Pie } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import Utils from '../../Utils.js'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
+import api from '@/services/api.js';
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -53,10 +53,10 @@ function PieChart({ filter, type, isMobile }) {
             },
         }
     })
-    
+
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias geradas pelo newBackgroundColors
     const getData = (selectedFilter = []) => {
-        axios.get(`${Utils.baseUrl}/api/dashboard/${type}`, { params: { selectedFilter } })
+        api.get(`/api/dashboard/${type}`, { params: { selectedFilter } })
             .then(({ data }) => {
                 const labels = data[type];
                 const dataChart = data.data;
@@ -79,7 +79,7 @@ function PieChart({ filter, type, isMobile }) {
                         }]
                 }
 
-                
+
 
                 setChartData(pieData)
 
@@ -96,11 +96,11 @@ function PieChart({ filter, type, isMobile }) {
                     history('/*')
                     console.log(error)
                 }
-                
+
                 else{
                     console.log(error)
                 }
-                
+
             });
     }
 
@@ -144,7 +144,7 @@ function PieChart({ filter, type, isMobile }) {
         getData(filter);
     }, [filter, isMobile]);
 
-    return chartData ? (isMobile ? <Pie width={300} height={300} options={options} data={chartData} /> : 
+    return chartData ? (isMobile ? <Pie width={300} height={300} options={options} data={chartData} /> :
         <Bar width={300} height={300} options={options} data={chartData} />) : null;
 }
 

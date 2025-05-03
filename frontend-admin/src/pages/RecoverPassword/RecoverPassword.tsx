@@ -1,6 +1,6 @@
-import { DashboardTemplate } from "../../templates";
+import { DashboardTemplate } from '../../templates';
 
-import styles from "./RecoverPassword.module.css";
+import styles from './RecoverPassword.module.css';
 
 function RecoverPasswordPage() {
   return (

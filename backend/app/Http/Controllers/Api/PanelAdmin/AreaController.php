@@ -34,6 +34,7 @@ class AreaController extends BaseApiResourceController
             'data' => $area
         ], 200);
     }
+  
     public function store(Request $request)
     {
        $validated = $request->validate([
@@ -43,6 +44,7 @@ class AreaController extends BaseApiResourceController
 
         if (Area::where('area', $validated['area'])->exists()) {
             throw new ConflictHttpException('Erro: Área já cadastrada');
+
         }
 
         if (Area::where('subarea', $validated['subarea'])->exists()) {
@@ -52,6 +54,9 @@ class AreaController extends BaseApiResourceController
         if (Area::where('area', $validated['area'])->where('subarea', $validated['subarea'])->exists()) {
             throw new ConflictHttpException('Erro: Já existe uma área que contém essa combinação com subarea');
         }
+
+        }
+
 
         $area = Area::create($validated);
 
@@ -113,6 +118,7 @@ class AreaController extends BaseApiResourceController
             'message' => 'Área atualizada com sucesso',
             'data' => $area
         ], 200);
+
     }
 
     public function destroy(int $id)

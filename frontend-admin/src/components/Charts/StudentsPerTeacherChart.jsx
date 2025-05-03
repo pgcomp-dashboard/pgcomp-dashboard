@@ -8,12 +8,11 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import axios from 'axios';
-import { map } from 'lodash';
 import { useEffect, useState } from 'react';
 import Utils from '../../Utils.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
+import api from '@/services/api';
 
 ChartJS.register(
     CategoryScale,
@@ -65,7 +64,7 @@ function StudentsPerTeacherChart({ filter, isMobile }) {
 
     //função que recebe o filtro selecionado e faz o get na API, passando o selectedFilter como paramêtro, retornando o gráfico de barras montado com cores aleátorias
     const getData = (selectedFilter = []) => {
-        axios.get(`${Utils.baseUrl}/api/dashboard/total_students_per_advisor`, { params: { user_type: selectedFilter } })
+        api.get(`/api/dashboard/total_students_per_advisor`, { params: { user_type: selectedFilter } })
         .then(({ data }) => {
             const aggregateData = (data, threshold = 5, withOthers = true) => {
                 const aggregated = data.reduce((acc, item) => {
@@ -77,15 +76,15 @@ function StudentsPerTeacherChart({ filter, isMobile }) {
                     }
                     return acc;
                 }, { labels: [], values: [], others: 0 });
-            
+
                 if (aggregated.others > 0 && withOthers) {
                     aggregated.labels.push('Outros');
                     aggregated.values.push(aggregated.others);
                 }
-            
+
                 return aggregated;
             };
-            
+
             const { labels, values } = aggregateData(data, (isMobile ? 15 : 0), true);
             const teachersData = {
                 labels,
@@ -112,11 +111,11 @@ function StudentsPerTeacherChart({ filter, isMobile }) {
                 history('/*')
                 console.log(error)
             }
-            
+
             else{
                 console.log(error)
             }
-            
+
         });
     }
 
@@ -163,7 +162,7 @@ function StudentsPerTeacherChart({ filter, isMobile }) {
     console.log('SPT options', options);
 
     return (
-        chartData ? (isMobile ? <Pie width={300} height={300} options={options} data={chartData} /> : 
+        chartData ? (isMobile ? <Pie width={300} height={300} options={options} data={chartData} /> :
             <Bar options={options} data={chartData} />) : null
 
     )
