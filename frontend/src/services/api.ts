@@ -44,14 +44,14 @@ export class ApiService {
       console.error(`Failed to fetch ${endpoint}:`, e);
       throw {
         code: 408,
-        errors: [{ description: String(e) }],
+        errors: [ { description: String(e) } ],
       } as ApiError;
     }
 
     if (!response.ok) {
       const error: ApiError = {
         code: response.status,
-        errors: [{ description: 'Request failed' }],
+        errors: [ { description: 'Request failed' } ],
       };
       try {
         const json = await response.json();

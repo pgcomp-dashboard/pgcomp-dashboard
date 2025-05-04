@@ -6,10 +6,10 @@ import '@/services/api';
 
 export default function StudentsPerAdvisorChart({ filter }: { filter?: 'journal' | 'conference' }) {
 
-  const colors = ['blue', 'red', 'green', 'gray', 'purple'];
+  const colors = [ 'blue', 'red', 'green', 'gray', 'purple' ];
 
   const query = useQuery({
-    queryKey: ['totalStudentsPerAdvisor', filter],
+    queryKey: [ 'totalStudentsPerAdvisor', filter ],
     queryFn: async () => {
       return api.totalStudentsPerAdvisor(filter);
     },
@@ -25,10 +25,11 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'journal'
 
   console.log(query);
 
-  const chartData = Object.entries(query.data ?? {}).map(([_, advisor]) => ({
-    id: advisor.id,
-    name: advisor.name,
-    quantity: advisor.advisedes_count,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const chartData = Object.entries(query.data ?? {}).map(([ _, advisor_info ]) => ({
+    id: advisor_info.id,
+    name: advisor_info.name,
+    quantity: advisor_info.advisedes_count,
   })).filter((entry) => entry.quantity > 0);
 
   console.log(chartData);
@@ -56,7 +57,7 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'journal'
             angle={-45}
             textAnchor="end"
             tickFormatter={(name) =>
-              name.length > 15 ? name.slice(0, 15) + "..." : name
+              name.length > 15 ? name.slice(0, 15) + '...' : name
             }
           />
           <YAxis />

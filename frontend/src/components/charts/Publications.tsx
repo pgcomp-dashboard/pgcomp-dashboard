@@ -23,7 +23,7 @@ import '@/services/api';
 export default function PublicationsChart({ filter }: { filter?: 'journal' | 'conference' }) {
 
   const query = useQuery({
-    queryKey: ['totalProductionsPerYear', filter],
+    queryKey: [ 'totalProductionsPerYear', filter ],
     queryFn: async () => {
       return api.totalProductionsPerYear(filter);
     },
@@ -39,7 +39,7 @@ export default function PublicationsChart({ filter }: { filter?: 'journal' | 'co
 
   console.log(query);
 
-  const chartData = Object.entries(query.data ?? {}).map(([years, data]) => ({
+  const chartData = Object.entries(query.data ?? {}).map(([ years, data ]) => ({
     years,
     data,
   }));

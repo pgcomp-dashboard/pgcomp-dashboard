@@ -7,7 +7,7 @@ import { colorFromName } from '@/utils/color.ts';
 export default function StudentsPerSubfieldChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
 
   const query = useQuery({
-    queryKey: ['studentsPerSubfield', filter],
+    queryKey: [ 'studentsPerSubfield', filter ],
     queryFn: async () => {
       return api.studentsPerSubfield(filter);
     },
@@ -21,7 +21,7 @@ export default function StudentsPerSubfieldChart({ filter }: { filter?: 'mestran
     return <>Carregando...</>; //TODO: spinner...
   }
 
-  const chartData = Object.entries(query.data ?? {}).map(([name, value]) => ({
+  const chartData = Object.entries(query.data ?? {}).map(([ name, value ]) => ({
     name,
     value,
   }));
