@@ -1,4 +1,4 @@
-import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend  } from 'recharts';
+import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart.tsx';
@@ -7,7 +7,7 @@ import { colorFromName } from '@/utils/color.ts';
 export default function StudentsPerSubfieldChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
 
   const query = useQuery({
-    queryKey: [ 'studentsPerSubfield', filter ],
+    queryKey: ['studentsPerSubfield', filter],
     queryFn: async () => {
       return api.studentsPerSubfield(filter);
     },
@@ -21,7 +21,7 @@ export default function StudentsPerSubfieldChart({ filter }: { filter?: 'mestran
     return <>Carregando...</>; //TODO: spinner...
   }
 
-  const chartData = Object.entries(query.data ?? {}).map(([ name, value ]) => ({
+  const chartData = Object.entries(query.data ?? {}).map(([name, value]) => ({
     name,
     value,
   }));
@@ -35,7 +35,7 @@ export default function StudentsPerSubfieldChart({ filter }: { filter?: 'mestran
             color: 'hsl(var(--chart-1))',
           },
         }}
-        className="h-[400px]"
+        className="w-full h-[400px]"
       >
         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }} layout="horizontal">
           <CartesianGrid strokeDasharray="3 3" />

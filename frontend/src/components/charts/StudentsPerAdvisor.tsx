@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
-import { CartesianGrid, XAxis, YAxis, BarChart, Tooltip, Bar, Cell  } from 'recharts';
+import { CartesianGrid, XAxis, YAxis, BarChart, Tooltip, Bar, Cell } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import '@/services/api';
 
-export default function StudentsPerAdvisorChart({ filter }: {  filter?: 'journal' | 'conference'}) {
+export default function StudentsPerAdvisorChart({ filter }: { filter?: 'journal' | 'conference' }) {
 
   const colors = ['blue', 'red', 'green', 'gray', 'purple'];
 
@@ -32,7 +32,7 @@ export default function StudentsPerAdvisorChart({ filter }: {  filter?: 'journal
   })).filter((entry) => entry.quantity > 0);
 
   console.log(chartData);
-  
+
   return (
     <div className="flex items-center justify-center">
       <ChartContainer
@@ -46,25 +46,25 @@ export default function StudentsPerAdvisorChart({ filter }: {  filter?: 'journal
             color: 'hsl(var(--chart-3))',
           },
         }}
-        className="h-[400px]"
+        className="w-full h-[400px]"
       >
         <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-          dataKey="name"
-          interval={0}
-          angle={-45}
-          textAnchor="end"
-          tickFormatter={(name) => 
-            name.length > 15 ? name.slice(0, 15) + "..." : name
-          }
+          <XAxis
+            dataKey="name"
+            interval={0}
+            angle={-45}
+            textAnchor="end"
+            tickFormatter={(name) =>
+              name.length > 15 ? name.slice(0, 15) + "..." : name
+            }
           />
           <YAxis />
           <Tooltip />
           <Bar dataKey="quantity" fill="#8884d8" label={{ position: 'top' }}>
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={colors[index % 5]} />
-              ))}
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={colors[index % 5]} />
+            ))}
           </Bar>
         </BarChart>
       </ChartContainer>

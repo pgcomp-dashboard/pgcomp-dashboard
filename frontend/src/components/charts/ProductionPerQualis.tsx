@@ -3,8 +3,18 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart.tsx';
 import { colorFromName } from '@/utils/color.ts';
+import { useRef, useState, useEffect } from 'react';
 
 export default function ProductionPerQualisChart() {
+    const chartRef = useRef<HTMLDivElement>(null);
+    const [chartHeight, setChartHeight] = useState<number>(0);
+
+    useEffect(() => {
+        if (chartRef.current) {
+            setChartHeight(chartRef.current.clientHeight);
+        }
+    }, []);
+
     const query = useQuery({
         queryKey: ['productionPerQualis'],
         queryFn: async () => {
@@ -32,8 +42,39 @@ export default function ProductionPerQualisChart() {
 
     const allQualis = data.map((d: any) => d.label);
 
+    const CustomBarLabel = ({ index, value, dataKey, data, x, width, yAxisDomain }: any) => {
+        if (!value || !chartHeight || !yAxisDomain) return null;
+
+        const yearData = data[index];
+        const keys = Object.keys(yearData).filter(k => k !== 'year');
+        const currentIndex = keys.indexOf(dataKey);
+        const previousKeys = keys.slice(0, currentIndex);
+        const previousTotal = previousKeys.reduce((sum, key) => sum + (yearData[key] || 0), 0);
+
+        const maxYValue = yAxisDomain[1] ?? 100;
+
+        // Altura da barra atual e posição
+        const barHeight = (value / maxYValue) * chartHeight;
+        const baseHeight = (previousTotal / maxYValue) * chartHeight;
+
+        const centerY = chartHeight - baseHeight - barHeight / 2;
+
+        return (
+            <text
+                x={x + width / 2}
+                y={centerY}
+                fill="#fff"
+                fontSize="12"
+                textAnchor="middle"
+                dominantBaseline="middle"
+            >
+                {value}
+            </text>
+        );
+    };
+
     return (
-        <div className="flex items-center justify-center w-full">
+        <div className="flex items-center justify-center w-full" ref={chartRef}>
             <ChartContainer
                 config={{
                     productions: {
@@ -41,7 +82,7 @@ export default function ProductionPerQualisChart() {
                         color: 'hsl(var(--chart-4))',
                     },
                 }}
-                className="h-[400px]"
+                className="w-full h-[400px]"
             >
                 <BarChart
                     data={chartData}
@@ -58,6 +99,7 @@ export default function ProductionPerQualisChart() {
                             dataKey={qualis}
                             name={qualis}
                             stackId="a" // Remova se quiser colunas agrupadas
+                            label={<CustomBarLabel />}
                             fill={colorFromName(qualis + 55)}
                         />
                     ))}
