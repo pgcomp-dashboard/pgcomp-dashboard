@@ -23,16 +23,12 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'journal'
     return <>Carregando...</>; //TODO: spinner...
   }
 
-  console.log(query);
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const chartData = Object.entries(query.data ?? {}).map(([ _, advisor_info ]) => ({
     id: advisor_info.id,
     name: advisor_info.name,
     quantity: advisor_info.advisedes_count,
   })).filter((entry) => entry.quantity > 0);
-
-  console.log(chartData);
 
   return (
     <div className="flex items-center justify-center">
