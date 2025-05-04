@@ -62,7 +62,7 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'journal'
           <YAxis />
           <Tooltip />
           <Bar dataKey="quantity" fill="#8884d8" label={{ position: 'top' }}>
-            {chartData.map((entry, index) => (
+            {chartData.map((_entry, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % 5]} />
             ))}
           </Bar>
