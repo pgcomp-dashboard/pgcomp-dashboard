@@ -1,13 +1,21 @@
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
+import {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+    Tooltip,
+    Legend,
+} from 'recharts';
 import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart.tsx';
-import { colorFromName } from '@/utils/color.ts';
 import { useRef, useState, useEffect } from 'react';
+import api from '@/services/api';
+import { colorFromName } from '@/utils/color.ts';
 
 export default function ProductionPerQualisChart() {
     const chartRef = useRef<HTMLDivElement>(null);
-    const [chartHeight, setChartHeight] = useState<number>(0);
+    const [, setChartHeight] = useState<number>(0);
 
     useEffect(() => {
         if (chartRef.current) {
@@ -15,56 +23,45 @@ export default function ProductionPerQualisChart() {
         }
     }, []);
 
-    const query = useQuery({
+    const { data: response, isLoading, error } = useQuery({
         queryKey: ['productionPerQualis'],
-        queryFn: async () => {
-            return api.productionPerQualis(); // Estrutura com `years` e `data`
-        },
+        queryFn: () => api.productionPerQualis(),
     });
 
-    if (query.error) return <>Falha ao carregar gráfico!</>;
-    if (query.isLoading) return <>Carregando...</>;
+    if (isLoading) return <>Carregando...</>;
+    if (error) return <>Erro ao carregar o gráfico</>;
 
-    const response = query.data ?? { years: [], data: [] };
-    const years: number[] = Array.isArray(response.years) ? response.years : [];
-    const data: { label: string; data: number[] }[] = Array.isArray(response.data)
+    const years: number[] = Array.isArray(response?.years) ? response.years : [];
+    const data: { label: string; data: number[] }[] = Array.isArray(response?.data)
         ? response.data
         : [];
 
-    // Reorganiza os dados no formato { year: 2014, A1: 3, A2: 0, ... }
-    const chartData = years.map((year: number, index: number) => {
+    // Organize data for each year
+    const chartData = years.map((year, index) => {
         const entry: Record<string, any> = { year };
-        data.forEach((qualisEntry: any) => {
-            entry[qualisEntry.label] = qualisEntry.data[index];
+        data.forEach(({ label, data }) => {
+            entry[label] = data[index];
         });
         return entry;
     });
 
-    const allQualis = data.map((d: any) => d.label);
+    const allQualis = data.map((d) => d.label);
 
-    const CustomBarLabel = ({ index, value, dataKey, data, x, width, yAxisDomain }: any) => {
-        if (!value || !chartHeight || !yAxisDomain) return null;
+    {/*}    // Custom label for bar values
+    const CustomBarLabel = (props: any) => {
+        const { x, y, width, height, value } = props;
 
-        const yearData = data[index];
-        const keys = Object.keys(yearData).filter(k => k !== 'year');
-        const currentIndex = keys.indexOf(dataKey);
-        const previousKeys = keys.slice(0, currentIndex);
-        const previousTotal = previousKeys.reduce((sum, key) => sum + (yearData[key] || 0), 0);
+        if (value === 0 || height < 10) return null; // Avoid showing labels for zero or very small segments
 
-        const maxYValue = yAxisDomain[1] ?? 100;
-
-        // Altura da barra atual e posição
-        const barHeight = (value / maxYValue) * chartHeight;
-        const baseHeight = (previousTotal / maxYValue) * chartHeight;
-
-        const centerY = chartHeight - baseHeight - barHeight / 2;
+        // Position the label in the center of the bar segment
+        const labelY = y + height / 2;
 
         return (
             <text
                 x={x + width / 2}
-                y={centerY}
+                y={labelY}
                 fill="#fff"
-                fontSize="12"
+                fontSize="11"
                 textAnchor="middle"
                 dominantBaseline="middle"
             >
@@ -72,41 +69,31 @@ export default function ProductionPerQualisChart() {
             </text>
         );
     };
-
+*/}
     return (
-        <div className="flex items-center justify-center w-full" ref={chartRef}>
-            <ChartContainer
-                config={{
-                    productions: {
-                        label: 'Produções por qualis',
-                        color: 'hsl(var(--chart-4))',
-                    },
-                }}
-                className="w-full h-[400px]"
-            >
+        <div className="w-full h-[400px]" ref={chartRef}>
+            <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={chartData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Legend />
+                    <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Tooltip />
                     {allQualis.map((qualis) => (
                         <Bar
                             key={qualis}
                             dataKey={qualis}
-                            name={qualis}
-                            stackId="a" // Remova se quiser colunas agrupadas
-                            label={<CustomBarLabel />}
+                            stackId="a"
                             fill={colorFromName(qualis)}
                             stroke="#ffffff"
-
+                        //label={<CustomBarLabel />}
                         />
                     ))}
                 </BarChart>
-            </ChartContainer>
+            </ResponsiveContainer>
         </div>
     );
 }

@@ -39,10 +39,34 @@ export default function StudentsPerSubfieldChart({ filter }: { filter?: 'mestran
       >
         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }} layout="horizontal">
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} />
+          <XAxis
+            type="category"
+            dataKey="name"
+            width={150}
+            interval={0}
+            tick={({ x, y, payload }) => (
+              <text
+                x={x}
+                y={y + 10}
+                transform={`rotate(-5, ${x}, ${y + 10})`}
+                textAnchor="end"
+                fontSize={12}
+              >
+                {payload.value}
+              </text>
+            )}
+          />
           <YAxis type="number" />
           <ChartTooltip content={<ChartTooltipContent />} />
-          <Legend />
+          <Legend
+            wrapperStyle={{
+              marginBottom: -25, // ajuste este valor conforme necessário
+              textAlign: 'right',
+              fontSize: 11,
+            }}
+            verticalAlign="bottom"
+            align="center"
+          />
           <Bar dataKey="value" name="Quantidade de alunos">
             {
               chartData.map(e => (
