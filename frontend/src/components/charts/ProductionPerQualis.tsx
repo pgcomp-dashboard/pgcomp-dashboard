@@ -100,7 +100,9 @@ export default function ProductionPerQualisChart() {
                             name={qualis}
                             stackId="a" // Remova se quiser colunas agrupadas
                             label={<CustomBarLabel />}
-                            fill={colorFromName(qualis + 55)}
+                            fill={colorFromName(qualis)}
+                            stroke="#ffffff"
+
                         />
                     ))}
                 </BarChart>

@@ -149,9 +149,9 @@ export default function Dashboard() {
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value={'all'}><PublicationsChart/></TabsContent>
-                <TabsContent value={'journals'}><PublicationsChart filter="journal"/></TabsContent>
-                <TabsContent value={'conferences'}><PublicationsChart filter="conference"/></TabsContent>
+                <TabsContent value={'all'}><PublicationsChart /></TabsContent>
+                <TabsContent value={'journals'}><PublicationsChart filter="journal" /></TabsContent>
+                <TabsContent value={'conferences'}><PublicationsChart filter="conference" /></TabsContent>
               </CardContent>
             </Tabs>
           </Card>
@@ -161,6 +161,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Produções por qualis</CardTitle>
+              {/*
               <Tabs defaultValue="all">
                 <TabsList>
                   <TabsTrigger value="all">Todas</TabsTrigger>
@@ -168,6 +169,7 @@ export default function Dashboard() {
                   <TabsTrigger value="conferences">Em conferências</TabsTrigger>
                 </TabsList>
               </Tabs>
+              */}
             </CardHeader>
             <CardContent>
               {<ProductionPerQualisChart />}
@@ -180,13 +182,14 @@ export default function Dashboard() {
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Quantidade de Alunos por Orientador</CardTitle>
-
+                {/*
                 <TabsList>
                   <TabsTrigger value="all">Todos</TabsTrigger>
                 </TabsList>
+                */}
               </CardHeader>
               <CardContent>
-                <TabsContent value={'all'}><StudentsPerAdvisorChart/></TabsContent>
+                <TabsContent value={'all'}><StudentsPerAdvisorChart /></TabsContent>
               </CardContent>
             </Tabs>
           </Card>

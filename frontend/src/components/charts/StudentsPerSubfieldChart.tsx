@@ -1,4 +1,4 @@
-import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
+import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, LabelList } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart.tsx';
@@ -49,6 +49,28 @@ export default function StudentsPerSubfieldChart({ filter }: { filter?: 'mestran
                 <Cell key={`cell-${e.name}`} fill={colorFromName(e.name)} />
               ))
             }
+            <LabelList
+              dataKey="value"
+              position="top"
+              content={({ x, y, width, value, index }) => {
+                if (index === undefined) return null;
+
+                const barColor = colorFromName(chartData[index].name);
+
+                return (
+                  <text
+                    x={Number(x) + Number(width) / 2}
+                    y={Number(y) - 5}
+                    fill={barColor}
+                    fontSize={12}
+                    fontWeight="bold"
+                    textAnchor="middle"
+                  >
+                    {value}
+                  </text>
+                );
+              }}
+            />
           </Bar>
         </BarChart>
       </ChartContainer>
