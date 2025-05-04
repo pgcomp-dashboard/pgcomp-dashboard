@@ -48,7 +48,7 @@ export default function StudentsPerSubfieldChart({ filter }: { filter?: 'mestran
               <text
                 x={x}
                 y={y + 10}
-                transform={`rotate(-5, ${x}, ${y + 10})`}
+                transform={`rotate(-6, ${x}, ${y + 10})`}
                 textAnchor="end"
                 fontSize={12}
               >

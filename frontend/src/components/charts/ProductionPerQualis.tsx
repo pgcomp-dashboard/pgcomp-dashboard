@@ -7,6 +7,7 @@ import {
     YAxis,
     Tooltip,
     Legend,
+    LabelList, // Importando o LabelList
 } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { useRef, useState, useEffect } from 'react';
@@ -47,29 +48,6 @@ export default function ProductionPerQualisChart() {
 
     const allQualis = data.map((d) => d.label);
 
-    {/*}    // Custom label for bar values
-    const CustomBarLabel = (props: any) => {
-        const { x, y, width, height, value } = props;
-
-        if (value === 0 || height < 10) return null; // Avoid showing labels for zero or very small segments
-
-        // Position the label in the center of the bar segment
-        const labelY = y + height / 2;
-
-        return (
-            <text
-                x={x + width / 2}
-                y={labelY}
-                fill="#fff"
-                fontSize="11"
-                textAnchor="middle"
-                dominantBaseline="middle"
-            >
-                {value}
-            </text>
-        );
-    };
-*/}
     return (
         <div className="w-full h-[400px]" ref={chartRef}>
             <ResponsiveContainer width="100%" height="100%">
@@ -89,8 +67,34 @@ export default function ProductionPerQualisChart() {
                             stackId="a"
                             fill={colorFromName(qualis)}
                             stroke="#ffffff"
-                        //label={<CustomBarLabel />}
-                        />
+                        >
+                            {/* Exibir valor de cada qualis no centro da barra */}
+                            <LabelList
+                                dataKey={qualis}
+                                position="center"
+                                content={({ x, y, width, height, value }) => {
+                                    // Garantir que x, y, width, height são números
+                                    const numX = Number(x);
+                                    const numY = Number(y);
+                                    const numWidth = Number(width);
+                                    const numHeight = Number(height);
+
+                                    return (
+                                        <text
+                                            x={numX + numWidth / 2}
+                                            y={numY + numHeight / 2}
+                                            fill="#fff"
+                                            fontSize={12}
+                                            fontWeight="bold"
+                                            textAnchor="middle"
+                                            dominantBaseline="middle"
+                                        >
+                                            {value}
+                                        </text>
+                                    );
+                                }}
+                            />
+                        </Bar>
                     ))}
                 </BarChart>
             </ResponsiveContainer>
