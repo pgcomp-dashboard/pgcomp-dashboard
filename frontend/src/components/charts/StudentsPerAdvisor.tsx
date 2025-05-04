@@ -4,7 +4,7 @@ import { CartesianGrid, XAxis, YAxis, BarChart, Tooltip, Bar, Cell } from 'recha
 import { ChartContainer } from '@/components/ui/chart';
 import '@/services/api';
 
-export default function StudentsPerAdvisorChart({ filter }: { filter?: 'journal' | 'conference' }) {
+export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
 
   const colors = [ 'blue', 'red', 'green', 'gray', 'purple' ];
 
