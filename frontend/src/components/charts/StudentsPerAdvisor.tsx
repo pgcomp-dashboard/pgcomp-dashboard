@@ -3,10 +3,9 @@ import api from '@/services/api';
 import { CartesianGrid, XAxis, YAxis, BarChart, Tooltip, Bar, Cell } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import '@/services/api';
+import { colorFromName } from '@/utils/color';
 
 export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
-
-  const colors = [ 'blue', 'red', 'green', 'gray', 'purple' ];
 
   const query = useQuery({
     queryKey: [ 'totalStudentsPerAdvisor', filter ],
@@ -59,8 +58,8 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrand
           <YAxis />
           <Tooltip />
           <Bar dataKey="quantity" fill="#8884d8" label={{ position: 'top' }}>
-            {chartData.map((_entry, index) => (
-              <Cell key={`cell-${index}`} fill={colors[index % 5]} />
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
             ))}
           </Bar>
         </BarChart>

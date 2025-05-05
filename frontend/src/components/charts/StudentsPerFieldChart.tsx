@@ -1,4 +1,4 @@
-import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, LabelList } from 'recharts';
+import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, LabelList } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart.tsx';
@@ -42,11 +42,10 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
           <XAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} />
           <YAxis type="number" />
           <ChartTooltip content={<ChartTooltipContent />} />
-          <Legend />
           <Bar dataKey="value" name="Quantidade de alunos">
             {
               chartData.map(e => (
-                <Cell key={`cell-${e.name}`} fill={colorFromName(e.name)} />
+                <Cell key={`cell-${e.name}`} fill={colorFromName('area-' + e.name)} />
               ))
             }
 
