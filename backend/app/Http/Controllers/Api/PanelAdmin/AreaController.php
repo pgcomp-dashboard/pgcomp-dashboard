@@ -20,6 +20,20 @@ class AreaController extends BaseApiResourceController
         return Area::class;
     }
 
+    public function show(int $id)
+    {
+        $area = Area::find($id);
+
+        if (!$area) {
+            throw new NotFoundHttpException('Área não encontrada');
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Área encontrada com sucesso',
+            'data' => $area
+        ], 200);
+    }
     public function store(Request $request)
     {
        $validated = $request->validate([
@@ -31,6 +45,14 @@ class AreaController extends BaseApiResourceController
             throw new ConflictHttpException('Erro: Área já cadastrada');
         }
 
+        if (Area::where('subarea', $validated['subarea'])->exists()) {
+            throw new ConflictHttpException('Erro: Subarea já cadastrada');
+        }
+
+        if (Area::where('area', $validated['area'])->where('subarea', $validated['subarea'])->exists()) {
+            throw new ConflictHttpException('Erro: Já existe uma área que contém essa combinação com subarea');
+        }
+
         $area = Area::create($validated);
 
         return response()->json([
@@ -38,6 +60,59 @@ class AreaController extends BaseApiResourceController
         'message' => 'Área cadastrada com sucesso',
         'data' => $area
         ], 201);
+    }
+
+    public function update (Request $request, int $id)
+    {
+        $area = Area::find($id);
+
+        if (!$area) {
+            throw new NotFoundHttpException('Área não encontrada');
+        }
+
+        $validated = $request->validate([
+            'area' => 'sometimes|required|string|max:255',
+            'subarea' => 'sometimes|required|string|max:255',
+        ]);
+
+        $newArea = $validated['area'] ?? $area->area;
+        $newSubarea = $validated['subarea'] ?? $area->subarea;
+
+        $areaExists = Area::where('area', $newArea)
+        ->where('id', '!=', $id)
+        ->exists();
+
+        if ($areaExists) {
+            throw new ConflictHttpException('Erro: Área já cadastrada com esse nome');
+        }
+
+        $subareaExists = Area::where('subarea', $newSubarea)
+        ->where('id', '!=', $id)
+        ->exists();
+
+        if ($subareaExists) {
+            throw new ConflictHttpException('Erro: Subarea já cadastrada com esse nome');
+        }
+
+        $combinationExists = Area::where('area', $newArea)
+        ->where('subarea', $newSubarea)
+        ->where('id', '!=', $id)
+        ->exists();
+
+        if ($combinationExists) {
+            throw new ConflictHttpException('Erro: Já existe uma área que contém essa combinação com subarea');
+        }
+
+        $area->update([
+            'area' => $newArea,
+            'subarea' => $newSubarea,
+        ]);
+            
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Área atualizada com sucesso',
+            'data' => $area
+        ], 200);
     }
 
     public function destroy(int $id)

@@ -1,4 +1,4 @@
-import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend  } from 'recharts';
+import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, LabelList } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart.tsx';
@@ -35,20 +35,46 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
             color: 'hsl(var(--chart-1))',
           },
         }}
-        className="h-[400px]"
+        className="w-full h-[400px]"
       >
         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }} layout="horizontal">
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} />
           <YAxis type="number" />
           <ChartTooltip content={<ChartTooltipContent />} />
-          <Legend />
           <Bar dataKey="value" name="Quantidade de alunos">
             {
               chartData.map(e => (
-                <Cell key={`cell-${e.name}`} fill={colorFromName(e.name)} />
+                <Cell key={`cell-${e.name}`} fill={colorFromName('area-' + e.name)} />
               ))
             }
+
+            <LabelList
+              dataKey="value"
+              position="top"
+              style={{
+                fill: 'currentColor', // será substituído dinamicamente abaixo
+                fontSize: 12,
+                fontWeight: 'bold',
+                textAnchor: 'middle',
+              }}
+              content={({ x, y, width, value, index }) => {
+                if (index === undefined) return null;
+                const barColor = colorFromName(chartData[index].name);
+                return (
+                  <text
+                    x={Number(x) + Number(width) / 2}
+                    y={Number(y) - 5}
+                    fill={barColor}
+                    fontSize={12}
+                    fontWeight="bold"
+                    textAnchor="middle"
+                  >
+                    {value}
+                  </text>
+                );
+              }}
+            />
           </Bar>
         </BarChart>
       </ChartContainer>

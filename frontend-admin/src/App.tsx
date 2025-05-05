@@ -1,17 +1,10 @@
+import { BrowserRouter, Routes, Route, useNavigate, RouteProps, Outlet } from 'react-router';
+import React, { useEffect } from 'react';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import PersonInfo from './components/PersonInfo/PersonInfo';
-import Session from './components/Session/Session';
-import UserProductions from './components/UserProductions/UserProductions';
-import { LoginPage } from './pages';
-import DefaultPage from './pages/DefaultPage/DefaultPage';
-import { AuthProvider } from './providers/AuthProvider';
-import NotFoundPage from './pages/NotFound';
-import Erro500 from './pages/Erro500';
-import XmlUpload from './components/XmlUpload/XmlUpload';
-import {BrowserRouter, Routes, Route, useNavigate} from 'react-router';
 
-import './App.module.css';
-import {useEffect} from "react";
+import useAuth from '@/hooks/auth';
+import { AuthProvider } from '@/providers/AuthProvider';
+import LoginPage from '@/pages/Login';
 
 const queryClient = new QueryClient();
 
@@ -21,23 +14,23 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path='/admin' element={<DefaultPage/>}>
-              <Route path='areas' element={<Session/>}/>
-              <Route path='qualis' element={<Session/>}/>
-              <Route path='professors' element={<Session/>}/>
-              <Route path='professors/:id' element={<PersonInfo/>}/>
-              <Route path="professors/:id/productions" element={<UserProductions/>}/>
-              <Route path="professors/:id/xml-upload" element={<XmlUpload/>}/>
-              <Route path='students' element={<Session/>}/>
-              <Route path='students/:id' element={<PersonInfo/>}/>
-              <Route path="students/:id/productions" element={<UserProductions/>}/>
-              <Route path="students/:id/xml-upload" element={<XmlUpload/>}/>
-              <Route index element={null}/>
+            <Route path='/'>
+              <Route index element={<Redirect to="/admin/areas" />}/>
+              <Route path="login" element={<LoginPage/>}/>
+              <Route path='admin' element={<EnsureAuthenticated />}>
+                <Route index element={<Redirect to='/admin/areas' />}/>
+                <Route path='areas' element={<>Hello</>}/>
+                {/* <Route path='qualis' element={<Session/>}/> */}
+                {/* <Route path='professors' element={<ProfessorPanel />} /> */}
+                {/* <Route path='professors/:id' element={<PersonInfo/>}/> */}
+                {/* <Route path="professors/:id/productions" element={<UserProductions/>}/> */}
+                {/* <Route path="professors/:id/xml-upload" element={<XmlUpload/>}/> */}
+                {/* <Route path='students' element={<Session/>}/> */}
+                {/* <Route path='students/:id' element={<PersonInfo/>}/> */}
+                {/* <Route path="students/:id/productions" element={<UserProductions/>}/> */}
+                {/* <Route path="students/:id/xml-upload" element={<XmlUpload/>}/> */}
+              </Route>
             </Route>
-            <Route path="/login" element={<LoginPage/>}/>
-            <Route path="/erro" element={<Erro500/>}/>
-            <Route index element={<Redirect to="/admin/areas" />}/>
-            <Route path="*" element={<NotFoundPage/>}/>
           </Routes>
         </BrowserRouter>
       </AuthProvider>
@@ -45,11 +38,26 @@ function App() {
   );
 }
 
+function EnsureAuthenticated() {
+  const auth = useAuth();
+
+  if (auth.isLoading) {
+    return <>Carregando...</>;
+  }
+
+  if (auth.isAuthenticated) {
+    return <Outlet />;
+  } else {
+    console.error('User not authenticated. Redirecting back to login page...');
+    return <Redirect to='/login' />;
+  }
+}
+
 function Redirect({ to }: { to: string }) {
   const navigate = useNavigate();
   useEffect(() => {
     navigate(to);
-  }, []);
+  }, [ navigate, to ]);
   return <></>;
 }
 

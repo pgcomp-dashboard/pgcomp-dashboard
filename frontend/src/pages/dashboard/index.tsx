@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PublicationsChart from '@/components/charts/Publications.tsx';
 import StudentsPerAdvisorChart from '@/components/charts/StudentsPerAdvisor.tsx';
 import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
-import StudentsPerSubfieldChart from '@/components/charts/StudentsPerSubfieldChart.tsx';
 import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 // import QualityMetricsChart from '@/components/quality-metrics-chart';
 // import StudentsByFacultyChart from '@/components/students-by-faculty-chart';
@@ -17,8 +16,9 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 // import StudentsBySubareaChart from '@/components/students-by-subarea-chart';
 
 import logoImage from '@/assets/logo.png';
+import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
 
-const ADMIN_REDIRECT_URL = 'https://todo.com';
+const ADMIN_REDIRECT_URL = import.meta.env.VITE_ADMIN_REDIRECT_URL ?? 'https://pgcomp.ufba.fleap.dev/admin';
 
 export default function Dashboard() {
   const scrollToSection = (id: string) => {
@@ -149,9 +149,9 @@ export default function Dashboard() {
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value={'all'}><PublicationsChart/></TabsContent>
-                <TabsContent value={'journals'}><PublicationsChart filter="journal"/></TabsContent>
-                <TabsContent value={'conferences'}><PublicationsChart filter="conference"/></TabsContent>
+                <TabsContent value={'all'}><PublicationsChart /></TabsContent>
+                <TabsContent value={'journals'}><PublicationsChart filter="journal" /></TabsContent>
+                <TabsContent value={'conferences'}><PublicationsChart filter="conference" /></TabsContent>
               </CardContent>
             </Tabs>
           </Card>
@@ -161,6 +161,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Produções por qualis</CardTitle>
+              {/*
               <Tabs defaultValue="all">
                 <TabsList>
                   <TabsTrigger value="all">Todas</TabsTrigger>
@@ -168,6 +169,7 @@ export default function Dashboard() {
                   <TabsTrigger value="conferences">Em conferências</TabsTrigger>
                 </TabsList>
               </Tabs>
+              */}
             </CardHeader>
             <CardContent>
               {<ProductionPerQualisChart />}
@@ -180,13 +182,18 @@ export default function Dashboard() {
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Quantidade de Alunos por Orientador</CardTitle>
-
                 <TabsList>
-                  <TabsTrigger value="all">Todos</TabsTrigger>
+                  <TabsTrigger value="all">Atuais</TabsTrigger>
+                  <TabsTrigger value="mestrando">Mestrando</TabsTrigger>
+                  <TabsTrigger value="doutorando">Doutorando</TabsTrigger>
+                  <TabsTrigger value="completed">Concluídos</TabsTrigger>
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value={'all'}><StudentsPerAdvisorChart/></TabsContent>
+                <TabsContent value={'all'}><StudentsPerAdvisorChart /></TabsContent>
+                <TabsContent value={'mestrando'}><StudentsPerAdvisorChart filter='mestrando' /></TabsContent>
+                <TabsContent value={'doutorando'}><StudentsPerAdvisorChart filter='doutorando' /></TabsContent>
+                <TabsContent value={'completed'}><StudentsPerAdvisorChart filter='completed' /></TabsContent>
               </CardContent>
             </Tabs>
           </Card>
@@ -214,23 +221,21 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="subarea" className="space-y-4 h-[500px]">
+        <section id="defenses" className="space-y-4 h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Alunos por sub-área</CardTitle>
+                <CardTitle>Defesas por ano</CardTitle>
                 <TabsList>
-                  <TabsTrigger value="all">Todos</TabsTrigger>
-                  <TabsTrigger value="mestrando">Mestrandos</TabsTrigger>
-                  <TabsTrigger value="doutorando">Doutorandos</TabsTrigger>
-                  <TabsTrigger value="completed">Concluídos</TabsTrigger>
+                  <TabsTrigger value="all">Todas</TabsTrigger>
+                  <TabsTrigger value="mestrado">Mestrado</TabsTrigger>
+                  <TabsTrigger value="doutorado">Doutorado</TabsTrigger>
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value='all'><StudentsPerSubfieldChart /></TabsContent>
-                <TabsContent value='mestrando'><StudentsPerSubfieldChart filter='mestrando' /></TabsContent>
-                <TabsContent value='doutorando'><StudentsPerSubfieldChart filter='doutorando' /></TabsContent>
-                <TabsContent value='completed'><StudentsPerSubfieldChart filter='completed' /></TabsContent>
+                <TabsContent value='all'><DefensesPerYearChart /></TabsContent>
+                <TabsContent value='mestrado'><DefensesPerYearChart filter='mestrado' /></TabsContent>
+                <TabsContent value='doutorado'><DefensesPerYearChart filter='doutorado' /></TabsContent>
               </CardContent>
             </Tabs>
           </Card>

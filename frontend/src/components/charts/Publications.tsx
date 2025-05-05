@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Legend  } from 'recharts';
+import { Line, LineChart, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import '@/services/api';
 
@@ -20,10 +20,10 @@ import '@/services/api';
 //   { year: '2025', journals: 100, conferences: 85 },
 // ];
 
-export default function PublicationsChart({ filter }: {  filter?: 'journal' | 'conference'}) {
+export default function PublicationsChart({ filter }: { filter?: 'journal' | 'conference' }) {
 
   const query = useQuery({
-    queryKey: ['totalProductionsPerYear', filter],
+    queryKey: [ 'totalProductionsPerYear', filter ],
     queryFn: async () => {
       return api.totalProductionsPerYear(filter);
     },
@@ -44,7 +44,7 @@ export default function PublicationsChart({ filter }: {  filter?: 'journal' | 'c
     data,
   }));
 
-  
+
   return (
     <div className="flex items-center justify-center">
       <ChartContainer
@@ -58,7 +58,7 @@ export default function PublicationsChart({ filter }: {  filter?: 'journal' | 'c
             color: 'hsl(var(--chart-3))',
           },
         }}
-        className="h-[400px]"
+        className="w-full h-[400px]"
       >
         <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" />

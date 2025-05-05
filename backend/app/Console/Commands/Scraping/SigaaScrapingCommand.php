@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Scraping;
 
 use App\Domain\Sigaa\DefenseScraping;
 use App\Domain\Sigaa\StudentScraping;
@@ -50,6 +50,16 @@ class SigaaScrapingCommand extends Command
             $teachers = $teacherScraping->scrapingByProgram((int)$programId);
             Storage::put("teachers-{$programId}.json", json_encode($teachers));
             $this->createOrUpdateTeachers($teachers);
+
+            $teachersWithArea = $teacherScraping->fillProfessorsWithArea();
+            $this->info('Professores com área preenchida com sucesso');
+            $this->table([
+                'Nome',
+                'ID Area',
+                'Observação'
+            ], $teachersWithArea);
+
+
         } catch (Exception $e) {
             $this->error($e->getMessage());
         }
@@ -157,9 +167,11 @@ class SigaaScrapingCommand extends Command
 
             if ($user) {
                 $advisor = $user->advisors()->first();
+
                 if ($advisor) {
                     $user->area_id = $advisor->area_id;
                 }
+
                 $user->defended_at = $item['date'];
                 $user->save();
                 $this->info("{$user->name} defendeu.");
@@ -169,10 +181,16 @@ class SigaaScrapingCommand extends Command
                     ->first(['registration'])
                     ->registration;
 
+                $areaId = User::where('type', UserType::PROFESSOR->value)
+                    ->where('id', $teacher?->id)
+                    ->whereNotNull(['id','area_id'])
+                    ->first(['area_id'])?->area_id;
+
                 $user = User::createOrUpdateStudent([
                     'registration' => $registration -1,
                     'name' => $item['student'],
                     'course_id' => $item['course_id'],
+                    'area_id' => $areaId,
                 ]);
             }
             if ($teacher && $user->advisors()->where('id', $teacher->id)->doesntExist()) {
@@ -180,4 +198,5 @@ class SigaaScrapingCommand extends Command
             }
         }
     }
+
 }
