@@ -1,9 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
-import { CartesianGrid, XAxis, YAxis, BarChart, Tooltip, Bar, Cell } from 'recharts';
+import { CartesianGrid, XAxis, YAxis, BarChart, Tooltip, Bar, Cell, TooltipProps } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import '@/services/api';
 import { colorFromName } from '@/utils/color';
+import './chart.css';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>)  => {
+  if (active && payload?.length) {
+    return (
+      <div className="bg-white p-3 border border-2 rounded">
+        <b>{label}</b>
+        <br />
+        {payload.map((ele, index) => (
+          <>
+            <text className="tooltip-text" key={index}>
+              Alunos de {label.split(' ')[0]} : {ele.value}
+            </text>
+            <br />
+          </>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
 
@@ -56,7 +78,7 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrand
             }
           />
           <YAxis />
-          <Tooltip />
+          <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
           <Bar dataKey="quantity" fill="#8884d8" label={{ position: 'top' }}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
