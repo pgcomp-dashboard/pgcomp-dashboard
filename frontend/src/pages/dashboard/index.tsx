@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PublicationsChart from '@/components/charts/Publications.tsx';
 import StudentsPerAdvisorChart from '@/components/charts/StudentsPerAdvisor.tsx';
 import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
-import StudentsPerSubfieldChart from '@/components/charts/StudentsPerSubfieldChart.tsx';
 import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 // import QualityMetricsChart from '@/components/quality-metrics-chart';
 // import StudentsByFacultyChart from '@/components/students-by-faculty-chart';
@@ -216,28 +215,6 @@ export default function Dashboard() {
                 <TabsContent value='mestrando'><StudentsPerFieldChart filter='mestrando' /></TabsContent>
                 <TabsContent value='doutorando'><StudentsPerFieldChart filter='doutorando' /></TabsContent>
                 <TabsContent value='completed'><StudentsPerFieldChart filter='completed' /></TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
-        </section>
-
-        <section id="subarea" className="space-y-4 h-[500px]">
-          <Card>
-            <Tabs defaultValue="all">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Alunos por sub-área</CardTitle>
-                <TabsList>
-                  <TabsTrigger value="all">Todos</TabsTrigger>
-                  <TabsTrigger value="mestrando">Mestrandos</TabsTrigger>
-                  <TabsTrigger value="doutorando">Doutorandos</TabsTrigger>
-                  <TabsTrigger value="completed">Concluídos</TabsTrigger>
-                </TabsList>
-              </CardHeader>
-              <CardContent>
-                <TabsContent value='all'><StudentsPerSubfieldChart /></TabsContent>
-                <TabsContent value='mestrando'><StudentsPerSubfieldChart filter='mestrando' /></TabsContent>
-                <TabsContent value='doutorando'><StudentsPerSubfieldChart filter='doutorando' /></TabsContent>
-                <TabsContent value='completed'><StudentsPerSubfieldChart filter='completed' /></TabsContent>
               </CardContent>
             </Tabs>
           </Card>
