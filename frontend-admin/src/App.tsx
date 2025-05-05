@@ -1,10 +1,12 @@
-import { BrowserRouter, Routes, Route, useNavigate, RouteProps, Outlet } from 'react-router';
-import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, Outlet } from 'react-router';
+import { useEffect } from 'react';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import useAuth from '@/hooks/auth';
 import { AuthProvider } from '@/providers/AuthProvider';
 import LoginPage from '@/pages/Login';
+import AdminLayout from './layouts/admin/admin-layout';
+import AreasPage from './pages/Areas';
 
 const queryClient = new QueryClient();
 
@@ -17,9 +19,9 @@ function App() {
             <Route path='/'>
               <Route index element={<Redirect to="/admin/areas" />}/>
               <Route path="login" element={<LoginPage/>}/>
-              <Route path='admin' element={<EnsureAuthenticated />}>
+              <Route path='admin' element={<AdminLayout><EnsureAuthenticated /></AdminLayout>}>
                 <Route index element={<Redirect to='/admin/areas' />}/>
-                <Route path='areas' element={<>Hello</>}/>
+                <Route path='areas' element={<AreasPage />}/>
                 {/* <Route path='qualis' element={<Session/>}/> */}
                 {/* <Route path='professors' element={<ProfessorPanel />} /> */}
                 {/* <Route path='professors/:id' element={<PersonInfo/>}/> */}
