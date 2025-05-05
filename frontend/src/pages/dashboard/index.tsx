@@ -16,6 +16,7 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 // import StudentsBySubareaChart from '@/components/students-by-subarea-chart';
 
 import logoImage from '@/assets/logo.png';
+import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
 
 const ADMIN_REDIRECT_URL = import.meta.env.VITE_ADMIN_REDIRECT_URL ?? 'https://pgcomp.ufba.fleap.dev/admin';
 
@@ -215,6 +216,26 @@ export default function Dashboard() {
                 <TabsContent value='mestrando'><StudentsPerFieldChart filter='mestrando' /></TabsContent>
                 <TabsContent value='doutorando'><StudentsPerFieldChart filter='doutorando' /></TabsContent>
                 <TabsContent value='completed'><StudentsPerFieldChart filter='completed' /></TabsContent>
+              </CardContent>
+            </Tabs>
+          </Card>
+        </section>
+
+        <section id="defenses" className="space-y-4 h-[500px]">
+          <Card>
+            <Tabs defaultValue="all">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Defesas por ano</CardTitle>
+                <TabsList>
+                  <TabsTrigger value="all">Todas</TabsTrigger>
+                  <TabsTrigger value="mestrado">Mestrado</TabsTrigger>
+                  <TabsTrigger value="doutorado">Doutorado</TabsTrigger>
+                </TabsList>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value='all'><DefensesPerYearChart /></TabsContent>
+                <TabsContent value='mestrado'><DefensesPerYearChart filter='mestrado' /></TabsContent>
+                <TabsContent value='doutorado'><DefensesPerYearChart filter='doutorado' /></TabsContent>
               </CardContent>
             </Tabs>
           </Card>

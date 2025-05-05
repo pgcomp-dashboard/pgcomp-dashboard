@@ -101,6 +101,10 @@ export class ApiService {
     return await this.get('/api/dashboard/production_per_qualis') as { [key: string]: number };
   }
 
+  async defensesPerYear(filter?: 'mestrado' | 'doutorado'): Promise<{ [key: string]: number }> {
+    return await this.get(filter ? `/api/dashboard/defenses_per_year?filter=${filter}` : '/api/dashboard/defenses_per_year') as { [key: string]: number };
+  }
+
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');
