@@ -82,7 +82,7 @@ export class ApiService {
   }
 
   async totalStudentsPerAdvisor(filter?: 'mestrando' | 'doutorando'  | 'completed'): Promise<{ [key: string]: Advisor }> {
-    return await this.get(filter ? `/api/dashboard/total_students_per_advisor?publisher_type=${filter}` : '/api/dashboard/total_students_per_advisor') as { [key: string]: Advisor };
+    return await this.get(filter ? `/api/dashboard/total_students_per_advisor?user_type=${filter}` : '/api/dashboard/total_students_per_advisor') as { [key: string]: Advisor };
   }
 
   async totalProductionsPerYear(filter?: 'journal' | 'conference'): Promise<{ [key: string]: number }> {
