@@ -183,7 +183,7 @@ export default function Dashboard() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Quantidade de Alunos por Orientador</CardTitle>
                 <TabsList>
-                  <TabsTrigger value="all">Todos</TabsTrigger>
+                  <TabsTrigger value="all">Atuais</TabsTrigger>
                   <TabsTrigger value="mestrando">Mestrando</TabsTrigger>
                   <TabsTrigger value="doutorando">Doutorando</TabsTrigger>
                   <TabsTrigger value="completed">Concluídos</TabsTrigger>
