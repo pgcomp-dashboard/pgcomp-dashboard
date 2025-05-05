@@ -37,6 +37,18 @@ class DashboardController extends Controller
         });
     }
 
+    public function allProfessors()
+    {
+        $professors = User::where('type', UserType::PROFESSOR)
+            ->select('name')
+            ->get();
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => $professors
+        ]);
+    }
+
     public function programName()
     {
         // TODO: Retornar o JSON com o nome do programa

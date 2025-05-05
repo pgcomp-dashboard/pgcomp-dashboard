@@ -47,6 +47,7 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
     Route::get('defenses_per_year', [DashboardController::class, 'defensesPerYear']);
     Route::get('enrollments_per_year', [DashboardController::class, 'enrollmentsPerYear']);
+    Route::get('professors', [DashboardController::class, 'allProfessors']);
 });
 
 Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' => 'portal'], function () {
