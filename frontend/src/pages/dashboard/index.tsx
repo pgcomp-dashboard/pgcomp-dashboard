@@ -78,8 +78,8 @@ export default function Dashboard() {
                     </NavLink>
                   </div>
                   <Button asChild className="sm:flex">
-                    <NavLink to={'/admin'} target="_blank" rel="noopener noreferrer">
-                      Login <ExternalLink className="ml-2 h-4 w-4" />
+                    <NavLink to={'/admin'} rel="noopener noreferrer">
+                      Login
                     </NavLink>
                   </Button>
                 </nav>
@@ -127,8 +127,8 @@ export default function Dashboard() {
             </NavLink>
           </nav>
           <Button asChild className="hidden sm:flex">
-            <NavLink to={'/admin'} target="_blank" rel="noopener noreferrer">
-              Login <ExternalLink className="ml-2 h-4 w-4" />
+            <NavLink to={'/admin'} rel="noopener noreferrer">
+              Login
             </NavLink>
           </Button>
         </div>
