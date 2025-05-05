@@ -18,7 +18,7 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 
 import logoImage from '@/assets/logo.png';
 
-const ADMIN_REDIRECT_URL = 'https://todo.com';
+const ADMIN_REDIRECT_URL = import.meta.env.VITE_ADMIN_REDIRECT_URL ?? 'https://pgcomp.ufba.fleap.dev/admin';
 
 export default function Dashboard() {
   const scrollToSection = (id: string) => {

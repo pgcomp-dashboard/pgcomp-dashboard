@@ -1,5 +1,9 @@
 FROM node:23-alpine AS builder
 
+ARG VITE_ADMIN_REDIRECT_URL
+RUN test -n "$VITE_ADMIN_REDIRECT_URL" || (echo "VITE_ADMIN_REDIRECT_URL  not set" && false)
+ENV VITE_ADMIN_REDIRECT_URL=$VITE_ADMIN_REDIRECT_URL
+
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
