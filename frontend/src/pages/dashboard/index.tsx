@@ -72,11 +72,11 @@ export default function Dashboard() {
                       Alunos por área
                     </NavLink>
                     <NavLink
-                      to="#subarea"
-                      onClick={() => scrollToSection('subarea')}
+                      to="#defenses"
+                      onClick={() => scrollToSection('defenses')}
                       className="text-sm font-medium transition-colors hover:text-primary"
                     >
-                      Alunos por sub-área
+                      Defesas por ano
                     </NavLink>
                   </div>
                   <Button asChild className="sm:flex">
@@ -121,11 +121,11 @@ export default function Dashboard() {
               Alunos por área
             </NavLink>
             <NavLink
-              to="#subarea"
-              onClick={() => scrollToSection('subarea')}
+              to="#defenses"
+              onClick={() => scrollToSection('defenses')}
               className={'text-sm font-medium transition-colors hover:text-primary'}
             >
-              Alunos por sub-área
+              Defesas por ano
             </NavLink>
           </nav>
           <Button asChild className="hidden sm:flex">
