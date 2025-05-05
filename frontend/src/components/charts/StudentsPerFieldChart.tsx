@@ -1,8 +1,30 @@
-import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, LabelList } from 'recharts';
+import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, TooltipProps } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart.tsx';
+import { ChartContainer } from '@/components/ui/chart.tsx';
 import { colorFromName } from '@/utils/color.ts';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import './chart.css';
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>)  => {
+  if (active && payload?.length) {
+    return (
+      <div className="bg-white p-3 border border-2 rounded">
+        <b>{label}</b>
+        <br />
+        {payload.map((ele, index) => (
+          <>
+            <text className="tooltip-text" key={index}>
+              Quantidade de Alunos : {ele.value}
+            </text>
+            <br />
+          </>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
 
@@ -41,40 +63,11 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} />
           <YAxis type="number" />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <Bar dataKey="value" name="Quantidade de alunos">
-            {
-              chartData.map(e => (
-                <Cell key={`cell-${e.name}`} fill={colorFromName('area-' + e.name)} />
-              ))
-            }
-
-            <LabelList
-              dataKey="value"
-              position="top"
-              style={{
-                fill: 'currentColor', // será substituído dinamicamente abaixo
-                fontSize: 12,
-                fontWeight: 'bold',
-                textAnchor: 'middle',
-              }}
-              content={({ x, y, width, value, index }) => {
-                if (index === undefined) return null;
-                const barColor = colorFromName(chartData[index].name);
-                return (
-                  <text
-                    x={Number(x) + Number(width) / 2}
-                    y={Number(y) - 5}
-                    fill={barColor}
-                    fontSize={12}
-                    fontWeight="bold"
-                    textAnchor="middle"
-                  >
-                    {value}
-                  </text>
-                );
-              }}
-            />
+          <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
+          <Bar dataKey="value" fill="#8884d8" label={{ position: 'top' }}>
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
+            ))}
           </Bar>
         </BarChart>
       </ChartContainer>
