@@ -8,11 +8,11 @@ import { AuthProvider } from './providers/AuthProvider';
 import NotFoundPage from './pages/NotFound';
 import Erro500 from './pages/Erro500';
 import XmlUpload from './components/XmlUpload/XmlUpload';
-import {BrowserRouter, Routes, Route, useNavigate} from 'react-router';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router';
 import ProfessorPanel from './pages/ProfessorPanel'; 
 
 import './App.module.css';
-import {useEffect} from "react";
+import { useEffect } from 'react';
 
 const queryClient = new QueryClient();
 

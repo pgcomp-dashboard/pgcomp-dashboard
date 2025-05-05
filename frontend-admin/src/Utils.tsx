@@ -1,16 +1,16 @@
 import MobileDetect from 'mobile-detect';
 
 interface nameTypesLayout {
-    [key: string]: string
+  [key: string]: string
 }
 
 const nameTypes: nameTypesLayout = {
-    areas: 'Área de estudo',
-    subareas: 'Sub-área',
-    qualis: 'Nota qualis',
-    professors: 'Docente',
-    students: 'Discente'
-}
+  areas: 'Área de estudo',
+  subareas: 'Sub-área',
+  qualis: 'Nota qualis',
+  professors: 'Docente',
+  students: 'Discente',
+};
 
 function generateColorsArray(numberOfColors: number) {
   const colorsArray = [];
@@ -19,7 +19,7 @@ function generateColorsArray(numberOfColors: number) {
     r = Math.floor(Math.random() * 255);
     g = Math.floor(Math.random() * 255);
     b = Math.floor(Math.random() * 255);
-    colorsArray.push("rgb(" + r + "," + g + "," + b + ")");
+    colorsArray.push('rgb(' + r + ',' + g + ',' + b + ')');
   }
 
   return colorsArray;
@@ -28,35 +28,35 @@ function generateColorsArray(numberOfColors: number) {
 const universityFilter = [
   {
     label: 'Mestrandos',
-    value: 'mestrando'
+    value: 'mestrando',
   },
   {
     label: 'Doutorandos',
-    value: 'doutorando'
+    value: 'doutorando',
   },
   {
     label: 'Docentes',
-    value: 'docente'
+    value: 'docente',
   },
-]
+];
 
 const studentsFilter = [
   {
     label: 'Mestrandos',
-    value: 'mestrando'
+    value: 'mestrando',
   },
   {
     label: 'Doutorandos',
-    value: 'doutorando'
+    value: 'doutorando',
   },
   {
     label: 'Concluídos',
-    value: 'completed'
-  }
+    value: 'completed',
+  },
 ];
 
 function determineIfMobile(width = 992) {
-  let mobileDetect = new MobileDetect(window.navigator.userAgent);
+  const mobileDetect = new MobileDetect(window.navigator.userAgent);
 
   if (mobileDetect.mobile() !== null) {
     return true;
@@ -69,4 +69,4 @@ function determineIfMobile(width = 992) {
   return false;
 }
 
-export default { universityFilter, studentsFilter, generateColorsArray, nameTypes, determineIfMobile }
+export default { universityFilter, studentsFilter, generateColorsArray, nameTypes, determineIfMobile };

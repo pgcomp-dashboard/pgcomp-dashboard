@@ -24,7 +24,7 @@ function LoginPage(props: any) {
   };
 
   const handleLogin = () => {
-    api.post(`/api/login`, {
+    api.post('/api/login', {
       email, password,
     }).then((response: any) => {
 
