@@ -604,4 +604,23 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->get(['users_subareas.subareas_id', 'subareas.subarea_name']);
         return $user;
     }
+
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public static function mestrandos(): Builder
+    {
+        return static::query()
+            ->join('courses', 'courses.id', '=', 'users.course_id')
+            ->where('courses.name', 'Mestrado');
+    }
+
+    public static function doutorandos(): Builder
+    {
+        return static::query()
+            ->join('courses', 'courses.id', '=', 'users.course_id')
+            ->where('courses.name', 'Doutorado');
+    }
 }
