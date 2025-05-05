@@ -9,6 +9,7 @@ import NotFoundPage from './pages/NotFound';
 import Erro500 from './pages/Erro500';
 import XmlUpload from './components/XmlUpload/XmlUpload';
 import {BrowserRouter, Routes, Route, useNavigate} from 'react-router';
+import ProfessorPanel from './pages/ProfessorPanel'; 
 
 import './App.module.css';
 import {useEffect} from "react";
@@ -24,7 +25,7 @@ function App() {
             <Route path='/admin' element={<DefaultPage/>}>
               <Route path='areas' element={<Session/>}/>
               <Route path='qualis' element={<Session/>}/>
-              <Route path='professors' element={<Session/>}/>
+              <Route path='professors' element={<ProfessorPanel />} /> 
               <Route path='professors/:id' element={<PersonInfo/>}/>
               <Route path="professors/:id/productions" element={<UserProductions/>}/>
               <Route path="professors/:id/xml-upload" element={<XmlUpload/>}/>
