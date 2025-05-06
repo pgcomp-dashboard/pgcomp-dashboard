@@ -42,7 +42,7 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('all_production', [DashboardController::class, 'totalProductionsPerYear']);
     Route::get('students_production', [DashboardController::class, 'studentsProductions']);
     Route::get('production_per_qualis', [DashboardController::class, 'productionPerQualis']);
-    Route::get('subfields', [DashboardController::class, 'studentCountPerSubArea']);
+   Route::get('subfields', [DashboardController::class, 'studentCountPerSubArea']);
     Route::get('fields', [DashboardController::class, 'studentCountPerArea']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
     Route::get('defenses_per_year', [DashboardController::class, 'defensesPerYear']);
@@ -56,8 +56,8 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('conferences', ConferenceController::class)->except(['destroy']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
         Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
-        Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']);
-        Route::apiResource('qualis', StratumQualisController::class)->except(['destroy']);
+       Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']);
+        Route::apiResource('qualis', StratumQualisController::class);
         Route::apiResource('areas', AreaController::class);
         Route::apiResource('subareas', SubareaController::class);
         Route::apiResource('users', UserAdminController::class)->except(['destroy']);
