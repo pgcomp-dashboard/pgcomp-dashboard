@@ -109,4 +109,8 @@ class StratumQualis extends BaseModel
 
         return compact('years', 'data');
     }
+    public function productions()
+    {
+        return $this->hasMany(Production::class);
+    }
 }
