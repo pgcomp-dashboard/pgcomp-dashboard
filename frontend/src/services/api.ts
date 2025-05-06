@@ -16,9 +16,14 @@ export type RequestBodyType = BodyInit | null | undefined;
 
 export class ApiService {
   private baseUrl: string;
+  private authToken?: string;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+  }
+
+  setAuthToken(newToken?: string) {
+    this.authToken = newToken;
   }
 
   private async request(
@@ -28,6 +33,11 @@ export class ApiService {
     headers: Record<string, string> = {},
   ): Promise<unknown> {
     const url = `${this.baseUrl}${endpoint}`;
+
+    if (this.authToken) {
+      headers['Authorization'] = `Bearer ${this.authToken}`;
+    }
+
     const options: RequestInit = {
       method,
       headers: {
@@ -105,12 +115,13 @@ export class ApiService {
     return await this.get(filter ? `/api/dashboard/defenses_per_year?filter=${filter}` : '/api/dashboard/defenses_per_year') as { [key: string]: number };
   }
 
+  async login(email: string, password: string): Promise<{ token: string }> {
+    return await this.post('/api/login', JSON.stringify({ email, password })) as {
+      token: string
+    };
+  }
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');
-
-(async () => {
-  console.log(await API_SINGLETON.studentsPerField());
-})();
 
 export default API_SINGLETON;
