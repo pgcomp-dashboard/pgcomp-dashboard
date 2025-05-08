@@ -70,9 +70,9 @@ class ConferenceScrapingCommand extends Command
                     throw new ModelNotFoundException('ERROR');
                 }
 
-                $stratumQualisId= StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+                $stratumQualisId = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
             } catch (ModelNotFoundException) {
-                $stratumQualisId= null;
+                $stratumQualisId = null;
             }
             try {
                 Publishers::updateOrCreate(
@@ -81,10 +81,10 @@ class ConferenceScrapingCommand extends Command
                         'name' => $item['evento'],
                     ],
                     [
-                        'initials' => $item['sigla'],
+                        'initials' => (string) $item['sigla'],
                         'name' => $item['evento'],
-                        'publisher_type'=>PublisherType::CONFERENCE,
-                        'stratum_qualis_id' =>$stratumQualisId
+                        'publisher_type' => PublisherType::CONFERENCE->value,
+                        'stratum_qualis_id' => $stratumQualisId
                     ]
                 );
             } catch (ValidationException $exception) {
