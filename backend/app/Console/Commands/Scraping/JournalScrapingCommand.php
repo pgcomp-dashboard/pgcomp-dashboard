@@ -41,25 +41,32 @@ class JournalScrapingCommand extends Command
 
         $this->getOutput()->info('Salvando dados...');
         $this->withProgressBar($data, function ($item) {
-            $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
-            Publishers::updateOrCreate(
-                [
-                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
-                ],
-                [
-                    'name' => $item['periodico'],
-                    'sbc_adjustment' => in_array($item['Ajuste_SBC'], ['nulo']) ? null : $item['Ajuste_SBC'],
-                    'scopus_url' => in_array($item['link_scopus'], ['nulo']) ? null : $item['link_scopus'],
-                    'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
-                    'last_qualis' => $item['Qualis_Final'],
-                    'update_date' => $this->stringToDate($item['data-atualizacao']),
-                    'tentative_date' => $this->stringToDate($item['data-tentativa']),
-                    'logs' => $item['logs'],
-                    'publisher_type'=>'journal',
-                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
-                    'stratum_qualis_id' => StratumQualis::findOrCreateBycode($item['Qualis_Final'] )->id,
-                ]
-            );
+        $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
+        try {
+            if (!isset($item['Qualis_Final'])) {
+                throw new ModelNotFoundException('ERROR');
+            }
+
+            $stratumQualisId= StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+        } catch (ModelNotFoundException) {
+            $stratumQualisId= null;
+        }
+        Publishers::updateOrCreate(
+            [
+                'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
+            ],
+            [
+                'name' => $item['periodico'],
+
+                'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
+                'update_date' => $this->stringToDate($item['data-atualizacao']),
+                'tentative_date' => $this->stringToDate($item['data-tentativa']),
+                'logs' => $item['logs'],
+                'publisher_type'=>'journal',
+                'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
+                'stratum_qualis_id' => $stratumQualisId,
+            ]
+        );
         });
 
         $this->getOutput()->info('Dados salvos com sucesso.');

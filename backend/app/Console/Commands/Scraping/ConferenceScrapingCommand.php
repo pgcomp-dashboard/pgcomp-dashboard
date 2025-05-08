@@ -65,6 +65,15 @@ class ConferenceScrapingCommand extends Command
         $this->getOutput()->info('Salvando dados...');
         $this->withProgressBar($data, function ($item) {
             try {
+                if (!isset($item['Qualis_Final'])) {
+                    throw new ModelNotFoundException('ERROR');
+                }
+
+                $stratumQualisId= StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+            } catch (ModelNotFoundException) {
+                $stratumQualisId= null;
+            }
+            try {
                 Publishers::updateOrCreate(
                     [
                         'initials' => $item['sigla'],
@@ -74,7 +83,7 @@ class ConferenceScrapingCommand extends Command
                         'initials' => $item['sigla'],
                         'name' => $item['evento'],
                         'publisher_type'=>'conference',
-                        'stratum_qualis_id' =>StratumQualis::findOrCreateBycode($item['Qualis_Final'])->id,
+                        'stratum_qualis_id' =>$stratumQualisId
                     ]
                 );
             } catch (ValidationException $exception) {
