@@ -62,8 +62,8 @@ class JournalScrapingCommand extends Command
                 'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
                 'update_date' => $this->stringToDate($item['data-atualizacao']),
                 'tentative_date' => $this->stringToDate($item['data-tentativa']),
-                'logs' => $item['logs'],
-                'publisher_type'=>PublisherType::JOURNAL,
+                'logs' => (string) $item['logs'],
+                'publisher_type'=>PublisherType::JOURNAL->value,
                 'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
                 'stratum_qualis_id' => $stratumQualisId,
             ]

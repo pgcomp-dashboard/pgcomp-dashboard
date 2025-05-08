@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Publishers extends Model
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\Rule;
+
+class Publishers extends BaseModel
 {
     //
 
@@ -24,20 +24,47 @@ class Publishers extends Model
         'logs',
         'stratum_qualis_id'
     ];
+    public static function creationRules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'stratum_qualis_id' => [
+                'nullable',
+                'int',
+                Rule::exists(StratumQualis::class, 'id'),
+            ],
+            'issn' => 'string|nullable|max:255',
+            'percentile' => 'string|nullable|max:255',
+            'update_date' => 'date|nullable',
+            'tentative_date' => 'date|nullable',
+            'logs' => 'string|nullable|max:255',
+            'initials' => 'string|max:255|nullable',
+            'publisher_type' => 'nullable|in:journal,conference',
+        ];
+    }
+
+    public  function updateRules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'stratum_qualis_id' => [
+                'nullable',
+                'int',
+                Rule::exists(StratumQualis::class, 'id'),
+            ],
+            'issn' => 'string|nullable|max:255',
+            'percentile' => 'string|nullable|max:255',
+            'update_date' => 'date|nullable',
+            'tentative_date' => 'date|nullable',
+            'logs' => 'string|nullable|max:255',
+            'initials' => 'string|max:255|nullable',
+            'publisher_type' => 'nullable|in:journal,conference',
+        ];
+    }
+
+
     public function stratumQualis(): BelongsTo
     {
         return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');
-    }
-    public static function updateOrCreate(array $attributes, array $values = [], array $updateOptions = []): static
-    {
-
-        $model = static::where($attributes)->first();
-        if (empty($model)) {
-            return static::create(array_merge($attributes, $values));
-        }
-
-        $model->update(array_merge($attributes, $values), $updateOptions);
-
-        return $model;
     }
 }
