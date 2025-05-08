@@ -5,6 +5,7 @@ namespace App\Models;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -108,5 +109,22 @@ class StratumQualis extends BaseModel
         }
 
         return compact('years', 'data');
+    }
+    public function publisher(): BelongsTo
+    {
+        return $this->belongsTo(Publishers::class);
+    }
+    public static function findOrCreateByCode($code, $score = 0): self
+    {
+        $hasQualis = self::where('code', $code)->first();
+        if ($hasQualis) {
+            return $hasQualis;
+        }
+
+        $attributes = [
+            'code' => $code,
+            'score' => $score,
+        ];
+        return self::create($attributes);
     }
 }

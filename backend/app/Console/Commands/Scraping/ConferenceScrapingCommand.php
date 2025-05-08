@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Scraping;
 
 use App\Models\Conference;
+use App\Models\Publishers;
 use App\Models\StratumQualis;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
@@ -61,46 +62,19 @@ class ConferenceScrapingCommand extends Command
         array_shift($data); // remove header.
         array_shift($data); // remove blank line.
 
-        $this->getOutput()->info('Salvadno dados...');
+        $this->getOutput()->info('Salvando dados...');
         $this->withProgressBar($data, function ($item) {
             try {
-                if (!isset($item['Qualis 2016'])) {
-                    throw new ModelNotFoundException('ERROR');
-                }
-                $item['Qualis 2016'] = in_array($item['Qualis 2016'], ['nulo', 'C']) ? '-' : $item['Qualis 2016'];
-                $item['qualis_2016_id'] = StratumQualis::findByCode($item['Qualis 2016'], ['id'])->id;
-            } catch (ModelNotFoundException) {
-                $item['qualis_2016_id'] = null;
-            }
-            try {
-                if (!isset($item['Qualis_Sem_Inducao'])) {
-                    throw new ModelNotFoundException('ERROR');
-                }
-                $item['Qualis_Sem_Inducao'] = in_array($item['Qualis_Sem_Inducao'], ['nulo', 'C']) ?
-                    '-' : $item['Qualis_Sem_Inducao'];
-                $item['qualis_without_induction_id'] = StratumQualis::findByCode($item['Qualis_Sem_Inducao'], ['id'])->id;
-            } catch (ModelNotFoundException) {
-                $item['qualis_without_induction_id'] = null;
-            }
-            try {
-                if (!isset($item['Qualis_Final'])) {
-                    throw new ModelNotFoundException('ERROR');
-                }
-                $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ?
-                    '-' : $item['Qualis_Final'];
-                $item['stratum_qualis_id'] = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
-            } catch (ModelNotFoundException) {
-                $item['stratum_qualis_id'] = null;
-            }
-
-            try {
-                Conference::updateOrCreate(
+                Publishers::updateOrCreate(
                     [
                         'initials' => $item['sigla'],
                         'name' => $item['evento'],
                     ],
                     [
-                        'last_qualis' => $item['Qualis_Final'],
+                        'initials' => $item['sigla'],
+                        'name' => $item['evento'],
+                        'publisher_type'=>'conference',
+                        'stratum_qualis_id' =>StratumQualis::findOrCreateBycode($item['Qualis_Final'])->id,
                     ]
                 );
             } catch (ValidationException $exception) {
