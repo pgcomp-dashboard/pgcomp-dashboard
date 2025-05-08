@@ -116,7 +116,7 @@ class StratumQualis extends BaseModel
     }
     public static function findOrCreateByCode($code, $score = 0): self
     {
-        $hasQualis = self::where('code', $code)->first();
+        $hasQualis = self::whereRaw('LOWER(code) = ?', [strtolower($code)])->first();
         if ($hasQualis) {
             return $hasQualis;
         }

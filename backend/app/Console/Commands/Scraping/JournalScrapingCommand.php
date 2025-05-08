@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Scraping;
 
 use App\Models\Journal;
+use App\Models\Publishers;
 use App\Models\StratumQualis;
 use Carbon\Exceptions\InvalidFormatException;
 use Google\Client;
@@ -40,13 +41,8 @@ class JournalScrapingCommand extends Command
 
         $this->getOutput()->info('Salvando dados...');
         $this->withProgressBar($data, function ($item) {
-            try {
-                $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
-                $item['stratum_qualis_id'] = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
-            } catch (ModelNotFoundException) {
-                $item['stratum_qualis_id'] = null;
-            }
-            Journal::updateOrCreate(
+            $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
+            Publishers::updateOrCreate(
                 [
                     'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
                 ],
@@ -59,7 +55,9 @@ class JournalScrapingCommand extends Command
                     'update_date' => $this->stringToDate($item['data-atualizacao']),
                     'tentative_date' => $this->stringToDate($item['data-tentativa']),
                     'logs' => $item['logs'],
-                    'stratum_qualis_id' => $item['stratum_qualis_id'],
+                    'publisher_type'=>'journal',
+                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
+                    'stratum_qualis_id' => StratumQualis::findOrCreateBycode($item['Qualis_Final'] )->id,
                 ]
             );
         });
