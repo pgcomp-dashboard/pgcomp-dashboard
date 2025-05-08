@@ -115,17 +115,4 @@ class StratumQualis extends BaseModel
     {
         return $this->hasMany(Publishers::class);
     }
-    public static function findOrCreateByCode($code, $score = 0): self
-    {
-        $hasQualis = self::whereRaw('LOWER(code) = ?', [strtolower($code)])->first();
-        if ($hasQualis) {
-            return $hasQualis;
-        }
-
-        $attributes = [
-            'code' => $code,
-            'score' => $score,
-        ];
-        return self::create($attributes);
-    }
 }
