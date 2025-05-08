@@ -17,8 +17,6 @@ return new class extends Migration
             $table->string('name');
             $table->enum('publisher_type', ['conference', 'journal']);
             $table->string('issn')->nullable()->index();
-            $table->string('scopus_url')->nullable();
-            $table->string('sbc_adjustment')->nullable();
             $table->string('percentile')->nullable();
             $table->dateTime('update_date')->nullable();
             $table->dateTime('tentative_date')->nullable();
