@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Scraping;
 
+use App\Enums\PublisherType;
 use App\Models\Journal;
 use App\Models\Publishers;
 use App\Models\StratumQualis;
@@ -62,7 +63,7 @@ class JournalScrapingCommand extends Command
                 'update_date' => $this->stringToDate($item['data-atualizacao']),
                 'tentative_date' => $this->stringToDate($item['data-tentativa']),
                 'logs' => $item['logs'],
-                'publisher_type'=>'journal',
+                'publisher_type'=>PublisherType::JOURNAL,
                 'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
                 'stratum_qualis_id' => $stratumQualisId,
             ]

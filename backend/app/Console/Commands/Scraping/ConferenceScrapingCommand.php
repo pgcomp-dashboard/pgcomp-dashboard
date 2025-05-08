@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Scraping;
 
+use App\Enums\PublisherType;
 use App\Models\Conference;
 use App\Models\Publishers;
 use App\Models\StratumQualis;
@@ -82,7 +83,7 @@ class ConferenceScrapingCommand extends Command
                     [
                         'initials' => $item['sigla'],
                         'name' => $item['evento'],
-                        'publisher_type'=>'conference',
+                        'publisher_type'=>PublisherType::CONFERENCE,
                         'stratum_qualis_id' =>$stratumQualisId
                     ]
                 );

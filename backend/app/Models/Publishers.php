@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Publishers extends Model
@@ -23,9 +24,9 @@ class Publishers extends Model
         'logs',
         'stratum_qualis_id'
     ];
-    public function stratumQualis(): HasMany
+    public function stratumQualis(): BelongsTo
     {
-        return $this->hasMany(StratumQualis::class, 'stratum_qualis_id');
+        return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');
     }
     public static function updateOrCreate(array $attributes, array $values = [], array $updateOptions = []): static
     {

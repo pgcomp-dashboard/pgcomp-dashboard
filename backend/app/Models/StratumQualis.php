@@ -6,6 +6,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -110,9 +111,9 @@ class StratumQualis extends BaseModel
 
         return compact('years', 'data');
     }
-    public function publisher(): BelongsTo
+    public function publisher(): HasMany
     {
-        return $this->belongsTo(Publishers::class);
+        return $this->hasMany(Publishers::class);
     }
     public static function findOrCreateByCode($code, $score = 0): self
     {
