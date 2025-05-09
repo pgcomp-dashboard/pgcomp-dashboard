@@ -8,6 +8,7 @@ import LoginPage from '@/pages/login';
 import AdminLayout from './layouts/admin/admin-layout';
 import AreasPage from './pages/admin/areas';
 import DashboardPage from './pages/dashboard';
+import QualisPage from './pages/admin/qualis/indes';
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,8 @@ function App() {
               <Route path='admin' element={<AdminLayout><EnsureAuthenticated /></AdminLayout>}>
                 <Route index element={<Redirect to='/admin/areas' />}/>
                 <Route path='areas' element={<AreasPage />}/>
+                <Route path='/admin/qualis' element={<QualisPage />}/>
+
                 {/* <Route path='qualis' element={<Session/>}/> */}
                 {/* <Route path='professors' element={<ProfessorPanel />} /> */}
                 {/* <Route path='professors/:id' element={<PersonInfo/>}/> */}
