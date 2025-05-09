@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\PanelAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -21,9 +22,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+            throw new AuthenticationException('Credenciais inválidas!');
         }
 
         $token =  $user->createToken('login');

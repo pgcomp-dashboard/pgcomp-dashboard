@@ -5,6 +5,8 @@ namespace App\Models;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -108,6 +110,10 @@ class StratumQualis extends BaseModel
         }
 
         return compact('years', 'data');
+    }
+    public function publisher(): HasMany
+    {
+        return $this->hasMany(Publishers::class);
     }
     public function productions()
     {

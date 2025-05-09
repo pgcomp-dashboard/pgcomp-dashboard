@@ -4,10 +4,9 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import useAuth from '@/hooks/auth';
 import { AuthProvider } from '@/providers/AuthProvider';
-import LoginPage from '@/pages/login';
+import LoginPage from '@/pages/Login';
 import AdminLayout from './layouts/admin/admin-layout';
-import AreasPage from './pages/admin/areas';
-import DashboardPage from './pages/dashboard';
+import AreasPage from './pages/Areas';
 
 const queryClient = new QueryClient();
 
@@ -18,7 +17,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path='/'>
-              <Route index element={<DashboardPage />}/>
+              <Route index element={<Redirect to="/admin/areas" />}/>
               <Route path="login" element={<LoginPage/>}/>
               <Route path='admin' element={<AdminLayout><EnsureAuthenticated /></AdminLayout>}>
                 <Route index element={<Redirect to='/admin/areas' />}/>

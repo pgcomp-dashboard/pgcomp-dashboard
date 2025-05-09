@@ -6,11 +6,34 @@ import {
   Tooltip,
   Bar,
   Cell,
+  TooltipProps,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { colorFromName } from '@/utils/color';
+import './chart.css';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>)  => {
+  if (active && payload?.length) {
+    return (
+      <div className="bg-white p-3 border border-2 rounded">
+        <b>{label}</b>
+        <br />
+        {payload.map((ele, index) => (
+          <>
+            <text className="tooltip-text" key={index}>
+              Defesas em {label} : {ele.value}
+            </text>
+            <br />
+          </>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' }) {
   const { data, isLoading, error } = useQuery({
@@ -53,7 +76,7 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
             }
           />
           <YAxis />
-          <Tooltip />
+          <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
           <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top' }}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
