@@ -1,0 +1,134 @@
+[
+  {
+    "autores": "PAIVA, THANIS ; DAMASCENO, AMANDA ; Figueiredo, Eduardo ; SANT?ANNA, CLÁUDIO",
+    "titulo": "On the evaluation of code smells and detection tools",
+    "revista": "JOURNAL OF SOFTWARE ENGINEERING RESEARCH AND DEVELOPMENT",
+    "volume": "5",
+    "paginas": "7-25",
+    "issn": "2195-1721",
+    "ano": "2017",
+    "link": "http://dx.doi.org/10.1186/s40411-017-0041-1",
+    "qualis": "A4"
+  },
+  {
+    "autores": "SILVA, Bruno ; SANT?ANNA, CLAUDIO ; ROCHA, NEYLOR ; CHAVEZ, Christina ; CHAVEZ, Christina",
+    "titulo": "The effect of automatic concern mapping strategies on conceptual cohesion measurement",
+    "revista": "INFORMATION AND SOFTWARE TECHNOLOGY",
+    "volume": "75",
+    "paginas": "56-70",
+    "issn": "0950-5849",
+    "ano": "2016",
+    "link": "http://dx.doi.org/10.1016/j.infsof.2016.03.006",
+    "qualis": "A1"
+  },
+  {
+    "autores": "CACHO, NELIO ; SANT?ANNA, CLAUDIO ; Figueiredo, Eduardo ; DANTAS, FRANCISCO ; Garcia, Alessandro ; Batista, Thais",
+    "titulo": "Blending design patterns with aspects: A quantitative study",
+    "revista": "The Journal of Systems and Software",
+    "volume": "98",
+    "paginas": "117-139",
+    "issn": "0164-1212",
+    "ano": "2014",
+    "link": "http://dx.doi.org/10.1016/j.jss.2014.08.041",
+    "qualis": "A1"
+  },
+  {
+    "autores": "SANT`ANNA, Cláudio; GARCIA, A. ; BATISTA, T. ; RASHID, A",
+    "titulo": "Mastering crosscutting architectural decisions with aspects",
+    "revista": "Software, Practice & Experience (Print)",
+    "volume": "43",
+    "paginas": "305-332",
+    "issn": "0038-0644",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1002/spe.2113",
+    "qualis": "A3"
+  },
+  {
+    "autores": "REBÊLO, Henrique ; LIMA, RICARDO ; KULESZA, UIRÁ ; RIBEIRO, Márcio ; CAI, YUANFANG ; COELHO, ROBERTA ; SANT'ANNA, CLÁUDIO ; MOTA, Alexandre",
+    "titulo": "QUANTIFYING THE EFFECTS OF ASPECTUAL DECOMPOSITIONS ON DESIGN BY CONTRACT MODULARIZATION: A MAINTENANCE STUDY",
+    "revista": "International Journal of Software Engineering and Knowledge Engineering",
+    "volume": "23",
+    "paginas": "913-941",
+    "issn": "0218-1940",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1142/S0218194013500265",
+    "qualis": "B1"
+  },
+  {
+    "autores": "KULESZA, UIRÁ ; SOARES, SÉRGIO ; CHAVEZ, CHRISTINA ; CASTOR, FERNANDO ; BORBA, PAULO ; Lucena, Carlos ; MASIERO, PAULO ; Sant'Anna, Claudio ; FERRARI, FABIANO ; ALVES, VANDER ; COELHO, ROBERTA ; Figueiredo, Eduardo ; PIRES, PAULO F. ; DELICATO, FLÁVIA ; PIVETA, EDUARDO ; SILVA, CARLA ; CAMARGO, VALTER ; BRAGA, ROSANA ; LEITE, JULIO ; LEMOS, OTÁVIO ; et.al",
+    "titulo": "The crosscutting impact of the AOSD Brazilian research community",
+    "revista": "The Journal of Systems and Software",
+    "volume": "86",
+    "paginas": "905-933",
+    "issn": "0164-1212",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1016/j.jss.2012.08.031",
+    "qualis": "A1"
+  },
+  {
+    "autores": "FIGUEIREDO, E. ; SANT`ANNA, Cláudio ; GARCIA, A. ; LUCENA, C. J. P",
+    "titulo": "Applying and evaluating concern-sensitive design heuristics",
+    "revista": "JOURNAL OF SYSTEMS AND SOFTWARE",
+    "volume": "85",
+    "paginas": "227-243",
+    "issn": "0164-1212",
+    "ano": "2012",
+    "link": "http://dx.doi.org/10.1016/j.jss.2011.09.060",
+    "qualis": "A1"
+  },
+  {
+    "autores": "Nunes, C. ; KULESZA, U. ; SANT`ANNA, Cláudio ; NUNES, I. ; GARCIA, A. ; LUCENA, C. J. P",
+    "titulo": "Assessment of the Design Modularity and Stability of Multi-Agent System Product Lines",
+    "revista": "Journal of Universal Computer Science",
+    "volume": "15",
+    "paginas": "2254-2283",
+    "issn": "0948-695X",
+    "ano": "2009",
+    "link": "http://dx.doi.org/10.1504/ijaose.2008.016799",
+    "qualis": "A3"
+  },
+  {
+    "autores": "SANT'ANNA, Claudio ; LOBATO, Cidiane ; KULESZA, Uirá ; GARCIA, Alessandro ; CHAVEZ, Christina ; LUCENA, C",
+    "titulo": "On the Modularity Assessment of Aspect-Oriented Multiagent Architectures: a Quantitative Study",
+    "revista": "International Journal of Agent-Oriented Software Engineering (Print)",
+    "volume": "2",
+    "paginas": "34-61",
+    "issn": "1746-1375",
+    "ano": "2008",
+    "link": "http://dx.doi.org/10.1504/ijaose.2008.016799",
+    "qualis": "B3"
+  },
+  {
+    "autores": "CHAVEZ, Christina; GARCIA, Alessandro ; KULESZA, Uirá ; SANT'ANNA, Claudio ; LUCENA, Carlos José Pereira de",
+    "titulo": "Crosscutting Interfaces for Aspect-Oriented Modeling",
+    "revista": "Journal of the Brazilian Computer Society (Impresso)",
+    "volume": "12",
+    "paginas": "43-58",
+    "issn": "0104-6500",
+    "ano": "2006",
+    "link": "http://dx.doi.org/10.1007/BF03192387",
+    "qualis": "A2"
+  },
+  {
+    "autores": "GARCIA, A. ; SANT`ANNA, Cláudio ; FIGUEIREDO, E. ; KULESZA, U. ; LUCENA, C. J. P. ; STAA, A",
+    "titulo": "Modularizing Design Patterns with Aspects: A Quantitative Study",
+    "revista": "Transactions on Aspect-Oriented Software Development (Print)",
+    "volume": "3880",
+    "paginas": "36-74",
+    "issn": "1864-3027",
+    "ano": "2006",
+    "link": "http://www.scopus.com/scopus/inward/citedby.url?partnerID=bb5nvXTn&rel=R6.0.0&doi=10.1007/11687061&md5=614c25f39a31e92c082cf37f1f915f54",
+    "qualis": "A2"
+  },
+  {
+    "autores": "SANT`ANNA, Cláudio; GARCIA, A. ; KULESZA, U. ; LUCENA, C. J. P. ; STAA, A",
+    "titulo": "Design Patterns as Aspects: A Quantitative Assessment.",
+    "revista": "Journal of the Brazilian Computer Society (Impresso)",
+    "volume": "10",
+    "paginas": "42-55",
+    "issn": "0104-6500",
+    "ano": "2004",
+    "link": null,
+    "qualis": "A2"
+  }
+]

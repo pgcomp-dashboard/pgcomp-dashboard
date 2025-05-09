@@ -1,0 +1,101 @@
+[
+  {
+    "autores": "SIRONI, ALBERTO PIETRO ; BERTOLDO, JURACY ; SAMPAIO, VANDERSON ; Coimbra, Danilo ; RASELLA, DAVIDE ; BARRETO, MARCOS ENNES",
+    "titulo": "Malaria-VisAnalytics: a tool for visual exploratory analysis of Brazilian public malaria data",
+    "revista": "MALARIA JOURNAL",
+    "volume": "21",
+    "paginas": "232",
+    "issn": "1475-2875",
+    "ano": "2022",
+    "link": "http://dx.doi.org/10.1186/s12936-022-04248-w",
+    "qualis": "A2"
+  },
+  {
+    "autores": "NEVES, TÁCITO TRINDADE DE ARAÚJO TIBURTINO ; MARTINS, RAFAEL MESSIAS ; COIMBRA, DANILO BARBOSA ; KUCHER, KOSTIANTYN ; KERREN, ANDREAS ; Paulovich, Fernando V",
+    "titulo": "Fast and reliable incremental dimensionality reduction for streaming data",
+    "revista": "COMPUTERS & GRAPHICS-UK",
+    "volume": "102",
+    "paginas": "233-244",
+    "issn": "0097-8493",
+    "ano": "2022",
+    "link": "http://dx.doi.org/10.1016/j.cag.2021.08.009",
+    "qualis": "A2"
+  },
+  {
+    "autores": "COIMBRA, DANILO B. ; MARTINS, RAFAEL M. ; MOTA, EDSON ; TIBURTINO, TACITO ; DIAMANTINO, PEDRO ; PEIXOTO, MAYCON L.M",
+    "titulo": "Analyzing the quality of local and global multidimensional projections using performance evaluation planning",
+    "revista": "THEORETICAL COMPUTER SCIENCE",
+    "volume": "872",
+    "paginas": "41-54",
+    "issn": "0304-3975",
+    "ano": "2021",
+    "link": "http://dx.doi.org/10.1016/j.tcs.2020.12.043",
+    "qualis": "A2"
+  },
+  {
+    "autores": "RIOS, RICARDO A. ; NOGUEIRA, TATIANE ; Coimbra, Danilo B. ; LOPES, TIAGO J. S. ; ABRAHAM, AJITH ; MELLO, RODRIGO F. DE",
+    "titulo": "Country transition index based on hierarchical clustering to predict next COVID-19 waves",
+    "revista": "Scientific Reports",
+    "volume": "11",
+    "paginas": "15271",
+    "issn": "2045-2322",
+    "ano": "2045",
+    "link": "http://dx.doi.org/10.1038/s41598-021-94661-z",
+    "qualis": "A1"
+  },
+  {
+    "autores": "NEVES, T. T. A. T. ; FADEL, S. G. ; Coimbra, Danilo B. ; Paulovich, Fernando V",
+    "titulo": "Análise Visual Utilizando Projeções Multidimensionais",
+    "revista": "Revista de Informática Teórica e Aplicada: RITA",
+    "volume": "22",
+    "paginas": "258",
+    "issn": "2175-2745",
+    "ano": "2015",
+    "link": "http://dx.doi.org/10.1177/1473871615600010",
+    "qualis": "B3"
+  },
+  {
+    "autores": "COIMBRA, D. B.; MARTINS, R. M. ; NEVES, T. T. ; TELEA, A. C. ; PAULOVICH, F. V",
+    "titulo": "Explaining three-dimensional dimensionality reduction plots",
+    "revista": "Information Visualization (Print)",
+    "volume": "1",
+    "paginas": "1-19",
+    "issn": "1473-8716",
+    "ano": "2015",
+    "link": "http://dx.doi.org/10.1177/1473871615600010",
+    "qualis": "A4"
+  },
+  {
+    "autores": "MARTINS, RAFAEL MESSIAS ; COIMBRA, DANILO BARBOSA ; MINGHIM, ROSANE ; TELEA, A.C",
+    "titulo": "Visual analysis of dimensionality reduction quality for parameterized projections",
+    "revista": "COMPUTERS & GRAPHICS-UK",
+    "volume": "41",
+    "paginas": "26-42",
+    "issn": "0097-8493",
+    "ano": "2014",
+    "link": "http://dx.doi.org/10.1016/j.cag.2014.01.006",
+    "qualis": "A2"
+  },
+  {
+    "autores": "JOIA, P. ; PAULOVICH, F. ; COIMBRA, D. B. ; CUMINATO, J. A. ; NONATO, L. G",
+    "titulo": "Local Affine Multidimensional Projection",
+    "revista": "IEEE Transactions on Visualization and Computer Graphics",
+    "volume": "17",
+    "paginas": "2563-2571",
+    "issn": "1077-2626",
+    "ano": "2011",
+    "link": "http://dx.doi.org/10.1109/TVCG.2011.220",
+    "qualis": "A1"
+  },
+  {
+    "autores": "Manzato, Marcelo G. ; Coimbra, Danilo B. ; Goularte, Rudinei",
+    "titulo": "An enhanced content selection mechanism for personalization of video news programmes",
+    "revista": "MULTIMEDIA SYSTEMS (ONLINE)",
+    "volume": "17",
+    "paginas": "19-34",
+    "issn": "1432-1882",
+    "ano": "2011",
+    "link": "http://dx.doi.org/10.1007/s00530-010-0204-y",
+    "qualis": "A2"
+  }
+]

@@ -1,0 +1,233 @@
+[
+  {
+    "autores": "OLIVEIRA, G. ; Lima, George",
+    "titulo": "Scheduling and energy savings for small scale embedded FreeRTOS-based real-time systems",
+    "revista": "DESIGN AUTOMATION FOR EMBEDDED SYSTEMS",
+    "volume": "1",
+    "paginas": "1-27",
+    "issn": "0929-5585",
+    "ano": "2023",
+    "link": "http://dx.doi.org/10.1007/s10617-023-09267-7",
+    "qualis": "A2"
+  },
+  {
+    "autores": "NOGUEIRA, T. ; Lima, George ; Lima, Verônica Maria Cadena ; BEN-AMOR, S. ; HAWILA, I. ; CUCU-GOSJEAN, L",
+    "titulo": "On the impact of hardware-related events on the execution of real-time programs",
+    "revista": "DESIGN AUTOMATION FOR EMBEDDED SYSTEMS",
+    "volume": "1",
+    "paginas": "1-29",
+    "issn": "0929-5585",
+    "ano": "2023",
+    "link": "http://dx.doi.org/10.1007/s10617-023-09281-9",
+    "qualis": "A2"
+  },
+  {
+    "autores": "Vasconcelos, Jamile ; Lima, George ; WEHAIBA EL KHAZEN, MARWAN ; GOGONEL, ADRIANA ; CUCU-GROSJEAN, LILIANA",
+    "titulo": "On vulnerabilities in EVT-based timing analysis: an experimental investigation on a multi-core architecture",
+    "revista": "DESIGN AUTOMATION FOR EMBEDDED SYSTEMS (DORDRECHT. ONLINE)",
+    "volume": "1",
+    "paginas": "1-21",
+    "issn": "1572-8080",
+    "ano": "2023",
+    "link": "http://dx.doi.org/10.1007/s10617-023-09277-5",
+    "qualis": "A2"
+  },
+  {
+    "autores": "TEIXEIRA, RICARDO BRASIL ; Lima, George",
+    "titulo": "Shared resources in multiprocessor real-time systems scheduled by RUN",
+    "revista": "Real-Time Systems (Online)",
+    "volume": "58",
+    "paginas": "153-188",
+    "issn": "1573-1383",
+    "ano": "2022",
+    "link": "http://dx.doi.org/10.1007/s11241-021-09374-3",
+    "qualis": "A1"
+  },
+  {
+    "autores": "BORIN, LAIS ; Lima, George ; CASTRO, MÁRCIO ; PLENTZ, PATRICIA D. M",
+    "titulo": "Dynamic power management under the RUN scheduling algorithm: a slack filling approach",
+    "revista": "REAL-TIME SYSTEMS",
+    "volume": "57",
+    "paginas": "443-484",
+    "issn": "0922-6443",
+    "ano": "2021",
+    "link": "http://dx.doi.org/10.1007/s11241-021-09367-2",
+    "qualis": "A1"
+  },
+  {
+    "autores": "JIMENEZ GIL, SAMUEL ; Bate, Iain ; Lima, George ; SANTINELLI, LUCA ; GOGONEL, ADRIANA ; CUCU-GROSJEAN, LILIANA",
+    "titulo": "Open Challenges for Probabilistic Measurement-Based Worst-Case Execution Time",
+    "revista": "IEEE Embedded Systems Letters",
+    "volume": "9",
+    "paginas": "1-1",
+    "issn": "1943-0663",
+    "ano": "2017",
+    "link": "http://dx.doi.org/10.1109/les.2017.2712858",
+    "qualis": "A2"
+  },
+  {
+    "autores": "NASSIFFE, R. ; Camponogara, Eduardo ; Lima, George ; Mossé, Daniel",
+    "titulo": "Optimising QoS in adaptive real-time systems with energy constraint varying CPU frequency",
+    "revista": "International Journal of Embedded Systems",
+    "volume": "8",
+    "paginas": "368-379",
+    "issn": "1741-1068",
+    "ano": "2016",
+    "link": "http://dx.doi.org/10.1504/ijes.2016.10001303",
+    "qualis": "B2"
+  },
+  {
+    "autores": "Nicodemos, Fernando ; Saotome, Osamu ; Lima, George ; Sato, Sandro",
+    "titulo": "A minimally intrusive method for analysing the timing of RTEMS core characteristics",
+    "revista": "International Journal of Embedded Systems",
+    "volume": "8",
+    "paginas": "391-411",
+    "issn": "1741-1068",
+    "ano": "2016",
+    "link": "http://dx.doi.org/10.1504/IJES.2016.10001312",
+    "qualis": "B2"
+  },
+  {
+    "autores": "MASSA, Ernesto ; LIMA, George ; Regnier, Paul ; Levin, Greg ; Brandt, Scott",
+    "titulo": "Quasi-partitioned scheduling: optimality and adaptation in multiprocessor real-time systems",
+    "revista": "Real-Time Systems",
+    "volume": "1",
+    "paginas": "1-32",
+    "issn": "0922-6443",
+    "ano": "2016",
+    "link": "http://dx.doi.org/10.1007/s11241-016-9251-6",
+    "qualis": "A1"
+  },
+  {
+    "autores": "MASSA, Ernesto ; Lima, George ; Regnier, Paul",
+    "titulo": "From RUN to QPS: new trends for optimal real-time multiprocessor scheduling",
+    "revista": "International Journal of Embedded Systems",
+    "volume": "8",
+    "paginas": "440-451",
+    "issn": "1741-1068",
+    "ano": "2016",
+    "link": "http://dx.doi.org/10.1504/IJES.2016.10001367",
+    "qualis": "B2"
+  },
+  {
+    "autores": "SANTOS, J. AUGUSTO ; Lima, George ; BLETSAS, KONSTANTINOS",
+    "titulo": "Efficient schedulability tests for real-time embedded systems with urgent routines",
+    "revista": "Design Automation for Embedded Systems",
+    "volume": "1",
+    "paginas": "1-20",
+    "issn": "0929-5585",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1007/s10617-013-9113-6",
+    "qualis": "A2"
+  },
+  {
+    "autores": "NASSIFFE, R. M. ; Camponogara, Eduardo ; LIMA, George",
+    "titulo": "Optimizing QoS in energy-aware real-time systems",
+    "revista": "SIGBED Review",
+    "volume": "10",
+    "paginas": "25-25",
+    "issn": "1551-3688",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1145/2518148.2518163",
+    "qualis": "B1"
+  },
+  {
+    "autores": "Nassiffe, Ríad ; Camponogara, Eduardo ; Lima, George",
+    "titulo": "Optimizing quality of service in real-time systems under energy constraints",
+    "revista": "Operating Systems Review",
+    "volume": "46",
+    "paginas": "82-92",
+    "issn": "0163-5980",
+    "ano": "2012",
+    "link": "http://dx.doi.org/10.1145/2146382.2146397",
+    "qualis": "B1"
+  },
+  {
+    "autores": "Regnier, Paul ; Lima, George ; Massa, Ernesto ; LEVIN, GREG ; BRANDT, SCOTT",
+    "titulo": "Multiprocessor scheduling by reduction to uniprocessor: an original optimal approach",
+    "revista": "Real-Time Systems",
+    "volume": "29",
+    "paginas": "436-474",
+    "issn": "0922-6443",
+    "ano": "2012",
+    "link": "http://dx.doi.org/10.1007/s11241-012-9165-x",
+    "qualis": "A1"
+  },
+  {
+    "autores": "Camponogara, Eduardo ; Oliveira, Augusto Born ; Lima, George",
+    "titulo": "Optimization-Based Dynamic Reconfiguration of Real-Time Schedulers With Support for Stochastic Processor Consumption",
+    "revista": "IEEE Transactions on Industrial Informatics",
+    "volume": "6",
+    "paginas": "594-609",
+    "issn": "1551-3203",
+    "ano": "2010",
+    "link": "http://dx.doi.org/10.1109/TII.2010.2053937",
+    "qualis": "A1"
+  },
+  {
+    "autores": "Muniz, André L. N. ; Andrade, Aline M. S. ; Lima, George",
+    "titulo": "Integrating UML and UPPAAL for designing, specifying and verifying component-based real-time systems",
+    "revista": "Innovations in Systems and Software Engineering (Print)",
+    "volume": "6",
+    "paginas": "29-37",
+    "issn": "1614-5046",
+    "ano": "2010",
+    "link": "http://dx.doi.org/10.1007/s11334-009-0103-6",
+    "qualis": "B2"
+  },
+  {
+    "autores": "Perrone, Ricardo ; Macêdo, Raimundo Jose de A ; Lima, George ; Lima, Verônica Maria Cadena",
+    "titulo": "An Approach for Estimating Execution Time Probability Distributions of Component-based Real-Time Systems",
+    "revista": "Journal of Universal Computer Science (Print)",
+    "volume": "15",
+    "paginas": "2142-2165",
+    "issn": "0948-695X",
+    "ano": "2009",
+    "link": "http://dx.doi.org/10.3217/jucs-015-11-2142",
+    "qualis": "A3"
+  },
+  {
+    "autores": "Regnier, Paul ; Lima, George ; Andrade, Aline",
+    "titulo": "A TLA+ Formal Specification and Verification of a New Real-Time Communication Protocol",
+    "revista": "Electronic Notes in Theoretical Computer Science",
+    "volume": "240",
+    "paginas": "221-238",
+    "issn": "1571-0661",
+    "ano": "2009",
+    "link": "http://dx.doi.org/10.1016/j.entcs.2009.05.054",
+    "qualis": "B1"
+  },
+  {
+    "autores": "LIMA, George; Barboza, Frederico J. R. ; Andrade, Aline Maria Santos ; SILVA, Flávio Moraes de Assis",
+    "titulo": "Specification and Verification of the IEEE 802.11 Medium Access Control and an Analysis of its Applicability to Real-Time Systems",
+    "revista": "Electronic Notes in Theoretical Computer Science",
+    "volume": "195",
+    "paginas": "3-20",
+    "issn": "1571-0661",
+    "ano": "2008",
+    "link": "http://dx.doi.org/10.1016/j.entcs.2007.08.024",
+    "qualis": "B1"
+  },
+  {
+    "autores": "LIMA, George",
+    "titulo": "Evaluation of interrupt handling timeliness in real-time Linux operating systems",
+    "revista": "Operating Systems Review",
+    "volume": "42",
+    "paginas": "52",
+    "issn": "0163-5980",
+    "ano": "2008",
+    "link": "http://dx.doi.org/10.1145/1453775.1453787",
+    "qualis": "B1"
+  },
+  {
+    "autores": "LIMA, George; Burns, Alan",
+    "titulo": "An Optimal Fixed-Priority Assignment Algorithm for Supporting Fault Tolerant Hard Real-Time Systems",
+    "revista": "IEEE Transactions on Computers",
+    "volume": "52",
+    "paginas": "1332-1346",
+    "issn": "0018-9340",
+    "ano": "2003",
+    "link": "http://dx.doi.org/10.1109/TC.2003.1234530",
+    "qualis": "A1"
+  }
+]

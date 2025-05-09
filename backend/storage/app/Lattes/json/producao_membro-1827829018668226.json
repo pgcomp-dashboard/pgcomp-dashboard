@@ -1,0 +1,167 @@
+[
+  {
+    "autores": "GOMES, Fernanda ; SANTOS, Paulo E. D. ; VON FLACH, CHRISTINA",
+    "titulo": "OSS in Software Engineering Education: Mapping Characteristics of Brazilian Instructors",
+    "revista": "JOURNAL OF SOFTWARE ENGINEERING RESEARCH AND DEVELOPMENT",
+    "volume": "11",
+    "paginas": "1",
+    "issn": "2195-1721",
+    "ano": "2023",
+    "link": "http://dx.doi.org/10.5753/jserd.2023.1977",
+    "qualis": "A4"
+  },
+  {
+    "autores": "AMORIM, S.S. ; MCGREGOR, JOHN D. ; DE ALMEIDA, EDUARDO SANTANA ; VON FLACH G. CHAVEZ, CHRISTINA",
+    "titulo": "Software Architectural Practices: Influences on the Open Source Ecosystem Health",
+    "revista": "JOURNAL OF SOFTWARE ENGINEERING RESEARCH AND DEVELOPMENT",
+    "volume": "11",
+    "paginas": "1-23",
+    "issn": "2195-1721",
+    "ano": "2023",
+    "link": "http://dx.doi.org/10.5753/jserd.2023.967",
+    "qualis": "A4"
+  },
+  {
+    "autores": "ALVES, D. D. ; MATOS, E. S. ; VON FLACH G. CHAVEZ, CHRISTINA",
+    "titulo": "Interaction design in distributed software development: a systematic mapping study",
+    "revista": "BEHAVIOUR & INFORMATION TECHNOLOGY",
+    "volume": "25",
+    "paginas": "1-37",
+    "issn": "0144-929X",
+    "ano": "2023",
+    "link": "http://dx.doi.org/10.1080/0144929x.2023.2286534",
+    "qualis": "A1"
+  },
+  {
+    "autores": "LIMA, C. ; ASSUNCAO, W. ; MARTINEZ, J. ; MENDONCA, W. ; MACHADO, Ivan ; CHAVEZ, Christina VON FLACH G",
+    "titulo": "Product line architecture recovery with outlier filtering in software families: the Apo-Games case study",
+    "revista": "JOURNAL OF THE BRAZILIAN COMPUTER SOCIETY (IMPRESSO)",
+    "volume": "25",
+    "paginas": "1-7",
+    "issn": "0104-6500",
+    "ano": "2019",
+    "link": "http://dx.doi.org/10.1186/s13173-019-0088-4",
+    "qualis": "A2"
+  },
+  {
+    "autores": "SILVA, Bruno ; SANT?ANNA, CLAUDIO ; ROCHA, NEYLOR ; CHAVEZ, Christina ; CHAVEZ, Christina",
+    "titulo": "The effect of automatic concern mapping strategies on conceptual cohesion measurement",
+    "revista": "Information and Software Technology",
+    "volume": "75",
+    "paginas": "56-70",
+    "issn": "0950-5849",
+    "ano": "2016",
+    "link": "http://dx.doi.org/10.1016/j.infsof.2016.03.006",
+    "qualis": "A1"
+  },
+  {
+    "autores": "COELHO, D.M.N. ; BITTENCOURT, Roberto ; CHAVEZ, Christina ; CHAVEZ, Christina",
+    "titulo": "Open source projects in software engineering education: a mapping study",
+    "revista": "Computer Science Education",
+    "volume": "25",
+    "paginas": "67-114",
+    "issn": "0899-3408",
+    "ano": "2015",
+    "link": "http://dx.doi.org/10.1080/08993408.2015.1033159",
+    "qualis": "A4"
+  },
+  {
+    "autores": "SOUZA, R. ; BITTENCOURT, Roberto ; CHAVEZ, Christina ; CHAVEZ, Christina",
+    "titulo": "Patch rejection in Firefox: negative reviews, backouts, and issue reopening",
+    "revista": "Journal of Software Engineering Research and Development",
+    "volume": "3",
+    "paginas": "9",
+    "issn": "2195-1721",
+    "ano": "2015",
+    "link": "http://dx.doi.org/10.1186/s40411-015-0024-z",
+    "qualis": "A4"
+  },
+  {
+    "autores": "FARIAS, KLEINNER ; GARCIA, Alessandro ; WHITTLE, Jon ; VON FLACH GARCIA CHAVEZ, CHRISTINA ; Lucena, Carlos",
+    "titulo": "Evaluating the effort of composing design models: a controlled experiment",
+    "revista": "Software & Systems Modeling",
+    "volume": "14",
+    "paginas": "1349-1365",
+    "issn": "1619-1374",
+    "ano": "2015",
+    "link": "http://dx.doi.org/10.1007/s10270-014-0408-2",
+    "qualis": "A2"
+  },
+  {
+    "autores": "SOUZA, Rodrigo ; CHAVEZ, Christina ; BITTENCOURT, ROBERTO A",
+    "titulo": "Rapid Releases and Patch Backouts: A Software Analytics Approach",
+    "revista": "IEEE Software",
+    "volume": "32",
+    "paginas": "89-96",
+    "issn": "0740-7459",
+    "ano": "2015",
+    "link": "http://dx.doi.org/10.1109/ms.2015.30",
+    "qualis": "A2"
+  },
+  {
+    "autores": "KULESZA, Uirá ; Soares, Sérgio ; CHAVEZ, Christina ; Castor, Fernando ; BORBA, PAULO ; LUCENA, Carlos ; MASIERO, Paulo ; SANT?ANNA, CLAUDIO ; FERRARI, Fabiano ; ALVES, Vander ; COELHO, Roberta ; FIGUEIREDO, Eduardo ; PIRES, PAULO F. ; DELICATO, Flávia ; PIVETA, Eduardo ; SILVA, Carla ; CAMARGO, Valter ; BRAGA, ROSANA ; LEITE, Julio ; LEMOS, Otávio ; et.al",
+    "titulo": "The crosscutting impact of the AOSD Brazilian research community",
+    "revista": "The Journal of Systems and Software",
+    "volume": "86",
+    "paginas": "905-933",
+    "issn": "0164-1212",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1016/j.jss.2012.08.031",
+    "qualis": "A1"
+  },
+  {
+    "autores": "CHAVEZ, Christina; MOLESINI, Ambra ; GARCIA, Alessandro ; CHAVEZ, Christina ; BATISTA, Thais",
+    "titulo": "Stability assessment of aspect-oriented software architectures: A quantitative study",
+    "revista": "The Journal of Systems and Software",
+    "volume": "83",
+    "paginas": "711-722",
+    "issn": "0164-1212",
+    "ano": "2010",
+    "link": "http://dx.doi.org/10.1016/j.jss.2009.05.022",
+    "qualis": "A1"
+  },
+  {
+    "autores": "SANT'ANNA, Claudio ; LOBATO, Cidiane ; KULESZA, Uirá ; GARCIA, Alessandro ; CHAVEZ, Christina ; LUCENA, C",
+    "titulo": "On the Modularity Assessment of Aspect-Oriented Multiagent Architectures: A Quantitative Study",
+    "revista": "International Journal of Agent-Oriented Software Engineering (Print)",
+    "volume": "2",
+    "paginas": "34-61",
+    "issn": "1746-1375",
+    "ano": "2008",
+    "link": "http://dx.doi.org/10.1504/ijaose.2008.016799",
+    "qualis": "B3"
+  },
+  {
+    "autores": "CHAVEZ, Christina; OLIVEIRA FILHO, A. ; MENDONÇA NETO, Manoel Gomes de ; CHAVEZ, Christina",
+    "titulo": "IDEAS06: Em Busca de Agilidade na AnÃ¡lise de Impacto: O Artefato FIR",
+    "revista": "Revista IEEE América Latina",
+    "volume": "6",
+    "paginas": "275-281",
+    "issn": "1548-0992",
+    "ano": "2008",
+    "link": "http://dx.doi.org/10.1109/tla.2008.4653858",
+    "qualis": "B2"
+  },
+  {
+    "autores": "CHAVEZ, Christina; GARCIA, Alessandro ; KULESZA, Uirá ; SANT'ANNA, Claudio ; LUCENA, Carlos José Pereira de",
+    "titulo": "Crosscutting interfaces for aspect-oriented modeling",
+    "revista": "Journal of The Brazilian Computer Society (Online)",
+    "volume": "12",
+    "paginas": "43-58",
+    "issn": "1678-4804",
+    "ano": "2006",
+    "link": "http://dx.doi.org/10.1007/BF03192387",
+    "qualis": "A2"
+  },
+  {
+    "autores": "GARCIA, Alessandro ; SILVA, Viviane ; CHAVEZ, Christina ; LUCENA, Carlos José Pereira de",
+    "titulo": "Engineering Multi-Agent Systems with Patterns and Aspects",
+    "revista": "Journal of the Brazilian Computer Society",
+    "volume": "8",
+    "paginas": "57-72",
+    "issn": "0104-6500",
+    "ano": "2002",
+    "link": "http://dx.doi.org/10.1590/S0104-65002002000100006",
+    "qualis": "A2"
+  }
+]
