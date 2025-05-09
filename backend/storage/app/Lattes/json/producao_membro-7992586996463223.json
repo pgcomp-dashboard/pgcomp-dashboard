@@ -1,0 +1,101 @@
+[
+  {
+    "autores": "RIBEIRO, AILTON ; VIEIRA, VANINHA ; ALVES, LYNN ; MACIEL, CRISTIANO",
+    "titulo": "VISHnu: An approach to support the personalization of self-expressive avatars using context-awareness",
+    "revista": "INTERNATIONAL JOURNAL OF HUMAN-COMPUTER STUDIES",
+    "volume": "1",
+    "paginas": "103243-103260",
+    "issn": "1071-5819",
+    "ano": "2024",
+    "link": "http://dx.doi.org/10.1016/j.ijhcs.2024.103243",
+    "qualis": "A1"
+  },
+  {
+    "autores": "AMORIM, ANA MARIA ; RIBEIRO, AILTON ; AROUCA, MURILO GUERREIRO ; MEIJON, IAGO ; CAVALHEIRO, VICTOR ; PESTANA, MARIA CLARA ; VIEIRA, VANINHA",
+    "titulo": "Gamification Techniques and Contribution Filtering in Crowdsourcing Micro-Task Applications",
+    "revista": "Journal on Interactive Systems",
+    "volume": "15",
+    "paginas": "401-416",
+    "issn": "2763-7719",
+    "ano": "2024",
+    "link": "http://dx.doi.org/10.5753/jis.2024.3727",
+    "qualis": "A3"
+  },
+  {
+    "autores": "AMORIM, ANA MARIA ; VIEIRA, VANINHA",
+    "titulo": "Participation in crowdsourcing micro-tasks: what motivates brazilian older adults?",
+    "revista": "Universal Access in the Information Society",
+    "volume": "1",
+    "paginas": "1-20",
+    "issn": "1615-5289",
+    "ano": "2023",
+    "link": "http://dx.doi.org/10.1007/s10209-023-01023-9",
+    "qualis": "A3"
+  },
+  {
+    "autores": "Salvador, Laís do Nascimento; Barros, Rebeca ; SANTOS, VANINHA VIEIRA DOS ; NETO, FÉLIX SIMAS DE SOUZA ; Novais, Renato Lima ; AMORIM, SIMONE DA SILVA ; Weber, Marian",
+    "titulo": "A data exchange solution for emergency response systems based on the EDXL-RESCUER ontology",
+    "revista": "INTERNATIONAL JOURNAL OF METADATA, SEMANTICS AND ONTOLOGIES (PRINT)",
+    "volume": "13",
+    "paginas": "264-283",
+    "issn": "1744-2621",
+    "ano": "2019",
+    "link": "http://dx.doi.org/10.1504/IJMSO.2019.099839",
+    "qualis": "B1"
+  },
+  {
+    "autores": "HOLL, K. ; NASS, C. ; VIEIRA, V. ; VILELA, K",
+    "titulo": "Safety-Critical Mobile Systems ? The RESCUER Interaction Evaluation Approach",
+    "revista": "JOURNAL OF UBIQUITOUS SYSTEMS AND PERVASIVE NETWORKS (PRINT)",
+    "volume": "9",
+    "paginas": "1-10",
+    "issn": "1923-7324",
+    "ano": "2017",
+    "link": "http://dx.doi.org/10.1016/j.eswa.2015.10.007",
+    "qualis": "B4"
+  },
+  {
+    "autores": "Dusse, Flávio ; JÚNIOR, PAULO SIMÕES ; ALVES, ANTONIA TAMIRES ; NOVAIS, RENATO ; VIEIRA, VANINHA ; Mendonça, Manoel",
+    "titulo": "Information visualization for emergency management: A systematic mapping study",
+    "revista": "Expert Systems with Applications",
+    "volume": "45",
+    "paginas": "424-437",
+    "issn": "0957-4174",
+    "ano": "2016",
+    "link": "http://dx.doi.org/10.1016/j.eswa.2015.10.007",
+    "qualis": "A1"
+  },
+  {
+    "autores": "TITO, A. ; GOMES, V. ; SANTOS, L. ; RISTAR, A. ; DOHERTY, M. J. ; VIEIRA, V. ; Tedesco, P. ; Salgado, A. C",
+    "titulo": "Recomendação Inteligente e Personalizada de Rotas de Transporte Público",
+    "revista": "Revista de Sistemas e Computação",
+    "volume": "2",
+    "paginas": "135-141",
+    "issn": "2237-2903",
+    "ano": "2012",
+    "link": "http://dx.doi.org/10.1016/j.eswa.2010.05.006",
+    "qualis": "B4"
+  },
+  {
+    "autores": "VIEIRA, V.; Tedesco, P. ; Salgado, A. C",
+    "titulo": "Designing context-sensitive systems: An integrated approach",
+    "revista": "Expert Systems with Applications",
+    "volume": "38",
+    "paginas": "1119-1138",
+    "issn": "0957-4174",
+    "ano": "2010",
+    "link": "http://dx.doi.org/10.1016/j.eswa.2010.05.006",
+    "qualis": "A1"
+  },
+  {
+    "autores": "VIEIRA, V.; Brézillon, P. ; Tedesco, P. ; Salgado, A. C",
+    "titulo": "A Context-Oriented Model for Domain-Independent Context Management",
+    "revista": "Revue d'Intelligence Artificielle",
+    "volume": "22",
+    "paginas": "609-627",
+    "issn": "0992-499X",
+    "ano": "2008",
+    "link": null,
+    "qualis": "B4"
+  }
+]
