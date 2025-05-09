@@ -1,0 +1,222 @@
+[
+  {
+    "autores": "CHAMUSCA, IOLANDA L. ; CAI, YIYU ; SILVA, PEDRO M. C. ; FERREIRA, CRISTIANO V. ; MURARI, THIAGO B. ; APOLINARIO, ANTONIO L. ; WINKLER, INGRID",
+    "titulo": "Evaluating Design Guidelines for Intuitive, Therefore Sustainable, Virtual Reality Authoring Tools",
+    "revista": "Sustainability",
+    "volume": "16",
+    "paginas": "1744",
+    "issn": "2071-1050",
+    "ano": "2071",
+    "link": "http://dx.doi.org/10.3390/su16051744",
+    "qualis": "A2"
+  },
+  {
+    "autores": "CHAMUSCA, IOLANDA L. ; FERREIRA, CRISTIANO V. ; MURARI, THIAGO B. ; APOLINARIO, ANTONIO L. ; WINKLER, INGRID",
+    "titulo": "Towards Sustainable Virtual Reality: Gathering Design Guidelines for Intuitive Authoring Tools",
+    "revista": "Sustainability",
+    "volume": "15",
+    "paginas": "2924",
+    "issn": "2071-1050",
+    "ano": "2071",
+    "link": "http://dx.doi.org/10.3390/su15042924",
+    "qualis": "A2"
+  },
+  {
+    "autores": "HENRIQUES, ALEXANDRE COSTA ; MURARI, THIAGO BARROS ; CALLANS, JENNIFER ; SILVA, ALEXANDRE MAGUINO PINHEIRO ; APOLINARIO, ANTONIO LOPES ; WINKLER, INGRID",
+    "titulo": "Virtual Reality-Based Stimuli for Immersive Car Clinics: A Performance Evaluation Model",
+    "revista": "Big Data and Cognitive Computing",
+    "volume": "6",
+    "paginas": "45-74",
+    "issn": "2504-2289",
+    "ano": "2022",
+    "link": "http://dx.doi.org/10.3390/bdcc6020045",
+    "qualis": "A3"
+  },
+  {
+    "autores": "MACEDO, MÁRCIO C. F. ; APOLINÁRIO, ANTÔNIO L",
+    "titulo": "Live user-guided depth map estimation for single images",
+    "revista": "Journal of Real-Time Image Processing",
+    "volume": "1",
+    "paginas": "1",
+    "issn": "1861-8219",
+    "ano": "2021",
+    "link": "http://dx.doi.org/10.1007/s11554-020-01055-x",
+    "qualis": "A3"
+  },
+  {
+    "autores": "BISPO, MAYARA SIMÕES ; PIERRE JÚNIOR, MÁRIO LÚCIO GOMES DE QUEIROZ ; APOLINÁRIO JR, ANTÔNIO LOPES ; DOS SANTOS, JEAN NUNES ; JUNIOR, BRAULIO CARNEIRO ; NEVES, FREDERICO SAMPAIO ; CRUSOÉ-REBELLO, IÊDA",
+    "titulo": "Computer tomographic differential diagnosis of ameloblastoma and odontogenic keratocyst: classification using a convolutional neural network",
+    "revista": "DENTOMAXILLOFACIAL RADIOLOGY (ONLINE)",
+    "volume": "1",
+    "paginas": "20210002",
+    "issn": "1476-542X",
+    "ano": "2021",
+    "link": "http://dx.doi.org/10.1259/dmfr.20210002",
+    "qualis": "A2"
+  },
+  {
+    "autores": "MACEDO, MARCIO C. DE F. ; APOLINARIO, ANTONIO L",
+    "titulo": "Occlusion Handling in Augmented Reality: Past, Present and Future",
+    "revista": "Ieee Transactions On Visualization And Computer Graphics",
+    "volume": "1",
+    "paginas": "1-1",
+    "issn": "1941-0506",
+    "ano": "2021",
+    "link": "http://dx.doi.org/10.1109/tvcg.2021.3117866",
+    "qualis": "A1"
+  },
+  {
+    "autores": "MACEDO, M. C. F. ; APOLINÁRIO, A. L. ; AGÜERO, K. A",
+    "titulo": "Revectorization-Based Soft Shadow Mapping",
+    "revista": "COMPUTER GRAPHICS FORUM (ONLINE)",
+    "volume": "4",
+    "paginas": "5",
+    "issn": "1467-8659",
+    "ano": "2019",
+    "link": "http://dx.doi.org/10.1111/cgf.13810",
+    "qualis": "A2"
+  },
+  {
+    "autores": "MACEDO, MÁRCIO ; APOLINÁRIO, ANTÔNIO",
+    "titulo": "Improved anti-aliasing for Euclidean distance transform shadow mapping",
+    "revista": "COMPUTERS & GRAPHICS-UK",
+    "volume": "71",
+    "paginas": "166-179",
+    "issn": "0097-8493",
+    "ano": "2018",
+    "link": "http://dx.doi.org/10.1016/j.cag.2017.11.006",
+    "qualis": "A2"
+  },
+  {
+    "autores": "RAIMUNDO, PEDRO O. ; APAZA-AGÜERO, KARL ; APOLINÁRIO JR., ANTONIO L",
+    "titulo": "Low-cost 3D reconstruction of cultural heritage artifacts",
+    "revista": "REVISTA BRASILEIRA DE COMPUTAÇÃO APLICADA",
+    "volume": "10",
+    "paginas": "66-75",
+    "issn": "2176-6649",
+    "ano": "2018",
+    "link": "http://dx.doi.org/10.5335/rbca.v10i1.7791",
+    "qualis": "B3"
+  },
+  {
+    "autores": "YAMADA, F. A. ; GIRALDI, GILSON A. ; VIEIRA, M. B. ; ALMEIDA, L. R. ; APOLINÁRIO, ANTÔNIO L",
+    "titulo": "Comparing Seven Methodologies for Rigid Alignment of Point Clouds with Focus on Frame-to-Frame Registration in Depth Sequences",
+    "revista": "SBC JOURNAL ON 3D INTERACTIVE SYSTEMS",
+    "volume": "9",
+    "paginas": "82-104",
+    "issn": "2236-3297",
+    "ano": "2018",
+    "link": "http://dx.doi.org/10.1016/j.jocs.2017.09.010",
+    "qualis": "B1"
+  },
+  {
+    "autores": "NETO, LIORDINO DOS SANTOS ROCHA ; APOLINÁRIO JÚNIOR, ANTÔNIO LOPES",
+    "titulo": "Real-Time Screen Space Cartoon Water Rendering with the Iterative Separated Bilateral Filter",
+    "revista": "SBC JOURNAL ON 3D INTERACTIVE SYSTEMS",
+    "volume": "8",
+    "paginas": "20-32",
+    "issn": "2236-3297",
+    "ano": "2017",
+    "link": "http://dx.doi.org/10.1016/j.jocs.2017.09.010",
+    "qualis": "B1"
+  },
+  {
+    "autores": "SOARES, A. S. ; APOLINÁRIO JÚNIOR, ANTÔNIO LOPES",
+    "titulo": "Real-time 3D Gesture Recognition using Dynamic Time Warping and Simplification Methods",
+    "revista": "JOURNAL OF WSCG (PLZEN, PRINT)",
+    "volume": "25",
+    "paginas": "59-66",
+    "issn": "1213-6972",
+    "ano": "2017",
+    "link": "http://dx.doi.org/10.1016/j.jocs.2017.09.010",
+    "qualis": "B3"
+  },
+  {
+    "autores": "DA SILVA, JOSILDO PEREIRA ; GIRALDI, GILSON A. ; APOLINÁRIO JR., ANTONIO L",
+    "titulo": "Data-driven optimization approach for mass-spring models parametrization based on isogeometric analysis",
+    "revista": "Journal of Computational Science",
+    "volume": "81",
+    "paginas": "1-19",
+    "issn": "1877-7503",
+    "ano": "2017",
+    "link": "http://dx.doi.org/10.1016/j.jocs.2017.09.010",
+    "qualis": "A1"
+  },
+  {
+    "autores": "DA SILVA, JOSILDO PEREIRA ; GIRALDI, GILSON A. ; APOLINÁRIO JÚNIOR, ANTÔNIO LOPES",
+    "titulo": "A New Optimization Approach for Mass-Spring Models Parameterization",
+    "revista": "Graphical Models (Print)",
+    "volume": "81",
+    "paginas": "1-17",
+    "issn": "1524-0703",
+    "ano": "2015",
+    "link": "http://dx.doi.org/10.1016/j.gmod.2015.07.001",
+    "qualis": "A3"
+  },
+  {
+    "autores": "MACEDO, MÁRCIO C.F. ; APOLINÁRIO, ANTÔNIO L",
+    "titulo": "Focus plus context visualization based on volume clipping for markerless on-patient medical data visualization",
+    "revista": "Computers & Graphics",
+    "volume": "53",
+    "paginas": "196-209",
+    "issn": "0097-8493",
+    "ano": "2015",
+    "link": "http://dx.doi.org/10.1016/j.cag.2015.09.007",
+    "qualis": "A2"
+  },
+  {
+    "autores": "LOULA, ANGELO C. ; DE CASTRO, LEANDRO N. ; APOLINÁRIO, ANTÔNIO L. ; DA ROCHA, PEDRO L. B. ; CARNEIRO, MARIA DA CONCEIÇÃO L. ; REIS, VANESSA PERPÉTUA G. S. ; MACHADO, RICARDO F. ; SEPULVEDA, CLAUDIA ; EL-HANI, CHARBEL N",
+    "titulo": "Modeling a Virtual World for the Educational Game Calangos",
+    "revista": "International Journal of Computer Games Technology",
+    "volume": "2014",
+    "paginas": "1-14",
+    "issn": "1687-7047",
+    "ano": "2014",
+    "link": "http://dx.doi.org/10.1155/2014/382396",
+    "qualis": "A4"
+  },
+  {
+    "autores": "MACEDO, M. C. F. ; APOLINARIO JUNIOR, A. L. ; SOUZA, A. C. S. ; GIRALDI, G. A",
+    "titulo": "High-Quality On-Patient Medical Data Visualization in a Markerless Augmented Reality Environment",
+    "revista": "SBC JOURNAL ON 3D INTERACTIVE SYSTEMS",
+    "volume": "5",
+    "paginas": "41-52",
+    "issn": "2236-3297",
+    "ano": "2014",
+    "link": "http://dx.doi.org/10.1166/jmihi.2011.1014",
+    "qualis": "B1"
+  },
+  {
+    "autores": "Cerqueira, M. ; APOLINARIO JUNIOR, A. L. ; SOUZA, A. C. S",
+    "titulo": "KinectFusion for Faces: Real-Time 3D Face Tracking and Modeling Using a Kinect Camera for a Markerless AR System",
+    "revista": "SBC JOURNAL ON 3D INTERACTIVE SYSTEMS",
+    "volume": "4",
+    "paginas": "2-7-7",
+    "issn": "2236-3297",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1166/jmihi.2011.1014",
+    "qualis": "B1"
+  },
+  {
+    "autores": "AQUINO, L. C. M. ; GIRALDI, Gilson ; APOLINARIO JUNIOR, A. L. ; SURI, J",
+    "titulo": "A Subdivision Surface Method for Prosthesis Modeling",
+    "revista": "Journal of Medical Imaging and Health Informatics",
+    "volume": "1",
+    "paginas": "87-95",
+    "issn": "2156-7018",
+    "ano": "2011",
+    "link": "http://dx.doi.org/10.1166/jmihi.2011.1014",
+    "qualis": "C"
+  },
+  {
+    "autores": "BARCELLOS, Bruno ; GIRALDI, Gilson ; APOLINARIO JUNIOR, A. L. ; RODRIGUES, Paulo Sergio",
+    "titulo": "Simulação de Fluxo Superficial em GPU e Animação em Multiresolução sobre Modelos Digitais de Terrenos",
+    "revista": "Revista Eletrônica de Iniciação Científica",
+    "volume": "1",
+    "paginas": "5",
+    "issn": "1519-8219",
+    "ano": "2009",
+    "link": null,
+    "qualis": "C"
+  }
+]

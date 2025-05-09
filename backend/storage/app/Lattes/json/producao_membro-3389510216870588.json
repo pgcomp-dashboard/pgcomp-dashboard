@@ -1,0 +1,222 @@
+[
+  {
+    "autores": "SANTOS DE JESUS, EDMILSON DOS ; SILVA GOMES, GECYNALDA SOARES DA",
+    "titulo": "Machine learning models for forecasting water demand for the Metropolitan Region of Salvador, Bahia",
+    "revista": "NEURAL COMPUTING & APPLICATIONS",
+    "volume": "35",
+    "paginas": "19669-19683",
+    "issn": "0941-0643",
+    "ano": "2023",
+    "link": "http://dx.doi.org/10.1007/s00521-023-08842-0",
+    "qualis": "A2"
+  },
+  {
+    "autores": "DE ARAÚJO MORAIS, LUCAS RABELO ; DA SILVA GOMES, GECYNALDA SOARES",
+    "titulo": "Forecasting daily Covid-19 cases in the world with a hybrid ARIMA and neural network model",
+    "revista": "APPLIED SOFT COMPUTING",
+    "volume": "126",
+    "paginas": "109315",
+    "issn": "1568-4946",
+    "ano": "2022",
+    "link": "http://dx.doi.org/10.1016/j.asoc.2022.109315",
+    "qualis": "A1"
+  },
+  {
+    "autores": "SOARES, PEDRO FELIPE ; FERNANDES, MARIA TEREZA CALCHI FANTI ; SOUZA, ANDRÉIA DE SANTANA ; LOPES, CAIO MEDINA ; DOS SANTOS, DARJORE AMORIM CARVALHO ; OLIVEIRA, DIOGO PEREIRA RODRIGUES ; PEREIRA, MARCELA GOTTSCHALD ; PRADO, NILIA MARIA DE BRITO LIMA ; Gomes, Gecynalda Soares da Silva ; SANTOS, GENÁRIO OLIVEIRA ; FILHO, RAYMUNDO PARANÁ FERREIRA",
+    "titulo": "CAUSALITY IMPUTATION BETWEEN HERBAL PRODUCTS AND HILI: AN ALGORITHM EVALUATION IN A SYSTEMATIC REVIEW",
+    "revista": "Annals of Hepatology",
+    "volume": "25",
+    "paginas": "100539",
+    "issn": "1665-2681",
+    "ano": "2021",
+    "link": "http://dx.doi.org/10.1016/j.aohep.2021.100539",
+    "qualis": "B1"
+  },
+  {
+    "autores": "MORAIS, LUCAS RABELO DE ARAÚJO ; Gomes, Gecynalda Soares da Silva",
+    "titulo": "Applying spatio-temporal scan statistics and spatial autocorrelation statistics to identify COVID-19 clusters in the world-a vaccination strategy?",
+    "revista": "SPATIAL AND SPATIO-TEMPORAL EPIDEMIOLOGY",
+    "volume": "39",
+    "paginas": "100461",
+    "issn": "1877-5845",
+    "ano": "2021",
+    "link": "http://dx.doi.org/10.1016/j.sste.2021.100461",
+    "qualis": "A3"
+  },
+  {
+    "autores": "BARBOSA, C. M. G. ; MAIA, A. L. S. ; MATOS, M. P. ; GOMES, G. S. S. ; SOUZA, S. F",
+    "titulo": "Condições de Trabalho e Desconforto Corporal dos Rodoviários da Região Metropolitana de Salvador",
+    "revista": "International Journal on Working Conditions",
+    "volume": "18",
+    "paginas": "35-51",
+    "issn": "2182-9535",
+    "ano": "2019",
+    "link": "http://dx.doi.org/10.25762/zaeq-6a20",
+    "qualis": "B4"
+  },
+  {
+    "autores": "MAIA, A. L. S. ; GOMES, G. S. S. ; ALMEIDA, I. G",
+    "titulo": "Spatial study of incidence rates of occupational accidents in Brazil from 2002 to 2012",
+    "revista": "REVISTA BRASILEIRA DE BIOMETRIA",
+    "volume": "36",
+    "paginas": "927-941",
+    "issn": "1983-0823",
+    "ano": "2002",
+    "link": "http://dx.doi.org/10.5327/Z16794435201917S1TL168",
+    "qualis": "B4"
+  },
+  {
+    "autores": "BARBOSA, CRISTIANE MARIA GALVÃO ; MAIA, ANDRÉ LUIS SANTIAGO ; GOMES, GECYNALDA SOARES DA S. ; MATOS, MARCOS PAIVA ; SOUZA, SUERDA FORTALEZA DE",
+    "titulo": "A exposição ao risco de assalto e suas repercussões na saúde dos trabalhadores rodoviários da região metropolitana de Salvador",
+    "revista": "REVISTA BRASILEIRA DE MEDICINA DO TRABALHO",
+    "volume": "17",
+    "paginas": "100-100",
+    "issn": "2447-0147",
+    "ano": "2018",
+    "link": "http://dx.doi.org/10.5327/Z16794435201917S1TL168",
+    "qualis": "B3"
+  },
+  {
+    "autores": "CARVALHO, M. L. L. ; SILVA, MATHEUS LESSA GONCALVES DA ; DA SILVA GOMES, GECYNALDA SOARES ; SANTOS, ALCEMIR RODRIGUES ; DO CARMO MACHADO, IVAN ; SOUZA, M. L. J. ; ALMEIDA, E. S",
+    "titulo": "On the Implementation of Dynamic Software Product Lines: An Exploratory Study.",
+    "revista": "JOURNAL OF SYSTEMS AND SOFTWARE",
+    "volume": "136",
+    "paginas": "74-100",
+    "issn": "0164-1212",
+    "ano": "2018",
+    "link": "http://dx.doi.org/10.1016/j.jss.2017.11.004",
+    "qualis": "A1"
+  },
+  {
+    "autores": "OLIVEIRA, RAPHAEL PEREIRA DE ; SANTOS, ALCEMIR RODRIGUES ; ALMEIDA, EDUARDO SANTANA DE ; Gomes, Gecynalda Soares da Silva",
+    "titulo": "Evaluating Lehman’s Laws of software evolution within software product lines industrial projects",
+    "revista": "JOURNAL OF SYSTEMS AND SOFTWARE",
+    "volume": "131",
+    "paginas": "347-365",
+    "issn": "0164-1212",
+    "ano": "2017",
+    "link": "http://dx.doi.org/10.1016/j.jss.2016.07.038",
+    "qualis": "A1"
+  },
+  {
+    "autores": "SOUZA, IURI SANTOS ; DA SILVA GOMES, GECYNALDA SOARES ; DA MOTA SILVEIRA NETO, PAULO ANSELMO ; DO CARMO MACHADO, IVAN ; DE ALMEIDA, EDUARDO SANTANA ; DE LEMOS MEIRA, SILVIO ROMERO",
+    "titulo": "Evidence of software inspection on feature specification for software product lines",
+    "revista": "The Journal of Systems and Software",
+    "volume": "86",
+    "paginas": "1172-1190",
+    "issn": "0164-1212",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1016/j.jss.2012.11.044",
+    "qualis": "A1"
+  },
+  {
+    "autores": "GOMES, GECYNALDA S.DA S.; Ludermir, Teresa B",
+    "titulo": "Optimization of the weights and asymmetric activation function family of neural network for time series forecasting",
+    "revista": "Expert Systems with Applications",
+    "volume": "40",
+    "paginas": "6438-6446",
+    "issn": "0957-4174",
+    "ano": "2013",
+    "link": "http://dx.doi.org/10.1016/j.eswa.2013.05.053",
+    "qualis": "A1"
+  },
+  {
+    "autores": "ESQUIVEL, R. ; SENNA, V. ; GECYNALDA S. DA S. GOMES",
+    "titulo": "Análise Espectral Singular: Comparação de Previsões em Séries Temporais",
+    "revista": "Revista ADM.MADE",
+    "volume": "16",
+    "paginas": "87-101",
+    "issn": "2237-5139",
+    "ano": "2012",
+    "link": "http://dx.doi.org/10.1007/s00521-010-0407-3",
+    "qualis": "A4"
+  },
+  {
+    "autores": "da S. Gomes, Gecynalda S.; Ludermir, Teresa B. ; Lima, Leyla M. M. R",
+    "titulo": "Comparison of new activation functions in neural network for forecasting financial time series",
+    "revista": "Neural Computing & Applications (Print)",
+    "volume": "20",
+    "paginas": "417-439",
+    "issn": "0941-0643",
+    "ano": "2011",
+    "link": "http://dx.doi.org/10.1007/s00521-010-0407-3",
+    "qualis": "A2"
+  },
+  {
+    "autores": "Oliveira Assis, Ana Marlúcia; Lima Barreto, Maurício ; Magalhães de Oliveira, Lucivalda Pereira ; de Oliveira, Valterlinda Alves ; da Silva Prado, Matildes ; da Silva Gomes, Gecynalda Soares ; Conceição Pinheiro, Sandra Maria ; dos Santos, Nedja Silva ; Ribeiro da Silva, Rita de Cássia ; Ramos Sampaio, Lilian ; Pacheco Santos, Leonor Maria",
+    "titulo": "Determinants of mild-to-moderate malnutrition in preschoolers in an urban area of Northeastern Brazil: a hierarchical approach",
+    "revista": "Public Health Nutrition (Wallingford)",
+    "volume": "11",
+    "paginas": "1",
+    "issn": "1368-9800",
+    "ano": "2008",
+    "link": "http://dx.doi.org/10.1017/S1368980007000390",
+    "qualis": "A1"
+  },
+  {
+    "autores": "GOMES, G. S. S.; Ludermir, T. B",
+    "titulo": "Redes Neurais Artificiais com Funções de Ativação Complemento log-log e Probit para Aproximar Funções na Presença de Observações Extremas",
+    "revista": "Learning and Nonlinear Models",
+    "volume": "6",
+    "paginas": "142-153",
+    "issn": "1676-2789",
+    "ano": "2008",
+    "link": "http://dx.doi.org/10.1590/S0102-311X2005000500025",
+    "qualis": "B2"
+  },
+  {
+    "autores": "GOMES, G. S. S.; CRIBARI NETO, F. ; VASCONCELLOS, K. L. P",
+    "titulo": "Uma aplicação de influência para a distribuição Dirichlet",
+    "revista": "Revista Brasileira de Estatística",
+    "volume": "69",
+    "paginas": "7-32",
+    "issn": "0034-7175",
+    "ano": "2008",
+    "link": "http://dx.doi.org/10.1590/S0102-311X2005000500025",
+    "qualis": "C"
+  },
+  {
+    "autores": "ASSIS, A. M. O. ; BARRETO, M. L. ; SANTOS, L. M. P. ; Fiaccone, R. L. ; GOMES, G. S. S",
+    "titulo": "Growth faltering in childhood related to diarrhea: a longitudinal community based study",
+    "revista": "European Journal of Clinical Nutrition",
+    "volume": "59",
+    "paginas": "1317-1323",
+    "issn": "0954-3007",
+    "ano": "2005",
+    "link": "http://dx.doi.org/10.1590/S0102-311X2005000500025",
+    "qualis": "A1"
+  },
+  {
+    "autores": "Oliveira, Lucivalda P. Magalhães de ; Assis, Ana Marlúcia O. ; Gomes, Gecynalda Soares da Silva ; Prado, Matildes da S. ; Barreto, Maurício L",
+    "titulo": "Duração do aleitamento materno, regime alimentar e fatores associados segundo condições de vida em Salvador, Bahia, Brasil",
+    "revista": "Cadernos de Saúde Pública (FIOCRUZ)",
+    "volume": "21",
+    "paginas": "1519",
+    "issn": "0102-311X",
+    "ano": "2005",
+    "link": "http://dx.doi.org/10.1590/S0102-311X2005000500025",
+    "qualis": "A1"
+  },
+  {
+    "autores": "ASSIS, A. M. O. ; GAUDENZI, E. N. ; GOMES, G. S. S. ; RIBEIRO, R. C. ; SZARFARC, S. C. ; SOUZA, S. B",
+    "titulo": "Níveis de Hemoglobina, Aleitamento Materno e Regime Alimentar no Primeiro Ano de Vida.",
+    "revista": "Revista de Saúde Pública / Journal of Public Health",
+    "volume": "38",
+    "paginas": "543-551",
+    "issn": "0034-8910",
+    "ano": "2004",
+    "link": null,
+    "qualis": "A1"
+  },
+  {
+    "autores": "ASSIS, A. M. O. ; BARRETO, M. L. ; GOMES, G. S. S. ; PRADO, M. S. ; SANTOS, N. S. ; SANTOS, L. M. P. ; SAMPAIO, L. R. ; RIBEIRO, R. C. ; OLIVEIRA, L. P. M. ; OLIVEIRA, V. A",
+    "titulo": "Childhood anemia prevalence and associated factors in Salvador, Bahia, Brazil",
+    "revista": "Cadernos de Saúde Pública (FIOCRUZ)",
+    "volume": "20",
+    "paginas": "1633-1641",
+    "issn": "0102-311X",
+    "ano": "2004",
+    "link": null,
+    "qualis": "A1"
+  }
+]
