@@ -21,6 +21,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import api from '@/services/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Area {
   id: number;
@@ -29,26 +31,29 @@ interface Area {
 }
 
 // Sample area data
-const initialAreas = [
-  {
-    id: 1,
-    name: 'Computação Aplicada',
-    students: 400,
-  },
-  {
-    id: 2,
-    name: 'Engenharia de Software',
-    students: 300,
-  },
-  {
-    id: 3,
-    name: 'Sistemas Computacionais',
-    students: 250,
-  },
-] as Area[];
-
 export default function AreasPage() {
-  const [ areas, setAreas ] = useState(initialAreas);
+  const queryClient = useQueryClient();
+
+  const { data: areas = [], isLoading } = useQuery({
+    queryKey: [ 'areas' ],
+    queryFn: () => api.fetchAreas(),
+  });
+
+  const addAreaMutation = useMutation({
+    mutationFn: (area: { name: string; students: number }) => api.createArea(area),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+  });
+
+  const editAreaMutation = useMutation({
+    mutationFn: (area: { id: number; name: string; students: number }) => api.updateArea(area),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+  });
+
+  const deleteAreaMutation = useMutation({
+    mutationFn: (id: number) => api.deleteArea(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+  });
+
   const [ searchTerm, setSearchTerm ] = useState('');
   const [ isAddAreaOpen, setIsAddAreaOpen ] = useState(false);
   const [ isEditAreaOpen, setIsEditAreaOpen ] = useState(false);
@@ -69,8 +74,10 @@ export default function AreasPage() {
 
   // Add new area
   const handleAddArea = () => {
-    const id = areas.length > 0 ? Math.max(...areas.map((area) => area.id)) + 1 : 1;
-    setAreas([ ...areas, { id, ...newArea } ]);
+    addAreaMutation.mutate({
+      name: newArea.name,
+      students: newArea.students,
+    });
     setNewArea({
       name: '',
       description: '',
@@ -83,16 +90,24 @@ export default function AreasPage() {
   // Edit area
   const handleEditArea = () => {
     if (!currentArea) return;
-    setAreas(areas.map((area) => (area.id === currentArea.id ? currentArea : area)));
+    editAreaMutation.mutate({
+      id: currentArea.id,
+      name: currentArea.name,
+      students: currentArea.students,
+    });
     setIsEditAreaOpen(false);
   };
 
   // Delete area
   const handleDeleteArea = () => {
     if (!currentArea) return;
-    setAreas(areas.filter((area) => area.id !== currentArea.id));
+    deleteAreaMutation.mutate(currentArea.id);
     setIsDeleteAreaOpen(false);
   };
+
+  if (isLoading) {
+    return <div>Carregando áreas...</div>;
+  }
 
   return (
     <div className="space-y-6">
