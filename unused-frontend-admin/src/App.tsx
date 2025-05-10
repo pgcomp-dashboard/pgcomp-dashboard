@@ -17,11 +17,12 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path='/'>
-              <Route index element={<Redirect to="/admin/areas" />}/>
-              <Route path="login" element={<LoginPage/>}/>
+              <Route index element={<Redirect to="/admin/areas" />} />
+              <Route path="login" element={<LoginPage />} />
               <Route path='admin' element={<AdminLayout><EnsureAuthenticated /></AdminLayout>}>
-                <Route index element={<Redirect to='/admin/areas' />}/>
-                <Route path='areas' element={<AreasPage />}/>
+                <Route index element={<Redirect to='/admin/areas' />} />
+                <Route path='areas' element={<AreasPage />} />
+                <Route path='students' element={<StudentsPage />} />
                 {/* <Route path='qualis' element={<Session/>}/> */}
                 {/* <Route path='professors' element={<ProfessorPanel />} /> */}
                 {/* <Route path='professors/:id' element={<PersonInfo/>}/> */}
@@ -59,7 +60,7 @@ function Redirect({ to }: { to: string }) {
   const navigate = useNavigate();
   useEffect(() => {
     navigate(to);
-  }, [ navigate, to ]);
+  }, [navigate, to]);
   return <></>;
 }
 

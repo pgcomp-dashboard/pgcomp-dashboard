@@ -8,6 +8,7 @@ import LoginPage from '@/pages/login';
 import AdminLayout from './layouts/admin/admin-layout';
 import AreasPage from './pages/admin/areas';
 import DashboardPage from './pages/dashboard';
+import StudentsPage from './pages/admin/students';
 
 const queryClient = new QueryClient();
 
@@ -18,11 +19,12 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path='/'>
-              <Route index element={<DashboardPage />}/>
-              <Route path="login" element={<LoginPage/>}/>
+              <Route index element={<DashboardPage />} />
+              <Route path="login" element={<LoginPage />} />
               <Route path='admin' element={<AdminLayout><EnsureAuthenticated /></AdminLayout>}>
-                <Route index element={<Redirect to='/admin/areas' />}/>
-                <Route path='areas' element={<AreasPage />}/>
+                <Route index element={<Redirect to='/admin/areas' />} />
+                <Route path='areas' element={<AreasPage />} />
+                <Route path='students' element={<StudentsPage />} />
                 {/* <Route path='qualis' element={<Session/>}/> */}
                 {/* <Route path='professors' element={<ProfessorPanel />} /> */}
                 {/* <Route path='professors/:id' element={<PersonInfo/>}/> */}
@@ -60,7 +62,7 @@ function Redirect({ to }: { to: string }) {
   const navigate = useNavigate();
   useEffect(() => {
     navigate(to);
-  }, [ navigate, to ]);
+  }, [navigate, to]);
   return <></>;
 }
 
