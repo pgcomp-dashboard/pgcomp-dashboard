@@ -18,8 +18,6 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 import logoImage from '@/assets/logo.png';
 import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
 
-const ADMIN_REDIRECT_URL = import.meta.env.VITE_ADMIN_REDIRECT_URL ?? 'https://pgcomp.ufba.fleap.dev/admin';
-
 export default function Dashboard() {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -72,16 +70,16 @@ export default function Dashboard() {
                       Alunos por área
                     </NavLink>
                     <NavLink
-                      to="#subarea"
-                      onClick={() => scrollToSection('subarea')}
+                      to="#defenses"
+                      onClick={() => scrollToSection('defenses')}
                       className="text-sm font-medium transition-colors hover:text-primary"
                     >
-                      Alunos por sub-área
+                      Defesas por ano
                     </NavLink>
                   </div>
                   <Button asChild className="sm:flex">
-                    <NavLink to={ADMIN_REDIRECT_URL} target="_blank" rel="noopener noreferrer">
-                      Login <ExternalLink className="ml-2 h-4 w-4" />
+                    <NavLink to={'/admin'} rel="noopener noreferrer">
+                      Login
                     </NavLink>
                   </Button>
                 </nav>
@@ -121,16 +119,16 @@ export default function Dashboard() {
               Alunos por área
             </NavLink>
             <NavLink
-              to="#subarea"
-              onClick={() => scrollToSection('subarea')}
+              to="#defenses"
+              onClick={() => scrollToSection('defenses')}
               className={'text-sm font-medium transition-colors hover:text-primary'}
             >
-              Alunos por sub-área
+              Defesas por ano
             </NavLink>
           </nav>
           <Button asChild className="hidden sm:flex">
-            <NavLink to={ADMIN_REDIRECT_URL} target="_blank" rel="noopener noreferrer">
-              Login <ExternalLink className="ml-2 h-4 w-4" />
+            <NavLink to={'/admin'} rel="noopener noreferrer">
+              Login
             </NavLink>
           </Button>
         </div>

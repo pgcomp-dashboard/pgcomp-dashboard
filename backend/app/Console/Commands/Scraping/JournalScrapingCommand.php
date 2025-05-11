@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands\Scraping;
 
+use App\Enums\PublisherType;
 use App\Models\Journal;
+use App\Models\Publishers;
 use App\Models\StratumQualis;
 use Carbon\Exceptions\InvalidFormatException;
 use Google\Client;
@@ -40,28 +42,32 @@ class JournalScrapingCommand extends Command
 
         $this->getOutput()->info('Salvando dados...');
         $this->withProgressBar($data, function ($item) {
-            try {
-                $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
-                $item['stratum_qualis_id'] = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
-            } catch (ModelNotFoundException) {
-                $item['stratum_qualis_id'] = null;
+        $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
+        try {
+            if (!isset($item['Qualis_Final'])) {
+                throw new ModelNotFoundException('ERROR');
             }
-            Journal::updateOrCreate(
-                [
-                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
-                ],
-                [
-                    'name' => $item['periodico'],
-                    'sbc_adjustment' => in_array($item['Ajuste_SBC'], ['nulo']) ? null : $item['Ajuste_SBC'],
-                    'scopus_url' => in_array($item['link_scopus'], ['nulo']) ? null : $item['link_scopus'],
-                    'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
-                    'last_qualis' => $item['Qualis_Final'],
-                    'update_date' => $this->stringToDate($item['data-atualizacao']),
-                    'tentative_date' => $this->stringToDate($item['data-tentativa']),
-                    'logs' => $item['logs'],
-                    'stratum_qualis_id' => $item['stratum_qualis_id'],
-                ]
-            );
+
+            $stratumQualisId= StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+        } catch (ModelNotFoundException) {
+            $stratumQualisId= null;
+        }
+        Publishers::updateOrCreate(
+            [
+                'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
+            ],
+            [
+                'name' => $item['periodico'],
+
+                'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
+                'update_date' => $this->stringToDate($item['data-atualizacao']),
+                'tentative_date' => $this->stringToDate($item['data-tentativa']),
+                'logs' => (string) $item['logs'],
+                'publisher_type'=>PublisherType::JOURNAL->value,
+                'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
+                'stratum_qualis_id' => $stratumQualisId,
+            ]
+        );
         });
 
         $this->getOutput()->info('Dados salvos com sucesso.');

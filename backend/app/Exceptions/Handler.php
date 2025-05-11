@@ -59,7 +59,7 @@ class Handler extends ExceptionHandler
         $this->renderable(function (AuthenticationException $e) {
             return response()->json(
                 ['errors' => [
-                    ['description' => 'Não autenticado']
+                    ['description' => $e->getMessage()]
                 ]],
                 401,
             );
