@@ -36,7 +36,8 @@ class Scraping extends Command
                 'AreaScrapingCommand',
                 'SigaaScrapingCommand',
                 'ConferenceScrapingCommand',
-                'JournalScrapingCommand'
+                'JournalScrapingCommand',
+                'ProductionScrapingCommand',
             ];
         }
 

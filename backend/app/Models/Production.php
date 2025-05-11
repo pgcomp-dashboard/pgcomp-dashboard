@@ -2,17 +2,13 @@
 
 namespace App\Models;
 
-use App\Enums\UserType;
-use App\Rules\ClassExists;
-use App\Rules\MorphExists;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -57,7 +53,6 @@ class Production extends BaseModel
     protected $fillable = [
         'title',
         'year',
-        'journals_id',
         'publisher_type',
         'publisher_id',
         'doi',
@@ -69,10 +64,10 @@ class Production extends BaseModel
     public static function creationRules(): array
     {
         return [
-            'title' => 'required|string|max:255',
+            'title' => ['required', 'string', 'max:255', Rule::unique(Production::class, 'title')->whereNull('doi')],
             'year' => 'required|int|date_format:Y',
-            'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255', new ClassExists()],
-            'publisher_id' => ['nullable', 'int', new MorphExists()],
+            'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255'],
+            'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
             'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
             'sequence_number' => 'nullable|int',
         ];
@@ -109,9 +104,9 @@ class Production extends BaseModel
      *
      * @return BelongsTo a user can have several products
      */
-    public function publisher(): MorphTo
+    public function publisher(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(Publishers::class, 'publisher_id', 'id');
     }
 
     /**
@@ -122,8 +117,8 @@ class Production extends BaseModel
         return [
             'title' => 'string|max:255',
             'year' => 'int|date_format:Y',
-            'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255', new ClassExists()],
-            'publisher_id' => ['nullable', 'int', new MorphExists()],
+            'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255'],
+            'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
             'sequence_number' => 'nullable|int',
         ];
     }
