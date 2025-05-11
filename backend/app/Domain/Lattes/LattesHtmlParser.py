@@ -73,13 +73,7 @@ for html_file in html_folder.glob("*.html"):
     producoes = process_html_file(html_file)
 
     id_membro = html_file.stem.replace("membro-", "")
-    member_json_path = output_folder / f"producao_membro-{id_membro}.json"
-
-    with open(member_json_path, 'w', encoding='utf-8') as f:
-        json.dump(producoes, f, ensure_ascii=False, indent=2)
-    
     merged_data[id_membro] = producoes
-    print(f"[✔] Salvo JSON para membro {id_membro}")
 
 with open(output_folder / "todas_producoes.json", 'w', encoding='utf-8') as f:
     json.dump(merged_data, f, ensure_ascii=False, indent=2)
