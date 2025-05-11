@@ -4,7 +4,7 @@ import {
   Folders,
   GraduationCap,
   LogOut,
-  Users,
+  Users, 
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
