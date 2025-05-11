@@ -8,6 +8,7 @@ import LoginPage from '@/pages/login';
 import AdminLayout from './layouts/admin/admin-layout';
 import AreasPage from './pages/admin/areas';
 import DashboardPage from './pages/dashboard';
+import Professor from './pages/admin/professors';
 
 const queryClient = new QueryClient();
 
@@ -24,7 +25,7 @@ function App() {
                 <Route index element={<Redirect to='/admin/areas' />}/>
                 <Route path='areas' element={<AreasPage />}/>
                 {/* <Route path='qualis' element={<Session/>}/> */}
-                {/* <Route path='professors' element={<ProfessorPanel />} /> */}
+                {<Route path='professors' element={<Professor/>} /> }
                 {/* <Route path='professors/:id' element={<PersonInfo/>}/> */}
                 {/* <Route path="professors/:id/productions" element={<UserProductions/>}/> */}
                 {/* <Route path="professors/:id/xml-upload" element={<XmlUpload/>}/> */}

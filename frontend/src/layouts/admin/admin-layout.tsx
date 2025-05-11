@@ -53,16 +53,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/students'}>
-                  <Link to="/admin/students">
-                    <GraduationCap className="h-4 w-4" />
+                <SidebarMenuButton asChild isActive={pathname === '/admin/professors'}>
+                  <Link to="/admin/professors">
+                    <Folders className="h-4 w-4" />
                     <span>Docentes</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/professors'}>
-                  <Link to="/admin/professors">
+                <SidebarMenuButton asChild isActive={pathname === '/admin/students'}>
+                  <Link to="/admin/students">
                     <Folders className="h-4 w-4" />
                     <span>Discentes</span>
                   </Link>
