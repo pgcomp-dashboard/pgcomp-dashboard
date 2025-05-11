@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\Scraping;
 
-use App\Enums\PublisherType;
 use App\Models\Production;
 use App\Models\Publishers;
 use App\Models\StratumQualis;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -51,7 +51,8 @@ class ProductionScrapingCommand extends Command
         $progessBar->start();
         foreach ($membersData as $key => $member) {
             $this->info("Processing member {$key} with " . count($member) . " productions.");
-            $this->extractDataFromMember($member);
+            $this->saveProduction($member);
+            $this->saveUserProduction($key, $this->saveProduction($member));
             $progessBar->advance();
         }
         $progessBar->finish();
@@ -59,13 +60,13 @@ class ProductionScrapingCommand extends Command
     }
 
     /**
-     * Extracts data from a member array.
+     * Extracts data from a member array and saves it to the database.
      * The member is an array containing productions.
      * @param array $member Member is an array containing productions
      *
-     * @return array A formatted array with the productions data to be saved in the model Production
+     * @return array Returns an array of saved productions
      */
-    private function extractDataFromMember(array $member): void
+    private function saveProduction(array $member): array
     {
         $productions = [];
         foreach ($member as $production) {
@@ -83,7 +84,7 @@ class ProductionScrapingCommand extends Command
                 continue;
             }
 
-            Production::updateOrCreate(
+            $productions[] = Production::updateOrCreate(
                 [
                     'doi' => $production['link'],
                 ],
@@ -96,7 +97,26 @@ class ProductionScrapingCommand extends Command
                     'stratum_qualis_id' => StratumQualis::where('code', $production['qualis'])->first()->id ?? null,
                 ]
             );
-
         }
+        return $productions;
+    }
+
+    /**
+     * Saves the production to the user.
+     * @param array $lattesId Lattes ID of the user
+     * @param Production[] $production Production to be saved
+     *
+     * @return void
+     */
+    private function saveUserProduction(string $lattesId, array $production): void
+    {
+        $user = User::whereLike('lattes_url', "%{$lattesId}%")
+            ->first();
+        if (!$user) {
+            $this->error("User not found for {$lattesId}");
+            return;
+        }
+        $user->writerOf()->sync($production);
+
     }
 }
