@@ -8,8 +8,8 @@ import LoginPage from '@/pages/login';
 import AdminLayout from './layouts/admin/admin-layout';
 import AreasPage from './pages/admin/areas';
 import DashboardPage from './pages/dashboard';
-import Professor from './pages/admin/professors';
 import StudentsPage from './pages/admin/students';
+import ProfessorsPage from './pages/admin/professors';
 
 const queryClient = new QueryClient();
 
@@ -27,7 +27,7 @@ function App() {
                 <Route path='areas' element={<AreasPage />} />
                 <Route path='students' element={<StudentsPage />} />
                 {/* <Route path='qualis' element={<Session/>}/> */}
-                {<Route path='professors' element={<Professor/>} /> }
+                {<Route path='professors' element={<ProfessorsPage />} /> }
                 {/* <Route path='professors/:id' element={<PersonInfo/>}/> */}
                 {/* <Route path="professors/:id/productions" element={<UserProductions/>}/> */}
                 {/* <Route path="professors/:id/xml-upload" element={<XmlUpload/>}/> */}
