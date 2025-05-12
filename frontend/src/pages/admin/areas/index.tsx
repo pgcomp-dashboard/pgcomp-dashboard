@@ -252,27 +252,27 @@ export default function AreasPage() {
       <Dialog open={isDeleteAreaOpen} onOpenChange={setIsDeleteAreaOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Academic Area</DialogTitle>
+            <DialogTitle>Apagar área acadêmica</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this academic area? This action cannot be undone.
+              Você tem certeza que quer apagar essa área? A ação não poderá ser desfeita.
             </DialogDescription>
           </DialogHeader>
           {currentArea && (
             <div className="py-4">
               <p>
-                You are about to delete <strong>{currentArea.name}</strong>.
+                Você irá apagar <strong>{currentArea.name}</strong>.
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                This will also delete all associated subareas and may affect student records.
+                Essa ação poderá afetar o registro de múltiplos estudantes.
               </p>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteAreaOpen(false)}>
-              Cancel
+              Cancelar
             </Button>
             <Button variant="destructive" onClick={handleDeleteArea}>
-              Delete
+              Apagar
             </Button>
           </DialogFooter>
         </DialogContent>
