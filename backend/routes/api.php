@@ -40,8 +40,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     //TODO: Dar nomes melhores e mais padrao
-    Route::get('professor/{professorId}/producoes', [DashboardController::class, 'professorProduction']);
-    Route::get('matriculas-por-ano', [DashboardController::class, 'matriculasPorAno']);
+    Route::get('professor/{professorId}/productions', [DashboardController::class, 'professorProduction']);
+    Route::get('enrollments-per-year', [DashboardController::class, 'matriculasPorAno']);
     Route::get('program', [DashboardController::class, 'programName']);
     Route::get('all_production', [DashboardController::class, 'totalProductionsPerYear']);
     Route::get('students_production', [DashboardController::class, 'studentsProductions']);

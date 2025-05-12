@@ -18,4 +18,3 @@ use App\Models\Journal;
 */
 
 Route::get('/test', function () {});
-Route::get('/dashboard/matriculas-por-ano', [App\Http\Controllers\DashboardController::class, 'matriculasPorAno']);
