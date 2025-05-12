@@ -29,11 +29,21 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import AppLogo from '@/components/AppLogo';
+import useAuth from '@/hooks/auth';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const auth = useAuth();
+  const navigate = useNavigate();
   const pathname = '/admin' as string; // TODO: get from react-router
+
+  function handleLogout() {
+    if (!auth.isLoading) {
+      navigate('/');
+      setTimeout(() => auth.logout(), 100);
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -121,10 +131,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/logout" className="flex items-center gap-2"> {/* You might need to define this route */}
-                      <LogOut className="h-4 w-4" />
-                      <span style={{ color: 'red' }}>Logout</span>
-                    </Link>
+                    <Button asChild variant='ghost' onClick={handleLogout}>
+                      <div className='p-0 flex items-center gap-2 text-red-600'>
+                        <LogOut className="h-4 w-4" />
+                        <span>Sair da conta</span>
+                      </div>
+                    </Button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
