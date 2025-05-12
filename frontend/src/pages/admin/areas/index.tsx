@@ -48,13 +48,13 @@ const initialAreas = [
 ] as Area[];
 
 export default function AreasPage() {
-  const [areas, setAreas] = useState(initialAreas);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isAddAreaOpen, setIsAddAreaOpen] = useState(false);
-  const [isEditAreaOpen, setIsEditAreaOpen] = useState(false);
-  const [isDeleteAreaOpen, setIsDeleteAreaOpen] = useState(false);
-  const [currentArea, setCurrentArea] = useState<Area | null>(null);
-  const [newArea, setNewArea] = useState({
+  const [ areas, setAreas ] = useState(initialAreas);
+  const [ searchTerm, setSearchTerm ] = useState('');
+  const [ isAddAreaOpen, setIsAddAreaOpen ] = useState(false);
+  const [ isEditAreaOpen, setIsEditAreaOpen ] = useState(false);
+  const [ isDeleteAreaOpen, setIsDeleteAreaOpen ] = useState(false);
+  const [ currentArea, setCurrentArea ] = useState<Area | null>(null);
+  const [ newArea, setNewArea ] = useState({
     name: '',
     description: '',
     students: 0,
@@ -70,7 +70,7 @@ export default function AreasPage() {
   // Add new area
   const handleAddArea = () => {
     const id = areas.length > 0 ? Math.max(...areas.map((area) => area.id)) + 1 : 1;
-    setAreas([...areas, { id, ...newArea }]);
+    setAreas([ ...areas, { id, ...newArea } ]);
     setNewArea({
       name: '',
       description: '',

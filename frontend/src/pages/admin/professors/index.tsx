@@ -21,15 +21,15 @@ import { MoreVertical, Eye, FileText } from 'lucide-react';
 import { professorMock, Professor } from './professorMock';
 
 export default function ProfessorsPage() {
-  const [professors, setProfessors] = useState<Professor[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [ professors, setProfessors ] = useState<Professor[]>([]);
+  const [ searchTerm, setSearchTerm ] = useState('');
 
   useEffect(() => {
     setProfessors(professorMock);
   }, []);
 
   const filteredProfessors = professors.filter((prof) =>
-    prof.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    prof.nome.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const verProducoes = (id: number) => {
