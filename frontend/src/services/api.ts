@@ -128,11 +128,7 @@ export class ApiService {
 
   async updateQualis(id: number, body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
     const endpoint = `/api/portal/admin/qualis/${id}`;
-    console.log('Enviando PUT para:', endpoint);
-    console.log('Corpo da requisição:', body);
-
     const response = await this.put(endpoint, body, headers);
-    console.log('Resposta da API (raw):', response);
     return response;
   }
 

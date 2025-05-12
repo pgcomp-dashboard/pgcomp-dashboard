@@ -10,7 +10,7 @@ import AreasPage from './pages/admin/areas';
 import DashboardPage from './pages/dashboard';
 import StudentsPage from './pages/admin/students';
 import ProfessorsPage from './pages/admin/professors';
-import QualisPage from './pages/admin/qualis/indes';
+import QualisPage from './pages/admin/qualis/index';
 
 const queryClient = new QueryClient();
 
