@@ -151,7 +151,9 @@ class Production extends BaseModel
         foreach ($years as $year) {
             $data[] = Production::where('year', $year)
                 ->when($publisher_type, function(Builder $builder, $publisherType) {
-                    $builder->where('publisher_type', $publisherType);
+                    $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
+                        $q->where('publisher_type', $publisherType);
+                    });
                 })
                 ->when($user_type, function (Builder $builder, $userType) {
                     $builder->whereHas('isWroteBy', function (Builder $builder) use ($userType) {
@@ -185,7 +187,9 @@ class Production extends BaseModel
             foreach ($years as $year) {
                 $courseData['data'][] = Production::where('year', $year)
                     ->when($publisherType, function(Builder $builder, $publisherType) {
-                        $builder->where('publisher_type', $publisherType);
+                        $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
+                            $q->where('publisher_type', $publisherType);
+                        });
                     })
                     ->whereHas('isWroteBy', function (Builder $builder) use ($course) {
                         $builder->where('course_id', $course->id);

@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
-use App\Models\Conference;
-use App\Models\Journal;
 use App\Models\Production;
 use App\Models\StratumQualis;
 use App\Models\User;
@@ -61,11 +59,7 @@ class DashboardController extends Controller
         // '2016', '2017', '2018', '2019', '2020', '2021', '2022'],
         //  'data': generateValues(anos), TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //}
-        $publisher_type = match ($request->input("publisher_type")){
-            'journal' => Journal::class,
-            'conference' => Conference::class,
-            default => null
-        };
+        $publisher_type = $request->input("publisher_type");
 
         $filter = match ($request->input('user_type')) {
             'docente' => ['professor', null],
@@ -96,11 +90,7 @@ class DashboardController extends Controller
         //      'data': generateValues(NUMBER_OF_ITEMS),TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //  }
         //}
-        $publisherType = match ($request->input('publisher_type')){
-            'journal' => Journal::class,
-            'conference' => Conference::class,
-            default => null
-        };
+        $publisherType = $request->input('publisher_type');
 
         $production = new Production();
         return $production->totalProductionsPerCourse($publisherType);
@@ -145,11 +135,7 @@ class DashboardController extends Controller
 
     public function productionPerQualis(Request $request) {
 
-        $publisher_type = match ($request->input('publisher_type')){
-            'journal' => Journal::class,
-            'conference' => Conference::class,
-            default => null
-        };
+        $publisher_type = $request->input('publisher_type');
 
         $filter = match ($request->input('user_type')) {
             'docente' => ['professor', null],
