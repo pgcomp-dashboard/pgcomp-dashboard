@@ -7,6 +7,7 @@ import {
   LogOut,
   Users,
   User,
+  Settings,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -122,11 +122,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
-                    <Link to="/admin/profile" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    <Link to="/admin/user-config" rel="noopener noreferrer" className="flex items-center gap-2">
                       <User className="h-4 w-4" />
-                      <span>Perfil Administrador</span>
+                      <span>Configurações da conta</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/system-config" rel="noopener noreferrer" className="flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      <span>Configurações do sistema</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

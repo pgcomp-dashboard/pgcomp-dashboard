@@ -11,6 +11,8 @@ import DashboardPage from './pages/dashboard';
 import StudentsPage from './pages/admin/students';
 import ProfessorsPage from './pages/admin/professors';
 import QualisPage from './pages/admin/qualis/index';
+import SystemConfigPage from './pages/admin/system-config';
+import UserConfigPage from './pages/admin/user-config';
 
 const queryClient = new QueryClient();
 
@@ -37,7 +39,8 @@ function App() {
                 {/* <Route path="students/:id/productions" element={<UserProductions/>}/> */}
                 {/* <Route path="students/:id/xml-upload" element={<XmlUpload/>}/> */}
                 <Route path='/admin/qualis' element={<QualisPage />}/>
-
+                <Route path='/admin/system-config' element={<SystemConfigPage />}/>
+                <Route path='/admin/user-config' element={<UserConfigPage />}/>
               </Route>
             </Route>
           </Routes>
