@@ -116,6 +116,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'password',
         'course_id',
         'lattes_url',
+        'is_admin',
     ];
 
     protected $hidden = [
@@ -168,6 +169,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 'required_if:type,' . UserType::STUDENT->value,
             ],
             'lattes_url' => 'nullable|string|max:255',
+            'is_admin' => 'nullable|bool',
         ];
     }
 

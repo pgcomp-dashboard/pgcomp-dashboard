@@ -50,7 +50,7 @@ class CreateAdminUser extends Command
                 'email' => $email,
                 'password' => $hash,
                 'password_confirmation' => $hash,
-                'is_admin' => true,
+                'is_admin' => 1,
             ]);
         } catch (ValidationException $e) {
             $this->error("Failed to validate new user: " . $e->getMessage());
