@@ -9,6 +9,8 @@ use App\Models\Journal;
 use App\Models\Production;
 use App\Models\StratumQualis;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -37,18 +39,78 @@ class DashboardController extends Controller
         });
     }
 
-    public function allProfessors()
-    {
-        $professors = User::where('type', UserType::PROFESSOR)
-            ->select('name')
-            ->get();
+  public function allProfessors()
+{
+    $professors = User::where('type', UserType::PROFESSOR)
+        ->select('id', 'name')  
+        ->get();
     
+    return response()->json([
+        'status' => 'success',
+        'data' => $professors
+    ]);
+}
+
+
+//função produtividade professor
+public function professorProduction(Request $request, $professorId)
+{
+    // Define valores padrões
+    $anoAtual = (int) date('Y');
+    $anoInicial = $validated['anoInicial'] ?? ($anoAtual - 2); // 2 anos atrás padrão
+    $anoFinal = $validated['anoFinal'] ?? $anoAtual; // Ano atual por padrão
+
+    // Verifica se o professor existe
+    $professor = User::where('id', $professorId)
+                    ->where('type', UserType::PROFESSOR)
+                    ->first();
+    
+    if (!$professor) {
         return response()->json([
-            'status' => 'success',
-            'data' => $professors
-        ]);
+            'error' => 'Professor não encontrado'
+        ], 404);
     }
 
+    // Faz a busca das produções do professor por ano
+    $producoes = Production::join('users_productions', 'productions.id', '=', 'users_productions.productions_id')
+        ->where('users_productions.users_id', $professorId)
+        ->whereBetween('productions.year', [$anoInicial, $anoFinal])
+        ->selectRaw('productions.year as ano, COUNT(*) as total')
+        ->groupBy('productions.year')
+        ->orderBy('productions.year')
+        ->get();
+    
+    // [ano => total]
+    $resultado = [];
+    foreach (range($anoInicial, $anoFinal) as $ano) {
+        $producaoAno = $producoes->firstWhere('ano', $ano);
+        $resultado[$ano] = $producaoAno ? $producaoAno->total : 0;
+    }
+    
+    return response()->json([
+        'professor' => $professor->name,
+        'anos' => array_keys($resultado),
+        'producoes' => array_values($resultado)
+    ]);
+}
+
+    //matriculasPorAno
+public function matriculasPorAno()
+{
+    $anoAtual = date('Y');
+    $matriculas = User::where('type', UserType::STUDENT)
+        ->whereRaw('LENGTH(registration) >= 4') 
+        ->selectRaw('CAST(SUBSTRING(registration, 1, 4) AS UNSIGNED) as ano, COUNT(*) as total')
+        ->groupBy('ano')
+        ->havingRaw('ano >= 2000 AND ano <= ?', [$anoAtual])
+        ->orderBy('ano', 'desc')
+        ->pluck('total', 'ano');  
+
+    return response()->json([
+        'Ano' => array_keys($matriculas->toArray()),
+        'QntdAlunos' => array_values($matriculas->toArray())
+    ]);
+}
     public function programName()
     {
         // TODO: Retornar o JSON com o nome do programa
