@@ -1,13 +1,27 @@
 import type React from 'react';
 import {
+  BarChart3,
   BookOpen,
+  ChevronRight,
   Folders,
   GraduationCap,
+  Home,
+  LayoutDashboard,
   LogOut,
+  Settings,
   Users,
+  User,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
@@ -91,12 +105,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Button variant="outline" size="sm" asChild>
                 <Link to="/">Ver dashboard pública</Link>
               </Button> {/* TODO */}
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                  A
-                </div>
-                <span className="text-sm font-medium">Usuário administrador</span> {/* TODO */}
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                      A
+                    </div>
+                    <span className="text-sm font-medium hidden md:inline">Usuário Administrador</span>
+                    <ChevronRight className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/profile" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span>Perfil Administrador</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/logout" className="flex items-center gap-2"> {/* You might need to define this route */}
+                      <LogOut className="h-4 w-4" />
+                      <span style={{ color: 'red' }}>Logout</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
           <main className="flex-1 p-6 overflow-auto">{children}</main>
@@ -105,3 +140,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </SidebarProvider>
   );
 }
+
