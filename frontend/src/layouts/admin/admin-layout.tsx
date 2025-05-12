@@ -1,14 +1,10 @@
 import type React from 'react';
 import {
-  BarChart3,
   BookOpen,
   ChevronRight,
   Folders,
   GraduationCap,
-  Home,
-  LayoutDashboard,
   LogOut,
-  Settings,
   Users,
   User,
 } from 'lucide-react';
@@ -140,4 +136,3 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </SidebarProvider>
   );
 }
-
