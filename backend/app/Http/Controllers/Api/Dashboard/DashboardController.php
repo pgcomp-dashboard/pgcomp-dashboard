@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
-use App\Models\Conference;
-use App\Models\Journal;
+use App\Models\Publishers;
 use App\Models\Production;
 use App\Models\StratumQualis;
 use App\Models\User;
@@ -62,8 +61,8 @@ class DashboardController extends Controller
         //  'data': generateValues(anos), TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //}
         $publisher_type = match ($request->input("publisher_type")){
-            'journal' => Journal::class,
-            'conference' => Conference::class,
+            'journal' => 'journal',
+            'conference' => 'conference',
             default => null
         };
 
