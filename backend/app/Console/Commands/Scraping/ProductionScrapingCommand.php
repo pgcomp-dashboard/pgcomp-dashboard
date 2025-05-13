@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands\Scraping;
 
+use App\Models\User;
 use App\Models\Production;
 use App\Models\Publishers;
+use Illuminate\Support\Str;
 use App\Models\StratumQualis;
-use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -75,12 +76,12 @@ class ProductionScrapingCommand extends Command
                 continue;
             }
 
-            $publisher = Publishers::where('name', 'like', $production['revista'])
-                ->orWhereLike('issn', $production['issn'])
+            $publisher = Publishers::whereLike('name', $production['revista'])
+                ->orWhereLike('issn', Str::numbers($production['issn']))
                 ->first();
 
             if (!$publisher) {
-                // $this->error("Publisher not found for {$production['titulo']}");
+                $this->error("Publisher not found for {$production['titulo']}");
                 continue;
             }
 
