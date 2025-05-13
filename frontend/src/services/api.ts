@@ -106,7 +106,7 @@ export class ApiService {
     return response.data.map((item) => ({
       id: item.id,
       name: item.area,
-      students: 0, // Não vem da API — placeholder
+      students: 0, // Precisa mexer no AreaController para receber a quantidade de estudantes por área.
     }));
   }
 
