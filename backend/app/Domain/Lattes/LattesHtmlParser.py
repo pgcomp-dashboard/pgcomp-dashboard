@@ -38,28 +38,35 @@ def parse_li_tag(li_tag):
         "issn": issn.group(1) if issn else None,
         "ano": year.group(1) if year else None,
         "link": link,
-        "qualis": qualis
+        "qualis": qualis,
+        "texto_completo": full_text
     }
 
 def process_html_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         soup = BeautifulSoup(f, 'html.parser')
 
-    start_h3 = soup.find_all('h3', string="Produção bibliográfica")
-    if not start_h3 or len(start_h3) < 2:
-        print(f'[✘] "Produção bibliográfica" não encontrado corretamente em {file_path.name}')
-        return []
+    start_h3_list = soup.find_all('h3', string="Produção bibliográfica")
+    if not start_h3_list or len(start_h3_list) < 2:
+        print(f'[✘] "Produção bibliográfica" não encontrada corretamente em {file_path.name}')
+        return {}
 
-    ul = start_h3[1].find_next_sibling()
-    producoes = []
+    start_h3 = start_h3_list[1]
+    ul = start_h3.find_next_sibling()
+
+    producoes_por_categoria = {}
+
     if ul and ul.name == 'ul':
         for li in ul.find_all('li', recursive=False):
+            categoria = li.get_text(strip=True).split('\n')[0]
             ol = li.find('ol')
+            lista_itens = []
             if ol:
                 for sub_li in ol.find_all('li'):
-                    producoes.append(parse_li_tag(sub_li))
-            break
-    return producoes
+                    lista_itens.append(parse_li_tag(sub_li))
+            producoes_por_categoria[categoria] = lista_itens
+
+    return producoes_por_categoria
 
 # Diretórios
 html_folder = Path("storage/app/Lattes/html")
