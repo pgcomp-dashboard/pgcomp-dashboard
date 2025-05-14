@@ -38,8 +38,7 @@ def parse_li_tag(li_tag):
         "issn": issn.group(1) if issn else None,
         "ano": year.group(1) if year else None,
         "link": link,
-        "qualis": qualis,
-        "texto_completo": full_text
+        "qualis": qualis
     }
 
 def process_html_file(file_path):
@@ -54,19 +53,16 @@ def process_html_file(file_path):
     start_h3 = start_h3_list[1]
     ul = start_h3.find_next_sibling()
 
-    producoes_por_categoria = {}
+    producoes = []
 
     if ul and ul.name == 'ul':
         for li in ul.find_all('li', recursive=False):
-            categoria = li.get_text(strip=True).split('\n')[0]
             ol = li.find('ol')
-            lista_itens = []
             if ol:
                 for sub_li in ol.find_all('li'):
-                    lista_itens.append(parse_li_tag(sub_li))
-            producoes_por_categoria[categoria] = lista_itens
+                    producoes.append(parse_li_tag(sub_li))
 
-    return producoes_por_categoria
+    return producoes
 
 # Diretórios
 html_folder = Path("storage/app/Lattes/html")
