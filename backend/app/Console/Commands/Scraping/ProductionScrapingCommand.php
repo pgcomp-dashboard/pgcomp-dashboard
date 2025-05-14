@@ -52,8 +52,8 @@ class ProductionScrapingCommand extends Command
         $progessBar->start();
         foreach ($membersData as $key => $member) {
             $this->info("Processing member {$key} with " . count($member) . " productions.");
-            $this->saveProduction($member);
-            $this->saveUserProduction($key, $this->saveProduction($member));
+            $productions = $this->saveProductionsOfMember($member);
+            $this->addRelationUserProduction($key, $productions);
             $progessBar->advance();
         }
         $progessBar->finish();
@@ -64,11 +64,11 @@ class ProductionScrapingCommand extends Command
      * Extracts data from a member array and saves it to the database.
      * The member is an array containing productions.
      * @param array $member Member is an array containing productions
-     *
      * @return array Returns an array of saved productions
      */
-    private function saveProduction(array $member): array
+    private function saveProductionsOfMember(array $member): array
     {
+        $publishersNotFound = [];
         $productions = [];
         foreach ($member as $production) {
             if (!$production['ano']) {
@@ -81,8 +81,7 @@ class ProductionScrapingCommand extends Command
                 ->first();
 
             if (!$publisher) {
-                $this->error("Publisher not found for {$production['titulo']}");
-                continue;
+                $publishersNotFound[] = $production['revista'];
             }
 
             $productions[] = Production::updateOrCreate(
@@ -99,6 +98,7 @@ class ProductionScrapingCommand extends Command
                 ]
             );
         }
+        $this->warn('Publishers not found: ' . count($publishersNotFound));
         return $productions;
     }
 
@@ -109,7 +109,7 @@ class ProductionScrapingCommand extends Command
      *
      * @return void
      */
-    private function saveUserProduction(string $lattesId, array $production): void
+    private function addRelationUserProduction(string $lattesId, array $production): void
     {
         $user = User::whereLike('lattes_url', "%{$lattesId}%")
             ->first();
