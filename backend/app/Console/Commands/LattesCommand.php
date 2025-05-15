@@ -36,13 +36,13 @@ class LattesCommand extends Command
 
     private function getUser(array $data): ?User
     {
-        $user = User::where('lattes_id', $data['lattes_id'])->first();
+        $user = User::where('lattes_id', $data['lattes_id'])->where('is_protected', false)->first();
         if ($user) {
 //            $this->info("Achei {$user->name} pelo lattes_id");
             return $user;
         }
 
-        $user = User::where('lattes_url', 'like', "%{$data['lattes_id']}%")->first();
+        $user = User::where('lattes_url', 'like', "%{$data['lattes_id']}%")->where('is_protected', false)->first();
         if ($user) {
 //            $this->info("Achei {$user->name} pelo lattes_url");
             $user->lattes_id = $data['lattes_id'];
@@ -51,7 +51,7 @@ class LattesCommand extends Command
             return $user;
         }
 
-        $user = User::where('name', 'like', "%{$data['name']}%")->first();
+        $user = User::where('name', 'like', "%{$data['name']}%")->where('is_protected', false)->first();
         if ($user) {
 //            $this->info("Achei {$user->name} pelo nome");
             $user->lattes_id = $data['lattes_id'];

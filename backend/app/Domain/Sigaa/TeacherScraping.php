@@ -179,12 +179,13 @@ class TeacherScraping extends BaseScraping
                     $query->where('name', 'like', "%$name%");
                 }
             })
+            ->where('is_protected', false)
             ->first();
         if (empty($user)) {
             return [
                 "name" => $professorName,
                 "area_id" => null,
-                "obs" => 'Nome não encontrado no banco de dados',
+                "obs" => 'Nome não encontrado no banco de dados ou protegido',
             ];
         }
         $user->area_id = Area::where('area', $areaName)->first()->id;
