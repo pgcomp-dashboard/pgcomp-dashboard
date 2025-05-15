@@ -8,25 +8,24 @@ import {
   TooltipProps,
   ResponsiveContainer,
 } from 'recharts';
-import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import './chart.css';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { ChartContainer } from '../ui/chart';
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>)  => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white p-3 border border-2 rounded">
         <b>{label}</b>
         <br />
         {payload.map((ele, index) => (
-          <>
-            <text className="tooltip-text" key={index}>
-              Defesas em {label} : {ele.value}
-            </text>
-            <br />
-          </>
+          <div key={index}>
+            <span className="tooltip-text">
+              {ele.name} : {ele.value}
+            </span>
+          </div>
         ))}
       </div>
     );
@@ -37,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' | 'todas' }) {
   const { data, isLoading, error } = useQuery({
     queryKey: [ 'defenses_per_year', filter ],
-    queryFn: () => api.defensesPerYear(filter === 'todas' ? undefined : filter),
+    queryFn: () => api.defensesPerYear(filter),
   });
 
   if (isLoading) return <>Carregando...</>;
@@ -63,21 +62,38 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
       [filter]: amount as number,
     }));
   }
-  console.log(chartData);
 
   return (
-    <div style={{ width: '100%', height: 400 }}>
-      <ResponsiveContainer>
-        <BarChart data={chartData}>
+    <div className="w-full h-[400px]">
+      <ChartContainer
+        config={{
+          year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
+          mestrado: { label: 'Mestrado', color: '#8884d8' },
+          doutorado: { label: 'Doutorado', color: '#82ca9d' },
+        }}
+        className="w-full h-[400px]"
+      >
+        <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" />
+          <XAxis
+            dataKey="year"
+            interval={0}
+            angle={-45}
+            textAnchor="end"
+            tickFormatter={(name) => name.length > 15 ? name.slice(0, 15) + '...' : name}
+          />
           <YAxis />
-          <Tooltip />
-          <Bar dataKey="mestrado" fill="#8884d8" />
-          <Bar dataKey="doutorado" fill="#82ca9d" />
+          <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
+          {(!filter || filter === 'todas') ? (
+            <>
+              <Bar dataKey="mestrado" fill="#8884d8" />
+              <Bar dataKey="doutorado" fill="#82ca9d" />
+            </>
+          ) : (
+            <Bar dataKey={filter} fill={filter === 'mestrado' ? '#8884d8' : '#82ca9d'} />
+          )}
         </BarChart>
-      </ResponsiveContainer>
+      </ChartContainer>
     </div>
   );
-  
 }
