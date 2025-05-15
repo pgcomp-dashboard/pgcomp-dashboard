@@ -138,7 +138,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     protected $attributes = [
         'is_admin' => false,
-        'is_protected' => false
+        'is_protected' => true
     ];
 
     /**
@@ -218,7 +218,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         }
         $data['password'] = $password;
         $data['password_confirmation'] = $password;
-
+        $data['is_protected'] = false;
         return User::updateOrCreate(
             Arr::only($data, ['siape']),
             $data
@@ -654,6 +654,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             if ($userIsProtected) {
                 throw new IsProtectedException('Ação não permitida em usuarios protegidos');
             }
+        $data['is_protected'] = false;
         return User::updateOrCreate(
             Arr::only($data, ['registration']),
             $data
