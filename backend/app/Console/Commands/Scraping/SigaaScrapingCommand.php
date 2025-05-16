@@ -7,6 +7,7 @@ use App\Domain\Sigaa\StudentScraping;
 use App\Domain\Sigaa\TeacherScraping;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
+use App\Exceptions\IsProtectedException;
 use App\Models\User;
 use Exception;
 use Illuminate\Console\Command;
@@ -58,8 +59,6 @@ class SigaaScrapingCommand extends Command
                 'ID Area',
                 'Observação'
             ], $teachersWithArea);
-
-
         } catch (Exception $e) {
             $this->error($e->getMessage());
         }
@@ -89,8 +88,12 @@ class SigaaScrapingCommand extends Command
     {
         foreach ($teachers as $teacher) {
             try {
-                $user = User::createOrUpdateTeacher($teacher);
+                $user = User::createOrUpdateTeacherByScraping($teacher);
                 $this->info("Docente {$user->name} cadastrado/atualizado com sucesso");
+            } catch (IsProtectedException $exception) {
+                $msg = "Erro ao cadastrar/atualizar docente {$teacher['name']}: {$exception->getMessage()}";
+                $this->error($msg);
+                Log::error($msg, $teacher);
             } catch (ValidationException $exception) {
                 $msg = "Erro ao cadastrar/atualizar docente {$teacher['name']}: {$exception->getMessage()}";
                 $this->error($msg);
@@ -104,7 +107,7 @@ class SigaaScrapingCommand extends Command
         foreach ($students as $student) {
             try {
                 $user = DB::transaction(function () use ($student) {
-                    $user = User::createOrUpdateStudent($student);
+                    $user = User::createOrUpdateStudentByScraping($student);
                     $allTeachers = $this->getAdvisorIds($student['teachers']);
 
                     $advisors = Arr::where($allTeachers, function ($i) {
@@ -126,6 +129,10 @@ class SigaaScrapingCommand extends Command
                 });
 
                 $this->info("Discente {$user->name} cadastrado/atualizado com sucesso");
+            } catch (IsProtectedException $exception) {
+                $msg = "Erro ao cadastrar/atualizar docente {$student['name']}: {$exception->getMessage()}";
+                $this->error($msg);
+                Log::error($msg, $student);
             } catch (ValidationException $exception) {
                 $msg = "Erro ao cadastrar/atualizar discente {$student['name']}: {$exception->getMessage()}";
                 $this->error($msg);
@@ -146,7 +153,7 @@ class SigaaScrapingCommand extends Command
                 $this->warn(
                     "Docente {$teacher['name']} ({$teacher['relation_type']} - {$teacher['siape']}) não encontrado!"
                 );
-                $teacherModel = User::createOrUpdateTeacher($teacher);
+                $teacherModel = User::createOrUpdateTeacherByScraping($teacher);
             }
             $advisorIds[$teacherModel->id] = ['relation_type' => $teacher['relation_type']];
         }
@@ -183,11 +190,11 @@ class SigaaScrapingCommand extends Command
 
                 $areaId = User::where('type', UserType::PROFESSOR->value)
                     ->where('id', $teacher?->id)
-                    ->whereNotNull(['id','area_id'])
+                    ->whereNotNull(['id', 'area_id'])
                     ->first(['area_id'])?->area_id;
 
-                $user = User::createOrUpdateStudent([
-                    'registration' => $registration -1,
+                $user = User::createOrUpdateStudentByScraping([
+                    'registration' => $registration - 1,
                     'name' => $item['student'],
                     'course_id' => $item['course_id'],
                     'area_id' => $areaId,
@@ -198,5 +205,4 @@ class SigaaScrapingCommand extends Command
             }
         }
     }
-
 }

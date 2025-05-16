@@ -1,15 +1,21 @@
 // TODO: what is the format of error responses from the API?
 export interface ApiError {
-  code: number,
+  code: number;
   errors: {
-    description: string
-  }[]
+    description: string;
+  }[];
 }
 
 interface Advisor {
   id: number;
   name: string;
   advisedes_count: number;
+}
+
+export interface Area {
+  id: number;
+  name: string;
+  students: number;
 }
 
 export type RequestBodyType = BodyInit | null | undefined;
@@ -67,7 +73,7 @@ export class ApiService {
         const json = await response.json();
         error.errors = json.errors;
       } catch (e) {
-        console.error('Api returned invalid json data:', e);
+        console.error('API returned invalid JSON data:', e);
       }
       throw error;
     }
@@ -91,7 +97,50 @@ export class ApiService {
     return this.request(endpoint, 'DELETE', undefined, headers);
   }
 
-  async totalStudentsPerAdvisor(filter?: 'mestrando' | 'doutorando'  | 'completed'): Promise<{ [key: string]: Advisor }> {
+  // --------------------------
+  //        CRUD - Áreas
+  // --------------------------
+
+  async fetchAreas(): Promise<Area[]> {
+    const response = await this.get('/api/areas') as { data: any[] };
+    return response.data.map((item) => ({
+      id: item.id,
+      name: item.area,
+      students: 0, // Precisa mexer no AreaController para receber a quantidade de estudantes por área.
+    }));
+  }
+
+  async createArea(area: { name: string; students: number }): Promise<Area> {
+    const response = await this.post('/api/areas', JSON.stringify({
+      area: area.name,
+    })) as any;
+    return {
+      id: response.id,
+      name: response.area,
+      students: 0,
+    };
+  }
+
+  async updateArea(area: { id: number; name: string; students: number }): Promise<Area> {
+    const response = await this.put(`/api/areas/${area.id}`, JSON.stringify({
+      area: area.name,
+    })) as any;
+    return {
+      id: response.id,
+      name: response.area,
+      students: 0,
+    };
+  }
+
+  async deleteArea(id: number): Promise<{ message: string }> {
+    return await this.delete(`/api/areas/${id}`) as { message: string };
+  }
+
+  // --------------------------
+  //        Dashboard
+  // --------------------------
+
+  async totalStudentsPerAdvisor(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: Advisor }> {
     return await this.get(filter ? `/api/dashboard/total_students_per_advisor?user_type=${filter}` : '/api/dashboard/total_students_per_advisor') as { [key: string]: Advisor };
   }
 
@@ -115,11 +164,33 @@ export class ApiService {
     return await this.get(filter ? `/api/dashboard/defenses_per_year?filter=${filter}` : '/api/dashboard/defenses_per_year') as { [key: string]: number };
   }
 
+  // --------------------------
+  //           Auth
+  // --------------------------
+
   async login(email: string, password: string): Promise<{ token: string }> {
     return await this.post('/api/login', JSON.stringify({ email, password })) as {
       token: string
     };
   }
+
+  async getAllQualis(): Promise<Array<{ id: number; code: string; score: number; created_at: string; updated_at: string }>> {
+    const response = await this.get('/api/portal/admin/qualis') as { data: Array<{ id: number; code: string; score: number; created_at: string; updated_at: string }> };
+    return response.data;
+  }
+
+  async updateQualis(id: number, body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
+    const endpoint = `/api/portal/admin/qualis/${id}`;
+    const response = await this.put(endpoint, body, headers);
+    return response;
+  }
+
+
+
+
+
+
+
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');

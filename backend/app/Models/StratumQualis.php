@@ -91,7 +91,9 @@ class StratumQualis extends BaseModel
                 $qualisData['data'][] = Production::whereStratumQualisId($qualis->id)
                     ->where('year', $year)
                     ->when($publisher_type, function(Builder $builder, $publisherType) {
-                        $builder->where('publisher_type', $publisherType);
+                        $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
+                            $q->where('publisher_type', $publisherType);
+                        });
                     })
                     ->when($user_type, function (Builder $builder, $userType) {
                         $builder->whereHas('isWroteBy', function (Builder $builder) use ($userType) {

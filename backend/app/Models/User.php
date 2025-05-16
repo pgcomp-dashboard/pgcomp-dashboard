@@ -4,8 +4,8 @@ namespace App\Models;
 
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
+use App\Exceptions\IsProtectedException;
 use Database\Factories\UserFactory;
-use DateTimeInterface;
 use Eloquent;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail;
@@ -19,8 +19,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Query\Expression;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
@@ -29,12 +27,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Laravel\Fortify\Rules\Password;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Validation\ValidationException;
 
 /**
  * App\Models\User
@@ -116,6 +116,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'password',
         'course_id',
         'lattes_url',
+        'is_admin',
+        'is_protected',
     ];
 
     protected $hidden = [
@@ -136,10 +138,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     protected $attributes = [
         'is_admin' => false,
+        'is_protected' => true
     ];
 
-     /**
-      * @return array creation rules to validate attributes.
+    /**
+     * @return array creation rules to validate attributes.
      */
     public static function creationRules(): array
     {
@@ -168,6 +171,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 'required_if:type,' . UserType::STUDENT->value,
             ],
             'lattes_url' => 'nullable|string|max:255',
+            'is_admin' => 'nullable|bool',
+            'is_protected' => 'nullable|bool',
         ];
     }
 
@@ -197,14 +202,23 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
      * @param array array with user data
      * @return User instance of user model
      */
-    public static function createOrUpdateTeacher(array $data): User
+    public static function createOrUpdateTeacherByScraping(array $data): User
     {
         $data['type'] = UserType::PROFESSOR->value;
         $password = Hash::make(Str::random(12));
         // TODO: Will this override the password? Reuse?
+        $userIsProtected = isset($data['siape']) ?
+            User::where('siape', $data['siape'])
+            ->where('is_protected', true)
+            ->exists()
+            : null;
+
+        if ($userIsProtected) {
+            throw new IsProtectedException('Ação não permitida em usuarios protegidos');
+        }
         $data['password'] = $password;
         $data['password_confirmation'] = $password;
-
+        $data['is_protected'] = false;
         return User::updateOrCreate(
             Arr::only($data, ['siape']),
             $data
@@ -294,7 +308,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     {
         return $this->belongsToMany(User::class, 'user_user', 'professor_user_id', 'student_user_id')
             ->wherePivot('relation_type', UserRelationType::ADVISOR);
-
     }
 
     public function coadvisors(): BelongsToMany
@@ -593,12 +606,13 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public function programs(): BelongsToMany
     {
-            die("NOT IMPLEMENTED");
+        die("NOT IMPLEMENTED");
     }
 
-    public function findUserSubareas($id){
+    public function findUserSubareas($id)
+    {
         $user = User::findOrFail($id);
-        $user['subareas'] = User::where('users.id', '=' , $id)
+        $user['subareas'] = User::where('users.id', '=', $id)
             ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
             ->join('subareas', 'subareas.id', '=', 'users_subareas.subareas_id')
             ->get(['users_subareas.subareas_id', 'subareas.subarea_name']);
@@ -622,5 +636,28 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return static::query()
             ->join('courses', 'courses.id', '=', 'users.course_id')
             ->where('courses.name', 'Doutorado');
+    }
+
+    public static function createOrUpdateStudentByScraping(array $data): User
+    {
+        $data['type'] = UserType::STUDENT->value;
+        $password = Hash::make(Str::random(12));
+        // TODO: Will this override the password????
+        $data['password'] = $password;
+        $data['password_confirmation'] = $password;
+        $userIsProtected = isset($data['registration']) ?
+            User::where('registration', $data['registration'])
+            ->where('is_protected', true)
+            ->first()
+            : null;
+
+            if ($userIsProtected) {
+                throw new IsProtectedException('Ação não permitida em usuarios protegidos');
+            }
+        $data['is_protected'] = false;
+        return User::updateOrCreate(
+            Arr::only($data, ['registration']),
+            $data
+        );
     }
 }
