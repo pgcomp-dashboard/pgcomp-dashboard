@@ -173,6 +173,24 @@ export class ApiService {
       token: string
     };
   }
+
+  async getAllQualis(): Promise<Array<{ id: number; code: string; score: number; created_at: string; updated_at: string }>> {
+    const response = await this.get('/api/portal/admin/qualis') as { data: Array<{ id: number; code: string; score: number; created_at: string; updated_at: string }> };
+    return response.data;
+  }
+
+  async updateQualis(id: number, body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
+    const endpoint = `/api/portal/admin/qualis/${id}`;
+    const response = await this.put(endpoint, body, headers);
+    return response;
+  }
+
+
+
+
+
+
+
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');

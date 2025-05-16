@@ -275,10 +275,10 @@ export default function AreasPage() {
           {currentArea && (
             <div className="py-4">
               <p>
-                Você está prestes a deletar <strong>{currentArea.name}</strong>.
+                Você irá apagar <strong>{currentArea.name}</strong>.
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                Essa ação pode afetar informações dos estudantes.
+                Essa ação poderá afetar o registro de múltiplos estudantes.
               </p>
             </div>
           )}
@@ -287,7 +287,7 @@ export default function AreasPage() {
               Cancelar
             </Button>
             <Button variant="destructive" onClick={handleDeleteArea}>
-              Deletar
+              Apagar
             </Button>
           </DialogFooter>
         </DialogContent>
