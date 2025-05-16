@@ -7,7 +7,7 @@ import { colorFromName } from '@/utils/color';
 import './chart.css';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>)  => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white p-3 border border-2 rounded">
@@ -76,10 +76,11 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrand
             tickFormatter={(name) =>
               name.length > 15 ? name.slice(0, 15) + '...' : name
             }
+            style={{ fontSize: 14 }}
           />
-          <YAxis />
+          <YAxis style={{ fontSize: 18 }} />
           <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-          <Bar dataKey="quantity" fill="#8884d8" label={{ position: 'top' }}>
+          <Bar dataKey="quantity" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}> {/* Aumentando o tamanho da fonte do label da barra */}
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
             ))}
@@ -89,3 +90,5 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrand
     </div>
   );
 }
+
+ 
