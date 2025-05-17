@@ -34,8 +34,4 @@ class UserController extends BaseApiResourceController
         return (new \App\Models\User)->findUserSubareas($id);
     }
 
-    protected function saveSubareas($user, $subareas){
-            die("NOT IMPLEMENTED");
-    }
-
 }

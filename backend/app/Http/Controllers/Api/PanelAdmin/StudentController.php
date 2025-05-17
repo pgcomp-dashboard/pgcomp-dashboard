@@ -43,8 +43,4 @@ class StudentController extends BaseApiResourceController
         return User::class;
     }
 
-    protected function saveSubareas($user, $subareas){
-        foreach($subareas as $subarea)
-        $user->subareas()->sync($subarea);
-    }
 }

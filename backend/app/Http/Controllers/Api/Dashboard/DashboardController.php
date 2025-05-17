@@ -147,16 +147,6 @@ class DashboardController extends Controller
         $qualis = new StratumQualis();
         return $qualis->totalProductionsPerQualis(user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
     }
-    public function studentCountPerSubArea(Request $request): array
-    {
-        $data = $request->validate([
-            'selectedFilter' => 'nullable|string|in:mestrando,doutorando,completed',
-        ]);
-
-        $filter = $data['selectedFilter'] ?? null;
-
-        return User::userCountPerSubArea($filter);
-    }
 
     public function studentCountPerArea(Request $request): array
     {
