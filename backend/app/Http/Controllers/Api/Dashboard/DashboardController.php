@@ -95,10 +95,25 @@ class DashboardController extends Controller
         //      'data': generateValues(NUMBER_OF_ITEMS),TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //  }
         //}
-        $publisherType = $request->input('publisher_type');
+        $publisher_type = match ($request->input("publisher_type")){
+            'journal' => 'journal',
+            'conference' => 'conference',
+            default => null
+        };
+
+        $filter = match ($request->input('user_type')) {
+            'docente' => ['professor', null],
+            'mestrando' => ['student', '1'],
+            'doutorando' => ['student', '2'],
+            default => [null, null]
+        };
 
         $production = new Production();
-        return $production->totalProductionsPerCourse($publisherType);
+        return $production->totalProductionsPerYear(
+            user_type: $filter[0],
+            course_id: $filter[1],
+            publisher_type: $publisher_type
+        );
     }
 
     //public function productionPerQualis()

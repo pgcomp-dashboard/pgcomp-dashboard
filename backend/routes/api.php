@@ -3,9 +3,7 @@
 use App\Http\Controllers\Api\Dashboard\DashboardController;
 use App\Http\Controllers\Api\PanelAdmin\AreaController;
 use App\Http\Controllers\Api\PanelAdmin\AuthController;
-use App\Http\Controllers\Api\PanelAdmin\ConferenceController;
 use App\Http\Controllers\Api\PanelAdmin\CourseController;
-use App\Http\Controllers\Api\PanelAdmin\JournalController;
 use App\Http\Controllers\Api\PanelAdmin\ProductionController as ProductionAdminController;
 use App\Http\Controllers\Api\PanelAdmin\ProfessorProductionController;
 use App\Http\Controllers\Api\PanelAdmin\StudentProductionController;
@@ -17,6 +15,7 @@ use App\Http\Controllers\Api\PanelAdmin\SubareaController;
 use App\Http\Controllers\Api\PanelAdmin\UserController as UserAdminController;
 use App\Http\Controllers\Api\PanelAdmin\UserProgramController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PanelAdmin\PublisherController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,9 +39,9 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     //TODO: Dar nomes melhores e mais padrao
     Route::get('program', [DashboardController::class, 'programName']);
     Route::get('all_production', [DashboardController::class, 'totalProductionsPerYear']);
-    Route::get('students_production', [DashboardController::class, 'studentsProductions']);
+    Route::get('students_production', [DashboardController::class, 'studentsProductions']); // Not working
     Route::get('production_per_qualis', [DashboardController::class, 'productionPerQualis']);
-    Route::get('subfields', [DashboardController::class, 'studentCountPerSubArea']);
+    Route::get('subfields', [DashboardController::class, 'studentCountPerSubArea']); // Not working
     Route::get('fields', [DashboardController::class, 'studentCountPerArea']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
     Route::get('defenses_per_year', [DashboardController::class, 'defensesPerYear']);
@@ -52,25 +51,25 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
-        Route::apiResource('journals', JournalController::class)->except(['destroy']);
-        Route::apiResource('conferences', ConferenceController::class)->except(['destroy']);
+        Route::apiResource('journals', PublisherController::class, ['as' => 'journals']);
+        Route::apiResource('conferences', PublisherController::class, ['as' => 'conferences']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
         Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
-        Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']);
+        Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']); // Not working
         Route::apiResource('qualis', StratumQualisController::class);
-        Route::apiResource('subareas', SubareaController::class);
+        Route::apiResource('subareas', SubareaController::class); // Not working
         Route::apiResource('users', UserAdminController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
         Route::apiResource('students', StudentAdminController::class)->except(['destroy']);
         Route::apiResource('students.productions', StudentProductionController::class)
-            ->except(['destroy']);
+            ->except(['destroy']); // Not working
         Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
         Route::apiResource('professors.productions', ProfessorProductionController::class)
             ->except(['destroy']);
 
-        Route::apiResource('user_program', UserProgramController::class)->except(['destroy']);
+        Route::apiResource('user_program', UserProgramController::class)->except(['destroy']); // Not working
 
-        Route::get('all_subareas_per_area', [AreaController::class, 'subareaPerArea']);
+        Route::get('all_subareas_per_area', [AreaController::class, 'subareaPerArea']); // Not working
     });
 });
 
