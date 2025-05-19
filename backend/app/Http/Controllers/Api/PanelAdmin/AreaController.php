@@ -20,6 +20,24 @@ class AreaController extends BaseApiResourceController
         return Area::class;
     }
 
+    public function index(Request $request)
+    {
+        $areas = Area::with(['users' => function ($query) {
+            $query->where('type', 'student')
+                  ->select('id', 'name', 'email', 'area_id');
+        }])->get();
+
+        if ($areas->isEmpty()) {
+            throw new NotFoundHttpException('Nenhuma área encontrada');
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Áreas encontradas com sucesso',
+            'data' => $areas
+        ], 200);
+    }
+
     public function show(int $id)
     {
         $area = Area::find($id);
