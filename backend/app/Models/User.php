@@ -348,9 +348,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasMasterFilter(): array
     {
         $data = DB::table('users')
-            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
-            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
-            ->join('areas', 'areas.id', '=', 'subareas.area_id')
+            ->join('areas', 'areas.id', '=', 'users.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.course_id', '=', 1)
@@ -371,9 +369,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasDoctorFilter(): array
     {
         $data = DB::table('users')
-            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
-            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
-            ->join('areas', 'areas.id', '=', 'subareas.area_id')
+            ->join('areas', 'areas.id', '=', 'users.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.course_id', '=', 2)
@@ -395,9 +391,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasActiveFilter(): array
     {
         $data = DB::table('users')
-            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
-            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
-            ->join('areas', 'areas.id', '=', 'subareas.area_id')
+            ->join('areas', 'areas.id', '=', 'users.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '=', null)
@@ -419,9 +413,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasNotActiveFilter(): array
     {
         $data = DB::table('users')
-            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
-            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
-            ->join('areas', 'areas.id', '=', 'subareas.area_id')
+            ->join('areas', 'areas.id', '=', 'users.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '!=', null)
@@ -442,9 +434,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function areasCompletedFilter(): array
     {
         $data = DB::table('users')
-            ->join('users_subareas', 'users_subareas.users_id', '=', 'users.id')
-            ->join('subareas', 'users_subareas.subareas_id', '=', 'subareas.id')
-            ->join('areas', 'areas.id', '=', 'subareas.area_id')
+            ->join('areas', 'areas.id', '=', 'users.area_id')
             ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
             ->where('users.type', '=', UserType::STUDENT)
             ->where('users.defended_at', '!=', null)
