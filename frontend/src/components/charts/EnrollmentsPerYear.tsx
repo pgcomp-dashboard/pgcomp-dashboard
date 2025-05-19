@@ -9,8 +9,8 @@ import {
   TooltipProps,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
-// import { useQuery } from '@tanstack/react-query';
-// import api from '@/services/api';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/services/api';
 import { colorFromName } from '@/utils/color';
 import './chart.css';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
@@ -35,34 +35,19 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
   return null;
 };
 
-const chartData = [
-  { year: '2014', amount: 45 },
-  { year: '2015', amount: 50 },
-  { year: '2016', amount: 55 },
-  { year: '2017', amount: 60 },
-  { year: '2018', amount: 65 },
-  { year: '2019', amount: 70 },
-  { year: '2020', amount: 75 },
-  { year: '2021', amount: 80 },
-  { year: '2022', amount: 85 },
-  { year: '2023', amount: 90 },
-  { year: '2024', amount: 95 },
-  { year: '2025', amount: 100 },
-];
-
 export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' }) {
-//  const { data, isLoading, error } = useQuery({
-//    queryKey: [ 'defenses_per_year', filter ],
-//    queryFn: () => api.defensesPerYear(filter),
-//  });
+  const { data, isLoading, error } = useQuery({
+    queryKey: [ 'enrollmentsPerYear', filter ],
+    queryFn: () => api.enrollmentsPerYear(filter),
+  });
 
-  //  if (isLoading) return <>Carregando...</>;
-  //  if (error) return <>Erro ao carregar o gráfico</>;
+  if (isLoading) return <>Carregando...</>;
+  if (error) return <>Erro ao carregar o gráfico</>;
 
-  //  const chartData = Object.entries(data ?? {}).map(([ year, amount ]) => ({
-  //    year,
-  //    amount,
-  //  }));
+  const chartData = Object.entries(data?.enrollments ?? {}).map(([ year, amount ]) => ({
+    year,
+    amount,
+  }));
 
   return (
     <div className="w-full h-[400px]">
