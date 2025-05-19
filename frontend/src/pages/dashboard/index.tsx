@@ -17,6 +17,7 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 
 import logoImage from '@/assets/logo.png';
 import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
+import NumberStudentsMock from '@/components/charts/NumberStudentMock';
 
 export default function Dashboard() {
   const scrollToSection = (id: string) => {
@@ -234,6 +235,22 @@ export default function Dashboard() {
                 <TabsContent value='all'><DefensesPerYearChart /></TabsContent>
                 <TabsContent value='mestrado'><DefensesPerYearChart filter='mestrado' /></TabsContent>
                 <TabsContent value='doutorado'><DefensesPerYearChart filter='doutorado' /></TabsContent>
+              </CardContent>
+            </Tabs>
+          </Card>
+        </section>
+
+        <section id="defenses" className="space-y-4 h-[500px]">
+          <Card>
+            <Tabs defaultValue="all">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Número de alunos</CardTitle>
+                <TabsList>
+                  <TabsTrigger value="all">Todas</TabsTrigger>
+                </TabsList>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value='all'><NumberStudentsMock /></TabsContent>
               </CardContent>
             </Tabs>
           </Card>
