@@ -26,8 +26,4 @@ class UserController extends BaseApiResourceController
         return $user;
     }
 
-    public function show(int $id){
-        return (new \App\Models\User)->findUserSubareas($id);
-    }
-
 }
