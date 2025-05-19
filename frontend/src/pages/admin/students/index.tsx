@@ -19,6 +19,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -109,15 +118,33 @@ export default function StudentsPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" value={newStudent.email} onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="area_id">Área ID</Label>
-                  <Input id="area_id" type="number" value={newStudent.area_id} onChange={(e) => setNewStudent({ ...newStudent, area_id: parseInt(e.target.value) || 0 })} />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="course_id">Curso ID</Label>
-                  <Input id="course_id" type="number" value={newStudent.course_id} onChange={(e) => setNewStudent({ ...newStudent, course_id: parseInt(e.target.value) || 0 })} />
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="course_id">Curso</Label>
+                <Select value={String(newStudent.course_id)} onValueChange={(value) => setNewStudent({ ...newStudent, course_id: parseInt(value) })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um curso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {courseMock.map((course) => (
+                      <SelectItem key={course.id} value={String(course.id)}>
+                        {course.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Label htmlFor="area_id">Área</Label>
+                <Select value={String(newStudent.area_id)} onValueChange={(value) => setNewStudent({ ...newStudent, area_id: parseInt(value) })}>
+                  <SelectTrigger className="w-full truncate">
+                    <SelectValue placeholder="Selecione uma área" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {areaMock.map((area) => (
+                      <SelectItem key={area.id} value={String(area.id)}>
+                        {area.area} - {area.subarea}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="lattes_url">URL do Lattes</Label>
@@ -200,15 +227,33 @@ export default function StudentsPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" value={currentStudent.email || ''} onChange={(e) => setCurrentStudent({ ...currentStudent, email: e.target.value })} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="area_id">Área ID</Label>
-                  <Input id="area_id" type="number" value={currentStudent.area_id || ''} onChange={(e) => setCurrentStudent({ ...currentStudent, area_id: parseInt(e.target.value) })} />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="course_id">Curso ID</Label>
-                  <Input id="course_id" type="number" value={currentStudent.course_id} onChange={(e) => setCurrentStudent({ ...currentStudent, course_id: parseInt(e.target.value) })} />
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="course_id">Curso</Label>
+                <Select value={String(currentStudent.course_id)} onValueChange={(value) => setCurrentStudent({ ...currentStudent, course_id: parseInt(value) })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um curso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {courseMock.map((course) => (
+                      <SelectItem key={course.id} value={String(course.id)}>
+                        {course.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Label htmlFor="area_id">Área</Label>
+                <Select value={String(currentStudent.area_id)} onValueChange={(value) => setCurrentStudent({ ...currentStudent, area_id: parseInt(value) })}>
+                  <SelectTrigger className="w-full truncate">
+                    <SelectValue placeholder="Selecione uma área" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {areaMock.map((area) => (
+                      <SelectItem key={area.id} value={String(area.id)}>
+                        {area.area} - {area.subarea}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="lattes_url">URL do Lattes</Label>
