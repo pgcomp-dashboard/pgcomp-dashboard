@@ -98,7 +98,7 @@ export default function Dashboard() {
               <img className="w-42" src={logoImage} alt="Dashboard PGComp" />
             </NavLink>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
+          <nav  id="nav_desktop" className="hidden md:flex items-center gap-6">
             <NavLink
               to="#publications"
               onClick={() => scrollToSection('publications')}
