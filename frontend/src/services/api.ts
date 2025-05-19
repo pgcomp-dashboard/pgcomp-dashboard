@@ -12,6 +12,14 @@ interface Advisor {
   advisedes_count: number;
 }
 
+type Professor = {
+  id: number;
+  name: string;
+  siape: number;
+  email: string;
+  lattes_url: string;
+};
+
 export type RequestBodyType = BodyInit | null | undefined;
 
 export class ApiService {
@@ -132,7 +140,20 @@ export class ApiService {
     return response;
   }
 
+  async getAllProfessors(): Promise<Professor[]> {
+    let allProfessors: Professor[] = [];
+    let currentPage = 1;
+    let lastPage = 1;
 
+    do {
+      const response = await this.get(`/api/portal/admin/professors?page=${currentPage}`) as any;
+      allProfessors = allProfessors.concat(response.data);
+      lastPage = response.last_page;
+      currentPage++;
+    } while (currentPage <= lastPage);
+
+    return allProfessors;
+  }
 
 
 

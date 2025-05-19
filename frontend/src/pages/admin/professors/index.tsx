@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import {
   Table,
   TableHeader,
@@ -29,6 +28,8 @@ import { MoreVertical, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import api from '@/services/api';
 import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 type Professor = {
   id: number;
@@ -39,43 +40,17 @@ type Professor = {
 };
 
 export default function ProfessorsPage() {
-  const [ professors, setProfessors ] = useState<Professor[]>([]);
   const [ searchTerm, setSearchTerm ] = useState('');
-  const history = useNavigate();
-  let allProfessors: Professor[] = [];
-  let currentPage = 1;
-  let lastPage = 1;
-
   const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
   const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
+  const history = useNavigate();
 
-  const fetchAllProfessors = async () => {
-    try {
-      do {
-        const response = await api.get(`/api/portal/admin/professors?page=${currentPage}`);
-        const data = response.data;
-        allProfessors = allProfessors.concat(data);
-        lastPage = response.last_page;
-        currentPage++;
-      } while (currentPage <= lastPage);
+  const { data: professors = [], isLoading, error } = useQuery({
+    queryKey: ['allProfessors'],
+    queryFn: () => api.getAllProfessors(),
+  });
 
-      setProfessors(allProfessors);
-    } catch (error: any) {
-      if (error.response?.status === 500) {
-        history('/erro');
-      } else if (error.response?.status === 404) {
-        history('/*');
-      } else {
-        console.log(error);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchAllProfessors();
-  }, []);
-
-  const filteredProfessors = professors.filter((prof) =>
+  const filteredProfessors = professors.filter((prof: Professor) =>
     prof.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -86,12 +61,14 @@ export default function ProfessorsPage() {
 
   const verDetalhes = () => {
     if (!currentProfessor) return;
-    setProfessors((prev) =>
-      prev.map((prof) =>
-        prof.id === currentProfessor.id ? currentProfessor : prof
-      ));
     setIsDetailProfOpen(false);
   };
+
+  if (isLoading) return <div>Carregando...</div>;
+  if (error) {
+    console.error(error);
+    return <div>Erro ao carregar professores!</div>;
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -119,7 +96,7 @@ export default function ProfessorsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProfessors.map((professor) => (
+            {filteredProfessors.map((professor: Professor) => (
               <TableRow key={professor.id}>
                 <TableCell className="font-medium">{professor.name}</TableCell>
                 <TableCell className="text-right">
@@ -187,12 +164,8 @@ export default function ProfessorsPage() {
             </div>
           )}
 
-
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailProfOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={verDetalhes}>Salvar</Button>
+            <Button onClick={verDetalhes}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
