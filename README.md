@@ -174,7 +174,7 @@ _TODO_
 _TODO_
 
 
-#### Testes
+#### Testes Backend
 
 Para rodar os testes no ambiente de desenvolvimento você deve ter o backend configurado corretamente antes de seguir esses passos.
 
@@ -283,6 +283,21 @@ Para executar um método de teste específico:
 ```
 
 Substitua `ControllerAreaTest::test_createArea_syntax` pelo nome completo do método de teste que deseja executar.
+
+---
+
+#### Testes Frontend
+
+Para rodar os testes no frontend ou frontend-admin basta rodar na pasta de cada um :
+
+```bash
+npm run cy:open
+```
+ou
+
+```bash
+npm run cy:run
+```
 
 ---
 

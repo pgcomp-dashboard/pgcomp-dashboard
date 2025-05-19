@@ -49,17 +49,17 @@ function LoginPage(props: any) {
 
       <div className={styles.login_page__form__input_container}>
         <span>E-mail:</span>
-        <input type="email" placeholder="fulano.beltrano@ufba.br" onChange={handleEmailChange}
+        <input type="email" name='email' placeholder="fulano.beltrano@ufba.br" onChange={handleEmailChange}
           value={email} />
       </div>
 
       <div className={styles.login_page__form__input_container}>
         <span>Senha:</span>
-        <input type="password" placeholder="Senha" onChange={handlePasswordChange}
+        <input type="password" name='password' placeholder="Senha" onChange={handlePasswordChange}
           value={password} />
       </div>
 
-      <button onClick={handleLogin}>Acessar</button>
+      <button name='submitLoginForm' onClick={handleLogin}>Acessar</button>
 
       {/*<a target="_blank" href="#!" rel="noreferrer">
                 Esqueceu a senha?

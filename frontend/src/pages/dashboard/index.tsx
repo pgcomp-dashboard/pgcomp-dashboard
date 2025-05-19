@@ -30,9 +30,9 @@ export default function Dashboard() {
 
   return (
     <div className="w-full flex min-h-screen flex-col items-center">
-      <header className="sticky top-0 z-50 w-full border-b bg-background p-4 flex items-center justify-center">
+      <header id='main-header' className="sticky top-0 z-50 w-full border-b bg-background p-4 flex items-center justify-center">
         <div className="container flex h-16 items-center justify-around">
-          <div className="flex items-center gap-2">
+          <div id='nav_mobile' className="flex items-center gap-2">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="md:hidden">
@@ -91,7 +91,7 @@ export default function Dashboard() {
               <img className="w-42" src={logoImage} alt="Dashboard PGComp" />
             </NavLink>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
+          <nav id='nav_desktop' className="hidden md:flex items-center gap-6">
             <NavLink
               to="#publications"
               onClick={() => scrollToSection('publications')}
