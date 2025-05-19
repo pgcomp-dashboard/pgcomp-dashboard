@@ -37,8 +37,6 @@ export default function PublicationsChart({ filter }: { filter?: 'journal' | 'co
     return <>Carregando...</>; //TODO: spinner...
   }
 
-  console.log(query);
-
   const chartData = Object.entries(query.data ?? {}).map(([ years, data ]) => ({
     years,
     data,

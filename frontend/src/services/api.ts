@@ -164,6 +164,10 @@ export class ApiService {
     return await this.get(filter ? `/api/dashboard/defenses_per_year?filter=${filter}` : '/api/dashboard/defenses_per_year') as { [key: string]: number };
   }
 
+  async enrollmentsPerYear(filter?: 'mestrado' | 'doutorado'): Promise<{ [key: string]: number }> {
+    return await this.get(filter ? `/api/dashboard/enrollments_per_year?filter=${filter}` : '/api/dashboard/enrollments_per_year') as { [key: string]: number };
+  }
+  
   async professors() {
     const res = await this.get('/api/dashboard/professors') as {
       status: string;
