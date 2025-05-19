@@ -164,6 +164,30 @@ export class ApiService {
     return await this.get(filter ? `/api/dashboard/defenses_per_year?filter=${filter}` : '/api/dashboard/defenses_per_year') as { [key: string]: number };
   }
 
+  async professors() {
+    const res = await this.get('/api/dashboard/professors') as {
+      status: string;
+      data: { id: number, name: string }[],
+    };
+    return res.data;
+  }
+
+  async professorProductionPerYear(professorId: number, startYear?: number, endYear?: number) {
+    const currentYear = new Date().getFullYear();
+
+    if (!startYear) startYear = currentYear - 2;
+    if (!endYear) endYear = currentYear;
+
+    const res = await this.get(
+      `/api/dashboard/professor/${professorId}/productions?anoInicial=${startYear}&anoFinal=${endYear}`,
+    ) as {
+      professor: string;
+      productions: { [key: string]: number },
+    };
+
+    return res.productions;
+  }
+
   // --------------------------
   //           Auth
   // --------------------------

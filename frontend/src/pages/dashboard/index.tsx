@@ -17,6 +17,7 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 
 import logoImage from '@/assets/logo.png';
 import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
+import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
 
 export default function Dashboard() {
   const scrollToSection = (id: string) => {
@@ -173,6 +174,10 @@ export default function Dashboard() {
               {<ProductionPerQualisChart />}
             </CardContent>
           </Card>
+        </section>
+
+        <section id="professorProduction" className="space-y-4 h-[500px]">
+          <ProfessorProductionPerYear />
         </section>
 
         <section id="faculty" className="space-y-4 h-[500px]">
