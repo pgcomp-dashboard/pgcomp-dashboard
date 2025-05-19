@@ -15,16 +15,12 @@ class ProfessorController extends BaseApiResourceController
     {
         $request->merge(['type' => UserType::PROFESSOR->value]);
         $professor = parent::store($request);
-        $subareas = $request->input("subareas");
-        $this->saveSubareas($professor, $subareas);
         return $professor;
     }
 
     public function update(Request $request, int $id)
     {
         $professor = parent::update($request, $id);
-        $subareas = $request->input("subareas");
-        $this->saveSubareas($professor, $subareas);
         return $professor;
     }
 

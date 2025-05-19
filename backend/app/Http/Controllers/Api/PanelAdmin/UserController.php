@@ -17,16 +17,12 @@ class UserController extends BaseApiResourceController
     public function store(Request $request)
     {
         $user = parent::store($request);
-        $subareas = $request->input("subareas");
-        $this->saveSubareas($user, $subareas);
         return $user;
     }
 
     public function update(Request $request, int $id)
     {
         $user = parent::update($request, $id);
-        $subareas = $request->input("subareas");
-        $this->saveSubareas($user, $subareas);
         return $user;
     }
 

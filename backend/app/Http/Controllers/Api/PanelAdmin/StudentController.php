@@ -15,17 +15,13 @@ class StudentController extends BaseApiResourceController
     {
         $user = User::createOrUpdateStudent($request->all());
         $advisor = $request->input("advisor_id");
-        $subareas = $request->input("subareas");
         $user->advisors()->sync($advisor);
-        $this->saveSubareas($user, $subareas);
         return $user;
     }
 
     public function update(Request $request, int $id)
     {
         $user = parent::update($request, $id);
-        $subareas = $request->input("subareas");
-        $this->saveSubareas($user, $subareas);
         return $user;
     }
 
