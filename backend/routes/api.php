@@ -13,7 +13,6 @@ use App\Http\Controllers\Api\PanelAdmin\ProfessorController;
 use App\Http\Controllers\Api\PanelAdmin\ProgramController as ProgramAdminController;
 use App\Http\Controllers\Api\PanelAdmin\StratumQualisController;
 use App\Http\Controllers\Api\PanelAdmin\StudentController as StudentAdminController;
-use App\Http\Controllers\Api\PanelAdmin\SubareaController;
 use App\Http\Controllers\Api\PanelAdmin\UserController as UserAdminController;
 use App\Http\Controllers\Api\PanelAdmin\UserProgramController;
 use App\Http\Controllers\Api\UserController;
