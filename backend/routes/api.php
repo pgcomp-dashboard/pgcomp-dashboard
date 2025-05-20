@@ -11,7 +11,6 @@ use App\Http\Controllers\Api\PanelAdmin\ProfessorController;
 use App\Http\Controllers\Api\PanelAdmin\ProgramController as ProgramAdminController;
 use App\Http\Controllers\Api\PanelAdmin\StratumQualisController;
 use App\Http\Controllers\Api\PanelAdmin\StudentController as StudentAdminController;
-use App\Http\Controllers\Api\PanelAdmin\SubareaController;
 use App\Http\Controllers\Api\PanelAdmin\UserController as UserAdminController;
 use App\Http\Controllers\Api\PanelAdmin\UserProgramController;
 use App\Http\Controllers\Api\UserController;
@@ -41,10 +40,12 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('all_production', [DashboardController::class, 'totalProductionsPerYear']);
     Route::get('students_production', [DashboardController::class, 'studentsProductions']); // Not working
     Route::get('production_per_qualis', [DashboardController::class, 'productionPerQualis']);
-    Route::get('subfields', [DashboardController::class, 'studentCountPerSubArea']); // Not working
     Route::get('fields', [DashboardController::class, 'studentCountPerArea']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
     Route::get('defenses_per_year', [DashboardController::class, 'defensesPerYear']);
+    Route::get('enrollments_per_year', [DashboardController::class, 'enrollmentsPerYear']);
+    Route::get('professors', [DashboardController::class, 'allProfessors']);
+    Route::get('professor/{professorId}/productions', [DashboardController::class, 'professorProduction']);
 });
 
 Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' => 'portal'], function () {
@@ -57,7 +58,6 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
         Route::apiResource('programs', ProgramAdminController::class)->except(['destroy']); // Not working
         Route::apiResource('qualis', StratumQualisController::class);
-        Route::apiResource('subareas', SubareaController::class); // Not working
         Route::apiResource('users', UserAdminController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
         Route::apiResource('students', StudentAdminController::class)->except(['destroy']);
@@ -69,7 +69,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
 
         Route::apiResource('user_program', UserProgramController::class)->except(['destroy']); // Not working
 
-        Route::get('all_subareas_per_area', [AreaController::class, 'subareaPerArea']); // Not working
+        Route::get('all_area', [AreaController::class, 'allArea']);
     });
 });
 

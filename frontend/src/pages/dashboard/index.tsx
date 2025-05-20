@@ -17,6 +17,9 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 
 import logoImage from '@/assets/logo.png';
 import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
+import NumberStudentsMock from '@/components/charts/NumberStudentMock';
+import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
+import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
 
 export default function Dashboard() {
   const scrollToSection = (id: string) => {
@@ -76,6 +79,13 @@ export default function Dashboard() {
                     >
                       Defesas por ano
                     </NavLink>
+                    <NavLink
+                      to="#enrollments"
+                      onClick={() => scrollToSection('enrollments')}
+                      className="text-sm font-medium transition-colors hover:text-primary"
+                    >
+                      Matrículas por ano
+                    </NavLink>
                   </div>
                   <Button asChild className="sm:flex">
                     <NavLink to={'/admin'} rel="noopener noreferrer">
@@ -89,7 +99,7 @@ export default function Dashboard() {
               <img className="w-42" src={logoImage} alt="Dashboard PGComp" />
             </NavLink>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
+          <nav  id="nav_desktop" className="hidden md:flex items-center gap-6">
             <NavLink
               to="#publications"
               onClick={() => scrollToSection('publications')}
@@ -125,6 +135,13 @@ export default function Dashboard() {
             >
               Defesas por ano
             </NavLink>
+            <NavLink
+              to="#enrollments"
+              onClick={() => scrollToSection('enrollments')}
+              className={'text-sm font-medium transition-colors hover:text-primary'}
+            >
+              Matrículas por ano
+            </NavLink>
           </nav>
           <Button asChild className="hidden sm:flex">
             <NavLink to={'/admin'} rel="noopener noreferrer">
@@ -134,7 +151,19 @@ export default function Dashboard() {
         </div>
       </header>
       <main className="flex-1 container py-6 space-y-8 w-full lg:px-16">
-        <section id="publications" className="space-y-4 h-[500px]">
+
+        <section id="student_count" className="space-y-4 h-[500px]">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Número de alunos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <NumberStudentsMock />
+            </CardContent>
+          </Card>
+        </section>
+
+        <section id="publications" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -155,7 +184,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="quality" className="space-y-4 h-[500px]">
+        <section id="quality" className="space-y-10 min-h-[500px]">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Produções por qualis</CardTitle>
@@ -174,8 +203,11 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </section>
+        <section id="professorProduction" className="space-y-4 h-[500px]">
+          <ProfessorProductionPerYear />
+        </section>
 
-        <section id="faculty" className="space-y-4 h-[500px]">
+        <section id="faculty" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -197,7 +229,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="area" className="space-y-4 h-[500px]">
+        <section id="area" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -219,7 +251,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="defenses" className="space-y-4 h-[500px]">
+        <section id="defenses" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -238,6 +270,27 @@ export default function Dashboard() {
             </Tabs>
           </Card>
         </section>
+
+        <section id="enrollments" className="space-y-4 h-[500px]">
+          <Card>
+            <Tabs defaultValue="all">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Matrículas por ano</CardTitle>
+                <TabsList>
+                  <TabsTrigger value="all">Todas</TabsTrigger>
+                  <TabsTrigger value="mestrado">Mestrado</TabsTrigger>
+                  <TabsTrigger value="doutorado">Doutorado</TabsTrigger>
+                </TabsList>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value='all'><EnrollmentsPerYearChart /></TabsContent>
+                <TabsContent value='mestrado'><EnrollmentsPerYearChart filter='mestrado' /></TabsContent>
+                <TabsContent value='doutorado'><EnrollmentsPerYearChart filter='doutorado' /></TabsContent>
+              </CardContent>
+            </Tabs>
+          </Card>
+        </section>
+
       </main>
       <footer className="w-full border-t py-6 bg-neutral-900 text-white p-4">
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4">

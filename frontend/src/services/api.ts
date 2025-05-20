@@ -102,7 +102,10 @@ export class ApiService {
   // --------------------------
 
   async fetchAreas(): Promise<Area[]> {
-    const response = await this.get('/api/areas') as { data: any[] };
+    const response = await this.get('/api/portal/admin/areas') as { data: {
+      id: number,
+      area: string,
+    }[] };
     return response.data.map((item) => ({
       id: item.id,
       name: item.area,
@@ -113,10 +116,19 @@ export class ApiService {
   async createArea(area: { name: string; students: number }): Promise<Area> {
     const response = await this.post('/api/areas', JSON.stringify({
       area: area.name,
-    })) as any;
+    })) as {
+      status: string,
+      message: string,
+      data: {
+        id: number,
+        area: string,
+        created_at: string,
+        updated_at: string,
+      }
+    };
     return {
-      id: response.id,
-      name: response.area,
+      id: response.data.id,
+      name: response.data.area,
       students: 0,
     };
   }
@@ -124,10 +136,19 @@ export class ApiService {
   async updateArea(area: { id: number; name: string; students: number }): Promise<Area> {
     const response = await this.put(`/api/areas/${area.id}`, JSON.stringify({
       area: area.name,
-    })) as any;
+    })) as {
+      status: string,
+      message: string,
+      data: {
+        id: number,
+        area: string,
+        created_at: string,
+        updated_at: string,
+      }
+    };
     return {
-      id: response.id,
-      name: response.area,
+      id: response.data.id,
+      name: response.data.area,
       students: 0,
     };
   }
@@ -164,6 +185,34 @@ export class ApiService {
     return await this.get(filter ? `/api/dashboard/defenses_per_year?filter=${filter}` : '/api/dashboard/defenses_per_year') as { [key: string]: number };
   }
 
+  async enrollmentsPerYear(filter?: 'mestrado' | 'doutorado'): Promise<{ [key: string]: number }> {
+    return await this.get(filter ? `/api/dashboard/enrollments_per_year?filter=${filter}` : '/api/dashboard/enrollments_per_year') as { [key: string]: number };
+  }
+  
+  async professors() {
+    const res = await this.get('/api/dashboard/professors') as {
+      status: string;
+      data: { id: number, name: string }[],
+    };
+    return res.data;
+  }
+
+  async professorProductionPerYear(professorId: number, startYear?: number, endYear?: number) {
+    const currentYear = new Date().getFullYear();
+
+    if (!startYear) startYear = currentYear - 2;
+    if (!endYear) endYear = currentYear;
+
+    const res = await this.get(
+      `/api/dashboard/professor/${professorId}/productions?anoInicial=${startYear}&anoFinal=${endYear}`,
+    ) as {
+      professor: string;
+      productions: { [key: string]: number },
+    };
+
+    return res.productions;
+  }
+
   // --------------------------
   //           Auth
   // --------------------------
@@ -186,7 +235,15 @@ export class ApiService {
   }
 
 
-
+  async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
+  // Dados mockados
+    return [
+      { category: 'Alunos Atuais - Mestrado', amount: 35 },
+      { category: 'Alunos Atuais - Doutorado', amount: 80 },
+      { category: 'Alunos Concluídos - Mestrado', amount: 200 },
+      { category: 'Alunos Concluídos - Doutorado', amount: 250 },
+    ];
+  }
 
 
 

@@ -11,6 +11,7 @@ use App\Models\User;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class DashboardController extends Controller
 {
@@ -29,6 +30,7 @@ class DashboardController extends Controller
                     $belongsToMany->whereNotNull('defended_at');
                 }
             }])
+            ->orderBy('advisedes_count', 'DESC')
             ->get($attributes);
 
         return $data->transform(function ($item) use ($attributes) {
@@ -167,16 +169,6 @@ class DashboardController extends Controller
         $qualis = new StratumQualis();
         return $qualis->totalProductionsPerQualis(user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
     }
-    public function studentCountPerSubArea(Request $request): array
-    {
-        $data = $request->validate([
-            'selectedFilter' => 'nullable|string|in:mestrando,doutorando,completed',
-        ]);
-
-        $filter = $data['selectedFilter'] ?? null;
-
-        return User::userCountPerSubArea($filter);
-    }
 
     public function studentCountPerArea(Request $request): array
     {
@@ -216,4 +208,92 @@ class DashboardController extends Controller
         // returns e.g. { "2019": 13, "2020": 23, "2021": 24, ... }
         return response()->json($counts);
     }
+    
+    public function allProfessors()
+    {
+        $professors = User::where("type", UserType::PROFESSOR)
+            ->select("id", "name")
+            ->get();
+
+        return response()->json([
+            "status" => "success",
+            "data" => $professors,
+        ]);
+    }
+
+    //função produtividade professor
+    public function professorProduction(Request $request, $professorId)
+    {
+        $validated = $request->validate([
+            'anoInicial' => 'nullable|int',
+            'anoFinal' => 'nullable|int',
+        ]);
+        // Define valores padrões
+        $anoAtual = (int) date("Y");
+        $anoInicial = $validated["anoInicial"] ?? $anoAtual - 2; // 2 anos atrás padrão
+        $anoFinal = $validated["anoFinal"] ?? $anoAtual; // Ano atual por padrão
+        
+        if ($anoInicial >= $anoFinal) {
+            throw ValidationException::withMessages(["anoInicial não pode ser maior ou igual ao ano final!"]);
+        }
+
+        // Verifica se o professor existe
+        $professor = User::where("id", $professorId)
+            ->where("type", UserType::PROFESSOR)
+            ->first();
+
+        if (!$professor) {
+            return response()->json(
+                [
+                    "error" => "Professor não encontrado",
+                ],
+                404
+            );
+        }
+
+        // Faz a busca das produções do professor por ano
+        $producoes = Production::join(
+            "users_productions",
+            "productions.id",
+            "=",
+            "users_productions.productions_id"
+        )
+            ->where("users_productions.users_id", $professorId)
+            ->whereBetween("productions.year", [$anoInicial, $anoFinal])
+            ->selectRaw("productions.year as ano, COUNT(*) as total")
+            ->groupBy("productions.year")
+            ->orderBy("productions.year")
+            ->get();
+
+        // [ano => total]
+        $resultado = [];
+        foreach (range($anoInicial, $anoFinal) as $ano) {
+            $producaoAno = $producoes->firstWhere("ano", $ano);
+            $resultado[$ano] = $producaoAno ? $producaoAno->total : 0;
+        }
+
+        return response()->json([
+            "professor" => $professor->name,
+            "productions" => $resultado,
+        ]);
+    }
+
+    public function enrollmentsPerYear()
+    {
+        $anoAtual = date("Y");
+        $matriculas = User::where("type", UserType::STUDENT)
+            ->whereRaw("LENGTH(registration) >= 4")
+            ->selectRaw(
+                "CAST(SUBSTRING(registration, 1, 4) AS UNSIGNED) as ano, COUNT(*) as total"
+            )
+            ->groupBy("ano")
+            ->havingRaw("ano >= 2000 AND ano <= ?", [$anoAtual])
+            ->orderBy("ano", "desc")
+            ->pluck("total", "ano");
+
+        return response()->json([
+            "enrollments" => $matriculas,
+        ]);
+    }
+
 }
