@@ -64,7 +64,7 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrand
       {chartData.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-
+  
       {/* 👇 Scroll horizontal com largura mínima dinâmica */}
       <div className={`block w-full overflow-x-auto pb-4 ${isScrollable ? 'mb-20' : 'mb-6'}`} style={{ minHeight: '400px' }}>
         <div style={{ minWidth: chartWidth }}>
@@ -92,10 +92,11 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrand
                   tickFormatter={(name) =>
                     name.length > 15 ? name.slice(0, 15) + '...' : name
                   }
+                  style={{ fontSize: 14 }} // Aumentando o tamanho da fonte do eixo X
                 />
-                <YAxis />
+                <YAxis style={{ fontSize: 18 }} /> {/* também fonte maior */}
                 <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-                <Bar dataKey="quantity" fill="#8884d8" label={{ position: 'top' }}>
+                <Bar dataKey="quantity" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}>
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
                   ))}
@@ -106,5 +107,7 @@ export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrand
         </div>
       </div>
     </>
-  );
+  );  
 }
+
+ 

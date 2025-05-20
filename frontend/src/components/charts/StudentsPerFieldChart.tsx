@@ -5,7 +5,6 @@ import { ChartContainer } from '@/components/ui/chart.tsx';
 import { colorFromName } from '@/utils/color.ts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import './chart.css';
-
 import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 
@@ -53,10 +52,12 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
 
   return (
     <>
+      {/* 👇 Botão de expansão, se necessário */}
       {chartData.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-
+  
+      {/* 👇 Scroll horizontal com largura dinâmica */}
       <div className={`block w-full overflow-x-auto pb-4 ${isScrollable ? 'mb-20' : 'mb-6'}`} style={{ minHeight: '400px' }}>
         <div style={{ minWidth: chartWidth }}>
           <div className="flex items-center justify-center">
@@ -75,10 +76,22 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
                 layout="horizontal"
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} />
-                <YAxis type="number" />
+                <XAxis
+                  type="category"
+                  dataKey="name"
+                  width={150}
+                  tick={{ fontSize: 18 }} // maior
+                />
+                <YAxis
+                  type="number"
+                  tick={{ fontSize: 18 }} // maior
+                />
                 <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-                <Bar dataKey="value" fill="#8884d8" label={{ position: 'top' }}>
+                <Bar
+                  dataKey="value"
+                  fill="#8884d8"
+                  label={{ position: 'top', style: { fontSize: 18 } }} // label maior
+                >
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
                   ))}
@@ -90,4 +103,5 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
       </div>
     </>
   );
-}
+  
+} 

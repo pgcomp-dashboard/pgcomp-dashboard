@@ -60,7 +60,7 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
       {chartData.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-
+  
       <div className={`block w-full overflow-x-auto pb-4 ${isScrollable ? 'mb-20' : 'mb-6'}`} style={{ minHeight: '400px' }}>
         <div style={{ minWidth: chartWidth }}>
           <ChartContainer
@@ -86,10 +86,11 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
                 tickFormatter={(name) =>
                   name.length > 15 ? name.slice(0, 15) + '...' : name
                 }
+                style={{ fontSize: 18 }} // fonte maior
               />
-              <YAxis />
+              <YAxis style={{ fontSize: 18 }} /> {/* também fonte maior */}
               <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-              <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top' }}>
+              <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}>
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
                 ))}
@@ -100,4 +101,4 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
       </div>
     </>
   );
-}
+}  
