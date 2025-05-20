@@ -110,14 +110,14 @@ export default function StudentsPage() {
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="mr-2 h-4 w-4" /> Adicionar estudante</Button>
+            <Button data-cy="add-student-button"><Plus className="mr-2 h-4 w-4" /> Adicionar estudante</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Novo estudante</DialogTitle>
               <DialogDescription>Preencha os dados do estudante</DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4" data-cy="add-student-form">
               <div className="grid gap-2">
                 <Label htmlFor="name">Nome</Label>
                 <Input id="name" value={newStudent.name} onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })} />
@@ -147,7 +147,7 @@ export default function StudentsPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancelar</Button>
-              <Button onClick={handleAdd}>Adicionar</Button>
+              <Button data-cy="add-student-form-submit" onClick={handleAdd}>Adicionar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -181,14 +181,14 @@ export default function StudentsPage() {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button>
+                      <Button data-cy={`student-list-dropdown-${s.name}`} variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => {
                         setCurrentStudent(s); setIsEditOpen(true); 
                       }}>Editar</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600" onClick={() => {
+                      <DropdownMenuItem data-cy={`student-list-dropdown-delete-${s.name}`} className="text-red-600" onClick={() => {
                         setCurrentStudent(s); setIsDeleteOpen(true); 
                       }}>Apagar</DropdownMenuItem>
                     </DropdownMenuContent>
@@ -258,7 +258,7 @@ export default function StudentsPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancelar</Button>
-            <Button variant="destructive" onClick={handleDelete}>Excluir</Button>
+            <Button data-cy="student-list-dropdown-delete-modal-confirm-button"variant="destructive" onClick={handleDelete}>Excluir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
