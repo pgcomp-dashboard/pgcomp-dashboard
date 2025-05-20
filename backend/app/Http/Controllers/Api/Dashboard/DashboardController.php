@@ -29,6 +29,7 @@ class DashboardController extends Controller
                     $belongsToMany->whereNotNull('defended_at');
                 }
             }])
+            ->orderBy('advisedes_count', 'DESC')
             ->get($attributes);
 
         return $data->transform(function ($item) use ($attributes) {
