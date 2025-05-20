@@ -151,7 +151,7 @@ export default function Dashboard() {
         </div>
       </header>
       <main className="flex-1 container py-6 space-y-8 w-full lg:px-16">
-        <section id="publications" className="space-y-4 h-[500px]">
+        <section id="publications" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -172,7 +172,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="quality" className="space-y-4 h-[500px]">
+        <section id="quality" className="space-y-10 min-h-[500px]">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Produções por qualis</CardTitle>
@@ -191,12 +191,11 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </section>
-
         <section id="professorProduction" className="space-y-4 h-[500px]">
           <ProfessorProductionPerYear />
         </section>
-
-        <section id="faculty" className="space-y-4 h-[500px]">
+        
+        <section id="faculty" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -218,7 +217,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="area" className="space-y-4 h-[500px]">
+        <section id="area" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -240,7 +239,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="defenses" className="space-y-4 h-[500px]">
+        <section id="defenses" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
