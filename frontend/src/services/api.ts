@@ -114,7 +114,7 @@ export class ApiService {
   }
 
   async createArea(area: { name: string; students: number }): Promise<Area> {
-    const response = await this.post('/api/areas', JSON.stringify({
+    const response = await this.post('/api/portal/admin/areas', JSON.stringify({
       area: area.name,
     })) as {
       status: string,
@@ -134,7 +134,7 @@ export class ApiService {
   }
 
   async updateArea(area: { id: number; name: string; students: number }): Promise<Area> {
-    const response = await this.put(`/api/areas/${area.id}`, JSON.stringify({
+    const response = await this.put(`/api/portal/admin/areas/${area.id}`, JSON.stringify({
       area: area.name,
     })) as {
       status: string,
@@ -154,7 +154,7 @@ export class ApiService {
   }
 
   async deleteArea(id: number): Promise<{ message: string }> {
-    return await this.delete(`/api/areas/${id}`) as { message: string };
+    return await this.delete(`/api/portal/admin/areas/${id}`) as { message: string };
   }
 
   // --------------------------
@@ -188,7 +188,7 @@ export class ApiService {
   async enrollmentsPerYear(filter?: 'mestrado' | 'doutorado'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? `/api/dashboard/enrollments_per_year?filter=${filter}` : '/api/dashboard/enrollments_per_year') as { [key: string]: number };
   }
-  
+
   async professors() {
     const res = await this.get('/api/dashboard/professors') as {
       status: string;
