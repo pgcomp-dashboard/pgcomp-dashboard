@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { MoreHorizontal, Plus, Search } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -20,49 +19,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-interface Student {
-  id: number;
-  name: string;
-  email: string;
-  area_id: number;
-  course_id: number;
-  lattes_url: string;
-  defended_at: string; // data em formato ISO (ex: '2025-05-10')
-}
-
-const initialStudents: Student[] = [
-  {
-    id: 1,
-    name: 'Paulo Souza',
-    email: 'paulo@example.com',
-    area_id: 1,
-    course_id: 101,
-    lattes_url: 'http://lattes.cnpq.br/1234567890',
-    defended_at: '2024-12-15',
-  },
-  {
-    id: 2,
-    name: 'Maria Lima',
-    email: 'maria@example.com',
-    area_id: 2,
-    course_id: 102,
-    lattes_url: 'http://lattes.cnpq.br/0987654321',
-    defended_at: '2025-01-20',
-  },
-];
+import { Student, studentMock } from './studentsMock';
+import { areaMock } from './areasMock';
+import { courseMock } from './coursesMock';
 
 export default function StudentsPage() {
-  const [ students, setStudents ] = useState(initialStudents);
-  const [ searchTerm, setSearchTerm ] = useState('');
-  const [ isAddOpen, setIsAddOpen ] = useState(false);
-  const [ isEditOpen, setIsEditOpen ] = useState(false);
-  const [ isDeleteOpen, setIsDeleteOpen ] = useState(false);
-  const [ currentStudent, setCurrentStudent ] = useState<Student | null>(null);
-  const [ newStudent, setNewStudent ] = useState({
+  const [students, setStudents] = useState(studentMock);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
+  const [newStudent, setNewStudent] = useState({
     name: '',
     email: '',
     area_id: 0,
@@ -77,7 +58,7 @@ export default function StudentsPage() {
 
   const handleAdd = () => {
     const id = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
-    setStudents([ ...students, { id, ...newStudent } ]);
+    setStudents([...students, { id, ...newStudent }]);
     setNewStudent({
       name: '',
       email: '',
@@ -89,6 +70,17 @@ export default function StudentsPage() {
     setIsAddOpen(false);
   };
 
+  const getAreaName = (id: number | null) => {
+    if (id === null) return 'Não Informado';
+    const area = areaMock.find(a => a.id === id);
+    return area ? `${area.area} - ${area.subarea}` : 'Não Informado';
+  };
+
+  const getCourseName = (id: number | null) => {
+    if (id === null) return 'Não Informado';
+    const course = courseMock.find(c => c.id === id);
+    return course ? course.name : 'Não Informado';
+  };
   const handleEdit = () => {
     if (!currentStudent) return;
     setStudents(students.map(s => (s.id === currentStudent.id ? currentStudent : s)));
@@ -126,15 +118,33 @@ export default function StudentsPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" value={newStudent.email} onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="area_id">Área ID</Label>
-                  <Input id="area_id" type="number" value={newStudent.area_id} onChange={(e) => setNewStudent({ ...newStudent, area_id: parseInt(e.target.value) || 0 })} />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="course_id">Curso ID</Label>
-                  <Input id="course_id" type="number" value={newStudent.course_id} onChange={(e) => setNewStudent({ ...newStudent, course_id: parseInt(e.target.value) || 0 })} />
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="course_id">Curso</Label>
+                <Select value={String(newStudent.course_id)} onValueChange={(value) => setNewStudent({ ...newStudent, course_id: parseInt(value) })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um curso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {courseMock.map((course) => (
+                      <SelectItem key={course.id} value={String(course.id)}>
+                        {course.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Label htmlFor="area_id">Área</Label>
+                <Select value={String(newStudent.area_id)} onValueChange={(value) => setNewStudent({ ...newStudent, area_id: parseInt(value) })}>
+                  <SelectTrigger className="w-full truncate">
+                    <SelectValue placeholder="Selecione uma área" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {areaMock.map((area) => (
+                      <SelectItem key={area.id} value={String(area.id)}>
+                        {area.area} - {area.subarea}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="lattes_url">URL do Lattes</Label>
@@ -176,8 +186,8 @@ export default function StudentsPage() {
               <TableRow key={s.id}>
                 <TableCell>{s.name}</TableCell>
                 <TableCell>{s.email}</TableCell>
-                <TableCell>{s.area_id}</TableCell>
-                <TableCell>{s.course_id}</TableCell>
+                <TableCell>{getAreaName(s.area_id)}</TableCell>
+                <TableCell>{getCourseName(s.course_id)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -185,11 +195,11 @@ export default function StudentsPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => {
-                        setCurrentStudent(s); setIsEditOpen(true); 
+                        setCurrentStudent(s); setIsEditOpen(true);
                       }}>Editar</DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-red-600" onClick={() => {
-                        setCurrentStudent(s); setIsDeleteOpen(true); 
+                        setCurrentStudent(s); setIsDeleteOpen(true);
                       }}>Apagar</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -215,25 +225,43 @@ export default function StudentsPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" value={currentStudent.email} onChange={(e) => setCurrentStudent({ ...currentStudent, email: e.target.value })} />
+                <Input id="email" value={currentStudent.email || ''} onChange={(e) => setCurrentStudent({ ...currentStudent, email: e.target.value })} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="area_id">Área ID</Label>
-                  <Input id="area_id" type="number" value={currentStudent.area_id} onChange={(e) => setCurrentStudent({ ...currentStudent, area_id: parseInt(e.target.value) })} />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="course_id">Curso ID</Label>
-                  <Input id="course_id" type="number" value={currentStudent.course_id} onChange={(e) => setCurrentStudent({ ...currentStudent, course_id: parseInt(e.target.value) })} />
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="course_id">Curso</Label>
+                <Select value={String(currentStudent.course_id)} onValueChange={(value) => setCurrentStudent({ ...currentStudent, course_id: parseInt(value) })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um curso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {courseMock.map((course) => (
+                      <SelectItem key={course.id} value={String(course.id)}>
+                        {course.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Label htmlFor="area_id">Área</Label>
+                <Select value={String(currentStudent.area_id)} onValueChange={(value) => setCurrentStudent({ ...currentStudent, area_id: parseInt(value) })}>
+                  <SelectTrigger className="w-full truncate">
+                    <SelectValue placeholder="Selecione uma área" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {areaMock.map((area) => (
+                      <SelectItem key={area.id} value={String(area.id)}>
+                        {area.area} - {area.subarea}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="lattes_url">URL do Lattes</Label>
-                <Input id="lattes_url" value={currentStudent.lattes_url} onChange={(e) => setCurrentStudent({ ...currentStudent, lattes_url: e.target.value })} />
+                <Input id="lattes_url" value={currentStudent.lattes_url || ''} onChange={(e) => setCurrentStudent({ ...currentStudent, lattes_url: e.target.value })} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="defended_at">Data de Defesa</Label>
-                <Input id="defended_at" type="date" value={currentStudent.defended_at} onChange={(e) => setCurrentStudent({ ...currentStudent, defended_at: e.target.value })} />
+                <Input id="defended_at" type="date" value={currentStudent.defended_at || ''} onChange={(e) => setCurrentStudent({ ...currentStudent, defended_at: e.target.value })} />
               </div>
             </div>
           )}
