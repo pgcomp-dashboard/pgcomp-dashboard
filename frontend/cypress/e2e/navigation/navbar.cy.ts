@@ -6,7 +6,7 @@ const navbarLabels = [
   "Defesas por ano",
   "Matrículas por ano"
 ];
-describe("", () => {
+describe("Verificar a barra de navegação", () => {
   beforeEach(() => {
     cy.visit('/') 
   })
