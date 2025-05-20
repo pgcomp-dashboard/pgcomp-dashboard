@@ -17,6 +17,7 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 
 import logoImage from '@/assets/logo.png';
 import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
+import NumberStudentsMock from '@/components/charts/NumberStudentMock';
 import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
 import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
 
@@ -259,6 +260,22 @@ export default function Dashboard() {
           </Card>
         </section>
 
+        <section id="defenses" className="space-y-4 h-[500px]">
+          <Card>
+            <Tabs defaultValue="all">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Número de alunos</CardTitle>
+                <TabsList>
+                  <TabsTrigger value="all">Todas</TabsTrigger>
+                </TabsList>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value='all'><NumberStudentsMock /></TabsContent>
+              </CardContent>
+            </Tabs>
+          </Card>
+        </section>
+        
         <section id="enrollments" className="space-y-4 h-[500px]">
           <Card>
             <Tabs defaultValue="all">
@@ -278,6 +295,7 @@ export default function Dashboard() {
             </Tabs>
           </Card>
         </section>
+        
       </main>
       <footer className="w-full border-t py-6 bg-neutral-900 text-white p-4">
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4">

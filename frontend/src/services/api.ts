@@ -214,7 +214,15 @@ export class ApiService {
   }
 
 
-
+  async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
+  // Dados mockados
+    return [
+      { category: 'Alunos Atuais - Mestrado', amount: 35 },
+      { category: 'Alunos Atuais - Doutorado', amount: 80 },
+      { category: 'Alunos Concluídos - Mestrado', amount: 200 },
+      { category: 'Alunos Concluídos - Doutorado', amount: 250 },
+    ];
+  }
 
 
 
