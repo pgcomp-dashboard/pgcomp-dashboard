@@ -13,7 +13,8 @@ def parse_li_tag(li_tag):
     journal_tag = li_tag.find('font', color="#330066")
     journal = journal_tag.get_text(strip=True) if journal_tag else None
 
-    qualis_tag = li_tag.find('font', color="#254117")
+    # Look for Qualis tag with either color #254117 or #F88017
+    qualis_tag = li_tag.find(lambda tag: tag.name == 'font' and tag.get('color') in ['#254117', '#F88017'])
     qualis = qualis_tag.get_text(strip=True).replace("Qualis: ", "") if qualis_tag else None
 
     link_tag = li_tag.find('a')

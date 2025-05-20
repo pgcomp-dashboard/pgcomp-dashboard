@@ -6,7 +6,7 @@ import { colorFromName } from '@/utils/color.ts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import './chart.css';
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>)  => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white p-3 border border-2 rounded">
@@ -61,10 +61,10 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
       >
         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }} layout="horizontal">
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} />
-          <YAxis type="number" />
+          <XAxis type="category" dataKey="name" width={150} tick={{ fontSize: 18 }} />
+          <YAxis type="number" tick={{ fontSize: 18 }} /> {/* Aumentando o tamanho da fonte dos rótulos do eixo Y */}
           <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-          <Bar dataKey="value" fill="#8884d8" label={{ position: 'top' }}>
+          <Bar dataKey="value" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}> {/* Aumentando o tamanho da fonte dos rótulos das barras */}
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
             ))}
@@ -73,4 +73,4 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
       </ChartContainer>
     </div>
   );
-}
+} 

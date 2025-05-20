@@ -15,7 +15,7 @@ import { colorFromName } from '@/utils/color';
 import './chart.css';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>)  => {
   if (active && payload?.length) {
     return (
       <div className="bg-white p-3 border border-2 rounded">
@@ -24,7 +24,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
         {payload.map((ele, index) => (
           <>
             <text className="tooltip-text" key={index}>
-              Defesas em {label} : {ele.value}
+              Matrículas em {label} : {ele.value}
             </text>
             <br />
           </>
@@ -35,16 +35,16 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
   return null;
 };
 
-export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' }) {
+export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' }) {
   const { data, isLoading, error } = useQuery({
-    queryKey: [ 'defenses_per_year', filter ],
-    queryFn: () => api.defensesPerYear(filter),
+    queryKey: [ 'enrollmentsPerYear', filter ],
+    queryFn: () => api.enrollmentsPerYear(filter),
   });
 
   if (isLoading) return <>Carregando...</>;
   if (error) return <>Erro ao carregar o gráfico</>;
 
-  const chartData = Object.entries(data ?? {}).map(([ year, amount ]) => ({
+  const chartData = Object.entries(data?.enrollments ?? {}).map(([ year, amount ]) => ({
     year,
     amount,
   }));
@@ -66,19 +66,10 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
       >
         <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="year"
-            interval={0}
-            angle={-45}
-            textAnchor="end"
-            tickFormatter={(name) =>
-              name.length > 15 ? name.slice(0, 15) + '...' : name
-            }
-style={{ fontSize: 18 }}
-          />
-          <YAxis style={{ fontSize: 18 }} />
+          <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+          <YAxis />
           <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-          <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}> {/* Aumentando o tamanho da fonte do label da barra */}
+          <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top' }}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
             ))}
@@ -87,4 +78,4 @@ style={{ fontSize: 18 }}
       </ChartContainer>
     </div>
   );
-} 
+}
