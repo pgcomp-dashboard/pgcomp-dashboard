@@ -38,8 +38,6 @@ export default function QualisForm() {
     s.code.toLowerCase().startsWith(searchTerm.trim().toLowerCase())
   );
 
-
-
   const fetchQualisData = async () => {
     try {
       const data = await api.getAllQualis();
@@ -115,10 +113,6 @@ export default function QualisForm() {
       console.error("Erro ao excluir Qualis:", error);
     }
   };
-
-
-
-
 
   return (
     <div>
@@ -213,7 +207,6 @@ export default function QualisForm() {
               <TableHead>Criado</TableHead>
               <TableHead>Atualizado</TableHead>
               <TableHead>Ações</TableHead>
-
             </TableRow>
           </TableHeader>
           <TableBody>
