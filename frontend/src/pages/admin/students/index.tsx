@@ -73,7 +73,7 @@ export default function StudentsPage() {
   const getAreaName = (id: number | null) => {
     if (id === null) return 'Não Informado';
     const area = areaMock.find(a => a.id === id);
-    return area ? `${area.area} - ${area.subarea}` : 'Não Informado';
+    return area ? `${area.area}` : 'Não Informado';
   };
 
   const getCourseName = (id: number | null) => {
@@ -140,7 +140,7 @@ export default function StudentsPage() {
                   <SelectContent>
                     {areaMock.map((area) => (
                       <SelectItem key={area.id} value={String(area.id)}>
-                        {area.area} - {area.subarea}
+                        {area.area}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -249,7 +249,7 @@ export default function StudentsPage() {
                   <SelectContent>
                     {areaMock.map((area) => (
                       <SelectItem key={area.id} value={String(area.id)}>
-                        {area.area} - {area.subarea}
+                        {area.area}
                       </SelectItem>
                     ))}
                   </SelectContent>
