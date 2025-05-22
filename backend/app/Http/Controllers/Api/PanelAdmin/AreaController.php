@@ -114,8 +114,8 @@ class AreaController extends BaseApiResourceController
         ], 200);
     }
 
-    public function subareaPerArea(){
-        $areas = Area::select( 'id', 'area', 'subarea')->get();
+    public function allArea(){
+        $areas = Area::select( 'id', 'area')->get();
         if ($areas->isEmpty()) {
             throw new NotFoundHttpException('Nenhuma área encontrada');
         }

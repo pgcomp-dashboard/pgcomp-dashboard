@@ -13,6 +13,7 @@ import ProfessorsPage from './pages/admin/professors';
 import QualisPage from './pages/admin/qualis/index';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ function App() {
           </Routes>
         </BrowserRouter>
       </AuthProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

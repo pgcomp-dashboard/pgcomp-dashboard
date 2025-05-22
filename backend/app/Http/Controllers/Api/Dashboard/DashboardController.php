@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
+use App\Models\Publishers;
 use App\Models\Production;
 use App\Models\StratumQualis;
 use App\Models\User;
@@ -29,6 +30,7 @@ class DashboardController extends Controller
                     $belongsToMany->whereNotNull('defended_at');
                 }
             }])
+            ->orderBy('advisedes_count', 'DESC')
             ->get($attributes);
 
         return $data->transform(function ($item) use ($attributes) {
@@ -60,7 +62,11 @@ class DashboardController extends Controller
         // '2016', '2017', '2018', '2019', '2020', '2021', '2022'],
         //  'data': generateValues(anos), TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //}
-        $publisher_type = $request->input("publisher_type");
+        $publisher_type = match ($request->input("publisher_type")){
+            'journal' => 'journal',
+            'conference' => 'conference',
+            default => null
+        };
 
         $filter = match ($request->input('user_type')) {
             'docente' => ['professor', null],
@@ -91,10 +97,25 @@ class DashboardController extends Controller
         //      'data': generateValues(NUMBER_OF_ITEMS),TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
         //  }
         //}
-        $publisherType = $request->input('publisher_type');
+        $publisher_type = match ($request->input("publisher_type")){
+            'journal' => 'journal',
+            'conference' => 'conference',
+            default => null
+        };
+
+        $filter = match ($request->input('user_type')) {
+            'docente' => ['professor', null],
+            'mestrando' => ['student', '1'],
+            'doutorando' => ['student', '2'],
+            default => [null, null]
+        };
 
         $production = new Production();
-        return $production->totalProductionsPerCourse($publisherType);
+        return $production->totalProductionsPerYear(
+            user_type: $filter[0],
+            course_id: $filter[1],
+            publisher_type: $publisher_type
+        );
     }
 
     //public function productionPerQualis()
@@ -147,16 +168,6 @@ class DashboardController extends Controller
 
         $qualis = new StratumQualis();
         return $qualis->totalProductionsPerQualis(user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
-    }
-    public function studentCountPerSubArea(Request $request): array
-    {
-        $data = $request->validate([
-            'selectedFilter' => 'nullable|string|in:mestrando,doutorando,completed',
-        ]);
-
-        $filter = $data['selectedFilter'] ?? null;
-
-        return User::userCountPerSubArea($filter);
     }
 
     public function studentCountPerArea(Request $request): array

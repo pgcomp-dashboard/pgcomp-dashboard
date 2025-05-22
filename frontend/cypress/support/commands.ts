@@ -4,3 +4,4 @@ Cypress.Commands.add('login', (email: string, password: string) => {
   cy.get('input[name="password"]').type(password);
   cy.get('button[type="submit"]').click();
 });
+

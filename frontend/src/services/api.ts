@@ -102,7 +102,10 @@ export class ApiService {
   // --------------------------
 
   async fetchAreas(): Promise<Area[]> {
-    const response = await this.get('/api/areas') as { data: any[] };
+    const response = await this.get('/api/portal/admin/areas') as { data: {
+      id: number,
+      area: string,
+    }[] };
     return response.data.map((item) => ({
       id: item.id,
       name: item.area,
@@ -111,29 +114,47 @@ export class ApiService {
   }
 
   async createArea(area: { name: string; students: number }): Promise<Area> {
-    const response = await this.post('/api/areas', JSON.stringify({
+    const response = await this.post('/api/portal/admin/areas', JSON.stringify({
       area: area.name,
-    })) as any;
+    })) as {
+      status: string,
+      message: string,
+      data: {
+        id: number,
+        area: string,
+        created_at: string,
+        updated_at: string,
+      }
+    };
     return {
-      id: response.id,
-      name: response.area,
+      id: response.data.id,
+      name: response.data.area,
       students: 0,
     };
   }
 
   async updateArea(area: { id: number; name: string; students: number }): Promise<Area> {
-    const response = await this.put(`/api/areas/${area.id}`, JSON.stringify({
+    const response = await this.put(`/api/portal/admin/areas/${area.id}`, JSON.stringify({
       area: area.name,
-    })) as any;
+    })) as {
+      status: string,
+      message: string,
+      data: {
+        id: number,
+        area: string,
+        created_at: string,
+        updated_at: string,
+      }
+    };
     return {
-      id: response.id,
-      name: response.area,
+      id: response.data.id,
+      name: response.data.area,
       students: 0,
     };
   }
 
   async deleteArea(id: number): Promise<{ message: string }> {
-    return await this.delete(`/api/areas/${id}`) as { message: string };
+    return await this.delete(`/api/portal/admin/areas/${id}`) as { message: string };
   }
 
   // --------------------------
@@ -167,7 +188,7 @@ export class ApiService {
   async enrollmentsPerYear(filter?: 'mestrado' | 'doutorado'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? `/api/dashboard/enrollments_per_year?filter=${filter}` : '/api/dashboard/enrollments_per_year') as { [key: string]: number };
   }
-  
+
   async professors() {
     const res = await this.get('/api/dashboard/professors') as {
       status: string;
@@ -214,7 +235,15 @@ export class ApiService {
   }
 
 
-
+  async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
+  // Dados mockados
+    return [
+      { category: 'Alunos Atuais - Mestrado', amount: 35 },
+      { category: 'Alunos Atuais - Doutorado', amount: 80 },
+      { category: 'Alunos Concluídos - Mestrado', amount: 200 },
+      { category: 'Alunos Concluídos - Doutorado', amount: 250 },
+    ];
+  }
 
 
 

@@ -47,3 +47,81 @@ Responsável pelo serviço de recuperação dos dados (através de web scraping)
 docker run -it --rm -v $(pwd):/app -w /app python:3.11-slim bash -c "pip install beautifulsoup4 lxml && python app/Domain/Lattes/LattesHtmlParser.py"
 ./vendor/bin/sail artisan scraping:run # Executar todos os comandos de scraping
 
+```
+
+## Ambiente de Testes
+
+### Sobre
+
+O ambiente de testes utiliza um banco isolado (`testing`) para executar comandos automatizados e validar o sistema sem afetar os dados reais. Esse ambiente pode ser usado tanto para rodar a aplicação normalmente com dados mockados, quanto para executar a suíte de testes.
+
+---
+
+### Configurando ambiente de testes
+
+1. Garanta que o `.env` ativo é o do ambiente de testes:
+
+```bash
+cp .env.testing .env
+````
+
+2. Dê permissão de execução para o script (apenas na primeira vez):
+
+```bash
+chmod +x ./tests/scripts/ensure-testing-db.sh
+```
+
+3. Execute o script que cria e mocka o banco `testing`:
+
+```bash
+./tests/scripts/ensure-testing-db.sh ./tests/mock/mock-db-testing.sql testing
+```
+
+Essa configuração so precisa ser feita uma vez. 
+
+---
+
+### Rodar aplicação em modo de teste
+
+Basta configurar o ambiente de testes, ter o  `.env` de testes ativo e rodar:
+
+```bash
+./vendor/bin/sail up
+```
+
+---
+
+### Rodar testes automatizados
+
+Com a aplicação rodando em modo de teste execute a suíte de testes:
+
+```bash
+./vendor/bin/sail test
+```
+
+---
+
+### Restaurar mock do banco de testes
+
+Com o `.env` de testes ativo rode:
+
+```bash
+./tests/scripts/ensure-testing-db.sh ./tests/mock/mock-db-testing.sql testing
+```
+
+
+---
+
+### Observações
+
+* O script `ensure-testing-db.sh`:
+
+  * Cria automaticamente o banco `testing` (caso não exista);
+  * Popula o banco com os dados definidos no arquivo `mock-db-testing.sql`.
+
+* A suite de testes do backend não "suja" o banco de dados. Logo não é necessário restaurar o banco nem antes nem depois.
+
+* Os testes de frontend por serem e2e(End to End) precisam persistir dados em alguns casos, o que pode acabar sujando o banco de testes (Caso um teste falhe por exemplo), nesses casos basta restaurar o mock do banco de testes
+
+
+
