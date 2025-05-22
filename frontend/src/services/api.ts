@@ -26,6 +26,22 @@ type Professor = {
   lattes_url: string;
 };
 
+export interface Student {
+  id: number;
+  name: string;
+  email: string;
+  area_id: number;
+  course_id: number;
+  lattes_url: string;
+  defended_at: string;
+}
+
+export interface Course {
+  id: number;
+  name: string;
+}
+
+
 export type RequestBodyType = BodyInit | null | undefined;
 
 export class ApiService {
@@ -68,14 +84,14 @@ export class ApiService {
       console.error(`Failed to fetch ${endpoint}:`, e);
       throw {
         code: 408,
-        errors: [ { description: String(e) } ],
+        errors: [{ description: String(e) }],
       } as ApiError;
     }
 
     if (!response.ok) {
       const error: ApiError = {
         code: response.status,
-        errors: [ { description: 'Request failed' } ],
+        errors: [{ description: 'Request failed' }],
       };
       try {
         const json = await response.json();
@@ -106,14 +122,30 @@ export class ApiService {
   }
 
   // --------------------------
+  //        CRUD - Students
+  // --------------------------
+
+  async fetchStudents(): Promise<Student[]> {
+    const response = await this.get('/api/portal/admin/students') as { data: Student[] };
+    return response.data;
+  }
+
+  async fetchCourses(): Promise<Course[]> {
+    const response = await this.get('/api/portal/admin/courses') as { data: Course[] };
+    return response.data;
+  }
+
+  // --------------------------
   //        CRUD - Áreas
   // --------------------------
 
   async fetchAreas(): Promise<Area[]> {
-    const response = await this.get('/api/portal/admin/areas') as { data: {
-      id: number,
-      area: string,
-    }[] };
+    const response = await this.get('/api/portal/admin/areas') as {
+      data: {
+        id: number,
+        area: string,
+      }[]
+    };
     return response.data.map((item) => ({
       id: item.id,
       name: item.area,
@@ -258,7 +290,7 @@ export class ApiService {
   }
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
-  // Dados mockados
+    // Dados mockados
     return [
       { category: 'Alunos Atuais - Mestrado', amount: 35 },
       { category: 'Alunos Atuais - Doutorado', amount: 80 },

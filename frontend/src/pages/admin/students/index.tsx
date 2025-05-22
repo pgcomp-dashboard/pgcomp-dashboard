@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MoreHorizontal, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import api from '@/services/api';
+
 import {
   Dialog,
   DialogContent,
@@ -19,31 +21,54 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
-
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
-import { Student, studentMock } from './studentsMock';
-import { areaMock } from './areasMock';
-import { courseMock } from './coursesMock';
+interface Student {
+  id: number;
+  name: string;
+  email: string;
+  area_id: number;
+  course_id: number;
+  lattes_url: string;
+  defended_at: string;
+}
+
+interface Area {
+  id: number;
+  name: string;
+}
+
+interface Course {
+  id: number;
+  name: string;
+}
 
 export default function StudentsPage() {
-  const [students, setStudents] = useState(studentMock);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
-  const [newStudent, setNewStudent] = useState({
+  const [students, setStudents] = useState<Student[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [search, setSearch] = useState('');
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [newStudent, setNewStudent] = useState<Omit<Student, 'id'>>({
     name: '',
     email: '',
     area_id: 0,
@@ -52,55 +77,107 @@ export default function StudentsPage() {
     defended_at: '',
   });
 
-  const filteredStudents = students.filter((s) =>
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  // Carregar dados iniciais
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [studentsData, areasData, coursesData] = await Promise.all([
+          api.fetchStudents(),
+          api.fetchAreas(),
+          api.fetchCourses(),
+        ]);
+        console.log('📘 Students:', studentsData);
+        console.log('🌐 Areas:', areasData);
+        console.log('📚 Courses:', coursesData);
+        setStudents(studentsData);
+        setAreas(areasData);
+        setCourses(coursesData);
+      } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+
+  const filteredStudents = students.filter((student) =>
+    student.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAdd = () => {
-    const id = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
-    setStudents([...students, { id, ...newStudent }]);
-    setNewStudent({
-      name: '',
-      email: '',
-      area_id: 0,
-      course_id: 0,
-      lattes_url: '',
-      defended_at: '',
-    });
-    setIsAddOpen(false);
-  };
+  const getAreaName = (id: number) => areas.find((a) => a.id === id)?.name || '—';
+  const getCourseName = (id: number) => courses.find((c) => c.id === id)?.name || '—';
 
-  const getAreaName = (id: number | null) => {
-    if (id === null) return 'Não Informado';
-    const area = areaMock.find(a => a.id === id);
-    return area ? `${area.area}` : 'Não Informado';
-  };
+  // Adicionar estudante
+  async function addStudent() {
+    try {
+      const res = await fetch('/api/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newStudent),
+      });
+      if (!res.ok) throw new Error('Erro ao adicionar estudante');
+      const created = await res.json();
+      setStudents((old) => [...old, created]);
+      setNewStudent({
+        name: '',
+        email: '',
+        area_id: 0,
+        course_id: 0,
+        lattes_url: '',
+        defended_at: '',
+      });
+      setOpenAdd(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
-  const getCourseName = (id: number | null) => {
-    if (id === null) return 'Não Informado';
-    const course = courseMock.find(c => c.id === id);
-    return course ? course.name : 'Não Informado';
-  };
-  const handleEdit = () => {
-    if (!currentStudent) return;
-    setStudents(students.map(s => (s.id === currentStudent.id ? currentStudent : s)));
-    setIsEditOpen(false);
-  };
+  // Editar estudante
+  async function editStudent() {
+    if (!selectedStudent) return;
+    try {
+      const res = await fetch(`/api/students/${selectedStudent.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(selectedStudent),
+      });
+      if (!res.ok) throw new Error('Erro ao editar estudante');
+      const updated = await res.json();
+      setStudents((old) =>
+        old.map((s) => (s.id === updated.id ? updated : s))
+      );
+      setOpenEdit(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
-  const handleDelete = () => {
-    if (!currentStudent) return;
-    setStudents(students.filter(s => s.id !== currentStudent.id));
-    setIsDeleteOpen(false);
-  };
+  // Excluir estudante
+  async function deleteStudent() {
+    if (!selectedStudent) return;
+    try {
+      const res = await fetch(`/api/students/${selectedStudent.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Erro ao excluir estudante');
+      setStudents((old) => old.filter((s) => s.id !== selectedStudent.id));
+      setOpenDelete(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <header className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Discentes</h1>
           <p className="text-muted-foreground">Gerencie os estudantes cadastrados no sistema.</p>
         </div>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+
+        <Dialog open={openAdd} onOpenChange={setOpenAdd}>
           <DialogTrigger asChild>
             <Button data-cy="add-student-button"><Plus className="mr-2 h-4 w-4" /> Adicionar estudante</Button>
           </DialogTrigger>
@@ -111,62 +188,94 @@ export default function StudentsPage() {
             </DialogHeader>
             <div className="grid gap-4 py-4" data-cy="add-student-form">
               <div className="grid gap-2">
-                <Label htmlFor="name">Nome</Label>
-                <Input id="name" value={newStudent.name} onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })} />
+                <Label htmlFor="add-name">Nome</Label>
+                <Input
+                  id="add-name"
+                  value={newStudent.name}
+                  onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+                />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" value={newStudent.email} onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })} />
+                <Label htmlFor="add-email">Email</Label>
+                <Input
+                  id="add-email"
+                  value={newStudent.email}
+                  onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+                />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="course_id">Curso</Label>
-                <Select value={String(newStudent.course_id)} onValueChange={(value) => setNewStudent({ ...newStudent, course_id: parseInt(value) })}>
-                  <SelectTrigger className="w-full">
+                <Label htmlFor="add-course">Curso</Label>
+                <Select
+                  value={String(newStudent.course_id)}
+                  onValueChange={(v) => setNewStudent({ ...newStudent, course_id: Number(v) })}
+                >
+                  <SelectTrigger>
                     <SelectValue placeholder="Selecione um curso" />
                   </SelectTrigger>
                   <SelectContent>
-                    {courseMock.map((course) => (
+                    {courses.map((course) => (
                       <SelectItem key={course.id} value={String(course.id)}>
                         {course.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Label htmlFor="area_id">Área</Label>
-                <Select value={String(newStudent.area_id)} onValueChange={(value) => setNewStudent({ ...newStudent, area_id: parseInt(value) })}>
-                  <SelectTrigger className="w-full truncate">
+
+                <Label htmlFor="add-area">Área</Label>
+                <Select
+                  value={String(newStudent.area_id)}
+                  onValueChange={(v) => setNewStudent({ ...newStudent, area_id: Number(v) })}
+                >
+                  <SelectTrigger>
                     <SelectValue placeholder="Selecione uma área" />
                   </SelectTrigger>
                   <SelectContent>
-                    {areaMock.map((area) => (
+                    {areas.map((area) => (
                       <SelectItem key={area.id} value={String(area.id)}>
-                        {area.area}
+                        {area.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="lattes_url">URL do Lattes</Label>
-                <Input id="lattes_url" value={newStudent.lattes_url} onChange={(e) => setNewStudent({ ...newStudent, lattes_url: e.target.value })} />
+                <Label htmlFor="add-lattes">URL do Lattes</Label>
+                <Input
+                  id="add-lattes"
+                  value={newStudent.lattes_url}
+                  onChange={(e) => setNewStudent({ ...newStudent, lattes_url: e.target.value })}
+                />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="defended_at">Data de Defesa</Label>
-                <Input id="defended_at" type="date" value={newStudent.defended_at} onChange={(e) => setNewStudent({ ...newStudent, defended_at: e.target.value })} />
+                <Label htmlFor="add-defended_at">Data de Defesa</Label>
+                <Input
+                  id="add-defended_at"
+                  type="date"
+                  value={newStudent.defended_at}
+                  onChange={(e) => setNewStudent({ ...newStudent, defended_at: e.target.value })}
+                />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancelar</Button>
-              <Button data-cy="add-student-form-submit" onClick={handleAdd}>Adicionar</Button>
+              <Button variant="outline" onClick={() => setOpenAdd(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={addStudent}>Adicionar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
+      </header>
 
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input type="search" placeholder="Buscar estudantes..." className="pl-8" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <Input
+            type="search"
+            placeholder="Buscar estudantes..."
+            className="pl-8"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
       </div>
 
@@ -176,31 +285,61 @@ export default function StudentsPage() {
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Área</TableHead>
               <TableHead>Curso</TableHead>
+              <TableHead>Área</TableHead>
+              <TableHead>Lattes</TableHead>
+              <TableHead>Data de defesa</TableHead>
               <TableHead>Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredStudents.map((s) => (
-              <TableRow key={s.id}>
-                <TableCell>{s.name}</TableCell>
-                <TableCell>{s.email}</TableCell>
-                <TableCell>{getAreaName(s.area_id)}</TableCell>
-                <TableCell>{getCourseName(s.course_id)}</TableCell>
+            {filteredStudents.map((student) => (
+              <TableRow key={student.id}>
+                <TableCell>{student.name}</TableCell>
+                <TableCell>{student.email}</TableCell>
+                <TableCell>{getCourseName(student.course_id)}</TableCell>
+                <TableCell>{getAreaName(student.area_id)}</TableCell>
+                <TableCell>
+                  {student.lattes_url ? (
+                    <a
+                      href={student.lattes_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      Lattes
+                    </a>
+                  ) : (
+                    '—'
+                  )}
+                </TableCell>
+                <TableCell>{student.defended_at || '—'}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button data-cy={`student-list-dropdown-${s.name}`} variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button>
+                      <Button variant="ghost" className="h-8 w-8 p-0" aria-label="Mais opções">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => {
-                        setCurrentStudent(s); setIsEditOpen(true);
-                      }}>Editar</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedStudent(student);
+                          setOpenEdit(true);
+                        }}
+                      >
+                        Editar
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem data-cy={`student-list-dropdown-delete-${s.name}`} className="text-red-600" onClick={() => {
-                        setCurrentStudent(s); setIsDeleteOpen(true); 
-                      }}>Apagar</DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => {
+                          setSelectedStudent(student);
+                          setOpenDelete(true);
+                        }}
+                      >
+                        Excluir
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -210,83 +349,123 @@ export default function StudentsPage() {
         </Table>
       </div>
 
-      {/* Edit Student Dialog */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+      {/* Editar Dialog */}
+      <Dialog open={openEdit} onOpenChange={setOpenEdit}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar estudante</DialogTitle>
-            <DialogDescription>Modifique os dados do estudante.</DialogDescription>
+            <DialogDescription>Altere os dados do estudante</DialogDescription>
           </DialogHeader>
-          {currentStudent && (
+          {selectedStudent && (
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="name">Nome</Label>
-                <Input id="name" value={currentStudent.name} onChange={(e) => setCurrentStudent({ ...currentStudent, name: e.target.value })} />
+                <Label htmlFor="edit-name">Nome</Label>
+                <Input
+                  id="edit-name"
+                  value={selectedStudent.name}
+                  onChange={(e) =>
+                    setSelectedStudent({ ...selectedStudent, name: e.target.value })
+                  }
+                />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" value={currentStudent.email || ''} onChange={(e) => setCurrentStudent({ ...currentStudent, email: e.target.value })} />
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  value={selectedStudent.email}
+                  onChange={(e) =>
+                    setSelectedStudent({ ...selectedStudent, email: e.target.value })
+                  }
+                />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="course_id">Curso</Label>
-                <Select value={String(currentStudent.course_id)} onValueChange={(value) => setCurrentStudent({ ...currentStudent, course_id: parseInt(value) })}>
-                  <SelectTrigger className="w-full">
+                <Label htmlFor="edit-course">Curso</Label>
+                <Select
+                  value={String(selectedStudent.course_id)}
+                  onValueChange={(v) =>
+                    setSelectedStudent({ ...selectedStudent, course_id: Number(v) })
+                  }
+                >
+                  <SelectTrigger>
                     <SelectValue placeholder="Selecione um curso" />
                   </SelectTrigger>
                   <SelectContent>
-                    {courseMock.map((course) => (
+                    {courses.map((course) => (
                       <SelectItem key={course.id} value={String(course.id)}>
                         {course.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Label htmlFor="area_id">Área</Label>
-                <Select value={String(currentStudent.area_id)} onValueChange={(value) => setCurrentStudent({ ...currentStudent, area_id: parseInt(value) })}>
-                  <SelectTrigger className="w-full truncate">
+
+                <Label htmlFor="edit-area">Área</Label>
+                <Select
+                  value={String(selectedStudent.area_id)}
+                  onValueChange={(v) =>
+                    setSelectedStudent({ ...selectedStudent, area_id: Number(v) })
+                  }
+                >
+                  <SelectTrigger>
                     <SelectValue placeholder="Selecione uma área" />
                   </SelectTrigger>
                   <SelectContent>
-                    {areaMock.map((area) => (
+                    {areas.map((area) => (
                       <SelectItem key={area.id} value={String(area.id)}>
-                        {area.area}
+                        {area.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="lattes_url">URL do Lattes</Label>
-                <Input id="lattes_url" value={currentStudent.lattes_url || ''} onChange={(e) => setCurrentStudent({ ...currentStudent, lattes_url: e.target.value })} />
+                <Label htmlFor="edit-lattes">URL do Lattes</Label>
+                <Input
+                  id="edit-lattes"
+                  value={selectedStudent.lattes_url}
+                  onChange={(e) =>
+                    setSelectedStudent({ ...selectedStudent, lattes_url: e.target.value })
+                  }
+                />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="defended_at">Data de Defesa</Label>
-                <Input id="defended_at" type="date" value={currentStudent.defended_at || ''} onChange={(e) => setCurrentStudent({ ...currentStudent, defended_at: e.target.value })} />
+                <Label htmlFor="edit-defended_at">Data de Defesa</Label>
+                <Input
+                  id="edit-defended_at"
+                  type="date"
+                  value={selectedStudent.defended_at || ''}
+                  onChange={(e) =>
+                    setSelectedStudent({ ...selectedStudent, defended_at: e.target.value })
+                  }
+                />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancelar</Button>
-            <Button onClick={handleEdit}>Salvar</Button>
+            <Button variant="outline" onClick={() => setOpenEdit(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={editStudent}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
-      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+      {/* Excluir Dialog */}
+      <Dialog open={openDelete} onOpenChange={setOpenDelete}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Excluir estudante</DialogTitle>
-            <DialogDescription>Essa ação é irreversível.</DialogDescription>
+            <DialogTitle>Confirmar exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir o estudante{' '}
+              <strong>{selectedStudent?.name}</strong>? Esta ação não pode ser desfeita.
+            </DialogDescription>
           </DialogHeader>
-          {currentStudent && (
-            <div className="py-4">
-              <p>Você deseja excluir <strong>{currentStudent.name}</strong>?</p>
-            </div>
-          )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancelar</Button>
-            <Button data-cy="student-list-dropdown-delete-modal-confirm-button" variant="destructive" onClick={handleDelete}>Excluir</Button>
+            <Button variant="outline" onClick={() => setOpenDelete(false)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={deleteStudent}>
+              Excluir
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
