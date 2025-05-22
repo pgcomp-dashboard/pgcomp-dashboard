@@ -83,7 +83,7 @@ cp cypress.env.example.json cypress.env.json
 
 ```json
 {
-  "admin_email": "admin@admin",
+  "admin_email": "admin@admin.com
   "admin_password": "password"
 }
 ```
