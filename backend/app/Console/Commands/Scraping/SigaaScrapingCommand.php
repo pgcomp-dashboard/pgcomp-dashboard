@@ -164,44 +164,60 @@ class SigaaScrapingCommand extends Command
     private function updateDefended(array $data)
     {
         foreach ($data as $item) {
+            $userNotDefended = User::where('type', UserType::STUDENT->value)
+                ->where('name', $item['student'])
+                ->whereNull('defended_at')
+                ->first();
+            if ($userNotDefended && !empty($item['date'])) {
+                $advisor = $userNotDefended->advisors()->first();
+
+                if ($advisor) {
+                    $userNotDefended->area_id = $advisor->area_id;
+                }
+
+                $userNotDefended->defended_at = date($item['date']);
+                $userNotDefended->save();
+
+                $this->info("{$userNotDefended->name} defendeu.");
+                continue;
+            }
+
             $user = User::where('type', UserType::STUDENT->value)
                 ->where('name', $item['student'])
                 ->first();
+
+            if (!empty($user) && $user->is_protected) {
+                $msg = "{$user->name} | Não é possivel atualizar um discente protegido.";
+                $this->error($msg);
+                Log::error($msg, $item);
+                continue;
+            }
 
             $teacher = User::where('type', UserType::PROFESSOR->value)
                 ->where('name', $item['teacher'])
                 ->first(['id']);
 
-            if ($user) {
-                $advisor = $user->advisors()->first();
+            $registration = User::whereNotNull('registration')
+                ->orderBy('registration')
+                ->first(['registration'])
+                ->registration;
 
-                if ($advisor) {
-                    $user->area_id = $advisor->area_id;
-                }
+            $areaId = User::where('type', UserType::PROFESSOR->value)
+                ->where('id', $teacher?->id)
+                ->whereNotNull(['id', 'area_id'])
+                ->first(['area_id'])?->area_id;
 
-                $user->defended_at = $item['date'];
-                $user->save();
-                $this->info("{$user->name} defendeu.");
-            } else {
-                $registration = User::whereNotNull('registration')
-                    ->orderBy('registration')
-                    ->first(['registration'])
-                    ->registration;
+            $userCreated =   $user::createOrUpdateStudentByScraping([
+                'id' => $user?->id ?? null,
+                'registration' => $user?->registration ?? $registration - 1,
+                'name' => $item['student'],
+                'course_id' => $item['course_id'],
+                'area_id' => $areaId,
+                'defended_at' => $item['date']
+            ]);
 
-                $areaId = User::where('type', UserType::PROFESSOR->value)
-                    ->where('id', $teacher?->id)
-                    ->whereNotNull(['id', 'area_id'])
-                    ->first(['area_id'])?->area_id;
-
-                $user = User::createOrUpdateStudentByScraping([
-                    'registration' => $registration - 1,
-                    'name' => $item['student'],
-                    'course_id' => $item['course_id'],
-                    'area_id' => $areaId,
-                ]);
-            }
-            if ($teacher && $user->advisors()->where('id', $teacher->id)->doesntExist()) {
-                $user->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
+            if ($teacher && $userCreated->advisors()->where('id', $teacher->id)->doesntExist()) {
+                $userCreated->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
             }
         }
     }
