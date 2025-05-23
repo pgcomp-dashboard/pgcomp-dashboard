@@ -118,6 +118,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'lattes_url',
         'is_admin',
         'is_protected',
+        'defended_at'
     ];
 
     protected $hidden = [
