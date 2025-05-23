@@ -1,12 +1,16 @@
-// TODO: what is the format of error responses from the API?
 export interface ApiError {
   code: number;
-  errors: {
-    description: string;
-  }[];
+  errors: { description: string }[];
 }
 
-interface Advisor {
+export function parseApiError(error: unknown): string {
+  if (typeof error === 'object' && error && 'errors' in error) {
+    return (error as ApiError).errors.map(e => e.description).join('\n');
+  }
+  return 'Erro desconhecido.';
+}
+
+export interface Advisor {
   id: number;
   name: string;
   advisedes_count: number;
@@ -29,11 +33,15 @@ type Professor = {
 export interface Student {
   id: number;
   name: string;
-  email: string;
-  area_id: number;
+  email: string | null;
+  registration: number | null;
+  type: 'student';
+  is_admin: boolean;
+  area_id: number | null;
   course_id: number;
-  lattes_url: string;
-  defended_at: string;
+  lattes_url: string | null;
+  defended_at: string | null;
+  is_protected: boolean;
 }
 
 export interface Course {
@@ -41,8 +49,7 @@ export interface Course {
   name: string;
 }
 
-
-export type RequestBodyType = BodyInit | null | undefined;
+export type RequestBodyType = BodyInit | object | null | undefined;
 
 export class ApiService {
   private baseUrl: string;
@@ -52,226 +59,204 @@ export class ApiService {
     this.baseUrl = baseUrl;
   }
 
-  setAuthToken(newToken?: string) {
-    this.authToken = newToken;
+  setAuthToken(token?: string) {
+    this.authToken = token;
   }
 
-  private async request(
+  private async request<T>(
     endpoint: string,
     method: string,
-    body: RequestBodyType,
+    body: RequestBodyType = undefined,
     headers: Record<string, string> = {},
-  ): Promise<unknown> {
+  ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    if (this.authToken) {
-      headers['Authorization'] = `Bearer ${this.authToken}`;
-    }
-
-    const options: RequestInit = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...headers,
-      },
-      body,
+    const finalHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...headers,
     };
 
-    let response;
+    if (this.authToken) {
+      finalHeaders['Authorization'] = `Bearer ${this.authToken}`;
+    }
+
+    let requestBody: BodyInit | undefined = undefined;
+    if (body && typeof body === 'object' && finalHeaders['Content-Type'] === 'application/json') {
+      requestBody = JSON.stringify(body);
+    } else {
+      requestBody = body as BodyInit;
+    }
+
     try {
-      response = await fetch(url, options);
+      const response = await fetch(url, {
+        method,
+        headers: finalHeaders,
+        body: requestBody,
+      });
+
+      if (!response.ok) {
+        let error: ApiError = {
+          code: response.status,
+          errors: [{ description: 'Erro ao se comunicar com a API.' }],
+        };
+
+        try {
+          const json = await response.json();
+          error.errors = json.errors ?? [{ description: json.message ?? 'Erro desconhecido.' }];
+        } catch (jsonError) {
+          console.error('Erro ao interpretar JSON de erro da API:', jsonError);
+        }
+
+        throw error;
+      }
+
+      return await response.json() as T;
     } catch (e) {
-      console.error(`Failed to fetch ${endpoint}:`, e);
+      console.error(`Erro na requisição para ${endpoint}:`, e);
       throw {
         code: 408,
-        errors: [{ description: String(e) }],
+        errors: [{ description: 'Falha de conexão com o servidor.' }],
       } as ApiError;
     }
-
-    if (!response.ok) {
-      const error: ApiError = {
-        code: response.status,
-        errors: [{ description: 'Request failed' }],
-      };
-      try {
-        const json = await response.json();
-        error.errors = json.errors;
-      } catch (e) {
-        console.error('API returned invalid JSON data:', e);
-      }
-      throw error;
-    }
-
-    return await response.json();
   }
 
-  async get(endpoint: string, headers: Record<string, string> = {}): Promise<unknown> {
-    return this.request(endpoint, 'GET', undefined, headers);
+  async get<T>(endpoint: string, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'GET', undefined, headers);
   }
 
-  async post(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
-    return this.request(endpoint, 'POST', body, headers);
+  async post<T>(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'POST', body, headers);
   }
 
-  async put(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
-    return this.request(endpoint, 'PUT', body, headers);
+  async put<T>(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'PUT', body, headers);
   }
 
-  async delete(endpoint: string, headers: Record<string, string> = {}): Promise<unknown> {
-    return this.request(endpoint, 'DELETE', undefined, headers);
+  async delete<T>(endpoint: string, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'DELETE', undefined, headers);
   }
 
-  // --------------------------
-  //        CRUD - Students
-  // --------------------------
-
-  async fetchStudents(): Promise<Student[]> {
-    const response = await this.get('/api/portal/admin/students') as { data: Student[] };
-    return response.data;
+  // CRUD - Students
+  async fetchStudents() {
+    const res = await this.get<{ status: string; data: Student[] }>('/api/portal/admin/students');
+    return res.data;
   }
 
-  async fetchCourses(): Promise<Course[]> {
-    const response = await this.get('/api/portal/admin/courses') as { data: Course[] };
-    return response.data;
+  async createStudent(student: Omit<Student, 'id'>) {
+    const res = await this.post<{ status: string; data: Student }>('/api/portal/admin/students', student);
+    return res.data;
   }
 
-  // --------------------------
-  //        CRUD - Áreas
-  // --------------------------
+  async updateStudent(id: number, student: Omit<Student, 'id'>) {
+    const res = await this.put<{ status: string; data: Student }>(`/api/portal/admin/students/${id}`, student);
+    return res.data;
+  }
 
-  async fetchAreas(): Promise<Area[]> {
-    const response = await this.get('/api/portal/admin/areas') as {
-      data: {
-        id: number,
-        area: string,
-      }[]
-    };
-    return response.data.map((item) => ({
+  async deleteStudent(id: number) {
+    return this.delete<{ status: string; message: string }>(`/api/portal/admin/students/${id}`);
+  }
+
+  // Courses
+  async fetchCourses() {
+    const res = await this.get<{ data: Course[] }>('/api/portal/admin/courses');
+    return res.data;
+  }
+
+  // Areas
+  async fetchAreas() {
+    const res = await this.get<{ data: { id: number; area: string }[] }>('/api/portal/admin/areas');
+    return res.data.map(item => ({
       id: item.id,
       name: item.area,
-      students: 0, // Precisa mexer no AreaController para receber a quantidade de estudantes por área.
+      students: 0,
     }));
   }
 
-  async createArea(area: { name: string; students: number }): Promise<Area> {
-    const response = await this.post('/api/portal/admin/areas', JSON.stringify({
-      area: area.name,
-    })) as {
-      status: string,
-      message: string,
-      data: {
-        id: number,
-        area: string,
-        created_at: string,
-        updated_at: string,
-      }
-    };
-    return {
-      id: response.data.id,
-      name: response.data.area,
-      students: 0,
-    };
+  async createArea(area: { name: string }) {
+    const res = await this.post<{ data: { id: number; area: string } }>(
+      '/api/portal/admin/areas',
+      { area: area.name },
+    );
+    return { id: res.data.id, name: res.data.area, students: 0 };
   }
 
-  async updateArea(area: { id: number; name: string; students: number }): Promise<Area> {
-    const response = await this.put(`/api/portal/admin/areas/${area.id}`, JSON.stringify({
-      area: area.name,
-    })) as {
-      status: string,
-      message: string,
-      data: {
-        id: number,
-        area: string,
-        created_at: string,
-        updated_at: string,
-      }
-    };
-    return {
-      id: response.data.id,
-      name: response.data.area,
-      students: 0,
-    };
+  async updateArea(area: { id: number; name: string }) {
+    const res = await this.put<{ data: { id: number; area: string } }>(
+      `/api/portal/admin/areas/${area.id}`,
+      { area: area.name },
+    );
+    return { id: res.data.id, name: res.data.area, students: 0 };
   }
 
-  async deleteArea(id: number): Promise<{ message: string }> {
-    return await this.delete(`/api/portal/admin/areas/${id}`) as { message: string };
+  async deleteArea(id: number) {
+    return this.delete<{ message: string }>(`/api/portal/admin/areas/${id}`);
   }
 
-  // --------------------------
-  //        Dashboard
-  // --------------------------
-
-  async totalStudentsPerAdvisor(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: Advisor }> {
-    return await this.get(filter ? `/api/dashboard/total_students_per_advisor?user_type=${filter}` : '/api/dashboard/total_students_per_advisor') as { [key: string]: Advisor };
+  // Dashboard
+  async totalStudentsPerAdvisor(filter?: 'mestrando' | 'doutorando' | 'completed') {
+    const query = filter ? `?user_type=${filter}` : '';
+    return this.get<{ [key: string]: Advisor }>(`/api/dashboard/total_students_per_advisor${query}`);
   }
 
-  async totalProductionsPerYear(filter?: 'journal' | 'conference'): Promise<{ [key: string]: number }> {
-    return await this.get(filter ? `/api/dashboard/all_production?publisher_type=${filter}` : '/api/dashboard/all_production') as { [key: string]: number };
+  async totalProductionsPerYear(filter?: 'journal' | 'conference') {
+    const query = filter ? `?publisher_type=${filter}` : '';
+    return this.get<{ [key: string]: number }>(`/api/dashboard/all_production${query}`);
   }
 
-  async studentsPerField(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: number }> {
-    return await this.get(filter ? `/api/dashboard/fields?selectedFilter=${filter}` : '/api/dashboard/fields') as { [key: string]: number };
+  async studentsPerField(filter?: 'mestrando' | 'doutorando' | 'completed') {
+    const query = filter ? `?selectedFilter=${filter}` : '';
+    return this.get<{ [key: string]: number }>(`/api/dashboard/fields${query}`);
   }
 
-  async studentsPerSubfield(filter?: 'mestrando' | 'doutorando' | 'completed'): Promise<{ [key: string]: number }> {
-    return await this.get(filter ? `/api/dashboard/subfields?selectedFilter=${filter}` : '/api/dashboard/subfields') as { [key: string]: number };
+  async studentsPerSubfield(filter?: 'mestrando' | 'doutorando' | 'completed') {
+    const query = filter ? `?selectedFilter=${filter}` : '';
+    return this.get<{ [key: string]: number }>(`/api/dashboard/subfields${query}`);
   }
 
-  async productionPerQualis(): Promise<{ [key: string]: number }> {
-    return await this.get('/api/dashboard/production_per_qualis') as { [key: string]: number };
+  async productionPerQualis() {
+    return this.get<{ [key: string]: number }>('/api/dashboard/production_per_qualis');
   }
 
-  async defensesPerYear(filter?: 'mestrado' | 'doutorado'): Promise<{ [key: string]: number }> {
-    return await this.get(filter ? `/api/dashboard/defenses_per_year?filter=${filter}` : '/api/dashboard/defenses_per_year') as { [key: string]: number };
+  async defensesPerYear(filter?: 'mestrado' | 'doutorado') {
+    const query = filter ? `?filter=${filter}` : '';
+    return this.get<{ [key: string]: number }>(`/api/dashboard/defenses_per_year${query}`);
   }
 
-  async enrollmentsPerYear(filter?: 'mestrado' | 'doutorado'): Promise<{ [key: string]: number }> {
-    return await this.get(filter ? `/api/dashboard/enrollments_per_year?filter=${filter}` : '/api/dashboard/enrollments_per_year') as { [key: string]: number };
+  async enrollmentsPerYear(filter?: 'mestrado' | 'doutorado') {
+    const query = filter ? `?filter=${filter}` : '';
+    return this.get<{ [key: string]: number }>(`/api/dashboard/enrollments_per_year${query}`);
   }
 
   async professors() {
-    const res = await this.get('/api/dashboard/professors') as {
-      status: string;
-      data: { id: number, name: string }[],
-    };
+    const res = await this.get<{ data: { id: number; name: string }[] }>('/api/dashboard/professors');
     return res.data;
   }
 
   async professorProductionPerYear(professorId: number, startYear?: number, endYear?: number) {
-    const currentYear = new Date().getFullYear();
-
-    if (!startYear) startYear = currentYear - 2;
-    if (!endYear) endYear = currentYear;
-
-    const res = await this.get(
-      `/api/dashboard/professor/${professorId}/productions?anoInicial=${startYear}&anoFinal=${endYear}`,
-    ) as {
-      professor: string;
-      productions: { [key: string]: number },
-    };
-
+    const year = new Date().getFullYear();
+    const from = startYear ?? year - 2;
+    const to = endYear ?? year;
+    const res = await this.get<{ productions: { [key: string]: number } }>(
+      `/api/dashboard/professor/${professorId}/productions?anoInicial=${from}&anoFinal=${to}`,
+    );
     return res.productions;
   }
 
-  // --------------------------
-  //           Auth
-  // --------------------------
-
-  async login(email: string, password: string): Promise<{ token: string }> {
-    return await this.post('/api/login', JSON.stringify({ email, password })) as {
-      token: string
-    };
+  // Auth
+  async login(email: string, password: string) {
+    return this.post<{ token: string }>('/api/login', { email, password });
   }
 
-  async getAllQualis(): Promise<Array<{ id: number; code: string; score: number; created_at: string; updated_at: string }>> {
-    const response = await this.get('/api/portal/admin/qualis') as { data: Array<{ id: number; code: string; score: number; created_at: string; updated_at: string }> };
-    return response.data;
+  // Qualis
+  async getAllQualis() {
+    const res = await this.get<{ data: Array<{ id: number; code: string; score: number; created_at: string; updated_at: string }> }>(
+      '/api/portal/admin/qualis'
+    );
+    return res.data;
   }
 
-  async updateQualis(id: number, body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
-    const endpoint = `/api/portal/admin/qualis/${id}`;
-    const response = await this.put(endpoint, body, headers);
-    return response;
+  async updateQualis(id: number, body: RequestBodyType) {
+    return this.put(`/api/portal/admin/qualis/${id}`, body);
   }
 
   async getAllProfessors(): Promise<Professor[]> {
@@ -291,6 +276,7 @@ export class ApiService {
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
     // Dados mockados
+  // MOCKED
     return [
       { category: 'Alunos Atuais - Mestrado', amount: 35 },
       { category: 'Alunos Atuais - Doutorado', amount: 80 },
@@ -298,9 +284,7 @@ export class ApiService {
       { category: 'Alunos Concluídos - Doutorado', amount: 250 },
     ];
   }
-
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');
-
 export default API_SINGLETON;

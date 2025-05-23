@@ -42,11 +42,15 @@ import {
 interface Student {
   id: number;
   name: string;
-  email: string;
-  area_id: number;
+  email: string | null;
+  registration: number | null;
+  type: 'student';
+  is_admin: boolean;
+  area_id: number | null;
   course_id: number;
-  lattes_url: string;
-  defended_at: string;
+  lattes_url: string | null;
+  defended_at: string | null;
+  is_protected: boolean;
 }
 
 interface Area {
@@ -71,10 +75,14 @@ export default function StudentsPage() {
   const [newStudent, setNewStudent] = useState<Omit<Student, 'id'>>({
     name: '',
     email: '',
+    registration: 0,
+    type: 'student',
+    is_admin: false,
     area_id: 0,
     course_id: 0,
     lattes_url: '',
     defended_at: '',
+    is_protected: false,
   });
 
   // Carregar dados iniciais
@@ -87,9 +95,6 @@ export default function StudentsPage() {
           api.fetchAreas(),
           api.fetchCourses(),
         ]);
-        console.log('📘 Students:', studentsData);
-        console.log('🌐 Areas:', areasData);
-        console.log('📚 Courses:', coursesData);
         setStudents(studentsData);
         setAreas(areasData);
         setCourses(coursesData);
@@ -102,55 +107,65 @@ export default function StudentsPage() {
   }, []);
 
 
-  const filteredStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(search.toLowerCase())
+  const filteredStudents = students.filter(
+    (student) =>
+      student &&
+      student.name &&
+      student.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const getAreaName = (id: number) => areas.find((a) => a.id === id)?.name || '—';
   const getCourseName = (id: number) => courses.find((c) => c.id === id)?.name || '—';
 
+  // ==== Validação de campos obrigatórios ====
+  function validateStudent(student: Omit<Student, 'id'> | Student) {
+    if (!student.name.trim()) return false;
+    if (!student.registration) return false;
+    if (!student.course_id) return false;
+    if (!student.area_id) return false;
+    return true;
+  }
+
   // Adicionar estudante
   async function addStudent() {
+    if (!validateStudent(newStudent)) {
+      alert('Preencha todos os campos obrigatórios: Nome, Matrícula, Curso e Área.');
+      return;
+    }
     try {
-      const res = await fetch('/api/students', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newStudent),
-      });
-      if (!res.ok) throw new Error('Erro ao adicionar estudante');
-      const created = await res.json();
+      const created = await api.createStudent(newStudent);
       setStudents((old) => [...old, created]);
       setNewStudent({
         name: '',
         email: '',
+        registration: 0,
+        type: 'student',
+        is_admin: false,
         area_id: 0,
         course_id: 0,
         lattes_url: '',
         defended_at: '',
+        is_protected: false,
       });
       setOpenAdd(false);
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao adicionar estudante:', error);
     }
   }
 
   // Editar estudante
   async function editStudent() {
-    if (!selectedStudent) return;
+    if (!selectedStudent) return false;
+    if (!validateStudent(selectedStudent)) {
+      alert('Preencha todos os campos obrigatórios: Nome, Matrícula, Curso e Área.');
+      return false;
+    }
     try {
-      const res = await fetch(`/api/students/${selectedStudent.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedStudent),
-      });
-      if (!res.ok) throw new Error('Erro ao editar estudante');
-      const updated = await res.json();
-      setStudents((old) =>
-        old.map((s) => (s.id === updated.id ? updated : s))
-      );
+      const updated = await api.updateStudent(selectedStudent.id, selectedStudent);
+      setStudents((old) => old.map((s) => (s.id === updated.id ? updated : s)));
       setOpenEdit(false);
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao editar estudante:', error);
     }
   }
 
@@ -158,14 +173,11 @@ export default function StudentsPage() {
   async function deleteStudent() {
     if (!selectedStudent) return;
     try {
-      const res = await fetch(`/api/students/${selectedStudent.id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Erro ao excluir estudante');
+      await api.deleteStudent(selectedStudent.id);
       setStudents((old) => old.filter((s) => s.id !== selectedStudent.id));
       setOpenDelete(false);
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao excluir estudante:', error);
     }
   }
 
@@ -199,65 +211,94 @@ export default function StudentsPage() {
                 <Label htmlFor="add-email">Email</Label>
                 <Input
                   id="add-email"
-                  value={newStudent.email}
+                  value={newStudent.email ?? ''}
                   onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="add-course">Curso</Label>
-                <Select
-                  value={String(newStudent.course_id)}
-                  onValueChange={(v) => setNewStudent({ ...newStudent, course_id: Number(v) })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um curso" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {courses.map((course) => (
-                      <SelectItem key={course.id} value={String(course.id)}>
-                        {course.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="add-course">Curso</Label>
+                  <Select
+                    value={String(newStudent.course_id)}
+                    onValueChange={(v) => setNewStudent({ ...newStudent, course_id: Number(v) })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione um curso" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(courses ?? []).map((course) => (
+                        <SelectItem key={course.id} value={String(course.id)}>
+                          {course.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                <Label htmlFor="add-area">Área</Label>
-                <Select
-                  value={String(newStudent.area_id)}
-                  onValueChange={(v) => setNewStudent({ ...newStudent, area_id: Number(v) })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma área" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {areas.map((area) => (
-                      <SelectItem key={area.id} value={String(area.id)}>
-                        {area.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="add-area">Área</Label>
+                  <Select
+                    value={String(newStudent.area_id)}
+                    onValueChange={(v) => setNewStudent({ ...newStudent, area_id: Number(v) })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione uma área" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(areas ?? []).map((area) => (
+                        <SelectItem key={area.id} value={String(area.id)}>
+                          {area.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="add-lattes">URL do Lattes</Label>
                 <Input
                   id="add-lattes"
-                  value={newStudent.lattes_url}
+                  value={newStudent.lattes_url ?? ''}
                   onChange={(e) => setNewStudent({ ...newStudent, lattes_url: e.target.value })}
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="add-defended_at">Data de Defesa</Label>
-                <Input
-                  id="add-defended_at"
-                  type="date"
-                  value={newStudent.defended_at}
-                  onChange={(e) => setNewStudent({ ...newStudent, defended_at: e.target.value })}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="add-name">Matrícula</Label>
+                  <Input
+                    id="add-registration"
+                    type="number"
+                    value={newStudent.registration ?? 0}
+                    onChange={(e) => setNewStudent({ ...newStudent, registration: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="add-defended_at">Data de Defesa</Label>
+                  <Input
+                    id="add-defended_at"
+                    type="date"
+                    value={newStudent.defended_at ?? ''}
+                    onChange={(e) => setNewStudent({ ...newStudent, defended_at: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setOpenAdd(false)}>
+              <Button variant="outline" onClick={() => {
+                setNewStudent({
+                  name: '',
+                  email: '',
+                  registration: 0,
+                  type: 'student',
+                  is_admin: false,
+                  area_id: 0,
+                  course_id: 0,
+                  lattes_url: '',
+                  defended_at: '',
+                  is_protected: false,
+                });
+                setOpenAdd(false);
+              }}>
                 Cancelar
               </Button>
               <Button onClick={addStudent}>Adicionar</Button>
@@ -283,6 +324,7 @@ export default function StudentsPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Matrícula</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Curso</TableHead>
@@ -295,10 +337,11 @@ export default function StudentsPage() {
           <TableBody>
             {filteredStudents.map((student) => (
               <TableRow key={student.id}>
+                <TableCell>{student.registration}</TableCell>
                 <TableCell>{student.name}</TableCell>
                 <TableCell>{student.email}</TableCell>
                 <TableCell>{getCourseName(student.course_id)}</TableCell>
-                <TableCell>{getAreaName(student.area_id)}</TableCell>
+                <TableCell>{getAreaName(student.area_id ?? 0)}</TableCell>
                 <TableCell>
                   {student.lattes_url ? (
                     <a
@@ -313,7 +356,9 @@ export default function StudentsPage() {
                     '—'
                   )}
                 </TableCell>
-                <TableCell>{student.defended_at || '—'}</TableCell>
+                <TableCell>
+                  {student.defended_at ? new Date(student.defended_at).toLocaleDateString('pt-BR') : '—'}
+                </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -362,7 +407,7 @@ export default function StudentsPage() {
                 <Label htmlFor="edit-name">Nome</Label>
                 <Input
                   id="edit-name"
-                  value={selectedStudent.name}
+                  value={selectedStudent?.name ?? ''}
                   onChange={(e) =>
                     setSelectedStudent({ ...selectedStudent, name: e.target.value })
                   }
@@ -372,71 +417,88 @@ export default function StudentsPage() {
                 <Label htmlFor="edit-email">Email</Label>
                 <Input
                   id="edit-email"
-                  value={selectedStudent.email}
+                  value={selectedStudent.email ?? ''}
                   onChange={(e) =>
                     setSelectedStudent({ ...selectedStudent, email: e.target.value })
                   }
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-course">Curso</Label>
-                <Select
-                  value={String(selectedStudent.course_id)}
-                  onValueChange={(v) =>
-                    setSelectedStudent({ ...selectedStudent, course_id: Number(v) })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um curso" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {courses.map((course) => (
-                      <SelectItem key={course.id} value={String(course.id)}>
-                        {course.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="edit-course">Curso</Label>
+                  <Select
+                    value={String(selectedStudent.course_id)}
+                    onValueChange={(v) =>
+                      setSelectedStudent({ ...selectedStudent, course_id: Number(v) })
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione um curso" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(courses ?? []).map((course) => (
+                        <SelectItem key={course.id} value={String(course.id)}>
+                          {course.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                <Label htmlFor="edit-area">Área</Label>
-                <Select
-                  value={String(selectedStudent.area_id)}
-                  onValueChange={(v) =>
-                    setSelectedStudent({ ...selectedStudent, area_id: Number(v) })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma área" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {areas.map((area) => (
-                      <SelectItem key={area.id} value={String(area.id)}>
-                        {area.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="edit-area">Área</Label>
+                  <Select
+                    value={String(selectedStudent.area_id)}
+                    onValueChange={(v) =>
+                      setSelectedStudent({ ...selectedStudent, area_id: Number(v) })
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione uma área" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(areas ?? []).map((area) => (
+                        <SelectItem key={area.id} value={String(area.id)}>
+                          {area.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="edit-lattes">URL do Lattes</Label>
                 <Input
                   id="edit-lattes"
-                  value={selectedStudent.lattes_url}
+                  value={selectedStudent.lattes_url ?? ''}
                   onChange={(e) =>
                     setSelectedStudent({ ...selectedStudent, lattes_url: e.target.value })
                   }
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-defended_at">Data de Defesa</Label>
-                <Input
-                  id="edit-defended_at"
-                  type="date"
-                  value={selectedStudent.defended_at || ''}
-                  onChange={(e) =>
-                    setSelectedStudent({ ...selectedStudent, defended_at: e.target.value })
-                  }
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-name">Matrícula</Label>
+                  <Input
+                    id="edit-registration"
+                    type="number"
+                    value={selectedStudent?.registration ?? ''}
+                    onChange={(e) =>
+                      setSelectedStudent({ ...selectedStudent, registration: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-defended_at">Data de Defesa</Label>
+                  <Input
+                    id="edit-defended_at"
+                    type="date"
+                    value={selectedStudent.defended_at || ''}
+                    onChange={(e) =>
+                      setSelectedStudent({ ...selectedStudent, defended_at: e.target.value })
+                    }
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -444,7 +506,17 @@ export default function StudentsPage() {
             <Button variant="outline" onClick={() => setOpenEdit(false)}>
               Cancelar
             </Button>
-            <Button onClick={editStudent}>Salvar</Button>
+            <Button
+              onClick={async () => {
+                const success = await editStudent();    // tenta salvar no backend
+                if (success) {
+                  setOpenEdit(false);                   // fecha o modal somente em sucesso
+                  setSelectedStudent(null);             // limpa a seleção
+                }
+              }}
+            >
+              Salvar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -460,7 +532,10 @@ export default function StudentsPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenDelete(false)}>
+            <Button variant="outline" onClick={() => {
+              setSelectedStudent(null);;
+              setOpenDelete(false)
+            }}>
               Cancelar
             </Button>
             <Button variant="destructive" onClick={deleteStudent}>
