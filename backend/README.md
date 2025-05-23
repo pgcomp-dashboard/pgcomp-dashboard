@@ -43,9 +43,8 @@ Responsável pelo serviço de recuperação dos dados (através de web scraping)
 # Gerar principais dados
 ./vendor/bin/sail artisan db:seed  # Inserir dados mockados
 
-# Formatar arquivos HTML para json e salvar em storage/Lattes/json
-docker run -it --rm -v $(pwd):/app -w /app python:3.11-slim bash -c "pip install beautifulsoup4 lxml && python app/Domain/Lattes/LattesHtmlParser.py"
-./vendor/bin/sail artisan scraping:run # Executar todos os comandos de scraping
+# Executar todos os comandos de scraping
+./vendor/bin/sail artisan scraping:run 
 
 ```
 
