@@ -207,7 +207,7 @@ class SigaaScrapingCommand extends Command
                 ->whereNotNull(['id', 'area_id'])
                 ->first(['area_id'])?->area_id;
 
-            $userCreated =   $user::createOrUpdateStudentByScraping([
+            $userCreated = User::createOrUpdateStudentByScraping([
                 'id' => $user?->id ?? null,
                 'registration' => $user?->registration ?? $registration - 1,
                 'name' => $item['student'],
