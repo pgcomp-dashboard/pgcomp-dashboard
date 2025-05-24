@@ -184,30 +184,35 @@ class DashboardController extends Controller
         return User::userCountPerArea($filter);
     }
 
-    public function defensesPerYear(Request $request)
+    public function defensesPerYear()
     {
-        $data = $request->validate([
-            'filter' => 'nullable|string|in:mestrado,doutorado',
-        ]);
-
-        $filter = $data['filter'] ?? null;
-
-        $baseQuery = match ($filter) {
-            "mestrado" => User::mestrandos(),
-            "doutorado" => User::doutorandos(),
-            default => User::query(),
-        };
-
-        $counts = $baseQuery
+        $mestrado = User::mestrandos()
             ->whereNotNull('defended_at')
             ->selectRaw('YEAR(defended_at) AS year, COUNT(*) AS total')
             ->groupBy('year')
-            ->orderBy('year')
             ->pluck('total', 'year');
 
-        // returns e.g. { "2019": 13, "2020": 23, "2021": 24, ... }
-        return response()->json($counts);
+        $doutorado = User::doutorandos()
+            ->whereNotNull('defended_at')
+            ->selectRaw('YEAR(defended_at) AS year, COUNT(*) AS total')
+            ->groupBy('year')
+            ->pluck('total', 'year');
+
+        $allYears = collect($mestrado->keys())->merge($doutorado->keys())->unique()->sort();
+
+        $result = $allYears->mapWithKeys(function ($year) use ($mestrado, $doutorado) {
+            return [
+                $year => [
+                    'year' => $year,
+                    'mestrado' => $mestrado[$year] ?? 0,
+                    'doutorado' => $doutorado[$year] ?? 0,
+                ],
+            ];
+        });
+
+        return response()->json($result->values());
     }
+
     
     public function allProfessors()
     {
