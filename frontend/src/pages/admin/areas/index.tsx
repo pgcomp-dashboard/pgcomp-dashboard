@@ -118,7 +118,7 @@ export default function AreasPage() {
         </div>
         <Dialog open={isAddAreaOpen} onOpenChange={setIsAddAreaOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button data-cy="add-area-button">
               <Plus className="mr-2 h-4 w-4" /> Adicionar área
             </Button>
           </DialogTrigger>
@@ -133,6 +133,7 @@ export default function AreasPage() {
                 <Input
                   id="name"
                   value={newArea.name}
+                  data-cy="add-area-form-input-name"
                   onChange={(e) => setNewArea({ ...newArea, name: e.target.value })}
                 />
               </div>
@@ -142,6 +143,7 @@ export default function AreasPage() {
                   <Input
                     id="students"
                     type="number"
+                    data-cy="add-area-form-input-student-number"
                     value={newArea.students}
                     onChange={(e) => setNewArea({ ...newArea, students: Number.parseInt(e.target.value) || 0 })}
                   />
@@ -152,7 +154,7 @@ export default function AreasPage() {
               <Button variant="outline" onClick={() => setIsAddAreaOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleAddArea}>Adicionar nova área</Button>
+              <Button data-cy="add-area-form-submit" onClick={handleAddArea}>Adicionar nova área</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -188,7 +190,7 @@ export default function AreasPage() {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
+                      <Button data-cy={`area-list-dropdown-${area.name}`} variant="ghost" className="h-8 w-8 p-0">
                         <span className="sr-only">Abrir menu</span>
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
@@ -204,6 +206,7 @@ export default function AreasPage() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
+                        data-cy={`area-list-dropdown-delete-${area.name}`}
                         className="text-red-600"
                         onClick={() => {
                           setCurrentArea(area);
@@ -286,7 +289,7 @@ export default function AreasPage() {
             <Button variant="outline" onClick={() => setIsDeleteAreaOpen(false)}>
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDeleteArea}>
+            <Button data-cy="area-list-dropdown-delete-modal-confirm-button" variant="destructive" onClick={handleDeleteArea}>
               Apagar
             </Button>
           </DialogFooter>

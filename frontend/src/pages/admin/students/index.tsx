@@ -258,7 +258,7 @@ export default function StudentsPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancelar</Button>
-            <Button data-cy="student-list-dropdown-delete-modal-confirm-button"variant="destructive" onClick={handleDelete}>Excluir</Button>
+            <Button data-cy="student-list-dropdown-delete-modal-confirm-button" variant="destructive" onClick={handleDelete}>Excluir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
