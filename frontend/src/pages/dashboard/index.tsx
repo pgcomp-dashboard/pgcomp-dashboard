@@ -263,7 +263,7 @@ export default function Dashboard() {
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value='all'><DefensesPerYearChart /></TabsContent>
+                <TabsContent value='all'><DefensesPerYearChart filter='todos'/></TabsContent>
                 <TabsContent value='mestrado'><DefensesPerYearChart filter='mestrado' /></TabsContent>
                 <TabsContent value='doutorado'><DefensesPerYearChart filter='doutorado' /></TabsContent>
               </CardContent>

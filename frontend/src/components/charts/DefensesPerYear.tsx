@@ -5,13 +5,11 @@ import {
   YAxis,
   Tooltip,
   Bar,
-  Cell,
   TooltipProps,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
-import { colorFromName } from '@/utils/color';
 import './chart.css';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
@@ -29,7 +27,9 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
         <br />
         {payload.map((ele, index) => (
           <div key={index}>
-            <span className="tooltip-text">Defesas em {label} : {ele.value}</span>
+            <span className="tooltip-text">
+              Defesas de {ele.name} em {label} : {ele.value}
+            </span>
           </div>
         ))}
       </div>
@@ -38,10 +38,13 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
   return null;
 };
 
-export default function DefensesPerYearChart() {
+export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' | 'todos' }) {
   const { data, isLoading, error } = useQuery({
     queryKey: [ 'defenses_per_year' ],
-    queryFn: () => api.defensesPerYear(),
+    queryFn: async () => {
+      const res = await api.defensesPerYear();
+      return Array.isArray(res) ? res : [ res ];
+    },
   });
 
   const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart((data ?? []).length, MAX_VISIBLE_BARS);
@@ -51,9 +54,10 @@ export default function DefensesPerYearChart() {
 
   return (
     <>
-      {data.length > MAX_VISIBLE_BARS && (
+      {data && data.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
+
       <div className={`block w-full overflow-x-auto pb-4 ${isScrollable ? 'mb-20' : 'mb-6'}`} style={{ minHeight: '400px' }}>
         <div style={{ minWidth: chartWidth }}>
           <ChartContainer
@@ -68,9 +72,13 @@ export default function DefensesPerYearChart() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="year" interval={0} angle={-45} textAnchor="end" style={{ fontSize: 18 }} />
               <YAxis style={{ fontSize: 18 }} />
-              <Tooltip />
-              <Bar dataKey="mestrado" stackId="a" fill="#8884d8" />
-              <Bar dataKey="doutorado" stackId="a" fill="#82ca9d" />
+              <Tooltip content={<CustomTooltip />} />
+              {(filter === 'todos' || filter === 'mestrado') && (
+                <Bar dataKey="mestrado" stackId="a" fill="#8884d8" />
+              )}
+              {(filter === 'todos' || filter === 'doutorado') && (
+                <Bar dataKey="doutorado" stackId="a" fill="#82ca9d" />
+              )}
             </BarChart>
           </ChartContainer>
         </div>
