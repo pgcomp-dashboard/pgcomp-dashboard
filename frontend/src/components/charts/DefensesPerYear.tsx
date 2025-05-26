@@ -74,10 +74,10 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
               <YAxis style={{ fontSize: 18 }} />
               <Tooltip content={<CustomTooltip />} />
               {(filter === 'todos' || filter === 'mestrado') && (
-                <Bar dataKey="mestrado" stackId="a" fill="#8884d8" />
+                <Bar dataKey="mestrado" stackId="a" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}/>
               )}
               {(filter === 'todos' || filter === 'doutorado') && (
-                <Bar dataKey="doutorado" stackId="a" fill="#82ca9d" />
+                <Bar dataKey="doutorado" stackId="a" fill="#82ca9d" label={{ position: 'top', style: { fontSize: 18 } }}/>
               )}
             </BarChart>
           </ChartContainer>
