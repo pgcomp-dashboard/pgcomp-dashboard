@@ -31,6 +31,8 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+import { productionsByProfessor, Production } from './productionsByProfessor'; 
+
 type Professor = {
   id: number;
   name: string;
@@ -40,9 +42,12 @@ type Professor = {
 };
 
 export default function ProfessorsPage() {
-  const [ searchTerm, setSearchTerm ] = useState('');
-  const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
-  const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
+  const [isProductionsOpen, setIsProductionsOpen] = useState(false);
+  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(null);
+  const [selectedProductions, setSelectedProductions] = useState<Production[]>([]);
+
   const history = useNavigate();
 
   const { data: professors = [], isLoading, error } = useQuery({
@@ -54,13 +59,13 @@ export default function ProfessorsPage() {
     prof.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const verProducoes = (id: number) => {
-    console.log(`Ver produções de ${id}`);
-    // history(`/admin/professors/${id}/productions`);
+  const verProducoes = (professorId: number) => {
+    const producoes = productionsByProfessor.filter(p => p.professorId === professorId);
+    setSelectedProductions(producoes);
+    setIsProductionsOpen(true);
   };
 
   const verDetalhes = () => {
-    if (!currentProfessor) return;
     setIsDetailProfOpen(false);
   };
 
@@ -129,6 +134,7 @@ export default function ProfessorsPage() {
         </Table>
       </div>
 
+      {/* Dialog - Detalhes do Professor */}
       <Dialog open={isDetailProfOpen} onOpenChange={setIsDetailProfOpen}>
         <DialogContent>
           <DialogHeader>
@@ -166,6 +172,35 @@ export default function ProfessorsPage() {
 
           <DialogFooter>
             <Button onClick={verDetalhes}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog - Produções */}
+      <Dialog open={isProductionsOpen} onOpenChange={setIsProductionsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Publicações do docente</DialogTitle>
+            <DialogDescription>Lista de produções cadastradas</DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+            {selectedProductions.map((prod, idx) => (
+              <div
+                key={idx}
+                className="rounded border bg-gray-100 p-4 text-sm flex flex-col gap-1"
+              >
+                <p><strong>nome da produção:</strong> {prod.titulo}</p>
+                <p><strong>Autores:</strong> {prod.autores}</p>
+                <p><strong>Nota qualis:</strong> {prod.notaQualis}</p>
+                <p><strong>Doi:</strong> {prod.doi || 'erro'}</p>
+                <p><strong>Publicação:</strong> {prod.publicacao}</p>
+              </div>
+            ))}
+          </div>
+
+          <DialogFooter>
+            <Button onClick={() => setIsProductionsOpen(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
