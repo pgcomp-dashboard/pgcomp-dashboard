@@ -129,10 +129,20 @@ export class ApiService {
   }
 
   // CRUD - Students
-  async fetchStudents() {
-    const res = await this.get<{ status: string; data: Student[] }>('/api/portal/admin/students');
-    return res.data;
+  async fetchStudents(page = 1, limit = 15) {
+    const response = await fetch(`/api/students?page=${page}&limit=${limit}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    const data = await response.json();
+    return data; // Ex: { data: [...], total: 100 }
   }
+
+  //  async fetchStudents() {
+  //    const res = await this.get<{ status: string; data: Student[] }>('/api/portal/admin/students');
+  //    return res.data;
+  //  }
 
   async createStudent(student: Omit<Student, 'id'>) {
     const res = await this.post<{ status: string; data: Student }>('/api/portal/admin/students', student);
@@ -140,8 +150,8 @@ export class ApiService {
   }
 
   async updateStudent(id: number, student: Omit<Student, 'id'>) {
-    const res = await this.put<{ status: string; data: Student }>(`/api/portal/admin/students/${id}`, student);
-    return res.data;
+    const res = await this.put<Student>(`/api/portal/admin/students/${id}`, student);
+    return res;
   }
 
   async deleteStudent(id: number) {
