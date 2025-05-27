@@ -264,7 +264,7 @@ export default function StudentsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="add-name">Matrícula</Label>
+                  <Label htmlFor="add-registration">Matrícula</Label>
                   <Input
                     id="add-registration"
                     type="number"
