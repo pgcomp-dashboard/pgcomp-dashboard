@@ -44,6 +44,22 @@ export interface Student {
   is_protected: boolean;
 }
 
+export interface PaginatedResponse<T> {
+  current_page: number;
+  data: T[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: any[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
+}
+
 export interface Course {
   id: number;
   name: string;
@@ -137,9 +153,27 @@ export class ApiService {
   }
 
   // CRUD - Students
-  async fetchStudents() {
-    const res = await this.get<{ status: string; data: Student[] }>('/api/portal/admin/students');
-    return res.data;
+  async fetchStudents(
+    page: number = 1,
+    perPage: number = 15,
+    filters?: Record<string, any>
+  ) {
+    const params = new URLSearchParams({
+      page: String(page),
+      per_page: String(perPage),
+    });
+
+    if (filters) {
+      for (const [key, value] of Object.entries(filters)) {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      }
+    }
+
+    const url = `/api/portal/admin/students?${params.toString()}`;
+    const res = await this.get<PaginatedResponse<Student>>(url);
+    return res;
   }
 
   async createStudent(student: Omit<Student, 'id'>) {

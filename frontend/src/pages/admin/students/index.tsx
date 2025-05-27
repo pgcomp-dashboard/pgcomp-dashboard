@@ -65,7 +65,10 @@ interface Course {
 }
 
 export default function StudentsPage() {
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(5);
   const [students, setStudents] = useState<Student[]>([]);
+  const [pagination, setPagination] = useState<any>(null); // temporariamente, para evitar erro de tipo
   const [areas, setAreas] = useState<Area[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [search, setSearch] = useState('');
@@ -90,23 +93,30 @@ export default function StudentsPage() {
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const [studentsData, areasData, coursesData] = await Promise.all([
-          api.fetchStudents(),
-          api.fetchAreas(),
-          api.fetchCourses(),
-        ]);
-        setStudents(studentsData);
-        setAreas(areasData);
-        setCourses(coursesData);
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error);
-      }
+      const filters: Record<string, any> = {};
+      if (search.trim()) filters.search = search.trim();
+
+      const [studentsRes, areasData, coursesData] = await Promise.all([
+        api.fetchStudents(page, perPage, filters),
+        api.fetchAreas(),
+        api.fetchCourses(),
+      ]);
+
+      setStudents(studentsRes.data);
+      setPagination({
+        current_page: studentsRes.current_page,
+        last_page: studentsRes.last_page,
+        per_page: studentsRes.per_page,
+        total: studentsRes.total,
+        from: studentsRes.from,
+        to: studentsRes.to,
+      });
+      setAreas(areasData);
+      setCourses(coursesData);
     }
 
     fetchData();
-  }, []);
-
+  }, [page, perPage, search]);
 
   const filteredStudents = students.filter(
     (student) =>
@@ -308,20 +318,45 @@ export default function StudentsPage() {
         </Dialog>
       </header>
 
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Buscar estudantes..."
-            className="pl-8"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
 
       <div className="rounded-md border">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Buscar estudantes..."
+              className="pl-8"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="perPageSelect" className="mr-2 text-sm text-muted-foreground">
+              Estudantes por página:
+            </label>
+            <select
+              id="perPageSelect"
+              className="border rounded px-2 py-1 text-sm"
+              value={perPage}
+              onChange={(e) => {
+                setPerPage(Number(e.target.value));
+                setPage(1);
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={15}>15</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        </div>
+
         <Table>
           <TableHeader>
             <TableRow>
@@ -393,6 +428,34 @@ export default function StudentsPage() {
             ))}
           </TableBody>
         </Table>
+        {pagination && (
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-sm text-muted-foreground">
+              Página {pagination.current_page} de {pagination.last_page}
+            </span>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={pagination.current_page === 1}
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              >
+                Anterior
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={pagination.current_page === pagination.last_page}
+                onClick={() => setPage((prev) => Math.min(prev + 1, pagination.last_page))}
+              >
+                Próxima
+              </Button>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* Editar Dialog */}
