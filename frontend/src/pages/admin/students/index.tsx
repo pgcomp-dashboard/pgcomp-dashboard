@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -266,7 +267,7 @@ export default function StudentsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="add-registration">Matrícula</Label>
+                  <Label htmlFor="add-name">Matrícula</Label>
                   <Input
                     id="add-registration"
                     type="number"
