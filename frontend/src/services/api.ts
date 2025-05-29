@@ -196,10 +196,18 @@ export class ApiService {
     return res.data;
   }
 
-  // Areas
-  async fetchAreas() {
-    const res = await this.get<{ data: { id: number; area: string }[] }>('/api/portal/admin/areas');
-    return res.data.map(item => ({
+  // --------------------------
+  //        CRUD - Áreas
+  // --------------------------
+
+  async fetchAreas(): Promise<Area[]> {
+    const response = await this.get('/api/portal/admin/areas') as {
+      data: {
+        id: number,
+        area: string,
+      }[]
+    };
+    return response.data.map((item) => ({
       id: item.id,
       name: item.area,
       students: 0,
@@ -318,6 +326,19 @@ export class ApiService {
       { category: 'Alunos Concluídos - Doutorado', amount: 250 },
     ];
   }
+
+  async createQualis(body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
+    const endpoint = `/api/portal/admin/qualis`;
+    const response = await this.post(endpoint, body, headers);
+    return response;
+  }
+
+  async deleteQualis(id: number, headers: Record<string, string> = {}): Promise<unknown> {
+    const endpoint = `/api/portal/admin/qualis/${id}`;
+    const response = await this.delete(endpoint, headers);
+    return response;
+  }
+
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');
