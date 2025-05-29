@@ -32,7 +32,7 @@ export default function QualisForm() {
   const [formData, setFormData] = useState<RequestBodyType>({ code: "", score: 0 });
   const [editingItem, setEditingItem] = useState<Qualis | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');  
+  const [searchTerm, setSearchTerm] = useState('');
 
   const filteredQualisCode = qualisList.filter((s) =>
     s.code.toLowerCase().startsWith(searchTerm.trim().toLowerCase())
@@ -93,7 +93,7 @@ export default function QualisForm() {
 
         await api.updateQualis(editingItem.id, JSON.stringify(payload));
       } else {
-        console.log('criado')
+        await api.createQualis(JSON.stringify(payload));
       }
 
       await fetchQualisData();
@@ -105,9 +105,9 @@ export default function QualisForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     try {
-      // await api.deleteQualis(id);
+      await api.deleteQualis(id);
       await fetchQualisData();
     } catch (error) {
       console.error("Erro ao excluir Qualis:", error);
@@ -224,7 +224,9 @@ export default function QualisForm() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(item)}>Editar</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">Apagar</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDelete(item.id)} className="text-red-600">
+                        Apagar
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

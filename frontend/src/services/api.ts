@@ -60,14 +60,14 @@ export class ApiService {
       console.error(`Failed to fetch ${endpoint}:`, e);
       throw {
         code: 408,
-        errors: [ { description: String(e) } ],
+        errors: [{ description: String(e) }],
       } as ApiError;
     }
 
     if (!response.ok) {
       const error: ApiError = {
         code: response.status,
-        errors: [ { description: 'Request failed' } ],
+        errors: [{ description: 'Request failed' }],
       };
       try {
         const json = await response.json();
@@ -102,10 +102,12 @@ export class ApiService {
   // --------------------------
 
   async fetchAreas(): Promise<Area[]> {
-    const response = await this.get('/api/portal/admin/areas') as { data: {
-      id: number,
-      area: string,
-    }[] };
+    const response = await this.get('/api/portal/admin/areas') as {
+      data: {
+        id: number,
+        area: string,
+      }[]
+    };
     return response.data.map((item) => ({
       id: item.id,
       name: item.area,
@@ -188,7 +190,7 @@ export class ApiService {
   async enrollmentsPerYear(filter?: 'mestrado' | 'doutorado'): Promise<{ [key: string]: number }> {
     return await this.get(filter ? `/api/dashboard/enrollments_per_year?filter=${filter}` : '/api/dashboard/enrollments_per_year') as { [key: string]: number };
   }
-  
+
   async professors() {
     const res = await this.get('/api/dashboard/professors') as {
       status: string;
@@ -236,7 +238,7 @@ export class ApiService {
 
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
-  // Dados mockados
+    // Dados mockados
     return [
       { category: 'Alunos Atuais - Mestrado', amount: 35 },
       { category: 'Alunos Atuais - Doutorado', amount: 80 },
@@ -244,6 +246,19 @@ export class ApiService {
       { category: 'Alunos Concluídos - Doutorado', amount: 250 },
     ];
   }
+
+  async createQualis(body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
+    const endpoint = `/api/portal/admin/qualis`;
+    const response = await this.post(endpoint, body, headers);
+    return response;
+  }
+
+  async deleteQualis(id: number, headers: Record<string, string> = {}): Promise<unknown> {
+  const endpoint = `/api/portal/admin/qualis/${id}`;
+  const response = await this.delete(endpoint, headers);
+  return response;
+}
+
 
 
 
