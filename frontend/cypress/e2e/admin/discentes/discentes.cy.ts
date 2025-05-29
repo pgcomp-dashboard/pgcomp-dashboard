@@ -1,9 +1,9 @@
-describe("Fluxo de criação de discente", () => {
+describe('Fluxo de criação de discente', () => {
   beforeEach(() => {
     cy.visit('/login');
   });
 
-  it("deve fazer login, criar e excluir um discente", () => {
+  it('deve fazer login, criar e excluir um discente', () => {
     const nome = 'João da Silva';
     const email = 'joao@example.com';
     const lattesUrl = 'http://lattes.cnpq.br/joao';
@@ -11,8 +11,8 @@ describe("Fluxo de criação de discente", () => {
     const courseId = '2';
     const defendedAt = '2025-12-15';
 
-    const password = Cypress.env("admin_password");
-    const adminEmail = Cypress.env("admin_email");
+    const password = Cypress.env('admin_password');
+    const adminEmail = Cypress.env('admin_email');
 
     const dropdownSelector = `[data-cy="student-list-dropdown-${nome}"]`;
     const deleteSelector = `[data-cy="student-list-dropdown-delete-${nome}"]`;
@@ -34,12 +34,12 @@ describe("Fluxo de criação de discente", () => {
 
     cy.get('[data-cy="add-student-form-submit"]').click();
 
-    cy.contains(email).should("be.visible");
+    cy.contains(email).should('be.visible');
 
     cy.get(dropdownSelector).click();
     cy.get(deleteSelector).click();
     cy.get(confirmDeleteSelector).click();
 
-    cy.contains(email).should("not.exist");
+    cy.contains(email).should('not.exist');
   });
 });

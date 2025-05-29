@@ -1,18 +1,18 @@
 const navbarLabels = [
-  "Produções científicas",
-  "Produções por qualis",
-  "Alunos por docente",
-  "Alunos por área",
-  "Defesas por ano",
-  "Matrículas por ano"
+  'Produções científicas',
+  'Produções por qualis',
+  'Alunos por docente',
+  'Alunos por área',
+  'Defesas por ano',
+  'Matrículas por ano',
 ];
-describe("Verificar a barra de navegação", () => {
+describe('Verificar a barra de navegação', () => {
   beforeEach(() => {
-    cy.visit('/') 
-  })
-  it("Barra de navegação renderizando", () => {
+    cy.visit('/'); 
+  });
+  it('Barra de navegação renderizando', () => {
     navbarLabels.map((el) => {
-      cy.get('#nav_desktop').contains(el).should("be.visible");
+      cy.get('#nav_desktop').contains(el).should('be.visible');
     });
   });
 });

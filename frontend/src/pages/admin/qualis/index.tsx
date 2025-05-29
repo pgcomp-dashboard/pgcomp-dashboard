@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import api from '@/services/api';
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Plus, Pencil, Search } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { MoreHorizontal, Plus, Pencil, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   DropdownMenu,
@@ -28,14 +28,14 @@ interface RequestBodyType {
 }
 
 export default function QualisForm() {
-  const [qualisList, setQualisList] = useState<Qualis[]>([]);
-  const [formData, setFormData] = useState<RequestBodyType>({ code: "", score: 0 });
-  const [editingItem, setEditingItem] = useState<Qualis | null>(null);
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [ qualisList, setQualisList ] = useState<Qualis[]>([]);
+  const [ formData, setFormData ] = useState<RequestBodyType>({ code: '', score: 0 });
+  const [ editingItem, setEditingItem ] = useState<Qualis | null>(null);
+  const [ isAddOpen, setIsAddOpen ] = useState(false);
+  const [ searchTerm, setSearchTerm ] = useState('');
 
   const filteredQualisCode = qualisList.filter((s) =>
-    s.code.toLowerCase().startsWith(searchTerm.trim().toLowerCase())
+    s.code.toLowerCase().startsWith(searchTerm.trim().toLowerCase()),
   );
 
   const fetchQualisData = async () => {
@@ -43,7 +43,7 @@ export default function QualisForm() {
       const data = await api.getAllQualis();
       setQualisList(data);
     } catch (error) {
-      console.error("Erro ao buscar dados de Qualis:", error);
+      console.error('Erro ao buscar dados de Qualis:', error);
     }
   };
 
@@ -55,13 +55,13 @@ export default function QualisForm() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "score" ? Number(value) : value,
+      [name]: name === 'score' ? Number(value) : value,
     }));
   };
 
   const handleAddNew = () => {
     setEditingItem(null);
-    setFormData({ code: "", score: 0 });
+    setFormData({ code: '', score: 0 });
     setIsAddOpen(true);
   };
 
@@ -72,14 +72,14 @@ export default function QualisForm() {
 
   const handleCancel = () => {
     setEditingItem(null);
-    setFormData({ code: "", score: 0 });
+    setFormData({ code: '', score: 0 });
   };
 
   const handleSubmit = async () => {
     try {
       const parsedScore = parseFloat(formData.score.toString());
       if (isNaN(parsedScore)) {
-        console.error("Score inválido");
+        console.error('Score inválido');
         return;
       }
 
@@ -89,7 +89,7 @@ export default function QualisForm() {
       };
 
       if (editingItem) {
-        console.log("Dados enviados:", payload);
+        console.log('Dados enviados:', payload);
 
         await api.updateQualis(editingItem.id, JSON.stringify(payload));
       } else {
@@ -98,10 +98,10 @@ export default function QualisForm() {
 
       await fetchQualisData();
       setEditingItem(null);
-      setFormData({ code: "", score: 0 });
+      setFormData({ code: '', score: 0 });
       setIsAddOpen(false);
     } catch (error) {
-      console.error("Erro ao salvar Qualis:", error);
+      console.error('Erro ao salvar Qualis:', error);
     }
   };
 
@@ -110,7 +110,7 @@ export default function QualisForm() {
       await api.deleteQualis(id);
       await fetchQualisData();
     } catch (error) {
-      console.error("Erro ao excluir Qualis:", error);
+      console.error('Erro ao excluir Qualis:', error);
     }
   };
 

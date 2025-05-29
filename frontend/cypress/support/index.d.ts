@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 
 declare namespace Cypress {
-    interface Chainable {
-      login(email: string, password: string): Chainable<void>;
-    }
+  interface Chainable {
+    login(email: string, password: string): Chainable<void>;
   }
+}
   

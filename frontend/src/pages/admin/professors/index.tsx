@@ -42,16 +42,16 @@ type Professor = {
 };
 
 export default function ProfessorsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
-  const [isProductionsOpen, setIsProductionsOpen] = useState(false);
-  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(null);
-  const [selectedProductions, setSelectedProductions] = useState<Production[]>([]);
+  const [ searchTerm, setSearchTerm ] = useState('');
+  const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
+  const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
+  const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
+  const [ selectedProductions, setSelectedProductions ] = useState<Production[]>([]);
 
   const history = useNavigate();
 
   const { data: professors = [], isLoading, error } = useQuery({
-    queryKey: ['allProfessors'],
+    queryKey: [ 'allProfessors' ],
     queryFn: () => api.getAllProfessors(),
   });
 

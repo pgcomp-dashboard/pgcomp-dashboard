@@ -65,18 +65,18 @@ interface Course {
 }
 
 export default function StudentsPage() {
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(5);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [pagination, setPagination] = useState<any>(null); // temporariamente, para evitar erro de tipo
-  const [areas, setAreas] = useState<Area[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [search, setSearch] = useState('');
-  const [openAdd, setOpenAdd] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [newStudent, setNewStudent] = useState<Omit<Student, 'id'>>({
+  const [ page, setPage ] = useState(1);
+  const [ perPage, setPerPage ] = useState(5);
+  const [ students, setStudents ] = useState<Student[]>([]);
+  const [ pagination, setPagination ] = useState<any>(null); // temporariamente, para evitar erro de tipo
+  const [ areas, setAreas ] = useState<Area[]>([]);
+  const [ courses, setCourses ] = useState<Course[]>([]);
+  const [ search, setSearch ] = useState('');
+  const [ openAdd, setOpenAdd ] = useState(false);
+  const [ openEdit, setOpenEdit ] = useState(false);
+  const [ openDelete, setOpenDelete ] = useState(false);
+  const [ selectedStudent, setSelectedStudent ] = useState<Student | null>(null);
+  const [ newStudent, setNewStudent ] = useState<Omit<Student, 'id'>>({
     name: '',
     email: '',
     registration: 0,
@@ -96,7 +96,7 @@ export default function StudentsPage() {
       const filters: Record<string, any> = {};
       if (search.trim()) filters.search = search.trim();
 
-      const [studentsRes, areasData, coursesData] = await Promise.all([
+      const [ studentsRes, areasData, coursesData ] = await Promise.all([
         api.fetchStudents(page, perPage, filters),
         api.fetchAreas(),
         api.fetchCourses(),
@@ -116,13 +116,13 @@ export default function StudentsPage() {
     }
 
     fetchData();
-  }, [page, perPage, search]);
+  }, [ page, perPage, search ]);
 
   const filteredStudents = students.filter(
     (student) =>
       student &&
       student.name &&
-      student.name.toLowerCase().includes(search.toLowerCase())
+      student.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const getAreaName = (id: number) => areas.find((a) => a.id === id)?.name || '—';
@@ -145,7 +145,7 @@ export default function StudentsPage() {
     }
     try {
       const created = await api.createStudent(newStudent);
-      setStudents((old) => [...old, created]);
+      setStudents((old) => [ ...old, created ]);
       setNewStudent({
         name: '',
         email: '',
@@ -598,7 +598,7 @@ export default function StudentsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => {
               setSelectedStudent(null);;
-              setOpenDelete(false)
+              setOpenDelete(false);
             }}>
               Cancelar
             </Button>
