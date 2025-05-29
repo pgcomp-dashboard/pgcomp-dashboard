@@ -32,5 +32,5 @@ return [
     ],
     'mini_extrator' => [
         'url' => env('MINI_EXTRATOR_URL', 'http://scriptlattes:8000'),
-    ]
+    ],
 ];

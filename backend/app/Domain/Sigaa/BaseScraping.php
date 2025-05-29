@@ -17,7 +17,7 @@ abstract class BaseScraping
      */
     protected function getDOMQuery(string $url, array $queryParams = []): DOMQuery
     {
-        $httpClient = new Client();
+        $httpClient = new Client;
         try {
             $response = $httpClient->get($url, ['query' => $queryParams]);
         } catch (GuzzleException $e) {
@@ -43,7 +43,7 @@ abstract class BaseScraping
 
         parse_str($url['query'], $params);
         if (isset($params['siape']) && is_numeric($params['siape'])) {
-            return (int)$params['siape'];
+            return (int) $params['siape'];
         }
 
         return null;

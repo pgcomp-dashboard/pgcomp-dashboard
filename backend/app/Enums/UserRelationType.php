@@ -11,9 +11,9 @@ enum UserRelationType: string
     case ADVISOR = 'advisor';
     case CO_ADVISOR = 'co-advisor';
 
-    function label(): string
+    public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ADVISOR => 'Orientador',
             self::CO_ADVISOR => 'Coorientador',
         };

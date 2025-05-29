@@ -8,11 +8,11 @@ use ReflectionClass;
 
 class JournalScrapingCommandTest extends TestCase
 {
-    public function test_stringToDate()
+    public function test_string_to_date()
     {
         $scraping = new ReflectionClass(JournalScrapingCommand::class);
         $method = $scraping->getMethod('stringToDate');
-        $journalScrapingCommand = new JournalScrapingCommand();
+        $journalScrapingCommand = new JournalScrapingCommand;
 
         $values = [
             ['arg' => '01/01/2022 23:25:59', 'return' => '2022-01-01 23:25:59'],

@@ -7,47 +7,58 @@ use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Models\Production;
 use Illuminate\Http\Request;
 
-class StudentProductionController  extends Controller
+class StudentProductionController extends Controller
 {
-
     protected ProductionController $productionController;
+
     protected Production $production;
 
-    public function index(BaseResourceIndexRequest $request, $students){
+    public function index(BaseResourceIndexRequest $request, $students)
+    {
         $this->productionController = $this->newInstance();
         $this->productionController->studentQuery($students);
+
         return $this->productionController->index($request);
     }
 
-    public function show($students, $productions){
-        $this->production = new Production();
-        if(empty($this->production->findAllUserProductions($students, $productions))){
+    public function show($students, $productions)
+    {
+        $this->production = new Production;
+        if (empty($this->production->findAllUserProductions($students, $productions))) {
             abort(400);
-        }else {
+        } else {
             $this->productionController = $this->newInstance();
+
             return $this->productionController->show($productions);
         }
     }
 
-    public function store(Request $request, $students){
-        if($students != $request->input("users_id")){
+    public function store(Request $request, $students)
+    {
+        if ($students != $request->input('users_id')) {
             abort(400);
         }
         $this->productionController = $this->newInstance();
+
         return $this->productionController->store($request);
     }
 
-    public function update(Request $request, $students, $productions){
+    public function update(Request $request, $students, $productions)
+    {
         $this->productionController = $this->newInstance();
+
         return $this->productionController->update($request, $productions);
     }
 
-    public function destroy($students, $productions){
+    public function destroy($students, $productions)
+    {
         $this->productionController = $this->newInstance();
+
         return $this->productionController->destroy($productions);
     }
 
-    private function newInstance(){
-        return new ProductionController();
+    private function newInstance()
+    {
+        return new ProductionController;
     }
 }

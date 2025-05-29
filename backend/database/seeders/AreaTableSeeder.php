@@ -7,15 +7,14 @@ use Illuminate\Support\Facades\DB;
 
 class AreaTableSeeder extends Seeder
 {
-
-    static array $areasName = ['Computação aplicada', 'Sistemas computacionais'];
+    public static array $areasName = ['Computação aplicada', 'Sistemas computacionais'];
 
     public function run()
     {
         foreach (self::$areasName as $areaName) {
             DB::table('areas')->insert([
                 'area_name' => $areaName,
-                'program_id' => 1
+                'program_id' => 1,
             ]);
         }
     }

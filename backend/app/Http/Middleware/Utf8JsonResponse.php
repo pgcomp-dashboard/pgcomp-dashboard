@@ -22,7 +22,7 @@ class Utf8JsonResponse
             // 3. Check if the client indicates it accepts UTF‑8
             //    (via Accept-Charset or a charset parameter on Accept)
             $acceptCharset = strtolower($request->header('Accept-Charset', ''));
-            $acceptHeader  = strtolower($request->header('Accept', ''));
+            $acceptHeader = strtolower($request->header('Accept', ''));
 
             $wantsUtf8 =
                 str_contains($acceptCharset, 'utf-8')

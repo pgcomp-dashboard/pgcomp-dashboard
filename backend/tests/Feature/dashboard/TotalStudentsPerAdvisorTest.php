@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 class ProfessorsListTest extends TestCase
 {
@@ -14,9 +14,9 @@ class ProfessorsListTest extends TestCase
         $response = $this->getJson('/api/dashboard/total_students_per_advisor');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     '*' => ['id', 'name', 'advisedes_count'],
-                 ]);
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'advisedes_count'],
+            ]);
 
         $this->assertIsArray($response->json());
     }
@@ -26,9 +26,9 @@ class ProfessorsListTest extends TestCase
         $response = $this->getJson('/api/dashboard/total_students_per_advisor?user_type=mestrando');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     '*' => ['id', 'name', 'advisedes_count'],
-                 ]);
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'advisedes_count'],
+            ]);
 
         $this->assertIsArray($response->json());
     }
@@ -38,9 +38,9 @@ class ProfessorsListTest extends TestCase
         $response = $this->getJson('/api/dashboard/total_students_per_advisor?user_type=doutorando');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     '*' => ['id', 'name', 'advisedes_count'],
-                 ]);
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'advisedes_count'],
+            ]);
 
         $this->assertIsArray($response->json());
     }
@@ -50,9 +50,9 @@ class ProfessorsListTest extends TestCase
         $response = $this->getJson('/api/dashboard/total_students_per_advisor?user_type=completed');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     '*' => ['id', 'name', 'advisedes_count'],
-                 ]);
+            ->assertJsonStructure([
+                '*' => ['id', 'name', 'advisedes_count'],
+            ]);
 
         $this->assertIsArray($response->json());
     }

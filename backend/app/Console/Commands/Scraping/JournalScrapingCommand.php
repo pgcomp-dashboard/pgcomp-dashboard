@@ -3,12 +3,9 @@
 namespace App\Console\Commands\Scraping;
 
 use App\Enums\PublisherType;
-use App\Models\Journal;
 use App\Models\Publishers;
 use App\Models\StratumQualis;
 use Carbon\Exceptions\InvalidFormatException;
-use Google\Client;
-use Google\Service\Sheets;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
@@ -42,35 +39,36 @@ class JournalScrapingCommand extends Command
 
         $this->getOutput()->info('Salvando dados...');
         $this->withProgressBar($data, function ($item) {
-        $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
-        try {
-            if (!isset($item['Qualis_Final'])) {
-                throw new ModelNotFoundException('ERROR');
+            $item['Qualis_Final'] = in_array($item['Qualis_Final'], ['nulo', 'C']) ? '-' : $item['Qualis_Final'];
+            try {
+                if (! isset($item['Qualis_Final'])) {
+                    throw new ModelNotFoundException('ERROR');
+                }
+
+                $stratumQualisId = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+            } catch (ModelNotFoundException) {
+                $stratumQualisId = null;
             }
+            Publishers::updateOrCreate(
+                [
+                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
+                ],
+                [
+                    'name' => $item['periodico'],
 
-            $stratumQualisId= StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
-        } catch (ModelNotFoundException) {
-            $stratumQualisId= null;
-        }
-        Publishers::updateOrCreate(
-            [
-                'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
-            ],
-            [
-                'name' => $item['periodico'],
-
-                'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
-                'update_date' => $this->stringToDate($item['data-atualizacao']),
-                'tentative_date' => $this->stringToDate($item['data-tentativa']),
-                'logs' => (string) $item['logs'],
-                'publisher_type'=>PublisherType::JOURNAL->value,
-                'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
-                'stratum_qualis_id' => $stratumQualisId,
-            ]
-        );
+                    'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
+                    'update_date' => $this->stringToDate($item['data-atualizacao']),
+                    'tentative_date' => $this->stringToDate($item['data-tentativa']),
+                    'logs' => (string) $item['logs'],
+                    'publisher_type' => PublisherType::JOURNAL->value,
+                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
+                    'stratum_qualis_id' => $stratumQualisId,
+                ]
+            );
         });
 
         $this->getOutput()->info('Dados salvos com sucesso.');
+
         return 0;
     }
 
@@ -87,10 +85,10 @@ class JournalScrapingCommand extends Command
         return null;
     }
 
-
-    protected function getSheet(): Collection {
+    protected function getSheet(): Collection
+    {
         // Fetch and parse the CSV
-        $csvString = file_get_contents("https://docs.google.com/spreadsheets/d/10sObNyyL7veHGFbOyizxM8oVsppQoWV-0ALrDr8FxQ0/export?format=csv");
+        $csvString = file_get_contents('https://docs.google.com/spreadsheets/d/10sObNyyL7veHGFbOyizxM8oVsppQoWV-0ALrDr8FxQ0/export?format=csv');
 
         $lines = array_filter(explode(PHP_EOL, $csvString));
 

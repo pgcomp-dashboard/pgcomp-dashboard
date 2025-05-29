@@ -7,8 +7,9 @@ use Illuminate\Support\Facades\DB;
 
 class JournalTableSeeder extends Seeder
 {
-    static array $journalsName = ['J1', 'J2', 'J3', 'J4', 'J5', 'J6'];
-    static array $stratumQualisId = [1, 1, 1, 2, 3, 3];
+    public static array $journalsName = ['J1', 'J2', 'J3', 'J4', 'J5', 'J6'];
+
+    public static array $stratumQualisId = [1, 1, 1, 2, 3, 3];
 
     public function run()
     {
@@ -17,7 +18,7 @@ class JournalTableSeeder extends Seeder
             DB::table('journals')->insert([
                 'name' => $journalName,
                 'stratum_qualis_id' => self::$stratumQualisId[$counter],
-                'issn' => 't'
+                'issn' => 't',
             ]);
             $counter++;
         }

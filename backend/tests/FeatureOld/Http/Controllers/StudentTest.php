@@ -102,7 +102,6 @@ class StudentTest extends TestCase
         $deleteResponse->assertStatus(405);
     }
 
-
     public function test_subfields_filter_master_response()
     {
         $getResponse = $this->get('/api/dashboard/subfields/master');
@@ -167,5 +166,4 @@ class StudentTest extends TestCase
         $patchResponse->assertStatus(405);
         $deleteResponse->assertStatus(405);
     }
-
 }

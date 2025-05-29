@@ -30,6 +30,7 @@ use Illuminate\Validation\Rule;
  * @property-read Collection|User[] $isWroteBy
  * @property-read int|null $is_wrote_by_count
  * @property-read Model|Eloquent $publisher
+ *
  * @method static Builder|Production newModelQuery()
  * @method static Builder|Production newQuery()
  * @method static Builder|Production query()
@@ -44,6 +45,7 @@ use Illuminate\Validation\Rule;
  * @method static Builder|Production whereTitle($value)
  * @method static Builder|Production whereUpdatedAt($value)
  * @method static Builder|Production whereYear($value)
+ *
  * @mixin Eloquent
  */
 class Production extends BaseModel
@@ -75,7 +77,6 @@ class Production extends BaseModel
 
     /**
      * boot the model by setting the production qualis
-     *
      */
     protected static function boot()
     {
@@ -128,15 +129,15 @@ class Production extends BaseModel
      *
      * @param int id to create the relationship between production and user
      */
-    public function saveInterTable($users_id)//: void
+    public function saveInterTable($users_id)// : void
     {
         $this->isWroteBy()->attach($users_id);
     }
 
     /**
-     * @param ?string $user_type the type of the user, if he is a student or a teacher
-     * @param ?string $course_id course_id
-     * @param ?string $publisher_type type of publisher
+     * @param  ?string  $user_type  the type of the user, if he is a student or a teacher
+     * @param  ?string  $course_id  course_id
+     * @param  ?string  $publisher_type  type of publisher
      * @return array returns an array containing the amount by total production separated by year
      */
     public static function totalProductionsPerYear(?string $user_type, ?string $course_id, ?string $publisher_type): array
@@ -145,7 +146,7 @@ class Production extends BaseModel
         $data = [];
         foreach ($years as $year) {
             $data[] = Production::where('year', $year)
-                ->when($publisher_type, function(Builder $builder, $publisherType) {
+                ->when($publisher_type, function (Builder $builder, $publisherType) {
                     $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
                         $q->where('publisher_type', $publisherType);
                     });
@@ -181,7 +182,7 @@ class Production extends BaseModel
             $courseData = ['label' => $course->name, 'data' => []];
             foreach ($years as $year) {
                 $courseData['data'][] = Production::where('year', $year)
-                    ->when($publisherType, function(Builder $builder, $publisherType) {
+                    ->when($publisherType, function (Builder $builder, $publisherType) {
                         $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
                             $q->where('publisher_type', $publisherType);
                         });
@@ -203,21 +204,21 @@ class Production extends BaseModel
      * @param int id of production
      * @return stdClass production of a given user
      */
-    public function findAllUserProductions($user, $production){
+    public function findAllUserProductions($user, $production)
+    {
         $data = DB::table('productions')
             ->select('productions.id')
             ->join('users_productions', 'productions.id',
                 '=', 'users_productions.productions_id')
             ->join('users', 'users.id', '=', 'users_productions.users_id')
             ->where('users.id', '-', $user)
-            ->where('productions.id', '=', $production );
+            ->where('productions.id', '=', $production);
+
         return $data;
     }
 
     /**
      * Does the mapping and sets the stratum qualis of a given production
-     *
-     * @return void
      */
     protected function setQualis(): void
     {

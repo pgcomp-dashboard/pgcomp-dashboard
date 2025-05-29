@@ -30,6 +30,7 @@ use Illuminate\Validation\Rule;
  * @property-read Collection|Production[] $productions
  * @property-read int|null $productions_count
  * @property-read StratumQualis|null $stratumQualis
+ *
  * @method static Builder|Journal newModelQuery()
  * @method static Builder|Journal newQuery()
  * @method static Builder|Journal query()
@@ -46,6 +47,7 @@ use Illuminate\Validation\Rule;
  * @method static Builder|Journal whereTentativeDate($value)
  * @method static Builder|Journal whereUpdateDate($value)
  * @method static Builder|Journal whereUpdatedAt($value)
+ *
  * @mixin Eloquent
  */
 class Journal extends BaseModel

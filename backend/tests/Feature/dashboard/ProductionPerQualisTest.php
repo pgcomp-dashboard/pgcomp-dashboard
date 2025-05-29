@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 class ProductionPerQualisTest extends TestCase
 {
@@ -14,12 +14,12 @@ class ProductionPerQualisTest extends TestCase
         $response = $this->getJson('/api/dashboard/production_per_qualis');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'years',
-                     'data' => [
-                         ['label', 'data'],
-                     ],
-                 ]);
+            ->assertJsonStructure([
+                'years',
+                'data' => [
+                    ['label', 'data'],
+                ],
+            ]);
 
         $payload = $response->json();
         $this->assertIsArray($payload['years'], 'Esperava um array de anos');
@@ -33,12 +33,12 @@ class ProductionPerQualisTest extends TestCase
         $response = $this->getJson('/api/dashboard/production_per_qualis?user_type=mestrando');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'years',
-                     'data' => [
-                         ['label', 'data'],
-                     ],
-                 ]);
+            ->assertJsonStructure([
+                'years',
+                'data' => [
+                    ['label', 'data'],
+                ],
+            ]);
 
         $payload = $response->json();
         $this->assertIsArray($payload['years']);
@@ -50,12 +50,12 @@ class ProductionPerQualisTest extends TestCase
         $response = $this->getJson('/api/dashboard/production_per_qualis?user_type=doutorando');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'years',
-                     'data' => [
-                         ['label', 'data'],
-                     ],
-                 ]);
+            ->assertJsonStructure([
+                'years',
+                'data' => [
+                    ['label', 'data'],
+                ],
+            ]);
 
         $payload = $response->json();
         $this->assertIsArray($payload['years']);

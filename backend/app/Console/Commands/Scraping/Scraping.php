@@ -23,7 +23,6 @@ class Scraping extends Command
 
     protected string $baseNamespace = 'App\Console\Commands\Scraping\\';
 
-
     /**
      * Execute the console command.
      */
@@ -42,9 +41,10 @@ class Scraping extends Command
         }
 
         foreach ($classes as $class) {
-            $class = $this->baseNamespace . $class;
-            if (!class_exists($class)) {
+            $class = $this->baseNamespace.$class;
+            if (! class_exists($class)) {
                 $this->error("Classe de scraping {$class} não existe.");
+
                 continue;
             }
 
@@ -55,7 +55,7 @@ class Scraping extends Command
                 $this->info(str_repeat('-', 100));
                 $this->newLine();
             } catch (Exception $e) {
-                $this->error("Erro ao executar {$class}: " . $e->getMessage());
+                $this->error("Erro ao executar {$class}: ".$e->getMessage());
             }
         }
 

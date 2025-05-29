@@ -5,16 +5,16 @@ use App\Http\Controllers\Api\PanelAdmin\AreaController;
 use App\Http\Controllers\Api\PanelAdmin\AuthController;
 use App\Http\Controllers\Api\PanelAdmin\CourseController;
 use App\Http\Controllers\Api\PanelAdmin\ProductionController as ProductionAdminController;
-use App\Http\Controllers\Api\PanelAdmin\ProfessorProductionController;
-use App\Http\Controllers\Api\PanelAdmin\StudentProductionController;
 use App\Http\Controllers\Api\PanelAdmin\ProfessorController;
+use App\Http\Controllers\Api\PanelAdmin\ProfessorProductionController;
 use App\Http\Controllers\Api\PanelAdmin\ProgramController as ProgramAdminController;
+use App\Http\Controllers\Api\PanelAdmin\PublisherController;
 use App\Http\Controllers\Api\PanelAdmin\StratumQualisController;
 use App\Http\Controllers\Api\PanelAdmin\StudentController as StudentAdminController;
+use App\Http\Controllers\Api\PanelAdmin\StudentProductionController;
 use App\Http\Controllers\Api\PanelAdmin\UserController as UserAdminController;
 use App\Http\Controllers\Api\PanelAdmin\UserProgramController;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\PanelAdmin\PublisherController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
-    //TODO: Dar nomes melhores e mais padrao
+    // TODO: Dar nomes melhores e mais padrao
     Route::get('program', [DashboardController::class, 'programName']);
     Route::get('all_production', [DashboardController::class, 'totalProductionsPerYear']);
     Route::get('students_production', [DashboardController::class, 'studentsProductions']); // Not working

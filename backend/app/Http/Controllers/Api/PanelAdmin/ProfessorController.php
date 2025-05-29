@@ -15,12 +15,14 @@ class ProfessorController extends BaseApiResourceController
     {
         $request->merge(['type' => UserType::PROFESSOR->value]);
         $professor = parent::store($request);
+
         return $professor;
     }
 
     public function update(Request $request, int $id)
     {
         $professor = parent::update($request, $id);
+
         return $professor;
     }
 
@@ -33,5 +35,4 @@ class ProfessorController extends BaseApiResourceController
     {
         return User::class;
     }
-
 }

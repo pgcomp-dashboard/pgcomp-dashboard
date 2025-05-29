@@ -12,7 +12,7 @@ class SigaaScrapingTest extends TestCase
     {
         $scraping = new ReflectionClass(StudentScraping::class);
         $method = $scraping->getMethod('getSiapeIdFromUrl');
-        $studentScraping = new StudentScraping();
+        $studentScraping = new StudentScraping;
 
         $values = [
             [

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Validation\Rule;
 
@@ -22,8 +21,9 @@ class Publishers extends BaseModel
         'update_date',
         'tentative_date',
         'logs',
-        'stratum_qualis_id'
+        'stratum_qualis_id',
     ];
+
     public static function creationRules(): array
     {
         return [
@@ -43,7 +43,7 @@ class Publishers extends BaseModel
         ];
     }
 
-    public  function updateRules(): array
+    public function updateRules(): array
     {
         return [
             'name' => 'required|string|max:255',
@@ -61,7 +61,6 @@ class Publishers extends BaseModel
             'publisher_type' => 'nullable|in:journal,conference',
         ];
     }
-
 
     public function stratumQualis(): BelongsTo
     {

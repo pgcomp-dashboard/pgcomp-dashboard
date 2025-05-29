@@ -14,9 +14,9 @@ class IsAdmin
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure(Request): (Response|RedirectResponse) $next
+     * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @return Response|RedirectResponse
+     *
      * @throws AuthenticationException
      * @throws AuthorizationException
      */
@@ -25,9 +25,9 @@ class IsAdmin
         $user = $request->user();
 
         if (empty($user)) {
-            throw new AuthenticationException();
+            throw new AuthenticationException;
         }
-        if (!$user->is_admin) {
+        if (! $user->is_admin) {
             throw new AuthorizationException('Unauthorized.');
         }
 

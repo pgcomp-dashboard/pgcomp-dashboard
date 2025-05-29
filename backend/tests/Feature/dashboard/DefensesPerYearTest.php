@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Dashboard;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 class DefensesPerYearTest extends TestCase
 {
@@ -20,8 +20,8 @@ class DefensesPerYearTest extends TestCase
 
         foreach ($data as $item) {
             $this->assertIsArray($item, 'Cada elemento deve ser um array associativo');
-            $this->assertArrayHasKey('year',      $item);
-            $this->assertArrayHasKey('mestrado',  $item);
+            $this->assertArrayHasKey('year', $item);
+            $this->assertArrayHasKey('mestrado', $item);
             $this->assertArrayHasKey('doutorado', $item);
 
             $this->assertMatchesRegularExpression(
@@ -30,7 +30,7 @@ class DefensesPerYearTest extends TestCase
                 "Ano inválido em: {$item['year']}"
             );
 
-            $this->assertIsInt($item['mestrado'],  "Valor de mestrado para {$item['year']} não é inteiro");
+            $this->assertIsInt($item['mestrado'], "Valor de mestrado para {$item['year']} não é inteiro");
             $this->assertIsInt($item['doutorado'], "Valor de doutorado para {$item['year']} não é inteiro");
         }
     }
@@ -45,7 +45,7 @@ class DefensesPerYearTest extends TestCase
         $this->assertNotEmpty($data);
 
         foreach ($data as $item) {
-            $this->assertArrayHasKey('year',     $item);
+            $this->assertArrayHasKey('year', $item);
             $this->assertArrayHasKey('mestrado', $item);
 
             $this->assertMatchesRegularExpression(
@@ -66,7 +66,7 @@ class DefensesPerYearTest extends TestCase
         $this->assertNotEmpty($data);
 
         foreach ($data as $item) {
-            $this->assertArrayHasKey('year',     $item);
+            $this->assertArrayHasKey('year', $item);
             $this->assertArrayHasKey('doutorado', $item);
 
             $this->assertMatchesRegularExpression(
