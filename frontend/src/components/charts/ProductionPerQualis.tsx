@@ -22,7 +22,7 @@ const MAX_VISIBLE_BARS = 15;
 
 export default function ProductionPerQualisChart() {
   const chartRef = useRef<HTMLDivElement>(null);
-  const [ , setChartHeight ] = useState<number>(0);
+  const [, setChartHeight] = useState<number>(0);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -31,7 +31,7 @@ export default function ProductionPerQualisChart() {
   }, []);
 
   const { data: response, isLoading, error } = useQuery({
-    queryKey: [ 'productionPerQualis' ],
+    queryKey: ['productionPerQualis'],
     queryFn: () => api.productionPerQualis(),
   });
 
@@ -56,7 +56,8 @@ export default function ProductionPerQualisChart() {
     return entry;
   });
 
-  const allQualis = data.map((d) => d.label);
+  const qualisOrder = ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', '-'];
+  const allQualis = qualisOrder.filter((q) => data.some((d) => d.label === q));
 
   return (
     <>

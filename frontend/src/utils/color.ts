@@ -1,62 +1,39 @@
 /**
  * Returns a consistent hex color from a given name.
- * Uses a simple hash + modulo over a curated palette.
+ * For known Qualis (A1–C), returns specific predefined colors.
+ * Otherwise, uses a simple hash + modulo over a curated palette.
  */
 export function colorFromName(name: string): string {
+  const QUALIS_COLORS: Record<string, string> = {
+    A1: '#003f5c', // Azul escuro profundo
+    A2: '#2f4b7c', // Azul médio
+    A3: '#665191', // Roxo
+    A4: '#a05195', // Magenta
+    B1: '#d45087', // Rosa escuro
+    B2: '#f95d6a', // Coral
+    B3: '#ff7c43', // Laranja vibrante
+    B4: '#ffa600', // Amarelo forte
+    '-': '#ffcc00', // Amarelo-limão
+  };
+
+  // Prioridade: se for Qualis conhecido, retorna cor específica
+  if (name in QUALIS_COLORS) {
+    return QUALIS_COLORS[name];
+  }
+
   const PALETTE = [
     // — 900 shades (17)
-    '#B71C1C', // red 900
-    '#880E4F', // pink 900
-    '#4A148C', // purple 900
-    '#311B92', // deep-purple 900
-    '#1A237E', // indigo 900
-    '#0D47A1', // blue 900
-    '#01579B', // light-blue 900
-    '#006064', // cyan 900
-    '#004D40', // teal 900
-    '#1B5E20', // green 900
-    '#33691E', // light-green 900
-    '#827717', // lime 900
-    '#E65100', // orange 900
-    '#BF360C', // deep-orange 900
-    '#3E2723', // brown 900
-    '#212121', // grey 900
-    '#263238', // blue-grey 900
-
+    '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#1A237E', '#0D47A1', '#01579B',
+    '#006064', '#004D40', '#1B5E20', '#33691E', '#827717', '#E65100', '#BF360C',
+    '#3E2723', '#212121', '#263238',
     // — 800 shades (16)
-    '#C62828', // red 800
-    '#AD1457', // pink 800
-    '#6A1B9A', // purple 800
-    '#4527A0', // deep-purple 800
-    '#283593', // indigo 800
-    '#1565C0', // blue 800
-    '#0277BD', // light-blue 800
-    '#00838F', // cyan 800
-    '#00695C', // teal 800
-    '#2E7D32', // green 800
-    '#558B2F', // light-green 800
-    '#EF6C00', // orange 800
-    '#D84315', // deep-orange 800
-    '#4E342E', // brown 800
-    '#424242', // grey 800
-    '#37474F', // blue-grey 800
-
+    '#C62828', '#AD1457', '#6A1B9A', '#4527A0', '#283593', '#1565C0', '#0277BD',
+    '#00838F', '#00695C', '#2E7D32', '#558B2F', '#EF6C00', '#D84315', '#4E342E',
+    '#424242', '#37474F',
     // — 700 shades with ≥3:1 on white (15)
-    '#D32F2F', // red 700
-    '#C2185B', // pink 700
-    '#7B1FA2', // purple 700
-    '#512DA8', // deep-purple 700
-    '#303F9F', // indigo 700
-    '#1976D2', // blue 700
-    '#0288D1', // light-blue 700
-    '#0097A7', // cyan 700
-    '#00796B', // teal 700
-    '#388E3C', // green 700
-    '#689F38', // light-green 700
-    '#E64A19', // deep-orange 700
-    '#5D4037', // brown 700
-    '#616161', // grey 700
-    '#455A64', // blue-grey 700
+    '#D32F2F', '#C2185B', '#7B1FA2', '#512DA8', '#303F9F', '#1976D2', '#0288D1',
+    '#0097A7', '#00796B', '#388E3C', '#689F38', '#E64A19', '#5D4037', '#616161',
+    '#455A64',
   ];
 
   // 1) djb2 string-to-int hash
@@ -70,7 +47,6 @@ export function colorFromName(name: string): string {
     x = (x ^ 61) ^ (x >>> 16);
     x = x + (x << 3);
     x = x ^ (x >>> 4);
-    // Math.imul ensures 32-bit multiplication
     x = Math.imul(x, 0x27d4eb2d);
     x = x ^ (x >>> 15);
     return x >>> 0;
