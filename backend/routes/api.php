@@ -41,6 +41,7 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('students_production', [DashboardController::class, 'studentsProductions']); // Not working
     Route::get('production_per_qualis', [DashboardController::class, 'productionPerQualis']);
     Route::get('fields', [DashboardController::class, 'studentCountPerArea']);
+    Route::get('students', [DashboardController::class, 'studentCountPerCourse']);
     Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
     Route::get('defenses_per_year', [DashboardController::class, 'defensesPerYear']);
     Route::get('enrollments_per_year', [DashboardController::class, 'enrollmentsPerYear']);
