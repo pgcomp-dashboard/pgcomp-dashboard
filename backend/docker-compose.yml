@@ -68,7 +68,7 @@ services:
         networks:
             - sail
         ports:
-            - '8000:8000'
+            - '8081:8000'
 networks:
     sail:
         driver: bridge
