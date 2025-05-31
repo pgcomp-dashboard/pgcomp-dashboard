@@ -1,20 +1,19 @@
-import { useEffect, useState } from "react";
-import api from '@/services/api';
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Plus, Pencil, Search } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useState, useEffect } from 'react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import api from '@/services/api';
 
-
-interface Qualis {
+type Qualis = {
   id: number;
   code: string;
   score: number;
@@ -27,52 +26,29 @@ interface RequestBodyType {
   score: number;
 }
 
-export default function QualisForm() {
-  const [qualisList, setQualisList] = useState<Qualis[]>([]);
-  const [formData, setFormData] = useState<RequestBodyType>({ code: "", score: 0 });
-  const [editingItem, setEditingItem] = useState<Qualis | null>(null);
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+export default function QualisPage() {
+  const [ qualisData, setQualisData ] = useState<Qualis[]>([]);
+  const [ editingItem, setEditingItem ] = useState<Qualis | null>(null);
+  const [ formData, setFormData ] = useState({
+    code: '',
+    score: 0,
+  });
 
-  const filteredQualisCode = qualisList.filter((s) =>
-    s.code.toLowerCase().startsWith(searchTerm.trim().toLowerCase())
-  );
-
-  const fetchQualisData = async () => {
+  async function fetchQualisData() {
     try {
       const data = await api.getAllQualis();
       setQualisList(data);
     } catch (error) {
-      console.error("Erro ao buscar dados de Qualis:", error);
+      console.error('Erro ao buscar os dados do Qualis:', error);
     }
-  };
-
-  useEffect(() => {
-    fetchQualisData();
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "score" ? Number(value) : value,
-    }));
-  };
-
-  const handleAddNew = () => {
-    setEditingItem(null);
-    setFormData({ code: "", score: 0 });
-    setIsAddOpen(true);
-  };
+  }
 
   const handleEdit = (item: Qualis) => {
     setEditingItem(item);
-    setFormData({ code: item.code, score: item.score });
-  };
-
-  const handleCancel = () => {
-    setEditingItem(null);
-    setFormData({ code: "", score: 0 });
+    setFormData({
+      code: item.code,
+      score: item.score,
+    });
   };
 
   const handleSubmit = async () => {
@@ -89,8 +65,6 @@ export default function QualisForm() {
       };
 
       if (editingItem) {
-        console.log("Dados enviados:", payload);
-
         await api.updateQualis(editingItem.id, JSON.stringify(payload));
       } else {
         await api.createQualis(JSON.stringify(payload));
@@ -98,21 +72,29 @@ export default function QualisForm() {
 
       await fetchQualisData();
       setEditingItem(null);
-      setFormData({ code: "", score: 0 });
-      setIsAddOpen(false);
+      setFormData({ code: '', score: 0 });
     } catch (error) {
       console.error("Erro ao salvar Qualis:", error);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await api.deleteQualis(id);
-      await fetchQualisData();
-    } catch (error) {
-      console.error("Erro ao excluir Qualis:", error);
-    }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: name === 'score' ? parseFloat(value) : value,
+    }));
   };
+
+  const handleCancel = () => {
+    setEditingItem(null);
+    setFormData({ code: '', score: 0 });
+  };
+
+  useEffect(() => {
+    fetchQualisData();
+  }, []);
 
   return (
     <div>

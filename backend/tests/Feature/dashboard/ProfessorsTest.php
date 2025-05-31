@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 class ProfessorsEndpointTest extends TestCase
 {
@@ -14,12 +14,12 @@ class ProfessorsEndpointTest extends TestCase
         $response = $this->getJson('/api/dashboard/professors');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'status',
-                     'data' => [
-                         ['id', 'name'],
-                     ],
-                 ]);
+            ->assertJsonStructure([
+                'status',
+                'data' => [
+                    ['id', 'name'],
+                ],
+            ]);
 
         $payload = $response->json();
         $this->assertEquals('success', $payload['status']);

@@ -2,13 +2,15 @@
 
 namespace App\Console\Commands\Scraping;
 
-use App\Models\User;
+use App\Enums\UserType;
 use App\Models\Production;
 use App\Models\Publishers;
-use Illuminate\Support\Str;
 use App\Models\StratumQualis;
+use App\Models\User;
+use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductionScrapingCommand extends Command
 {
@@ -34,27 +36,45 @@ class ProductionScrapingCommand extends Command
         $this->info('Production scraping command started.');
         $this->info('Fetching data from json file...');
 
-        $file = Storage::get('Lattes/json/todas_producoes.json');
-        if (!$file) {
-            $this->error('File not found.');
-            return;
-        }
+        $clientHttp = new Client([
+            'base_uri' => config('services.mini_extrator.url'),
+            'timeout' => 180,
+            'connect_timeout' => 180,
+        ]);
+        /**
+         * @var User[] $professors
+         */
+        $professors = User::where('type', UserType::PROFESSOR)
+            ->get();
 
-        $membersData = json_decode($file, true);
-        if (!$membersData) {
-            $this->error('Error decoding JSON data.');
-            return;
-        }
-        $this->info('Data fetched successfully.');
-
-        $progessBar = $this->output->createProgressBar(count($membersData));
+        $progessBar = $this->output->createProgressBar(count($professors));
 
         $progessBar->start();
-        foreach ($membersData as $key => $member) {
-            $this->info("Processing member {$key} with " . count($member) . " productions.");
-            $productions = $this->saveProductionsOfMember($member);
-            $this->addRelationUserProduction($key, $productions);
+        foreach ($professors as $professor) {
             $progessBar->advance();
+            if (! $professor->lattes_url) {
+                $this->error("Lattes URL not found for {$professor->name}");
+
+                continue;
+            }
+            try {
+                $this->info("Fetching data for {$professor->name}...");
+                $response = $clientHttp->get('/', ['query' => ['lattes_id' => Str::numbers($professor->lattes_url)]]);
+                if ($response->getStatusCode() !== 200) {
+                    $this->error("Error fetching data for {$professor->name}");
+
+                    continue;
+                }
+                $productions = json_decode($response->getBody(), true);
+
+                $this->info("Processing {$professor->name} with ".count($productions).' productions.');
+                $productions = $this->saveProductionsOfMember($productions);
+                $professor->writerOf()->sync($productions);
+            } catch (Exception $e) {
+                $this->error("Error processing {$professor->name}: {$e->getMessage()}");
+
+                continue;
+            }
         }
         $progessBar->finish();
         $this->info('Production scraping command finished.');
@@ -63,7 +83,8 @@ class ProductionScrapingCommand extends Command
     /**
      * Extracts data from a member array and saves it to the database.
      * The member is an array containing productions.
-     * @param array $member Member is an array containing productions
+     *
+     * @param  array  $member  Member is an array containing productions
      * @return array Returns an array of saved productions
      */
     private function saveProductionsOfMember(array $member): array
@@ -71,8 +92,9 @@ class ProductionScrapingCommand extends Command
         $publishersNotFound = [];
         $productions = [];
         foreach ($member as $production) {
-            if (!$production['ano']) {
+            if (! $production['ano']) {
                 $this->error("Year not found for {$production['titulo']}");
+
                 continue;
             }
 
@@ -80,7 +102,7 @@ class ProductionScrapingCommand extends Command
                 ->orWhereLike('issn', Str::numbers($production['issn']))
                 ->first();
 
-            if (!$publisher) {
+            if (! $publisher) {
                 $publishersNotFound[] = $production['revista'];
             }
 
@@ -98,26 +120,8 @@ class ProductionScrapingCommand extends Command
                 ]
             );
         }
-        $this->warn('Publishers not found: ' . count($publishersNotFound));
+        $this->warn('Publishers not found: '.count($publishersNotFound));
+
         return $productions;
-    }
-
-    /**
-     * Saves the production to the user.
-     * @param array $lattesId Lattes ID of the user
-     * @param Production[] $production Production to be saved
-     *
-     * @return void
-     */
-    private function addRelationUserProduction(string $lattesId, array $production): void
-    {
-        $user = User::whereLike('lattes_url', "%{$lattesId}%")
-            ->first();
-        if (!$user) {
-            $this->error("User not found for {$lattesId}");
-            return;
-        }
-        $user->writerOf()->sync($production);
-
     }
 }

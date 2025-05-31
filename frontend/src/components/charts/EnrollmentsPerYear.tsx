@@ -69,7 +69,7 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
           <XAxis dataKey="year" tick={{ fontSize: 12 }} />
           <YAxis />
           <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-          <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top' }}>
+          <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
             ))}

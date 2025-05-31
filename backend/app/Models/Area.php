@@ -6,12 +6,8 @@ use App\Enums\UserType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Validation\Rule;
 
 /**
  * App\Models\Area
@@ -21,6 +17,7 @@ use Illuminate\Validation\Rule;
  * @property string $subarea
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @method static Builder|Area newModelQuery()
  * @method static Builder|Area newQuery()
  * @method static Builder|Area query()
@@ -29,6 +26,7 @@ use Illuminate\Validation\Rule;
  * @method static Builder|Area whereId($value)
  * @method static Builder|Area whereProgramId($value)
  * @method static Builder|Area whereUpdatedAt($value)
+ *
  * @mixin Eloquent
  */
 class Area extends BaseModel
@@ -73,5 +71,4 @@ class Area extends BaseModel
         return $this->users()
             ->where('type', UserType::STUDENT);
     }
-
 }

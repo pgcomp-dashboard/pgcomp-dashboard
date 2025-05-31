@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 class LoginResponse implements \Laravel\Fortify\Contracts\LoginResponse
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return Response|void
      */
     public function toResponse($request)

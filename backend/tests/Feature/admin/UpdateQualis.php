@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Admin;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\StratumQualis;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class UpdateStratumQualisTest extends TestCase
 {
@@ -16,24 +16,25 @@ class UpdateStratumQualisTest extends TestCase
     {
         $password = 'adminpass';
         $user = User::factory()->create([
-            'email'    => 'admin+' . uniqid() . '@example.com',
+            'email' => 'admin+'.uniqid().'@example.com',
             'password' => Hash::make($password),
-            'type'     => 'guest',    
-            'is_admin' => true,      
+            'type' => 'guest',
+            'is_admin' => true,
         ]);
 
         $resp = $this->postJson('/api/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => $password,
         ]);
         $resp->assertStatus(200)->assertJsonStructure(['token']);
+
         return $resp->json('token');
     }
 
     public function test_update_qualis_successful()
     {
         $qualis = StratumQualis::factory()->create([
-            'code'  => 'A1',
+            'code' => 'A1',
             'score' => 100,
         ]);
 
@@ -47,8 +48,8 @@ class UpdateStratumQualisTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('qualis', [
-            'id'    => $qualis->id,
-            'code'  => 'B2',
+            'id' => $qualis->id,
+            'code' => 'B2',
             'score' => 75,
         ]);
     }
@@ -56,7 +57,7 @@ class UpdateStratumQualisTest extends TestCase
     public function test_update_qualis_fails_validation_on_bad_data()
     {
         $qualis = StratumQualis::factory()->create([
-            'code'  => 'A2',
+            'code' => 'A2',
             'score' => 90,
         ]);
 
@@ -72,8 +73,8 @@ class UpdateStratumQualisTest extends TestCase
         $response->assertJsonValidationErrors(['code', 'score']);
 
         $this->assertDatabaseHas('qualis', [
-            'id'    => $qualis->id,
-            'code'  => 'A2',
+            'id' => $qualis->id,
+            'code' => 'A2',
             'score' => 90,
         ]);
     }

@@ -7,7 +7,6 @@ use App\Models\User;
 use Hash;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
-use Log;
 
 class CreateAdminUser extends Command
 {
@@ -38,6 +37,7 @@ class CreateAdminUser extends Command
 
         if (User::whereEmail($email)->exists()) {
             $this->error("A user with email [{$email}] already exists.");
+
             return 1;
         }
 
@@ -53,11 +53,13 @@ class CreateAdminUser extends Command
                 'is_admin' => 1,
             ]);
         } catch (ValidationException $e) {
-            $this->error("Failed to validate new user: " . $e->getMessage());
+            $this->error('Failed to validate new user: '.$e->getMessage());
+
             return 2;
         }
 
         $this->info("✅ Admin user [{$user->email}] created successfully.");
+
         return 0;
     }
 }

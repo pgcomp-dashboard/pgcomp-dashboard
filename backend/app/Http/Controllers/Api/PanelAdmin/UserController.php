@@ -17,13 +17,14 @@ class UserController extends BaseApiResourceController
     public function store(Request $request)
     {
         $user = parent::store($request);
+
         return $user;
     }
 
     public function update(Request $request, int $id)
     {
         $user = parent::update($request, $id);
+
         return $user;
     }
-
 }

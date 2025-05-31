@@ -11,7 +11,6 @@ enum PublisherType: string
     case JOURNAL = 'journal';
     case CONFERENCE = 'conference';
 
-
     public function label(): string
     {
         return match ($this) {

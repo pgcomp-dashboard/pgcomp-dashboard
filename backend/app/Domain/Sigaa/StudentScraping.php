@@ -34,15 +34,15 @@ class StudentScraping extends BaseScraping
     /**
      * Extrai os dados do discente da linha da tabela HTML.
      *
-     * @param DOMQuery $item
-     * @param int $program_id
+     * @param  int  $program_id
      * @return array{registration: string, name: string, course: string, teachers: array{siape: int, name: string, type: string}}
+     *
      * @throws Exception
      */
     private function extractStudent(DOMQuery $item): array
     {
         $registration = $item->find('td')->eq(0)->text();
-        $registration = (int)trim($registration);
+        $registration = (int) trim($registration);
 
         $course = $item->parent('div#listagem_tabela')->children('div#group_lt')->text();
         $course = Str::of($course)->before('(')->trim()->title()->value();

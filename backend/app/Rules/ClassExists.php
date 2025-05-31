@@ -11,21 +11,20 @@ class ClassExists implements Rule
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Determine if the validation rule passes.
      *
-     * @param string $attribute
-     * @param mixed $value
+     * @param  string  $attribute
+     * @param  mixed  $value
      */
     public function passes($attribute, $value): bool
     {
         if ($value !== null) {
-            return class_exists((string)$value);
+            return class_exists((string) $value);
         }
+
         return true;
     }
 

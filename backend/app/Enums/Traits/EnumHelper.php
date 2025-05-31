@@ -22,5 +22,5 @@ trait EnumHelper
         return array_column(static::cases(), 'value', 'name');
     }
 
-    abstract function label(): string;
+    abstract public function label(): string;
 }

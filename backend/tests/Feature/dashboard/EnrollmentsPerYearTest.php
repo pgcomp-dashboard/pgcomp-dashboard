@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 class EnrollmentsPerYearTest extends TestCase
 {
@@ -14,9 +14,9 @@ class EnrollmentsPerYearTest extends TestCase
         $response = $this->getJson('/api/dashboard/enrollments_per_year');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'enrollments',
-                 ]);
+            ->assertJsonStructure([
+                'enrollments',
+            ]);
 
         $payload = $response->json('enrollments');
         $this->assertIsArray($payload, 'Esperava um array associativo ano→quantidade');
@@ -33,9 +33,9 @@ class EnrollmentsPerYearTest extends TestCase
         $response = $this->getJson('/api/dashboard/enrollments_per_year?filter=mestrado');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'enrollments',
-                 ]);
+            ->assertJsonStructure([
+                'enrollments',
+            ]);
 
         $payload = $response->json('enrollments');
         $this->assertIsArray($payload);
@@ -52,9 +52,9 @@ class EnrollmentsPerYearTest extends TestCase
         $response = $this->getJson('/api/dashboard/enrollments_per_year?filter=doutorado');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'enrollments',
-                 ]);
+            ->assertJsonStructure([
+                'enrollments',
+            ]);
 
         $payload = $response->json('enrollments');
         $this->assertIsArray($payload);

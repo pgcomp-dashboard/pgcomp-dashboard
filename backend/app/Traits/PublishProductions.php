@@ -15,7 +15,7 @@ trait PublishProductions
 
     public static function bootPublishProductions(): void
     {
-        static::updated(function(self $model) {
+        static::updated(function (self $model) {
             if ($model->wasChanged(['stratum_qualis_id', 'last_qualis'])) {
                 /* @todo dispatch via Job */
                 $model->updateProductions();

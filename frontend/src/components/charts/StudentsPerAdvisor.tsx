@@ -35,13 +35,13 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 export default function StudentsPerAdvisorChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
 
   const query = useQuery({
-    queryKey: ['totalStudentsPerAdvisor', filter],
+    queryKey: [ 'totalStudentsPerAdvisor', filter ],
     queryFn: async () => {
       return api.totalStudentsPerAdvisor(filter);
     },
   });
 
-  const chartData = Object.entries(query.data ?? {}).map(([_, advisor_info]) => ({
+  const chartData = Object.entries(query.data ?? {}).map(([ _, advisor_info ]) => ({
     id: advisor_info.id,
     name: advisor_info.name,
     quantity: advisor_info.advisedes_count,

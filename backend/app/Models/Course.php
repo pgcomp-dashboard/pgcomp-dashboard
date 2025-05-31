@@ -5,6 +5,7 @@ namespace App\Models;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -15,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $description
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @method static Builder|Course newModelQuery()
  * @method static Builder|Course newQuery()
  * @method static Builder|Course query()
@@ -23,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Course whereId($value)
  * @method static Builder|Course whereName($value)
  * @method static Builder|Course whereUpdatedAt($value)
+ *
  * @mixin Eloquent
  */
 class Course extends BaseModel
@@ -42,7 +45,7 @@ class Course extends BaseModel
             'name' => 'required|string|max:255',
         ];
     }
-    
+
     /**
      * @return array update rules to validate attributes.
      */
@@ -51,5 +54,10 @@ class Course extends BaseModel
         return [
             'name' => 'string|max:255',
         ];
+    }
+
+    public function students(): HasMany
+    {
+        return $this->hasMany(User::class);
     }
 }

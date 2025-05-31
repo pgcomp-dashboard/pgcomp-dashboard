@@ -8,7 +8,6 @@ use App\Models\UsersProgram;
 
 class UserProgramController extends BaseApiResourceController
 {
-
     protected function modelClass(): string|BaseModel
     {
         return UsersProgram::class;

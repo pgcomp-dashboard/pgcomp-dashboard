@@ -27,14 +27,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Laravel\Fortify\Rules\Password;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
-use Illuminate\Validation\ValidationException;
 
 /**
  * App\Models\User
@@ -75,6 +73,7 @@ use Illuminate\Validation\ValidationException;
  * @property-read int|null $tokens_count
  * @property-read Collection|Production[] $writerOf
  * @property-read int|null $writer_of_count
+ *
  * @method static UserFactory factory(...$parameters)
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
@@ -99,12 +98,13 @@ use Illuminate\Validation\ValidationException;
  * @method static Builder|User whereTwoFactorSecret($value)
  * @method static Builder|User whereType($value)
  * @method static Builder|User whereUpdatedAt($value)
+ *
  * @mixin Eloquent
  */
 class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
-    use HasApiTokens, HasFactory, Notifiable;
     use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'registration',
@@ -118,6 +118,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'lattes_url',
         'is_admin',
         'is_protected',
+        'defended_at',
     ];
 
     protected $hidden = [
@@ -138,7 +139,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     protected $attributes = [
         'is_admin' => false,
-        'is_protected' => true
+        'is_protected' => true,
     ];
 
     /**
@@ -147,14 +148,14 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public static function creationRules(): array
     {
         return [
-            'registration' => 'nullable|int|required_if:type,' . UserType::STUDENT->value,
-            'siape' => 'nullable|int|required_if:type,' . UserType::PROFESSOR->value,
+            'registration' => 'nullable|int|required_if:type,'.UserType::STUDENT->value,
+            'siape' => 'nullable|int|required_if:type,'.UserType::PROFESSOR->value,
             'name' => 'required|string|max:255',
             'type' => ['required', new Enum(UserType::class)],
             'area_id' => [
                 'nullable',
                 'int',
-                Rule::exists(Area::class, 'id')
+                Rule::exists(Area::class, 'id'),
             ],
             'email' => [
                 'nullable',
@@ -168,7 +169,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 'nullable',
                 'int',
                 Rule::exists(Course::class, 'id'),
-                'required_if:type,' . UserType::STUDENT->value,
+                'required_if:type,'.UserType::STUDENT->value,
             ],
             'lattes_url' => 'nullable|string|max:255',
             'is_admin' => 'nullable|bool',
@@ -209,8 +210,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         // TODO: Will this override the password? Reuse?
         $userIsProtected = isset($data['siape']) ?
             User::where('siape', $data['siape'])
-            ->where('is_protected', true)
-            ->exists()
+                ->where('is_protected', true)
+                ->exists()
             : null;
 
         if ($userIsProtected) {
@@ -219,6 +220,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         $data['password'] = $password;
         $data['password_confirmation'] = $password;
         $data['is_protected'] = false;
+
         return User::updateOrCreate(
             Arr::only($data, ['siape']),
             $data
@@ -238,8 +240,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     /**
      * Find a user based on a given name
      *
-     * @param string $UserName, a string of user`name
-     * @return User  instance of user model.
+     * @param  string  $UserName,  a string of user`name
+     * @return User instance of user model.
      */
     public function findUserByName($UserName): User
     {
@@ -249,8 +251,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     /**
      * Find a user with type professor based on your siape
      *
-     * @param int $siape teacher's siape
-     * @return User  instance of user model.
+     * @param  int  $siape  teacher's siape
+     * @return User instance of user model.
      */
     public function findProfessorBySiape(int $siape): User
     {
@@ -260,8 +262,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     /**
      * Find a user with type student  based on your registration
      *
-     * @param int $registration of user
-     * @return User  instance of user model.
+     * @param  int  $registration  of user
+     * @return User instance of user model.
      */
     public function findStudentByRegistration($registration): User
     {
@@ -286,7 +288,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             'area_id' => [
                 'nullable',
                 'int',
-                Rule::exists(Area::class, 'id')
+                Rule::exists(Area::class, 'id'),
             ],
             'course_id' => $courseIdRules,
             'lattes_url' => 'nullable|string|max:255',
@@ -323,7 +325,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     }
 
     /**
-     * @param 'mestrando'|'doutorando'|'completed'|null $selectedFilter
+     * @param  'mestrando'|'doutorando'|'completed'|null  $selectedFilter
      * @return array<string, int>
      */
     public static function userCountPerArea(?string $selectedFilter): array
@@ -387,7 +389,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return [$dataFields, $dataCount];
     }
 
-
     public function areasActiveFilter(): array
     {
         $data = DB::table('users')
@@ -408,7 +409,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return [$dataFields, $dataCount];
     }
-
 
     public function areasNotActiveFilter(): array
     {
@@ -455,7 +455,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function sendPasswordResetNotification($token)
     {
         ResetPasswordNotification::createUrlUsing(function (User $user, string $token) {
-            return config('app.front_url') . '/reset-password?' .
+            return config('app.front_url').'/reset-password?'.
                 http_build_query(['token' => $token, 'email' => $user->getEmailForPasswordReset()]);
         });
 
@@ -465,7 +465,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function updateLattes(array $data): void
     {
         foreach ($data['productions'] as $production) {
-            if (!$production['doi']) {
+            if (! $production['doi']) {
                 continue;
             }
             $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
@@ -484,12 +484,13 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         if (is_null($user)) {
             return 'error';
         }
+
         return $user;
     }
 
     public function programs(): BelongsToMany
     {
-        die("NOT IMPLEMENTED");
+        exit('NOT IMPLEMENTED');
     }
 
     public function course(): BelongsTo
@@ -520,14 +521,15 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         $data['password_confirmation'] = $password;
         $userIsProtected = isset($data['registration']) ?
             User::where('registration', $data['registration'])
-            ->where('is_protected', true)
-            ->first()
+                ->where('is_protected', true)
+                ->first()
             : null;
 
-            if ($userIsProtected) {
-                throw new IsProtectedException('Ação não permitida em usuarios protegidos');
-            }
+        if ($userIsProtected) {
+            throw new IsProtectedException('Ação não permitida em usuarios protegidos');
+        }
         $data['is_protected'] = false;
+
         return User::updateOrCreate(
             Arr::only($data, ['registration']),
             $data
