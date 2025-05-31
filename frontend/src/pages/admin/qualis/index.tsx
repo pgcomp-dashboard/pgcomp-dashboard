@@ -79,7 +79,6 @@ export default function QualisPage() {
     }
   };
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
