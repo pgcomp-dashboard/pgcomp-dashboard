@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Publishers;
 use App\Models\Production;
 use App\Models\StratumQualis;
 use App\Models\User;
@@ -301,5 +303,32 @@ class DashboardController extends Controller
         return response()->json([
             'enrollments' => $matriculas,
         ]);
+    }
+
+    public function studentCountPerCourse()
+    {
+        $courses = Course::withCount([
+            // total students
+            'students',
+            // only those completed
+            'students as completed_count' => function($q){
+                $q->whereNotNull('defended_at');
+            },
+            // only those still in progress
+            'students as in_progress_count' => function($q){
+                $q->whereNull('defended_at');
+            },
+        ])->get(['name']);
+
+        $result = $courses->mapWithKeys(function($c){
+            return [
+                $c->name => [
+                    'in_progress' => $c->in_progress_count,
+                    'completed'   => $c->completed_count,
+                ]
+            ];
+        });
+
+        return response()->json($result);
     }
 }
