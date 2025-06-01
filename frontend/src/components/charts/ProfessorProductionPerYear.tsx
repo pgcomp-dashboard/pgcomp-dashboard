@@ -7,6 +7,7 @@ import {
   Bar,
   Cell,
   TooltipProps,
+  ResponsiveContainer, // Importado para que o gráfico seja responsivo dentro do scroll
 } from 'recharts';
 import { Settings2 } from 'lucide-react';
 import { ChartContainer } from '@/components/ui/chart';
@@ -15,7 +16,7 @@ import api from '@/services/api';
 import { colorFromName } from '@/utils/color';
 import './chart.css';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react'; // Importado useRef
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,13 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
+// Importando suporte à expansão com scroll
+import { useExpandableChart } from '@/hooks/useExpandableChart';
+import ExpandChartButton from '@/components/ui/ExpandChartButton';
+
+// Definir o número máximo de barras visíveis antes de ativar a rolagem
+const MAX_VISIBLE_BARS = 15; // Ajuste este valor conforme necessário
 
 const periodFormSchema = z.object({
   from: z.coerce.number().min(2014, 'Ano não pode ser antes de 2014'),
@@ -38,12 +46,9 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
         <b>{label}</b>
         <br />
         {payload.map((ele, index) => (
-          <>
-            <text className="tooltip-text" key={index}>
-              Produções em {label} : {ele.value}
-            </text>
-            <br />
-          </>
+          <div key={index}>
+            Produções em {label} : {ele.value}
+          </div>
         ))}
       </div>
     );
@@ -95,14 +100,14 @@ export default function ProfessorProductionPerYear() {
 
   if (professorsError) return <>Falha ao carregar professores!</>;
   if (!professors) return <>Carregando professores...</>;
-  if (professors.length == 0) return <>Não existem professores cadastrados!</>;
+  if (professors.length === 0) return <>Não existem professores cadastrados!</>;
 
   if (!productions) return <>Carregando...</>;
   if (error) return <>Erro ao carregar o gráfico</>;
 
   const chartData = Object.entries(productions ?? {}).map(([ year, amount ]) => ({
     year,
-    amount,
+    amount: amount as number, // Garante que amount é um número
   }));
 
   return (
@@ -179,47 +184,81 @@ export default function ProfessorProductionPerYear() {
         </div>
       </CardHeader>
       <CardContent>
-        <InternalProductionChart chartData={chartData} />
+        {/* Renderiza o novo componente com suporte a rolagem */}
+        <InternalProductionChartWithScroll chartData={chartData} />
       </CardContent>
     </Card>
   );
 }
 
-function InternalProductionChart({ chartData }: { chartData: { year: string, amount: number }[] }) {
+// Novo componente para o gráfico com rolagem e expansão
+function InternalProductionChartWithScroll({ chartData }: { chartData: { year: string, amount: number }[] }) {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [ , setChartHeight ] = useState<number>(0);
+
+  useEffect(() => {
+    if (chartRef.current) {
+      setChartHeight(chartRef.current.clientHeight);
+    }
+  }, []);
+
+  const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart(
+    chartData.length, // Usamos chartData.length para determinar o número de barras
+    MAX_VISIBLE_BARS
+  );
+
+  const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
+
   return (
-    <div className="w-full h-[400px]">
-      <ChartContainer
-        config={{
-          year: {
-            label: 'Ano',
-            color: 'hsl(var(--chart-2))',
-          },
-          amount: {
-            label: 'Número',
-            color: 'hsl(var(--chart-3))',
-          },
-        }}
-        className="w-full h-[400px]"
+    <>
+      {/* Mostrar botão apenas se houver mais do que o máximo visível */}
+      {chartData.length > MAX_VISIBLE_BARS && (
+        <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
+      )}
+
+      {/* Div com scroll horizontal e largura mínima dinâmica */}
+      <div
+        className={`block w-full overflow-x-auto pb-4 ${marginBottom}`}
+        style={{ minHeight: '400px' }}
       >
-        <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="year"
-            interval={0}
-            tickFormatter={(name) =>
-              name.length > 15 ? name.slice(0, 15) + '...' : name
-            }
-            style={{ fontSize: 18 }}
-          />
-          <YAxis style={{ fontSize: 18 }} />
-          <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-          <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}> {/* Aumentando o tamanho da fonte do label da barra */}
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ChartContainer>
-    </div>
+        <div style={{ minWidth: chartWidth }} ref={chartRef}>
+          <ChartContainer
+            config={{
+              year: {
+                label: 'Ano',
+                color: 'hsl(var(--chart-2))',
+              },
+              amount: {
+                label: 'Número',
+                color: 'hsl(var(--chart-3))',
+              },
+            }}
+            className="w-full h-[400px]"
+          >
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="year"
+                  interval={0}
+                  tickFormatter={(name) =>
+                    name.length > 15 ? name.slice(0, 15) + '...' : name
+                  }
+                  style={{ fontSize: 18 }}
+                />
+                <YAxis style={{ fontSize: 18 }} />
+                <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
+                <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}> {/* Aumentando o tamanho da fonte do label da barra */}
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </div>
+      </div>
+    </>
   );
 }
+
