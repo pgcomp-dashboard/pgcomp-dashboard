@@ -206,8 +206,6 @@ function InternalProductionChart({ chartData }: { chartData: { year: string, amo
           <XAxis
             dataKey="year"
             interval={0}
-            angle={-45}
-            textAnchor="end"
             tickFormatter={(name) =>
               name.length > 15 ? name.slice(0, 15) + '...' : name
             }

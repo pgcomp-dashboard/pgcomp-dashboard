@@ -70,7 +70,7 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
           >
             <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" interval={0} angle={-45} textAnchor="end" style={{ fontSize: 18 }} />
+              <XAxis dataKey="year" interval={0}  style={{ fontSize: 18 }} />
               <YAxis style={{ fontSize: 18 }} />
               <Tooltip content={<CustomTooltip />} />
               {(filter === 'todos' || filter === 'mestrado') && (

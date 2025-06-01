@@ -66,8 +66,8 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
       >
         <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-          <YAxis />
+          <XAxis dataKey="year" style={{ fontSize: 18 }} />
+          <YAxis style={{ fontSize: 18 }} />
           <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
           <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}>
             {chartData.map((entry, index) => (

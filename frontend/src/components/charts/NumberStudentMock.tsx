@@ -74,15 +74,14 @@ export default function NumberStudentsChart() {
           <XAxis
             dataKey="category"
             interval={0}
-            angle={-20}
-            textAnchor="end"
             tickFormatter={(name) =>
               name.length > 25 ? name.slice(0, 25) + '...' : name
             }
+            tick={{ fontSize: 18 }}
           />
-          <YAxis />
+          <YAxis tick={{ fontSize: 18 }}/>
           <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-          <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top' }}>
+          <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}>
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colorFromName(entry.category)} />
             ))}
