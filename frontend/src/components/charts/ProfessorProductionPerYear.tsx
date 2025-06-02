@@ -204,7 +204,7 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
 
   const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart(
     chartData.length, // Usamos chartData.length para determinar o número de barras
-    MAX_VISIBLE_BARS
+    MAX_VISIBLE_BARS,
   );
 
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';

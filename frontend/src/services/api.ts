@@ -127,12 +127,12 @@ export class ApiService {
       if (!response.ok) {
         const error: ApiError = {
           code: response.status,
-          errors: [{ description: 'Erro ao se comunicar com a API.' }],
+          errors: [ { description: 'Erro ao se comunicar com a API.' } ],
         };
 
         try {
           const json = await response.json();
-          error.errors = json.errors ?? [{ description: json.message ?? 'Erro desconhecido.' }];
+          error.errors = json.errors ?? [ { description: json.message ?? 'Erro desconhecido.' } ];
         } catch (jsonError) {
           console.error('Erro ao interpretar JSON de erro da API:', jsonError);
         }
@@ -145,7 +145,7 @@ export class ApiService {
       console.error(`Erro na requisição para ${endpoint}:`, e);
       throw {
         code: 408,
-        errors: [{ description: 'Falha de conexão com o servidor.' }],
+        errors: [ { description: 'Falha de conexão com o servidor.' } ],
       } as ApiError;
     }
   }
@@ -182,7 +182,7 @@ export class ApiService {
     });
 
     if (filters) {
-      for (const [key, value] of Object.entries(filters)) {
+      for (const [ key, value ] of Object.entries(filters)) {
         if (value !== undefined && value !== null) {
           params.append(key, String(value));
         }

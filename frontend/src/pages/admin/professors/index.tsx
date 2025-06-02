@@ -53,7 +53,7 @@ export default function ProfessorsPage() {
   const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
   const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
   const [ selectedProductions, setSelectedProductions ] = useState<Production[]>([]);
-  const [ qualisList, setQualisList] = useState<Qualis[]>([]);
+  const [ qualisList, setQualisList ] = useState<Qualis[]>([]);
   
   const history = useNavigate();
 
