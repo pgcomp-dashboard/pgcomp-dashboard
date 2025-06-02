@@ -83,6 +83,5 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
           </ChartContainer>
         </div>
       </div>
-    </>
   );
 }
