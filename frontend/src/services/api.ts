@@ -30,6 +30,20 @@ type Professor = {
   lattes_url: string;
 };
 
+export interface Production {
+  id: number;
+  title: string;
+  year: number;
+  created_at: string;
+  updated_at: string;
+  publisher_type: string | null;
+  publisher_id: number | null;
+  last_qualis: string | null; 
+  stratum_qualis_id: number | null;
+  sequence_number: number | null;
+  doi: string | null;
+}
+
 export interface Student {
   id: number;
   name: string;
@@ -314,6 +328,11 @@ export class ApiService {
     } while (currentPage <= lastPage);
 
     return allProfessors;
+  }
+
+  async getProductionsByProfessor(professorId: number) {
+    const response = await this.get<{ data: Production[] }>(`/api/portal/admin/professors/${professorId}/productions`);
+    return response.data;
   }
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
