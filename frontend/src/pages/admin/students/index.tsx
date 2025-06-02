@@ -65,18 +65,18 @@ interface Course {
 }
 
 export default function StudentsPage() {
-  const [ page, setPage ] = useState(1);
-  const [ perPage, setPerPage ] = useState(5);
-  const [ students, setStudents ] = useState<Student[]>([]);
-  const [ pagination, setPagination ] = useState<any>(null); // temporariamente, para evitar erro de tipo
-  const [ areas, setAreas ] = useState<Area[]>([]);
-  const [ courses, setCourses ] = useState<Course[]>([]);
-  const [ search, setSearch ] = useState('');
-  const [ openAdd, setOpenAdd ] = useState(false);
-  const [ openEdit, setOpenEdit ] = useState(false);
-  const [ openDelete, setOpenDelete ] = useState(false);
-  const [ selectedStudent, setSelectedStudent ] = useState<Student | null>(null);
-  const [ newStudent, setNewStudent ] = useState<Omit<Student, 'id'>>({
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [pagination, setPagination] = useState<any>(null); // temporariamente, para evitar erro de tipo
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [search, setSearch] = useState('');
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [newStudent, setNewStudent] = useState<Omit<Student, 'id'>>({
     name: '',
     email: '',
     registration: 0,
@@ -94,9 +94,12 @@ export default function StudentsPage() {
   useEffect(() => {
     async function fetchData() {
       const filters: Record<string, any> = {};
-      if (search.trim()) filters.search = search.trim();
-
-      const [ studentsRes, areasData, coursesData ] = await Promise.all([
+      if (search.trim()) {
+        filters['filters[0][field]'] = 'name';
+        filters['filters[0][value]'] = search.trim();
+        filters['filters[0][operator]'] = 'like';
+      }
+      const [studentsRes, areasData, coursesData] = await Promise.all([
         api.fetchStudents(page, perPage, filters),
         api.fetchAreas(),
         api.fetchCourses(),
@@ -116,7 +119,7 @@ export default function StudentsPage() {
     }
 
     fetchData();
-  }, [ page, perPage, search ]);
+  }, [page, perPage, search]);
 
   const filteredStudents = students.filter(
     (student) =>
@@ -145,7 +148,7 @@ export default function StudentsPage() {
     }
     try {
       const created = await api.createStudent(newStudent);
-      setStudents((old) => [ ...old, created ]);
+      setStudents((old) => [...old, created]);
       setNewStudent({
         name: '',
         email: '',
@@ -353,6 +356,7 @@ export default function StudentsPage() {
               <option value={15}>15</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
+              <option value={100}>100</option>
             </select>
           </div>
         </div>
@@ -435,26 +439,61 @@ export default function StudentsPage() {
             </span>
 
             <div className="flex gap-2">
+              {/* Botão Primeira Página */}
               <Button
                 variant="outline"
                 size="sm"
                 disabled={pagination.current_page === 1}
-                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => {
+                  setPage(1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                {'<<'}
+              </Button>
+
+              {/* Botão Anterior */}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={pagination.current_page === 1}
+                onClick={() => {
+                  setPage((prev) => Math.max(prev - 1, 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
               >
                 Anterior
               </Button>
 
+              {/* Botão Próxima */}
               <Button
                 variant="outline"
                 size="sm"
                 disabled={pagination.current_page === pagination.last_page}
-                onClick={() => setPage((prev) => Math.min(prev + 1, pagination.last_page))}
+                onClick={() => {
+                  setPage((prev) => Math.min(prev + 1, pagination.last_page));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
               >
                 Próxima
+              </Button>
+
+              {/* Botão Última Página */}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={pagination.current_page === pagination.last_page}
+                onClick={() => {
+                  setPage(pagination.last_page);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                {'>>'}
               </Button>
             </div>
           </div>
         )}
+
 
       </div>
 
