@@ -56,7 +56,7 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
       {data && data.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-  
+
       <div className={`block w-full overflow-x-auto pb-4 ${isScrollable ? 'mb-20' : 'mb-6'}`} style={{ minHeight: '400px' }}>
         <div style={{ minWidth: chartWidth }}>
           <ChartContainer
@@ -83,5 +83,6 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
           </ChartContainer>
         </div>
       </div>
+    </>
   );
 }
