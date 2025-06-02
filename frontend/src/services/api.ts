@@ -321,16 +321,20 @@ export class ApiService {
   }
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
-    // Dados mockados
-    // MOCKED
-    return [
-      { category: 'Alunos Atuais - Mestrado', amount: 35 },
-      { category: 'Alunos Atuais - Doutorado', amount: 80 },
-      { category: 'Alunos Concluídos - Mestrado', amount: 200 },
-      { category: 'Alunos Concluídos - Doutorado', amount: 250 },
-    ];
+    const res = (await this.get('/api/dashboard/students')) as Record<
+      string,
+      {
+        in_progress: number,
+        completed: number,
+      }
+    >;
+    
+    return Object.entries(res).map(([ course, students ]) => [
+      { category: `${course} - Alunos atuais`, amount: students.in_progress },
+      { category: `${course} - Alunos concluídos`, amount: students.completed },
+    ]).flat();
   }
-
+  
   async createQualis(body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
     const endpoint = '/api/portal/admin/qualis';
     const response = await this.post(endpoint, body, headers);

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Publishers;
 use App\Models\Production;
 use App\Models\StratumQualis;
 use App\Models\User;
@@ -287,19 +289,61 @@ class DashboardController extends Controller
 
     public function enrollmentsPerYear()
     {
-        $anoAtual = date('Y');
-        $matriculas = User::where('type', UserType::STUDENT)
-            ->whereRaw('LENGTH(registration) >= 4')
-            ->selectRaw(
-                'CAST(SUBSTRING(registration, 1, 4) AS UNSIGNED) as ano, COUNT(*) as total'
-            )
-            ->groupBy('ano')
-            ->havingRaw('ano >= 2000 AND ano <= ?', [$anoAtual])
-            ->orderBy('ano', 'desc')
-            ->pluck('total', 'ano');
+        $anoAtual = date("Y");
 
-        return response()->json([
-            'enrollments' => $matriculas,
-        ]);
+        $mestrado = User::mestrandos()
+            ->whereRaw("LENGTH(registration) >= 4")
+            ->selectRaw("CAST(SUBSTRING(registration, 1, 4) AS UNSIGNED) as year, COUNT(*) as total")
+            ->groupBy("year")
+            ->havingRaw("year >= 2000 AND year <= ?", [$anoAtual])
+            ->pluck("total", "year");
+
+        $doutorado = User::doutorandos()
+            ->whereRaw("LENGTH(registration) >= 4")
+            ->selectRaw("CAST(SUBSTRING(registration, 1, 4) AS UNSIGNED) as year, COUNT(*) as total")
+            ->groupBy("year")
+            ->havingRaw("year >= 2000 AND year <= ?", [$anoAtual])
+            ->pluck("total", "year");
+
+        $allYears = collect($mestrado->keys())->merge($doutorado->keys())->unique()->sort();
+
+        $result = $allYears->mapWithKeys(function ($year) use ($mestrado, $doutorado) {
+            return [
+                $year => [
+                    'year' => $year,
+                    'mestrado' => $mestrado[$year] ?? 0,
+                    'doutorado' => $doutorado[$year] ?? 0,
+                ],
+            ];
+        });
+
+        return response()->json($result->values());
+    }
+
+    public function studentCountPerCourse()
+    {
+        $courses = Course::withCount([
+            // total students
+            'students',
+            // only those completed
+            'students as completed_count' => function($q){
+                $q->whereNotNull('defended_at');
+            },
+            // only those still in progress
+            'students as in_progress_count' => function($q){
+                $q->whereNull('defended_at');
+            },
+        ])->get(['name']);
+
+        $result = $courses->mapWithKeys(function($c){
+            return [
+                $c->name => [
+                    'in_progress' => $c->in_progress_count,
+                    'completed'   => $c->completed_count,
+                ]
+            ];
+        });
+
+        return response()->json($result);
     }
 }
