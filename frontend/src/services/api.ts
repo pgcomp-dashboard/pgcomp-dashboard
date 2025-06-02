@@ -30,6 +30,20 @@ type Professor = {
   lattes_url: string;
 };
 
+export interface Production {
+  id: number;
+  title: string;
+  year: number;
+  created_at: string;
+  updated_at: string;
+  publisher_type: string | null;
+  publisher_id: number | null;
+  last_qualis: string | null; 
+  stratum_qualis_id: number | null;
+  sequence_number: number | null;
+  doi: string | null;
+}
+
 export interface Student {
   id: number;
   name: string;
@@ -113,12 +127,12 @@ export class ApiService {
       if (!response.ok) {
         const error: ApiError = {
           code: response.status,
-          errors: [ { description: 'Erro ao se comunicar com a API.' } ],
+          errors: [{ description: 'Erro ao se comunicar com a API.' }],
         };
 
         try {
           const json = await response.json();
-          error.errors = json.errors ?? [ { description: json.message ?? 'Erro desconhecido.' } ];
+          error.errors = json.errors ?? [{ description: json.message ?? 'Erro desconhecido.' }];
         } catch (jsonError) {
           console.error('Erro ao interpretar JSON de erro da API:', jsonError);
         }
@@ -131,7 +145,7 @@ export class ApiService {
       console.error(`Erro na requisição para ${endpoint}:`, e);
       throw {
         code: 408,
-        errors: [ { description: 'Falha de conexão com o servidor.' } ],
+        errors: [{ description: 'Falha de conexão com o servidor.' }],
       } as ApiError;
     }
   }
@@ -155,16 +169,20 @@ export class ApiService {
   // CRUD - Students
   async fetchStudents(
     page: number = 1,
-    perPage: number = 15,
+    perPage: number = 5,
     filters?: Record<string, any>,
+    orderBy: string = 'name',
+    direction: 'asc' | 'desc' = 'asc',
   ) {
     const params = new URLSearchParams({
       page: String(page),
       per_page: String(perPage),
+      order_by: orderBy,
+      dir: direction,
     });
 
     if (filters) {
-      for (const [ key, value ] of Object.entries(filters)) {
+      for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null) {
           params.append(key, String(value));
         }
@@ -314,6 +332,11 @@ export class ApiService {
     } while (currentPage <= lastPage);
 
     return allProfessors;
+  }
+
+  async getProductionsByProfessor(professorId: number) {
+    const response = await this.get<{ data: Production[] }>(`/api/portal/admin/professors/${professorId}/productions`);
+    return response.data;
   }
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
