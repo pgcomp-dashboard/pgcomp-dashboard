@@ -83,8 +83,8 @@ export default function PublicationsChart({ filter }: { filter?: 'journal' | 'co
                 margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="year" />
-                <YAxis />
+                <XAxis dataKey="year" style={{ fontSize: 18 }}/>
+                <YAxis style={{ fontSize: 18 }}/>
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Legend />
                 <Line
