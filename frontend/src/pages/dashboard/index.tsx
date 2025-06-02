@@ -163,27 +163,6 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="publications" className="space-y-10 min-h-[500px]">
-          <Card>
-            <Tabs defaultValue="all">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Produções científicas</CardTitle>
-
-                <TabsList>
-                  <TabsTrigger value="all">Todas</TabsTrigger>
-                  <TabsTrigger value="journals">Em periódicos</TabsTrigger>
-                  <TabsTrigger value="conferences">Em conferências</TabsTrigger>
-                </TabsList>
-              </CardHeader>
-              <CardContent>
-                <TabsContent value={'all'}><PublicationsChart /></TabsContent>
-                <TabsContent value={'journals'}><PublicationsChart filter="journal" /></TabsContent>
-                <TabsContent value={'conferences'}><PublicationsChart filter="conference" /></TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
-        </section>
-
         <section id="quality" className="space-y-10 min-h-[500px]">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
