@@ -6,6 +6,7 @@ import {
   Tooltip,
   Bar,
   TooltipProps,
+  Legend,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
@@ -68,9 +69,9 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
             }}
             className="w-full h-[400px]"
           >
-            <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={data}>
+            <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 20 }} data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" interval={0} angle={-45} textAnchor="end" style={{ fontSize: 18 }} />
+              <XAxis dataKey="year" interval={0} angle={0} style={{ fontSize: 18 }} />
               <YAxis style={{ fontSize: 18 }} />
               <Tooltip content={<CustomTooltip />} />
               {(filter === 'todos' || filter === 'mestrado') && (
@@ -79,6 +80,7 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
               {(filter === 'todos' || filter === 'doutorado') && (
                 <Bar dataKey="doutorado" stackId="a" fill="#82ca9d" label={{ position: 'top', style: { fontSize: 18 } }}/>
               )}
+              <Legend verticalAlign="top" height={36} formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} />
             </BarChart>
           </ChartContainer>
         </div>
