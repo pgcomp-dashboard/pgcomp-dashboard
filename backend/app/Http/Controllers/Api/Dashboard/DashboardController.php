@@ -289,20 +289,35 @@ class DashboardController extends Controller
 
     public function enrollmentsPerYear()
     {
-        $anoAtual = date('Y');
-        $matriculas = User::where('type', UserType::STUDENT)
-            ->whereRaw('LENGTH(registration) >= 4')
-            ->selectRaw(
-                'CAST(SUBSTRING(registration, 1, 4) AS UNSIGNED) as ano, COUNT(*) as total'
-            )
-            ->groupBy('ano')
-            ->havingRaw('ano >= 2000 AND ano <= ?', [$anoAtual])
-            ->orderBy('ano', 'desc')
-            ->pluck('total', 'ano');
+        $anoAtual = date("Y");
 
-        return response()->json([
-            'enrollments' => $matriculas,
-        ]);
+        $mestrado = User::mestrandos()
+            ->whereRaw("LENGTH(registration) >= 4")
+            ->selectRaw("CAST(SUBSTRING(registration, 1, 4) AS UNSIGNED) as year, COUNT(*) as total")
+            ->groupBy("year")
+            ->havingRaw("year >= 2000 AND year <= ?", [$anoAtual])
+            ->pluck("total", "year");
+
+        $doutorado = User::doutorandos()
+            ->whereRaw("LENGTH(registration) >= 4")
+            ->selectRaw("CAST(SUBSTRING(registration, 1, 4) AS UNSIGNED) as year, COUNT(*) as total")
+            ->groupBy("year")
+            ->havingRaw("year >= 2000 AND year <= ?", [$anoAtual])
+            ->pluck("total", "year");
+
+        $allYears = collect($mestrado->keys())->merge($doutorado->keys())->unique()->sort();
+
+        $result = $allYears->mapWithKeys(function ($year) use ($mestrado, $doutorado) {
+            return [
+                $year => [
+                    'year' => $year,
+                    'mestrado' => $mestrado[$year] ?? 0,
+                    'doutorado' => $doutorado[$year] ?? 0,
+                ],
+            ];
+        });
+
+        return response()->json($result->values());
     }
 
     public function studentCountPerCourse()
