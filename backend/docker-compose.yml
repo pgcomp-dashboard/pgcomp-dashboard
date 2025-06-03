@@ -63,6 +63,12 @@ services:
                 - ping
             retries: 3
             timeout: 5s
+    scriptlattes:
+        image: mnplima/scriptlattes
+        networks:
+            - sail
+        ports:
+            - '8000:8000'
 networks:
     sail:
         driver: bridge

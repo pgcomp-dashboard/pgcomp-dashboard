@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
@@ -16,11 +14,10 @@ class ProgramsControllerTest extends TestCase
      */
     public function test_lista_programsa_cadastrados()
     {
-        //assertJsonStringEqualsJsonString()
+        // assertJsonStringEqualsJsonString()
         $response = $this->getJson('/api/dashboard/program');
 
-        $response->assertStatus(200)->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['sigla', 'nome'])
+        $response->assertStatus(200)->assertJson(fn (AssertableJson $json) => $json->hasAll(['sigla', 'nome'])
         );
     }
 }

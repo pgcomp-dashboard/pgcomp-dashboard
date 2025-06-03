@@ -51,7 +51,7 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (ValidationException $e) {
             return response()->json(
-                ['errors' => array_map(fn($e) => ['description' => $e], $e->validator->errors()->all())],
+                ['errors' => array_map(fn ($e) => ['description' => $e], $e->validator->errors()->all())],
                 400,
             );
         });
@@ -59,7 +59,7 @@ class Handler extends ExceptionHandler
         $this->renderable(function (AuthenticationException $e) {
             return response()->json(
                 ['errors' => [
-                    ['description' => $e->getMessage()]
+                    ['description' => $e->getMessage()],
                 ]],
                 401,
             );
@@ -68,7 +68,7 @@ class Handler extends ExceptionHandler
         $this->renderable(function (AuthorizationException $e) {
             return response()->json(
                 ['errors' => [
-                    ['description' => 'Não autorizado']
+                    ['description' => 'Não autorizado'],
                 ]],
                 403,
             );

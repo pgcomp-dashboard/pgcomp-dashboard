@@ -24,7 +24,7 @@ class QualisTest extends TestCase
         $deleteResponse->assertStatus(405);
     }
 
-    public function test_qualis_filter_docente_response() 
+    public function test_qualis_filter_docente_response()
     {
         $getResponse = $this->get('/api/dashboard/production_per_qualis?user_type=docente');
         $postResponse = $this->post('/api/dashboard/production_per_qualis?user_type=docente');
@@ -37,7 +37,7 @@ class QualisTest extends TestCase
         $deleteResponse->assertStatus(405);
     }
 
-    public function test_qualis_filter_mestrando_response() 
+    public function test_qualis_filter_mestrando_response()
     {
         $getResponse = $this->get('/api/dashboard/production_per_qualis?user_type=mestrando');
         $postResponse = $this->post('/api/dashboard/production_per_qualis?user_type=mestrando');
@@ -49,7 +49,8 @@ class QualisTest extends TestCase
         $patchResponse->assertStatus(405);
         $deleteResponse->assertStatus(405);
     }
-    public function test_qualis_filter_doutorando_response() 
+
+    public function test_qualis_filter_doutorando_response()
     {
         $getResponse = $this->get('/api/dashboard/production_per_qualis?user_type=doutorando');
         $postResponse = $this->post('/api/dashboard/production_per_qualis?user_type=doutorando');
@@ -61,7 +62,8 @@ class QualisTest extends TestCase
         $patchResponse->assertStatus(405);
         $deleteResponse->assertStatus(405);
     }
-    public function test_qualis_filter_jornal_response() 
+
+    public function test_qualis_filter_jornal_response()
     {
         $getResponse = $this->get('/api/dashboard/production_per_qualis?publisher_type=jornal');
         $postResponse = $this->post('/api/dashboard/production_per_qualis?publisher_type=jornal');
@@ -73,7 +75,8 @@ class QualisTest extends TestCase
         $patchResponse->assertStatus(405);
         $deleteResponse->assertStatus(405);
     }
-    public function test_qualis_filter_conference_response() 
+
+    public function test_qualis_filter_conference_response()
     {
         $getResponse = $this->get('/api/dashboard/production_per_qualis?publisher_type=conference');
         $postResponse = $this->post('/api/dashboard/production_per_qualis?publisher_type=conference');

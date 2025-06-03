@@ -56,7 +56,8 @@ export default function ProductionPerQualisChart() {
     return entry;
   });
 
-  const allQualis = data.map((d) => d.label);
+  const qualisOrder = [ 'A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', '-' ];
+  const allQualis = qualisOrder.filter((q) => data.some((d) => d.label === q));
 
   return (
     <>
@@ -77,9 +78,9 @@ export default function ProductionPerQualisChart() {
               margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <XAxis dataKey="year" tick={{ fontSize: 18 }} />
+              <YAxis tick={{ fontSize: 18 }} />
+              <Legend wrapperStyle={{ fontSize: 18 }} />
               <Tooltip />
               {allQualis.map((qualis) => (
                 <Bar

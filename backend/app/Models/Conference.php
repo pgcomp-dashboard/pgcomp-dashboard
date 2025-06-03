@@ -35,6 +35,7 @@ use Illuminate\Validation\Rule;
  * @property int|null $stratum_qualis_id
  * @property-read Collection|Production[] $productions
  * @property-read int|null $productions_count
+ *
  * @method static Builder|Conference newModelQuery()
  * @method static Builder|Conference newQuery()
  * @method static Builder|Conference query()
@@ -57,6 +58,7 @@ use Illuminate\Validation\Rule;
  * @method static Builder|Conference whereStratumQualisId($value)
  * @method static Builder|Conference whereUpdatedAt($value)
  * @method static Builder|Conference whereUseScholar($value)
+ *
  * @mixin Eloquent
  */
 class Conference extends BaseModel
@@ -117,10 +119,9 @@ class Conference extends BaseModel
         ];
     }
 
-
     /**
      * @return array update rules to validate attributes.
-    */
+     */
     public function updateRules(): array
     {
         return [

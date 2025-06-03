@@ -8,15 +8,13 @@ use Illuminate\Support\Str;
 
 class Filters
 {
-    public function __construct(protected Builder $query)
-    {
-    }
+    public function __construct(protected Builder $query) {}
 
     public function applyFilters(array $filters): Builder
     {
         $model = $this->query->newModelInstance();
         foreach ($filters as $filter) {
-            if (!$model->canFilterBy($filter['field'])) {
+            if (! $model->canFilterBy($filter['field'])) {
                 continue;
             }
 
@@ -45,8 +43,7 @@ class Filters
     }
 
     /**
-     * @param array{field: string, value: mixed} $filter
-     * @return Builder
+     * @param  array{field: string, value: mixed}  $filter
      */
     protected function dateFilter(array $filter): Builder
     {
@@ -62,12 +59,12 @@ class Filters
         } else {
             $this->query->whereDate($filter['field'], $filter['value']);
         }
+
         return $this->query;
     }
 
     /**
-     * @param array{field: string, value: mixed} $filter
-     * @return Builder
+     * @param  array{field: string, value: mixed}  $filter
      */
     protected function numberFilter(array $filter): Builder
     {

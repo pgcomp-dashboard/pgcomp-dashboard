@@ -11,18 +11,18 @@ use Tests\TestCase;
 class ControllerAreaTest extends TestCase
 {
     // Teste model
-    public function test_createArea_syntax()
+    public function test_create_area_syntax()
     {
         $scraping = new ReflectionClass(Area::class);
         $method = $scraping->getMethod('createOrUpdateArea');
-        $area = new Area();
+        $area = new Area;
 
         $values = [
             // Exceptions
             ['arg' => ['area_name' => 'Teoria os Gráfos', 'program_id' => 1], 'return' => true],
             ['arg' => ['area_name' => 'Ló#@gica', 'program_id' => 1], 'return' => true],
             ['arg' => ['area_name' => 'Teoria dos Grafos', 'program_id' => 1], 'return' => true],
-            //['arg' => ['area_name' => '😽', 'program_id' => 1], 'return' => false],
+            // ['arg' => ['area_name' => '😽', 'program_id' => 1], 'return' => false],
             // ['arg' => ['area_name' => 'joaocarlos@gmail.com', 'program_id' => 1], 'return' => false],
 
         ];
@@ -35,11 +35,11 @@ class ControllerAreaTest extends TestCase
     }
 
     // Teste model
-    public function test_createArea_exception()
+    public function test_create_area_exception()
     {
         $scraping = new ReflectionClass(Area::class);
         $method = $scraping->getMethod('createOrUpdateArea');
-        $area = new Area();
+        $area = new Area;
 
         $values = [
             // Exceptions
@@ -62,7 +62,7 @@ class ControllerAreaTest extends TestCase
     {
         $area = $this->createArea();
 
-        $data = $this->get('api/portal/admin/areas/' . $area->id);
+        $data = $this->get('api/portal/admin/areas/'.$area->id);
 
         $data->assertJson($area->toArray());
     }
@@ -71,10 +71,10 @@ class ControllerAreaTest extends TestCase
     {
         $area = $this->createArea();
 
-        $data = $this->delete('api/portal/admin/areas/' . $area->id);
+        $data = $this->delete('api/portal/admin/areas/'.$area->id);
         $data->assertStatus(405);
 
-        $data = $this->get('api/portal/admin/areas/' . $area->id);
+        $data = $this->get('api/portal/admin/areas/'.$area->id);
         $data->assertStatus(200);
     }
 
@@ -82,7 +82,7 @@ class ControllerAreaTest extends TestCase
     {
         parent::setUp();
 
-        $user = new User();
+        $user = new User;
         $user->is_admin = true;
 
         $this->actingAs($user); // use api as admin user.
@@ -91,6 +91,7 @@ class ControllerAreaTest extends TestCase
     protected function createArea(): Area
     {
         $program = Program::create(['sigaa_id' => random_int(9999, 999999), 'name' => 'Program 1']);
+
         return Area::create(['program_id' => $program->id, 'area_name' => 'Teste Area 1']);
     }
 }

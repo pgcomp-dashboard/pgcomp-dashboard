@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import PublicationsChart from '@/components/charts/Publications.tsx';
 import StudentsPerAdvisorChart from '@/components/charts/StudentsPerAdvisor.tsx';
 import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
 import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
@@ -17,7 +16,7 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 
 import logoImage from '@/assets/logo.png';
 import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
-import NumberStudentsMock from '@/components/charts/NumberStudentMock';
+import StudentCountCard from '@/components/StudentCountCard';
 import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
 import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
 
@@ -152,35 +151,41 @@ export default function Dashboard() {
       </header>
       <main className="flex-1 container py-6 space-y-8 w-full lg:px-16">
 
-        <section id="student_count" className="space-y-4 h-[500px]">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Número de alunos</CardTitle>
+        <section id="student_count" className="space-y-4 h-[200px] flex flex-row space-x-3">
+          <Card className='flex-1 h-[200px]'>
+            <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+              <CardTitle>Alunos de mestrado - Atuais</CardTitle>
             </CardHeader>
-            <CardContent>
-              <NumberStudentsMock />
+            <CardContent className='h-full'>
+              <StudentCountCard studentFilter='Mestrado - Alunos atuais' />
             </CardContent>
           </Card>
-        </section>
-
-        <section id="publications" className="space-y-10 min-h-[500px]">
-          <Card>
-            <Tabs defaultValue="all">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Produções científicas</CardTitle>
-
-                <TabsList>
-                  <TabsTrigger value="all">Todas</TabsTrigger>
-                  <TabsTrigger value="journals">Em periódicos</TabsTrigger>
-                  <TabsTrigger value="conferences">Em conferências</TabsTrigger>
-                </TabsList>
-              </CardHeader>
-              <CardContent>
-                <TabsContent value={'all'}><PublicationsChart /></TabsContent>
-                <TabsContent value={'journals'}><PublicationsChart filter="journal" /></TabsContent>
-                <TabsContent value={'conferences'}><PublicationsChart filter="conference" /></TabsContent>
-              </CardContent>
-            </Tabs>
+          
+          <Card className='flex-1 h-[200px]'>
+            <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+              <CardTitle>Alunos de mestrado - Concluídos</CardTitle>
+            </CardHeader>
+            <CardContent className='h-full'>
+              <StudentCountCard studentFilter='Mestrado - Alunos concluídos' />
+            </CardContent>
+          </Card>
+          
+          <Card className='flex-1 h-[200px]'>
+            <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+              <CardTitle>Alunos de doutorado - Atuais</CardTitle>
+            </CardHeader>
+            <CardContent className='h-full'>
+              <StudentCountCard studentFilter='Doutorado - Alunos atuais' />
+            </CardContent>
+          </Card>
+          
+          <Card className='flex-1 h-[200px]'>
+            <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+              <CardTitle>Alunos de doutorado - Concluídos</CardTitle>
+            </CardHeader>
+            <CardContent className='h-full'>
+              <StudentCountCard studentFilter='Doutorado - Alunos concluídos' />
+            </CardContent>
           </Card>
         </section>
 
@@ -263,7 +268,7 @@ export default function Dashboard() {
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value='all'><DefensesPerYearChart /></TabsContent>
+                <TabsContent value='all'><DefensesPerYearChart filter='todos'/></TabsContent>
                 <TabsContent value='mestrado'><DefensesPerYearChart filter='mestrado' /></TabsContent>
                 <TabsContent value='doutorado'><DefensesPerYearChart filter='doutorado' /></TabsContent>
               </CardContent>
@@ -283,7 +288,7 @@ export default function Dashboard() {
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value='all'><EnrollmentsPerYearChart /></TabsContent>
+                <TabsContent value='all'><EnrollmentsPerYearChart filter='todos'/></TabsContent>
                 <TabsContent value='mestrado'><EnrollmentsPerYearChart filter='mestrado' /></TabsContent>
                 <TabsContent value='doutorado'><EnrollmentsPerYearChart filter='doutorado' /></TabsContent>
               </CardContent>

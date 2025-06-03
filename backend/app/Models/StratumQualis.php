@@ -5,10 +5,8 @@ namespace App\Models;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 /**
  * App\Models\StratumQualis
@@ -18,6 +16,7 @@ use Illuminate\Support\Facades\DB;
  * @property int $score
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @method static Builder|StratumQualis newModelQuery()
  * @method static Builder|StratumQualis newQuery()
  * @method static Builder|StratumQualis query()
@@ -26,6 +25,7 @@ use Illuminate\Support\Facades\DB;
  * @method static Builder|StratumQualis whereId($value)
  * @method static Builder|StratumQualis whereScore($value)
  * @method static Builder|StratumQualis whereUpdatedAt($value)
+ *
  * @mixin Eloquent
  */
 class StratumQualis extends BaseModel
@@ -74,9 +74,9 @@ class StratumQualis extends BaseModel
     /**
      * Returns an array with all productions separated by qualis
      *
-     * @param string $user_type indicating whether you are a teacher or student
-     * @param int $course_id  id do course.
-     * @param string $publichser_type can be conference or journal
+     * @param  string  $user_type  indicating whether you are a teacher or student
+     * @param  int  $course_id  id do course.
+     * @param  string  $publichser_type  can be conference or journal
      * @return array array with productions separated by qualis
      */
     public function totalProductionsPerQualis($user_type, $course_id, $publisher_type): array
@@ -90,14 +90,14 @@ class StratumQualis extends BaseModel
             foreach ($years as $year) {
                 $qualisData['data'][] = Production::whereStratumQualisId($qualis->id)
                     ->where('year', $year)
-                    ->when($publisher_type, function(Builder $builder, $publisherType) {
+                    ->when($publisher_type, function (Builder $builder, $publisherType) {
                         $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
                             $q->where('publisher_type', $publisherType);
                         });
                     })
                     ->when($user_type, function (Builder $builder, $userType) {
                         $builder->whereHas('isWroteBy', function (Builder $builder) use ($userType) {
-                           $builder->where('type', $userType);
+                            $builder->where('type', $userType);
                         });
                     })
                     ->when($course_id, function (Builder $builder, $courseId) {
@@ -113,10 +113,12 @@ class StratumQualis extends BaseModel
 
         return compact('years', 'data');
     }
+
     public function publisher(): HasMany
     {
         return $this->hasMany(Publishers::class);
     }
+
     public function productions()
     {
         return $this->hasMany(Production::class);

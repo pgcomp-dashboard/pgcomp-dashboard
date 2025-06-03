@@ -28,8 +28,9 @@ abstract class BaseModel extends Model
     abstract public static function creationRules(): array;
 
     /**
-     * @param array $attributes model attributes do save.
+     * @param  array  $attributes  model attributes do save.
      * @return static new model instance saved.
+     *
      * @throws ValidationException check if attributes are valid.
      */
     public static function create(array $attributes = []): static
@@ -44,10 +45,11 @@ abstract class BaseModel extends Model
     }
 
     /**
-     * @param array $attributes attributes to find model
-     * @param array $values attributes to save or update model.
-     * @param array $updateOptions options to update method.
+     * @param  array  $attributes  attributes to find model
+     * @param  array  $values  attributes to save or update model.
+     * @param  array  $updateOptions  options to update method.
      * @return static updated or created model instance.
+     *
      * @throws ValidationException check if attributes are valid.
      */
     public static function updateOrCreate(array $attributes, array $values = [], array $updateOptions = []): static
@@ -69,9 +71,10 @@ abstract class BaseModel extends Model
     abstract public function updateRules(): array;
 
     /**
-     * @param array $attributes attributes to update current model
-     * @param array $options options to update.
+     * @param  array  $attributes  attributes to update current model
+     * @param  array  $options  options to update.
      * @return bool true if successful update.
+     *
      * @throws ValidationException check if attributes are valid.
      */
     public function update(array $attributes = [], array $options = []): bool

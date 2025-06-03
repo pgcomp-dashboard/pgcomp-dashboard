@@ -14,14 +14,16 @@ class StudentController extends BaseApiResourceController
     public function store(Request $request)
     {
         $user = User::createOrUpdateStudent($request->all());
-        $advisor = $request->input("advisor_id");
+        $advisor = $request->input('advisor_id');
         $user->advisors()->sync($advisor);
+
         return $user;
     }
 
     public function update(Request $request, int $id)
     {
         $user = parent::update($request, $id);
+
         return $user;
     }
 
@@ -34,5 +36,4 @@ class StudentController extends BaseApiResourceController
     {
         return User::class;
     }
-
 }

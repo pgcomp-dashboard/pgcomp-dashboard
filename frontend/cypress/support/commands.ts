@@ -1,7 +1,6 @@
-Cypress.Commands.add('login', (user, pass) => {
-    cy.visit('/login')
-    cy.get('input[name=username]').type(user)
-    cy.get('input[name=password]').type(pass)
-    cy.get('button[type=submit]').click()
-  })
-  
+Cypress.Commands.add('login', (email: string, password: string) => {
+  cy.visit('/login');
+  cy.get('input[name="email"]').type(email);
+  cy.get('input[name="password"]').type(password);
+  cy.get('button[type="submit"]').click();
+});

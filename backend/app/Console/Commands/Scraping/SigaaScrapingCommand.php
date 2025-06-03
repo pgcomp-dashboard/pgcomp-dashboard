@@ -35,6 +35,7 @@ class SigaaScrapingCommand extends Command
 
     /**
      * Execute the console command.
+     *
      * @throws Exception
      */
     public function handle(): int
@@ -43,12 +44,13 @@ class SigaaScrapingCommand extends Command
         $programId = $this->argument('programId');
         if (! is_numeric($programId) || $programId <= 0) {
             $this->error('Informe um ID de curso válido');
+
             return 1;
         }
 
-        $teacherScraping = new TeacherScraping();
+        $teacherScraping = new TeacherScraping;
         try {
-            $teachers = $teacherScraping->scrapingByProgram((int)$programId);
+            $teachers = $teacherScraping->scrapingByProgram((int) $programId);
             Storage::put("teachers-{$programId}.json", json_encode($teachers));
             $this->createOrUpdateTeachers($teachers);
 
@@ -57,24 +59,24 @@ class SigaaScrapingCommand extends Command
             $this->table([
                 'Nome',
                 'ID Area',
-                'Observação'
+                'Observação',
             ], $teachersWithArea);
         } catch (Exception $e) {
             $this->error($e->getMessage());
         }
 
-        $studentScraping = new StudentScraping();
+        $studentScraping = new StudentScraping;
         try {
-            $students = $studentScraping->scrapingByProgram((int)$programId);
+            $students = $studentScraping->scrapingByProgram((int) $programId);
             Storage::put("students-{$programId}.json", json_encode($students));
             $this->createOrUpdateStudents($students);
         } catch (Exception $e) {
             $this->error($e->getMessage());
         }
 
-        $defenseScraping = new DefenseScraping();
+        $defenseScraping = new DefenseScraping;
         try {
-            $data = $defenseScraping->scrapingByProgram((int)$programId);
+            $data = $defenseScraping->scrapingByProgram((int) $programId);
             Storage::put("defenses-{$programId}.json", json_encode($data));
             $this->updateDefended($data);
         } catch (Exception $e) {
@@ -164,44 +166,62 @@ class SigaaScrapingCommand extends Command
     private function updateDefended(array $data)
     {
         foreach ($data as $item) {
+            $userNotDefended = User::where('type', UserType::STUDENT->value)
+                ->where('name', $item['student'])
+                ->whereNull('defended_at')
+                ->first();
+            if ($userNotDefended && ! empty($item['date'])) {
+                $advisor = $userNotDefended->advisors()->first();
+
+                if ($advisor) {
+                    $userNotDefended->area_id = $advisor->area_id;
+                }
+
+                $userNotDefended->defended_at = date($item['date']);
+                $userNotDefended->save();
+
+                $this->info("{$userNotDefended->name} defendeu.");
+
+                continue;
+            }
+
             $user = User::where('type', UserType::STUDENT->value)
                 ->where('name', $item['student'])
                 ->first();
+
+            if (! empty($user) && $user->is_protected) {
+                $msg = "{$user->name} | Não é possivel atualizar um discente protegido.";
+                $this->error($msg);
+                Log::error($msg, $item);
+
+                continue;
+            }
 
             $teacher = User::where('type', UserType::PROFESSOR->value)
                 ->where('name', $item['teacher'])
                 ->first(['id']);
 
-            if ($user) {
-                $advisor = $user->advisors()->first();
+            $registration = User::whereNotNull('registration')
+                ->orderBy('registration')
+                ->first(['registration'])
+                ->registration;
 
-                if ($advisor) {
-                    $user->area_id = $advisor->area_id;
-                }
+            $areaId = User::where('type', UserType::PROFESSOR->value)
+                ->where('id', $teacher?->id)
+                ->whereNotNull(['id', 'area_id'])
+                ->first(['area_id'])?->area_id;
 
-                $user->defended_at = $item['date'];
-                $user->save();
-                $this->info("{$user->name} defendeu.");
-            } else {
-                $registration = User::whereNotNull('registration')
-                    ->orderBy('registration')
-                    ->first(['registration'])
-                    ->registration;
+            $userCreated = User::createOrUpdateStudentByScraping([
+                'id' => $user?->id ?? null,
+                'registration' => $user?->registration ?? $registration - 1,
+                'name' => $item['student'],
+                'course_id' => $item['course_id'],
+                'area_id' => $areaId,
+                'defended_at' => $item['date'],
+            ]);
 
-                $areaId = User::where('type', UserType::PROFESSOR->value)
-                    ->where('id', $teacher?->id)
-                    ->whereNotNull(['id', 'area_id'])
-                    ->first(['area_id'])?->area_id;
-
-                $user = User::createOrUpdateStudentByScraping([
-                    'registration' => $registration - 1,
-                    'name' => $item['student'],
-                    'course_id' => $item['course_id'],
-                    'area_id' => $areaId,
-                ]);
-            }
-            if ($teacher && $user->advisors()->where('id', $teacher->id)->doesntExist()) {
-                $user->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
+            if ($teacher && $userCreated->advisors()->where('id', $teacher->id)->doesntExist()) {
+                $userCreated->advisors()->attach([$teacher->id => ['relation_type' => 'advisor']]);
             }
         }
     }

@@ -29,11 +29,11 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
   const query = useQuery({
-    queryKey: ['studentsPerField', filter],
+    queryKey: [ 'studentsPerField', filter ],
     queryFn: async () => api.studentsPerField(filter),
   });
 
-  const chartData = Object.entries(query.data ?? {}).map(([name, value]) => ({ name, value }));
+  const chartData = Object.entries(query.data ?? {}).map(([ name, value ]) => ({ name, value }));
   //const chartData = Array.from({ length: 30 }, (_, i) => ({
   //  name: `Campo ${i + 1}`,
   //  value: Math.floor(Math.random() * 100),

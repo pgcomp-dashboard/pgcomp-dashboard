@@ -21,7 +21,7 @@ class PublisherController extends BaseApiResourceController
         'publishers.logs',
         'publishers.stratum_qualis_id',
         'publishers.created_at',
-        'publishers.updated_at'
+        'publishers.updated_at',
     ];
 
     protected function modelClass(): string|BaseModel
@@ -33,16 +33,16 @@ class PublisherController extends BaseApiResourceController
     {
         // Determine if we're on journals or conferences route
         $routeName = $request->route()->getName();
-        
+
         if (str_contains($routeName, 'journals')) {
             $this->journalQuery();
         } else {
             $this->conferenceQuery();
         }
-        
+
         return $this->query->paginate();
     }
-    
+
     public function journalQuery()
     {
         $this->query = $this->newBaseQuery()
