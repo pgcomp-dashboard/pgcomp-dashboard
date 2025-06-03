@@ -80,9 +80,17 @@ export default function ProductionPerQualisChart() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="year" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Legend
+                wrapperStyle={{ fontSize: 14 }}
+                payload={[...allQualis].map((qualis) => ({
+                  value: qualis,
+                  type: 'square',
+                  color: colorFromName(qualis),
+                  id: qualis,
+                }))}
+              />
               <Tooltip />
-              {allQualis.map((qualis) => (
+              {allQualis.reverse().map((qualis) => (
                 <Bar
                   key={qualis}
                   dataKey={qualis}
@@ -117,6 +125,7 @@ export default function ProductionPerQualisChart() {
                   />
                 </Bar>
               ))}
+
             </BarChart>
           </ResponsiveContainer>
         </div>
