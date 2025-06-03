@@ -78,10 +78,10 @@ export default function ProductionPerQualisChart() {
               margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
+              <XAxis dataKey="year" tick={{ fontSize: 18 }} />
+              <YAxis tick={{ fontSize: 18 }} />
               <Legend
-                wrapperStyle={{ fontSize: 14 }}
+                wrapperStyle={{ fontSize: 18 }}
                 payload={[...allQualis].map((qualis) => ({
                   value: qualis,
                   type: 'square',
