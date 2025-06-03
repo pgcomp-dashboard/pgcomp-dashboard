@@ -5,15 +5,15 @@
  */
 export function colorFromName(name: string): string {
   const QUALIS_COLORS: Record<string, string> = {
-    A1: '#003f5c', // Azul escuro profundo
-    A2: '#2f4b7c', // Azul médio
-    A3: '#665191', // Roxo
-    A4: '#a05195', // Magenta
-    B1: '#d45087', // Rosa escuro
-    B2: '#f95d6a', // Coral
-    B3: '#ff7c43', // Laranja vibrante
-    B4: '#ffa600', // Amarelo forte
-    '-': '#ffcc00', // Amarelo-limão
+    A1: '#ff0000', // Vermelho intenso (quente máximo)
+    A2: '#ff4500', // Laranja avermelhado
+    A3: '#ff8c00', // Laranja forte
+    A4: '#ffcc00', // Amarelo ouro
+    B1: '#ffd700', // Amarelo claro
+    B2: '#dda0dd', // Lavanda (transição para frio)
+    B3: '#9370db', // Roxo médio
+    B4: '#4169e1', // Azul royal
+    '-': '#1e90ff', // Azul claro (frio máximo)
   };
 
   // Prioridade: se for Qualis conhecido, retorna cor específica
