@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import PublicationsChart from '@/components/charts/Publications.tsx';
 import StudentsPerAdvisorChart from '@/components/charts/StudentsPerAdvisor.tsx';
 import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
 import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
@@ -17,7 +16,7 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 
 import logoImage from '@/assets/logo.png';
 import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
-import NumberStudentsMock from '@/components/charts/NumberStudentMock';
+import StudentCountCard from '@/components/StudentCountCard';
 import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
 import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
 
@@ -152,36 +151,54 @@ export default function Dashboard() {
       </header>
       <main className="flex-1 container py-6 space-y-8 w-full lg:px-16">
 
-        <section id="student_count" className="space-y-4 h-[500px]">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Número de alunos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <NumberStudentsMock />
-            </CardContent>
-          </Card>
-        </section>
+        <section id="student_count" className="space-x-6 h-[200px] flex flex-row">
+          {/* Grupo Mestrado */}
+          <div className="flex flex-1 flex-col justify-between bg-green-50 p-3 rounded-2xl shadow-sm border border-green-200 space-y-3">
+            <h2 className="text-green-800 font-semibold text-md pl-2">Alunos do Mestrado</h2>
+            <div className="flex flex-row space-x-3">
+              <Card className="flex-1 bg-green-100 border border-green-200">
+                <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+                  <CardTitle className="text-green-900 text-sm">Atuais</CardTitle>
+                </CardHeader>
+                <CardContent className="h-full">
+                  <StudentCountCard studentFilter="Mestrado - Alunos atuais" />
+                </CardContent>
+              </Card>
 
-        <section id="publications" className="space-y-10 min-h-[500px]">
-          <Card>
-            <Tabs defaultValue="all">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Produções científicas</CardTitle>
+              <Card className="flex-1 bg-green-100 border border-green-200">
+                <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+                  <CardTitle className="text-green-900 text-sm">Concluídos</CardTitle>
+                </CardHeader>
+                <CardContent className="h-full">
+                  <StudentCountCard studentFilter="Mestrado - Alunos concluídos" />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
-                <TabsList>
-                  <TabsTrigger value="all">Todas</TabsTrigger>
-                  <TabsTrigger value="journals">Em periódicos</TabsTrigger>
-                  <TabsTrigger value="conferences">Em conferências</TabsTrigger>
-                </TabsList>
-              </CardHeader>
-              <CardContent>
-                <TabsContent value={'all'}><PublicationsChart /></TabsContent>
-                <TabsContent value={'journals'}><PublicationsChart filter="journal" /></TabsContent>
-                <TabsContent value={'conferences'}><PublicationsChart filter="conference" /></TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
+          {/* Grupo Doutorado */}
+          <div className="flex flex-1 flex-col justify-between bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-200 space-y-3">
+            <h2 className="text-blue-800 font-semibold text-md pl-2">Alunos do Doutorado</h2>
+            <div className="flex flex-row space-x-3">
+              <Card className="flex-1 bg-blue-100 border border-blue-200">
+                <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+                  <CardTitle className="text-blue-900 text-sm">Atuais</CardTitle>
+                </CardHeader>
+                <CardContent className="h-full">
+                  <StudentCountCard studentFilter="Doutorado - Alunos atuais" />
+                </CardContent>
+              </Card>
+
+              <Card className="flex-1 bg-blue-100 border border-blue-200">
+                <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+                  <CardTitle className="text-blue-900 text-sm">Concluídos</CardTitle>
+                </CardHeader>
+                <CardContent className="h-full">
+                  <StudentCountCard studentFilter="Doutorado - Alunos concluídos" />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </section>
 
         <section id="quality" className="space-y-10 min-h-[500px]">

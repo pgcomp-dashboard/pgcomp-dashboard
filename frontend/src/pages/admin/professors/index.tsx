@@ -28,10 +28,8 @@ import { MoreVertical, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import api from '@/services/api';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-
-import { productionsByProfessor, Production } from './productionsByProfessor'; 
 
 type Professor = {
   id: number;
@@ -41,13 +39,22 @@ type Professor = {
   lattes_url: string;
 };
 
+type Qualis = {
+  id: number;
+  code: string;
+  score: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export default function ProfessorsPage() {
   const [ searchTerm, setSearchTerm ] = useState('');
   const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
   const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
   const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
   const [ selectedProductions, setSelectedProductions ] = useState<Production[]>([]);
-
+  const [ qualisList, setQualisList ] = useState<Qualis[]>([]);
+  
   const history = useNavigate();
 
   const { data: professors = [], isLoading, error } = useQuery({
@@ -55,18 +62,40 @@ export default function ProfessorsPage() {
     queryFn: () => api.getAllProfessors(),
   });
 
+  useEffect(() => {
+    async function fetchQualis() {
+      try {
+        const qualis = await api.getAllQualis();
+        setQualisList(qualis);
+      } catch (err) {
+        console.error('Erro ao carregar Qualis:', err);
+      }
+    }
+    fetchQualis();
+  }, []);
+
   const filteredProfessors = professors.filter((prof: Professor) =>
     prof.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const verProducoes = (professorId: number) => {
-    const producoes = productionsByProfessor.filter(p => p.professorId === professorId);
-    setSelectedProductions(producoes);
-    setIsProductionsOpen(true);
+  const verProducoes = async (professorId: number) => {
+    try {
+      const producoes = await api.getProductionsByProfessor(professorId);
+      setSelectedProductions(producoes);
+      setIsProductionsOpen(true);
+    } catch (error){
+      console.error(error);
+      alert('Erro ao carregar produções do professor.');
+    }
   };
 
   const verDetalhes = () => {
     setIsDetailProfOpen(false);
+  };
+  
+  const getQualisCode = (qualisId: number) => {
+    const qualis = qualisList.find((q) => q.id === qualisId);
+    return qualis ? qualis.code : '';
   };
 
   if (isLoading) return <div>Carregando...</div>;
@@ -190,11 +219,11 @@ export default function ProfessorsPage() {
                 key={idx}
                 className="rounded border bg-gray-100 p-4 text-sm flex flex-col gap-1"
               >
-                <p><strong>nome da produção:</strong> {prod.titulo}</p>
-                <p><strong>Autores:</strong> {prod.autores}</p>
-                <p><strong>Nota qualis:</strong> {prod.notaQualis}</p>
-                <p><strong>Doi:</strong> {prod.doi || 'erro'}</p>
-                <p><strong>Publicação:</strong> {prod.publicacao}</p>
+                <p><strong>Título da Produção:</strong> {prod.title}</p>
+                <p><strong>Autor:</strong> {prod.publisher_id}</p>
+                <p><strong>Qualis:</strong> {getQualisCode(prod.stratum_qualis_id)}</p>
+                <p><strong>D.O.I.:</strong> {prod.doi || 'erro'}</p>
+                <p><strong>Ano:</strong> {prod.year}</p>
               </div>
             ))}
           </div>
