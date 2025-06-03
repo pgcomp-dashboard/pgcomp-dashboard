@@ -64,8 +64,8 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
           <ChartContainer
             config={{
               year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
-              mestrado: { label: 'Mestrado', color: '#8884d8' },
-              doutorado: { label: 'Doutorado', color: '#82ca9d' },
+              mestrado: { label: 'Mestrado', color: '#82ca9d' },
+              doutorado: { label: 'Doutorado', color: '#8884d8' },
             }}
             className="w-full h-[400px]"
           >
@@ -75,12 +75,12 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
               <YAxis style={{ fontSize: 18 }} />
               <Tooltip content={<CustomTooltip />} />
               {(filter === 'todos' || filter === 'mestrado') && (
-                <Bar dataKey="mestrado" stackId="a" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}/>
+                <Bar dataKey="mestrado" stackId="a" fill="#82ca9d" label={{ position: 'top', style: { fontSize: 18 } }}/>
               )}
               {(filter === 'todos' || filter === 'doutorado') && (
-                <Bar dataKey="doutorado" stackId="a" fill="#82ca9d" label={{ position: 'top', style: { fontSize: 18 } }}/>
+                <Bar dataKey="doutorado" stackId="a" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}/>
               )}
-              <Legend verticalAlign="top" height={36} formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} />
+              <Legend verticalAlign="top" height={48} formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} wrapperStyle={{ fontSize: '18px' }} />
             </BarChart>
           </ChartContainer>
         </div>
