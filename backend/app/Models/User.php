@@ -338,8 +338,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->selectRaw('areas.area, COUNT(users.id) AS userCount');
 
         $query = match ($selectedFilter) {
-            'mestrando' => $query->where('courses.name', '=', 'Mestrado'),
-            'doutorando' => $query->where('courses.name', '=', 'Doutorado'),
+            'mestrando' => $query->where('courses.name', '=', 'Mestrado')->whereNull('users.defended_at'),
+            'doutorando' => $query->where('courses.name', '=', 'Doutorado')->whereNull('users.defended_at'),
             'completed' => $query->whereNotNull('users.defended_at'),
             default => $query,
         };
