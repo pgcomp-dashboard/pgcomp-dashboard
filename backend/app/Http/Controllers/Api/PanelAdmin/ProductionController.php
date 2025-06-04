@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Models\BaseModel;
 use App\Models\Production;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductionController extends BaseApiResourceController
 {
@@ -17,6 +18,12 @@ class ProductionController extends BaseApiResourceController
     protected function modelClass(): string|BaseModel
     {
         return Production::class;
+    }
+
+    protected function newBaseQuery(): Builder
+    {
+        return $this->modelClass()::query()
+            ->with(['publisher', 'publisher.stratumQualis']);
     }
 
     public function store(Request $request)
