@@ -220,7 +220,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </section>
-        <section id="professorProduction" className="space-y-4 h-[500px]">
+        <section id="professorProduction" className="space-y-10 min-h-[500px]">
           <ProfessorProductionPerYear />
         </section>
 
