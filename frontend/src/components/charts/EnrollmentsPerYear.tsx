@@ -7,6 +7,8 @@ import {
   Bar,
   TooltipProps,
   Legend,
+  LabelList,
+  ReferenceLine,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
@@ -48,6 +50,14 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
 
   const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart((data ?? []).length, MAX_VISIBLE_BARS);
 
+  const totalDefesas = (data ?? []).reduce((sum, item) => {
+    if (filter === 'mestrado') return sum + item.mestrado;
+    if (filter === 'doutorado') return sum + item.doutorado;
+    return sum + item.mestrado + item.doutorado;
+  }, 0);
+  
+  const mediaPorAno = data?.length ? totalDefesas / data.length : 0;
+
   if (isLoading) return <>Carregando...</>;
   if (error) return <>Erro ao carregar o gráfico</>;
 
@@ -62,23 +72,52 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
           <ChartContainer
             config={{
               year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
-              mestrado: { label: 'Mestrado', color: '#8884d8' },
-              doutorado: { label: 'Doutorado', color: '#82ca9d' },
+              mestrado: { label: 'Mestrado', color: '#4ab773' },
+              doutorado: { label: 'Doutorado', color: '#8884d8' },
             }}
             className="w-full h-[400px]"
           >
             <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 20 }} data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" interval={0} angle={0} style={{ fontSize: 18 }} />
+              <XAxis dataKey="year" interval={0} style={{ fontSize: 18 }} />
               <YAxis style={{ fontSize: 18 }} />
+              <ReferenceLine
+                y={mediaPorAno}
+                stroke="red"
+                strokeDasharray="3 3"
+                label={{
+                  value: `Média: ${mediaPorAno.toFixed(2)}`,
+                  position: 'top',
+                  fontSize: 16,
+                  fill: 'red',
+                }}
+              />
               <Tooltip content={<CustomTooltip />} />
               {(filter === 'todos' || filter === 'mestrado') && (
-                <Bar dataKey="mestrado" stackId="a" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}/>
+                <Bar dataKey="mestrado" stackId="a" fill="#82ca9d">
+                  {/* Remove o 'label' do Bar e adiciona LabelList */}
+                  <LabelList
+                    dataKey="mestrado"
+                    position="center"
+                    fill="#fff" // Cor do texto para contraste com a barra
+                    fontSize={18}
+                    fontWeight="bold"
+                  />
+                </Bar>
               )}
               {(filter === 'todos' || filter === 'doutorado') && (
-                <Bar dataKey="doutorado" stackId="a" fill="#82ca9d" label={{ position: 'top', style: { fontSize: 18 } }}/>
+                <Bar dataKey="doutorado" stackId="a" fill="#8884d8">
+                  {/* Remove o 'label' do Bar e adiciona LabelList */}
+                  <LabelList
+                    dataKey="doutorado"
+                    position="center"
+                    fill="#fff" // Cor do texto para contraste com a barra
+                    fontSize={18}
+                    fontWeight="bold"
+                  />
+                </Bar>
               )}
-              <Legend verticalAlign="top" height={36} formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} />
+              <Legend verticalAlign="top" height={48} formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} wrapperStyle={{ fontSize: '18px' }} />
             </BarChart>
           </ChartContainer>
         </div>
@@ -86,3 +125,5 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
     </>
   );
 }
+
+

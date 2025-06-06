@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\PanelAdmin;
 use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Models\Area;
 use App\Models\BaseModel;
+use App\Http\Requests\Api\BaseResourceIndexRequest;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

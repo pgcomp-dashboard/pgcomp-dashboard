@@ -22,8 +22,10 @@ export default function StudentCountCard({
   const filteredData = data?.filter((d) => d.category == studentFilter);
 
   return (
-    <div className="w-full h-full text-4xl flex-1 flex items-center justify-center">
+    <div className="w-full h-full text-7xl flex-1 flex items-center justify-center">
       {filteredData?.length ? filteredData[0].amount : 0}
     </div>
   );
 }
+
+
