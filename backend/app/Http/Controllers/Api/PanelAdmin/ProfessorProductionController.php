@@ -17,8 +17,15 @@ class ProfessorProductionController extends Controller
     {
         $this->productionController = $this->newInstance();
         $this->productionController->professorQuery($professors);
+        $typeCounts = $this->productionController->getTypeCounts($professors);
+        $response = $this->productionController->index($request);
 
-        return $this->productionController->index($request);
+         $response['type_counts'] = [
+            'journal' => $typeCounts->journal_count ?? 0,
+            'conference' => $typeCounts->conference_count ?? 0,
+            'total' => $typeCounts->total_count ?? 0
+        ];
+        return $response;
     }
 
     public function show($professors, $productions)
