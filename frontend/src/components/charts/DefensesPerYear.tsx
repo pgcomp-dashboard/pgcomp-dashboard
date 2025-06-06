@@ -7,6 +7,7 @@ import {
   Bar,
   TooltipProps,
   Legend,
+  LabelList,
   ReferenceLine,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
@@ -95,12 +96,35 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
               />
               <Tooltip content={<CustomTooltip />} />
               {(filter === 'todos' || filter === 'mestrado') && (
-                <Bar dataKey="mestrado" stackId="a" fill="#4ab773" label={{ position: 'top', style: { fontSize: 18 } }}/>
+                <Bar dataKey="mestrado" stackId="a" fill="#82ca9d">
+                  {/* Removido o 'label' do Bar e adicionado LabelList */}
+                  <LabelList
+                    dataKey="mestrado"
+                    position="center"
+                    fill="#fff" // Cor do texto branca
+                    fontSize={18} // Tamanho da fonte 18
+                    fontWeight="bold" // Negrito
+                  />
+                </Bar>
               )}
               {(filter === 'todos' || filter === 'doutorado') && (
-                <Bar dataKey="doutorado" stackId="a" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}/>
+                <Bar dataKey="doutorado" stackId="a" fill="#8884d8">
+                  {/* Removido o 'label' do Bar e adicionado LabelList */}
+                  <LabelList
+                    dataKey="doutorado"
+                    position="center"
+                    fill="#fff" // Cor do texto branca
+                    fontSize={18} // Tamanho da fonte 18
+                    fontWeight="bold" // Negrito
+                  />
+                </Bar>
               )}
-              <Legend verticalAlign="top" height={48} formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} wrapperStyle={{ fontSize: '18px' }} />
+              <Legend
+                verticalAlign="top"
+                height={48}
+                formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+                wrapperStyle={{ fontSize: '18px' }} // Mantém o tamanho da fonte da legenda em 18px
+              />
             </BarChart>
           </ChartContainer>
         </div>
