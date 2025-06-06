@@ -330,128 +330,61 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
      */
     public static function userCountPerArea(?string $selectedFilter): array
     {
-        // TODO: filter
-        $query = DB::table('users')
-            ->join('areas', 'users.area_id', '=', 'areas.id')
-            ->join('courses', 'users.course_id', '=', 'courses.id')
-            ->groupBy('areas.area')
-            ->selectRaw('areas.area, COUNT(users.id) AS userCount');
+        $query = DB::table('user_user as uu')
+            ->join('users as u', 'uu.student_user_id', '=', 'u.id')
+            ->join('areas as a',   'u.area_id',        '=', 'a.id')
+            ->join('courses as c', 'u.course_id',      '=', 'c.id')
+            ->where('uu.relation_type', UserRelationType::ADVISOR);
 
+        // Aplica filtros com base no tipo selecionado
         $query = match ($selectedFilter) {
-            'mestrando' => $query->where('courses.name', '=', 'Mestrado')->whereNull('users.defended_at'),
-            'doutorando' => $query->where('courses.name', '=', 'Doutorado')->whereNull('users.defended_at'),
-            'completed' => $query->whereNotNull('users.defended_at'),
-            default => $query,
+            'mestrando'  => $query->where('c.name', '=', 'Mestrado')->whereNull('u.defended_at'),
+            'doutorando' => $query->where('c.name', '=', 'Doutorado')->whereNull('u.defended_at'),
+            'completed'  => $query->whereNotNull('u.defended_at'),
+            default      => $query->whereNull('u.defended_at'), // Padrão para alunos ativos
         };
 
-        return $query->get()->pluck('userCount', 'area')->toArray();
+        return $query->groupBy('a.area')
+            ->selectRaw('a.area, COUNT(DISTINCT u.id) AS userCount') // COUNT(DISTINCT u.id) para evitar contar o mesmo aluno múltiplas vezes
+            ->pluck('userCount', 'area')
+            ->toArray();
     }
 
-    public function areasMasterFilter(): array
+    public static function countAdvisedStudentsByProfessorAndCourse(int $professorId, ?string $courseType = null): array
     {
-        $data = DB::table('users')
-            ->join('areas', 'areas.id', '=', 'users.area_id')
-            ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
-            ->where('users.type', '=', UserType::STUDENT)
-            ->where('users.course_id', '=', 1)
-            ->groupBy('areas.area_name')
-            ->orderBy('areas.area_name')
-            ->get();
+        $query = DB::table('user_user as uu')
+            ->join('users as students', 'uu.student_user_id', '=', 'students.id')
+            ->join('courses as c', 'students.course_id', '=', 'c.id')
+            ->where('uu.professor_user_id', $professorId)
+            ->where('uu.relation_type', UserRelationType::ADVISOR)
+            ->whereNull('students.defended_at'); // Apenas conta alunos orientados ativos
 
-        $dataFields = [];
-        $dataCount = [];
-        for ($counter = 0; $counter < count($data); $counter++) {
-            $dataFields[$counter] = $data[$counter]->area_name;
-            $dataCount[$counter] = $data[$counter]->area_count;
+        if ($courseType) {
+            $query->where('c.name', $courseType);
         }
 
-        return [$dataFields, $dataCount];
+        return $query->groupBy('c.name')
+            ->selectRaw('c.name, COUNT(students.id) AS total')
+            ->pluck('total', 'name')
+            ->toArray();
     }
 
-    public function areasDoctorFilter(): array
+    public static function countDefendedAdvisedStudentsByProfessor(int $professorId, ?string $courseType = null): int
     {
-        $data = DB::table('users')
-            ->join('areas', 'areas.id', '=', 'users.area_id')
-            ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
-            ->where('users.type', '=', UserType::STUDENT)
-            ->where('users.course_id', '=', 2)
-            ->groupBy('areas.area_name')
-            ->orderBy('areas.area_name')
-            ->get();
+        $query = DB::table('user_user as uu')
+            ->join('users as students', 'uu.student_user_id', '=', 'students.id')
+            ->join('courses as c', 'students.course_id', '=', 'c.id')
+            ->where('uu.professor_user_id', $professorId)
+            ->where('uu.relation_type', UserRelationType::ADVISOR)
+            ->whereNotNull('students.defended_at'); // Contar apenas defendidos
 
-        $dataFields = [];
-        $dataCount = [];
-        for ($counter = 0; $counter < count($data); $counter++) {
-            $dataFields[$counter] = $data[$counter]->area_name;
-            $dataCount[$counter] = $data[$counter]->area_count;
+        if ($courseType) {
+            $query->where('c.name', $courseType);
         }
 
-        return [$dataFields, $dataCount];
+        return $query->count('students.id');
     }
-
-    public function areasActiveFilter(): array
-    {
-        $data = DB::table('users')
-            ->join('areas', 'areas.id', '=', 'users.area_id')
-            ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
-            ->where('users.type', '=', UserType::STUDENT)
-            ->where('users.defended_at', '=', null)
-            ->groupBy('areas.area_name')
-            ->orderBy('areas.area_name')
-            ->get();
-
-        $dataFields = [];
-        $dataCount = [];
-        for ($counter = 0; $counter < count($data); $counter++) {
-            $dataFields[$counter] = $data[$counter]->area_name;
-            $dataCount[$counter] = $data[$counter]->area_count;
-        }
-
-        return [$dataFields, $dataCount];
-    }
-
-    public function areasNotActiveFilter(): array
-    {
-        $data = DB::table('users')
-            ->join('areas', 'areas.id', '=', 'users.area_id')
-            ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
-            ->where('users.type', '=', UserType::STUDENT)
-            ->where('users.defended_at', '!=', null)
-            ->groupBy('areas.area_name')
-            ->orderBy('areas.area_name')
-            ->get();
-
-        $dataFields = [];
-        $dataCount = [];
-        for ($counter = 0; $counter < count($data); $counter++) {
-            $dataFields[$counter] = $data[$counter]->area_name;
-            $dataCount[$counter] = $data[$counter]->area_count;
-        }
-
-        return [$dataFields, $dataCount];
-    }
-
-    public function areasCompletedFilter(): array
-    {
-        $data = DB::table('users')
-            ->join('areas', 'areas.id', '=', 'users.area_id')
-            ->select(DB::raw('areas.area_name, count(areas.id) as area_count'))
-            ->where('users.type', '=', UserType::STUDENT)
-            ->where('users.defended_at', '!=', null)
-            ->groupBy('areas.area_name')
-            ->orderBy('areas.area_name')
-            ->get();
-
-        $dataFields = [];
-        $dataCount = [];
-        for ($counter = 0; $counter < count($data); $counter++) {
-            $dataFields[$counter] = $data[$counter]->area_name;
-            $dataCount[$counter] = $data[$counter]->area_count;
-        }
-
-        return [$dataFields, $dataCount];
-    }
-
+    
     public function sendPasswordResetNotification($token)
     {
         ResetPasswordNotification::createUrlUsing(function (User $user, string $token) {
