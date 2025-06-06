@@ -151,7 +151,7 @@ export default function Dashboard() {
       </header>
       <main className="flex-1 container py-6 space-y-8 w-full lg:px-16">
 
-        <section id="student_count" className="space-x-6 h-[200px] flex flex-row">
+        <section id="student_count" className="space-x-6 h-[230px] flex flex-row">
           {/* Grupo Mestrado */}
           <div className="flex flex-1 flex-col justify-between bg-green-50 p-3 rounded-2xl shadow-sm border border-green-200 space-y-3">
             <h2 className="text-green-800 font-semibold text-md pl-2">Alunos do Mestrado</h2>
