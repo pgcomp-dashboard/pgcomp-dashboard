@@ -19,23 +19,37 @@ class DashboardController extends Controller
     {
         $userType = $request->input('user_type');
         $attributes = ['id', 'name'];
-        $data = User::where('type', UserType::PROFESSOR)
-            // ->whereHas('advisedes') // não lista professores sem orientandos!
-            ->withCount(['advisedes' => function (Builder $belongsToMany) use ($userType) {
-                if ($userType === 'doutorando') {
-                    $belongsToMany->where('course_id', 2);
-                } elseif ($userType === 'mestrando') {
-                    $belongsToMany->where('course_id', 1);
-                } elseif ($userType === 'completed') {
-                    $belongsToMany->whereNotNull('defended_at');
-                }
-            }])
-            ->orderBy('advisedes_count', 'DESC')
-            ->get($attributes);
 
-        return $data->transform(function ($item) use ($attributes) {
-            return $item->only([...$attributes, 'advisedes_count']);
+        // Define o nome do curso para a contagem (Mestrado/Doutorado)
+        $courseNameForCount = null;
+        if ($userType === 'doutorando') {
+            $courseNameForCount = 'Doutorado';
+        } elseif ($userType === 'mestrando') {
+            $courseNameForCount = 'Mestrado';
+        }
+
+        // Obtém todos os professores.
+        $advisors = User::where('type', UserType::PROFESSOR)->get($attributes);
+
+        // Mapeia sobre cada professor para obter a contagem de alunos orientados.
+        $advisorsWithCounts = $advisors->map(function ($advisor) use ($courseNameForCount, $userType, $attributes) {
+            $count = 0;
+
+            if ($userType === 'completed') {
+                // Usa o novo método para contar alunos defendidos.
+                $count = User::countDefendedAdvisedStudentsByProfessor($advisor->id, $courseNameForCount);
+            } else {
+                // Reutiliza o método existente para mestrandos/doutorandos (que já contam ativos) ou todos ativos.
+                $countsByCourse = User::countAdvisedStudentsByProfessorAndCourse($advisor->id, $courseNameForCount);
+                $count = array_sum($countsByCourse);
+            }
+
+            // Retorna os atributos do professor com a contagem.
+            return $advisor->only([...$attributes]) + ['advisedes_count' => $count];
         });
+
+        // Ordena os resultados e retorna.
+        return $advisorsWithCounts->sortByDesc('advisedes_count')->values();
     }
 
     public function programName()
