@@ -43,6 +43,7 @@ export default function Dashboard() {
               <SheetContent side="left">
                 <nav className="min-h-screen flex flex-col gap-4 space-y-2 p-4">
                   <div className="flex flex-col gap-8">
+                    {/*
                     <NavLink
                       to="#publications"
                       onClick={() => scrollToSection('publications')}
@@ -50,6 +51,8 @@ export default function Dashboard() {
                     >
                       Produções científicas
                     </NavLink>
+                    */}
+
                     <NavLink
                       to="#quality"
                       onClick={() => scrollToSection('quality')}
@@ -94,11 +97,12 @@ export default function Dashboard() {
                 </nav>
               </SheetContent>
             </Sheet>
-            <NavLink to="/" className="flex items-center gap-2">
+            <NavLink to="/" className="flex items-center gap-2" onClick={() => scrollToSection('student_count')}>
               <img className="w-42" src={logoImage} alt="Dashboard PGComp" />
             </NavLink>
           </div>
-          <nav  id="nav_desktop" className="hidden md:flex items-center gap-6">
+          <nav id="nav_desktop" className="hidden md:flex items-center gap-6">
+            {/* 
             <NavLink
               to="#publications"
               onClick={() => scrollToSection('publications')}
@@ -106,6 +110,7 @@ export default function Dashboard() {
             >
               Produções científicas
             </NavLink>
+            */}
             <NavLink
               to="#quality"
               onClick={() => scrollToSection('quality')}
@@ -280,7 +285,7 @@ export default function Dashboard() {
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value='all'><DefensesPerYearChart filter='todos'/></TabsContent>
+                <TabsContent value='all'><DefensesPerYearChart filter='todos' /></TabsContent>
                 <TabsContent value='mestrado'><DefensesPerYearChart filter='mestrado' /></TabsContent>
                 <TabsContent value='doutorado'><DefensesPerYearChart filter='doutorado' /></TabsContent>
               </CardContent>
@@ -300,7 +305,7 @@ export default function Dashboard() {
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value='all'><EnrollmentsPerYearChart filter='todos'/></TabsContent>
+                <TabsContent value='all'><EnrollmentsPerYearChart filter='todos' /></TabsContent>
                 <TabsContent value='mestrado'><EnrollmentsPerYearChart filter='mestrado' /></TabsContent>
                 <TabsContent value='doutorado'><EnrollmentsPerYearChart filter='doutorado' /></TabsContent>
               </CardContent>
