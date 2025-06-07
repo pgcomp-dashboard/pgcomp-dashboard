@@ -73,11 +73,6 @@ class DashboardController extends Controller
 
     public function totalProductionsPerYear(Request $request)
     {
-        // {
-        //  'years': ['2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015',
-        // '2016', '2017', '2018', '2019', '2020', '2021', '2022'],
-        //  'data': generateValues(anos), TODO: Aqui é 1 valor por ano, deve ter o mesmo tamanho dos anos
-        // }
         $publisher_type = match ($request->input('publisher_type')) {
             'journal' => 'journal',
             'conference' => 'conference',
@@ -91,11 +86,20 @@ class DashboardController extends Controller
             default => [null, null]
         };
 
-        return Production::totalProductionsPerYear(
+        $result = Production::totalProductionsPerYear(
             user_type: $filter[0],
             course_id: $filter[1],
             publisher_type: $publisher_type
         );
+
+        $years = $result['years'] ?? [];
+        $data = $result['data'] ?? [];
+        $assoc = [];
+        foreach ($years as $i => $year) {
+            $assoc[$year] = $data[$i] ?? 0;
+        }
+
+        return response()->json($assoc);
     }
 
     public function studentsProductions(Request $request)
