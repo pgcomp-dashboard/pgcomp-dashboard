@@ -48,7 +48,7 @@ export default function SystemConfigPage() {
                 <FormItem>
                   <FormLabel>Intervalo de scraping (dias)</FormLabel>
                   <FormControl>
-                    <Input type='number' placeholder="shadcn" {...field} />
+                    <Input type='number' {...field} />
                   </FormControl>
                   <FormDescription>
                     Intervalo em que será executado a tarefa de scraping para
