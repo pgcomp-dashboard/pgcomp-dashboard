@@ -137,7 +137,7 @@ export default function AreasPage() {
                   onChange={(e) => setNewArea({ ...newArea, name: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="students">N. de estudantes</Label>
                   <Input
@@ -148,7 +148,7 @@ export default function AreasPage() {
                     onChange={(e) => setNewArea({ ...newArea, students: Number.parseInt(e.target.value) || 0 })}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAddAreaOpen(false)}>
@@ -178,7 +178,7 @@ export default function AreasPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead>N. de estudantes</TableHead>
+              {/* <TableHead>N. de estudantes</TableHead> */}
               <TableHead className="w-[100px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -186,7 +186,7 @@ export default function AreasPage() {
             {filteredAreas.map((area) => (
               <TableRow key={area.id}>
                 <TableCell className="font-medium">{area.name}</TableCell>
-                <TableCell>{area.students}</TableCell>
+                {/* <TableCell>{area.students}</TableCell> */}
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -241,7 +241,7 @@ export default function AreasPage() {
                   onChange={(e) => setCurrentArea({ ...currentArea, name: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="edit-students">N. de estudantes</Label>
                   <Input
@@ -256,7 +256,7 @@ export default function AreasPage() {
                     }
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
           <DialogFooter>
