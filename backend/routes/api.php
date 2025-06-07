@@ -60,7 +60,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('qualis', StratumQualisController::class);
         Route::apiResource('users', UserAdminController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
-        Route::apiResource('students', StudentAdminController::class)->except(['destroy']);
+        Route::apiResource('students', StudentAdminController::class);
         Route::apiResource('students.productions', StudentProductionController::class)
             ->except(['destroy']);
         Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
