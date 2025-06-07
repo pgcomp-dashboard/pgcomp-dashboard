@@ -105,46 +105,41 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
         style={{ minHeight: '400px' }}
       >
         <div style={{ minWidth: chartWidth }} ref={chartRef}>
-        <ChartContainer
+          <ChartContainer
             config={{
-                year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
-                amount: { label: 'Número', color: 'hsl(var(--chart-3))' },
+              year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
+              amount: { label: 'Número', color: 'hsl(var(--chart-3))' },
             }}
             className="w-full h-[400px]"
-        >
+          >
             <ResponsiveContainer width="100%" height={400}>
-                <BarChart
-                    margin={{ top: 20, right: 5, left: 5, bottom: 80 }}
-                    data={chartData}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="year"
-                        interval={0}
-                        tickFormatter={name =>
-                            String(name).length > 15
-                                ? String(name).slice(0, 15) + '...'
-                                : String(name)
-                        }
-                        style={{ fontSize: 18 }}
-                    />
-                    <YAxis style={{ fontSize: 18 }} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar
-                        dataKey="amount"
-                        fill="#8884d8"
-                        label={{ position: 'top', style: { fontSize: 18 } }}
+              <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="year"
+                  interval={0}
+                  tickFormatter={(name) =>
+                    String(name).length > 15 ? String(name).slice(0, 15) + '...' : String(name)
+                  }
+                  style={{ fontSize: 18 }}
+                />
+                <YAxis style={{ fontSize: 18 }} />
+                <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
+                <Bar
+                      dataKey="amount"
+                      fill="#8884d8"
+                      label={{ position: 'top', style: { fontSize: 18 } }}
                     >
-                        {chartData.map((entry, index) => (
-                            <Cell
-                                key={`cell-${index}`}
-                                fill={colorFromName((parseInt(entry.year, 10) + 1).toString())}
-                            />
-                        ))}
+                      {chartData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={colorFromName((parseInt(entry.year, 10) + 1).toString())}
+                        />
+                      ))}
                     </Bar>
-                </BarChart>
+              </BarChart>
             </ResponsiveContainer>
-        </ChartContainer>
+          </ChartContainer>
         </div>
       </div>
     </>
