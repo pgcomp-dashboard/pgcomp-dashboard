@@ -19,6 +19,7 @@ import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
 import StudentCountCard from '@/components/StudentCountCard';
 import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
 import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
+import ProductionsPerYearChart from '@/components/charts/ProductionsPerYear.tsx';
 
 export default function Dashboard() {
   const scrollToSection = (id: string) => {
@@ -102,7 +103,7 @@ export default function Dashboard() {
             </NavLink>
           </div>
           <nav id="nav_desktop" className="hidden md:flex items-center gap-6">
-            {/* 
+            {
             <NavLink
               to="#publications"
               onClick={() => scrollToSection('publications')}
@@ -110,7 +111,7 @@ export default function Dashboard() {
             >
               Produções científicas
             </NavLink>
-            */}
+            }
             <NavLink
               to="#quality"
               onClick={() => scrollToSection('quality')}
@@ -204,6 +205,26 @@ export default function Dashboard() {
               </Card>
             </div>
           </div>
+        </section>
+
+        <section id="publications" className="space-y-10 min-h-[500px]">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Produções científicas por ano</CardTitle>
+              {/*
+              <Tabs defaultValue="all">
+                <TabsList>
+                  <TabsTrigger value="all">Todas</TabsTrigger>
+                  <TabsTrigger value="journals">Em periódicos</TabsTrigger>
+                  <TabsTrigger value="conferences">Em conferências</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              */}
+            </CardHeader>
+            <CardContent>
+              {<ProductionsPerYearChart />}
+            </CardContent>
+          </Card>
         </section>
 
         <section id="quality" className="space-y-10 min-h-[500px]">
