@@ -5,7 +5,6 @@ import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { colorFromName } from '@/utils/color';
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useRef, useState, useEffect } from 'react';
@@ -38,10 +37,10 @@ const CustomTooltip = ({
 };
 
 export default function AllProductionsPerYear() {
-  const [publisherType, setPublisherType] = useState<'journal' | 'conference' | undefined>(undefined);
+  const [ publisherType, setPublisherType ] = useState<'journal' | 'conference' | undefined>(undefined);
 
   const { data: productions, error, isLoading } = useQuery({
-    queryKey: ['totalProductionsPerYear', publisherType],
+    queryKey: [ 'totalProductionsPerYear', publisherType ],
     queryFn: () => api.totalProductionsPerYear(publisherType),
   });
 
@@ -95,11 +94,6 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
   );
 
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
-  const palette = [
-    "#2E7D32", "#FF6F00", "#283593", "#8E24AA", "#689F38", "#546E7A",
-    "#1976D2", "#D84315", "#00897B", "#6D4C41", "#3949AB", "#039BE5",
-    "#C62828", "#AD1457", "#388E3C",
-  ];
 
   return (
     <>
