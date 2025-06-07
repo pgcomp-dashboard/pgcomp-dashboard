@@ -141,12 +141,16 @@ export class ApiService {
       }
 
       return await response.json() as T;
-    } catch (e) {
-      console.error(`Erro na requisição para ${endpoint}:`, e);
-      throw {
-        code: 408,
-        errors: [ { description: 'Falha de conexão com o servidor.' } ],
-      } as ApiError;
+    } catch (e: unknown) {
+      if (Object.prototype.hasOwnProperty.call(e, 'code') && Object.prototype.hasOwnProperty.call(e, 'errors')) {
+        throw e;
+      } else {
+        console.error(`Erro na requisição para ${endpoint}:`, e);
+        throw {
+          code: 408,
+          errors: [ { description: 'Falha de conexão com o servidor.' } ],
+        } as ApiError;
+      }
     }
   }
 
