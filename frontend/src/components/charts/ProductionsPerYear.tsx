@@ -125,10 +125,10 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                   label={{ position: 'top', style: { fontSize: 18 } }}
                 >
                   {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={colorFromName((parseInt(entry.year, 10) + 1).toString())}
-                  />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={colorFromName((parseInt(entry.year, 10) + 1).toString())}
+                    />
                   ))}
                 </Bar>
               </BarChart>
