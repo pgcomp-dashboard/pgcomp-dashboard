@@ -59,13 +59,7 @@ export default function AllProductionsPerYear() {
         <select
           id="publisherType"
           value={publisherType ?? ''}
-          onChange={e =>
-            setPublisherType(
-              e.target.value === ''
-                ? undefined
-                : (e.target.value as 'journal' | 'conference')
-            )
-          }
+          onChange={e => setPublisherType(e.target.value === '' ? undefined : (e.target.value as 'journal' | 'conference'))}
           className="border rounded px-2 py-1"
         >
           <option value="">Todos</option>
@@ -126,17 +120,17 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                 <YAxis style={{ fontSize: 18 }} />
                 <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
                 <Bar
-                      dataKey="amount"
-                      fill="#8884d8"
-                      label={{ position: 'top', style: { fontSize: 18 } }}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={colorFromName((parseInt(entry.year, 10) + 1).toString())}
-                        />
-                      ))}
-                    </Bar>
+                  dataKey="amount"
+                  fill="#8884d8"
+                  label={{ position: 'top', style: { fontSize: 18 } }}
+                >
+                  {chartData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={colorFromName((parseInt(entry.year, 10) + 1).toString())}
+                  />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
