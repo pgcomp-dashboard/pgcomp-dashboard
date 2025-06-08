@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { MoreHorizontal, Plus, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { toast } from "sonner";
 
 type Qualis = {
   id: number;
@@ -21,11 +22,11 @@ interface RequestBodyType {
 }
 
 export default function QualisPage() {
-  const [ qualisList, setQualisList ] = useState<Qualis[]>([]);
-  const [ formData, setFormData ] = useState<RequestBodyType>({ code: '', score: 0 });
-  const [ editingItem, setEditingItem ] = useState<Qualis | null>(null);
-  const [ isAddOpen, setIsAddOpen ] = useState(false);
-  const [ searchTerm, setSearchTerm ] = useState('');
+  const [qualisList, setQualisList] = useState<Qualis[]>([]);
+  const [formData, setFormData] = useState<RequestBodyType>({ code: '', score: 0 });
+  const [editingItem, setEditingItem] = useState<Qualis | null>(null);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const filteredQualisCode = qualisList.filter((s) =>
     s.code.toLowerCase().startsWith(searchTerm.trim().toLowerCase()),
@@ -48,7 +49,7 @@ export default function QualisPage() {
     });
   };
 
- 
+
 
   const handleSubmit = async () => {
     try {
@@ -103,14 +104,21 @@ export default function QualisPage() {
     fetchQualisData();
   }, []);
 
+
+
   const handleDelete = async (id: number) => {
     try {
       await api.deleteQualis(id);
       await fetchQualisData();
-    } catch (error) {
-      console.error('Erro ao excluir Qualis:', error);
+
+      toast.success("Qualis deletado com sucesso!");
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Erro ao excluir Qualis.";
+      toast.error(errorMessage);
     }
   };
+
+
 
   return (
     <div>
