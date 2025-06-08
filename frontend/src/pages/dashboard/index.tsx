@@ -230,25 +230,7 @@ export default function Dashboard() {
         </section>
 
         <section id="faculty" className="space-y-10 min-h-[500px]">
-          <Card>
-            <Tabs defaultValue="all">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Quantidade de Alunos por Orientador</CardTitle>
-                <TabsList>
-                  <TabsTrigger value="all">Atuais</TabsTrigger>
-                  <TabsTrigger value="mestrando">Mestrando</TabsTrigger>
-                  <TabsTrigger value="doutorando">Doutorando</TabsTrigger>
-                  <TabsTrigger value="completed">Concluídos</TabsTrigger>
-                </TabsList>
-              </CardHeader>
-              <CardContent>
-                <TabsContent value={'all'}><StudentsPerAdvisorChart /></TabsContent>
-                <TabsContent value={'mestrando'}><StudentsPerAdvisorChart filter='mestrando' /></TabsContent>
-                <TabsContent value={'doutorando'}><StudentsPerAdvisorChart filter='doutorando' /></TabsContent>
-                <TabsContent value={'completed'}><StudentsPerAdvisorChart filter='completed' /></TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
+          <StudentsPerAdvisorChart />
         </section>
 
         <section id="area" className="space-y-10 min-h-[500px]">
