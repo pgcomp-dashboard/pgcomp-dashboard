@@ -91,33 +91,33 @@ export default function StudentsPage() {
 
   // Carregar dados iniciais
 
-  useEffect(() => {
-    async function fetchData() {
-      const filters: Record<string, any> = {};
-      if (search.trim()) {
-        filters['filters[0][field]'] = 'name';
-        filters['filters[0][value]'] = search.trim();
-        filters['filters[0][operator]'] = 'like';
-      }
-      const [ studentsRes, areasData, coursesData ] = await Promise.all([
-        api.fetchStudents(page, perPage, filters),
-        api.fetchAreas(),
-        api.fetchCourses(),
-      ]);
-
-      setStudents(studentsRes.data);
-      setPagination({
-        current_page: studentsRes.current_page,
-        last_page: studentsRes.last_page,
-        per_page: studentsRes.per_page,
-        total: studentsRes.total,
-        from: studentsRes.from,
-        to: studentsRes.to,
-      });
-      setAreas(areasData);
-      setCourses(coursesData);
+  async function fetchData() {
+    const filters: Record<string, any> = {};
+    if (search.trim()) {
+      filters['filters[0][field]'] = 'name';
+      filters['filters[0][value]'] = search.trim();
+      filters['filters[0][operator]'] = 'like';
     }
+    const [ studentsRes, areasData, coursesData ] = await Promise.all([
+      api.fetchStudents(page, perPage, filters),
+      api.fetchAreas(),
+      api.fetchCourses(),
+    ]);
 
+    setStudents(studentsRes.data);
+    setPagination({
+      current_page: studentsRes.current_page,
+      last_page: studentsRes.last_page,
+      per_page: studentsRes.per_page,
+      total: studentsRes.total,
+      from: studentsRes.from,
+      to: studentsRes.to,
+    });
+    setAreas(areasData);
+    setCourses(coursesData);
+  }
+  
+  useEffect(() => {
     fetchData();
   }, [ page, perPage, search ]);
 
@@ -162,6 +162,7 @@ export default function StudentsPage() {
         is_protected: false,
       });
       setOpenAdd(false);
+      fetchData()
     } catch (error) {
       console.error('Erro ao adicionar estudante:', error);
     }
@@ -236,12 +237,12 @@ export default function StudentsPage() {
                     value={String(newStudent.course_id)}
                     onValueChange={(v) => setNewStudent({ ...newStudent, course_id: Number(v) })}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger data-cy="add-course" className="w-full">
                       <SelectValue placeholder="Selecione um curso" />
                     </SelectTrigger>
                     <SelectContent>
                       {(courses ?? []).map((course) => (
-                        <SelectItem key={course.id} value={String(course.id)}>
+                        <SelectItem data-cy={`add-course-item-${course.id}`} key={course.id} value={String(course.id)}>
                           {course.name}
                         </SelectItem>
                       ))}
@@ -255,12 +256,12 @@ export default function StudentsPage() {
                     value={String(newStudent.area_id)}
                     onValueChange={(v) => setNewStudent({ ...newStudent, area_id: Number(v) })}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger data-cy="add-area" className="w-full">
                       <SelectValue placeholder="Selecione uma área" />
                     </SelectTrigger>
                     <SelectContent>
                       {(areas ?? []).map((area) => (
-                        <SelectItem key={area.id} value={String(area.id)}>
+                        <SelectItem data-cy={`add-area-item-${area.id}`} key={area.id} value={String(area.id)}>
                           {area.name}
                         </SelectItem>
                       ))}
@@ -315,7 +316,7 @@ export default function StudentsPage() {
               }}>
                 Cancelar
               </Button>
-              <Button onClick={addStudent}>Adicionar</Button>
+              <Button data-cy="add-student-form-submit" onClick={addStudent}>Adicionar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -402,7 +403,7 @@ export default function StudentsPage() {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0" aria-label="Mais opções">
+                      <Button data-cy={`area-list-dropdown-${student.registration}`} variant="ghost" className="h-8 w-8 p-0" aria-label="Mais opções">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -417,6 +418,7 @@ export default function StudentsPage() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
+                       data-cy={`student-list-dropdown-delete-${student.registration}`}
                         className="text-destructive"
                         onClick={() => {
                           setSelectedStudent(student);
@@ -641,7 +643,7 @@ export default function StudentsPage() {
             }}>
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={deleteStudent}>
+            <Button data-cy="student-list-dropdown-delete-modal-confirm-button" variant="destructive" onClick={deleteStudent}>
               Excluir
             </Button>
           </DialogFooter>
