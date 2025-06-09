@@ -117,7 +117,7 @@ export default function ProfessorsPage() {
 
       const entries = Object.entries(rawProducoes)
         .filter(([ key ]) => !isNaN(Number(key)))
-        .map(([ _, value ]) => value as Production);
+        .map(([ , value ]) => value as Production);
 
       setSelectedProductions(entries);
       setIsProductionsOpen(true);
