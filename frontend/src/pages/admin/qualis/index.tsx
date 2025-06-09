@@ -96,7 +96,6 @@ export default function QualisPage() {
     setIsAddOpen(true);
   };
 
-
   const handleCancel = () => {
     setEditingItem(null);
     setFormData({ code: '', score: 0 });
@@ -105,8 +104,6 @@ export default function QualisPage() {
   useEffect(() => {
     fetchQualisData();
   }, []);
-
-
 
   const handleDelete = async (id: number) => {
     try {
@@ -123,8 +120,6 @@ export default function QualisPage() {
       toast.error(errorMessage);
     }
   };
-
-
 
   return (
     <div>
