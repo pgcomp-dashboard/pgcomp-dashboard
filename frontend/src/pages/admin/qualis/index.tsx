@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { MoreHorizontal, Plus, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
+
 
 type Qualis = {
   id: number;
@@ -48,7 +51,7 @@ export default function QualisPage() {
     });
   };
 
- 
+
 
   const handleSubmit = async () => {
     try {
@@ -93,7 +96,6 @@ export default function QualisPage() {
     setIsAddOpen(true);
   };
 
-
   const handleCancel = () => {
     setEditingItem(null);
     setFormData({ code: '', score: 0 });
@@ -107,8 +109,15 @@ export default function QualisPage() {
     try {
       await api.deleteQualis(id);
       await fetchQualisData();
-    } catch (error) {
-      console.error('Erro ao excluir Qualis:', error);
+
+      toast.success('Qualis deletado com sucesso!');
+    } catch (error: unknown) {
+      let errorMessage = 'Erro ao excluir Qualis.';
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || errorMessage;
+      }
+
+      toast.error(errorMessage);
     }
   };
 
