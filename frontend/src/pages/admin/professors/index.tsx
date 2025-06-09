@@ -91,7 +91,7 @@ export default function ProfessorsPage() {
   const history = useNavigate();
 
   const { data: professors = [], isLoading, error } = useQuery({
-    queryKey: ['allProfessors'],
+    queryKey: [ 'allProfessors' ],
     queryFn: () => api.getAllProfessors(),
   });
 
@@ -108,7 +108,7 @@ export default function ProfessorsPage() {
   }, []);
 
   const filteredProfessors = professors.filter((prof: Professor) =>
-    prof.name.toLowerCase().includes(searchTerm.toLowerCase())
+    prof.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const verProducoes = async (professorId: number) => {
