@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class ProductionsTest extends TestCase
@@ -13,26 +12,19 @@ class ProductionsTest extends TestCase
     /**
      * @dataProvider userTypesProvider
      */
-    public function test_list_docent_syntax_for_each_user_type(string $userType)
+    public function test_all_production_returns_map_for_each_user_type(string $userType)
     {
-        $response = $this->getJson('/api/dashboard/all_production?user_type='.$userType);
+        $response = $this->getJson('/api/dashboard/all_production?user_type=' . $userType);
         $response->assertStatus(200);
-        $response->assertJson(
-            fn (AssertableJson $json) => $json->hasAll(['years', 'data'])
-                ->whereAllType([
-                    'years.0' => 'integer',
-                    'data.0' => 'integer',
-                ])
-        );
 
-        $responseData = $response->json();
-        $this->assertNotEmpty($responseData['years'], 'years empty');
-        $this->assertNotEmpty($responseData['data'], 'data empty');
-        $this->assertCount(
-            count($responseData['years']),
-            $responseData['data'],
-            'Years lenth and data lenth is different.'
-        );
+        $payload = $response->json();
+        $this->assertIsArray($payload, 'Esperava um mapa de ano→quantidade');
+        $this->assertNotEmpty($payload, 'Esperava pelo menos um ano no resultado');
+
+        foreach ($payload as $year => $count) {
+            $this->assertMatchesRegularExpression('/^\d{4}$/', (string) $year, "Chave inesperada: {$year}");
+            $this->assertIsInt($count, "Valor para o ano {$year} não é inteiro");
+        }
     }
 
     public static function userTypesProvider(): array

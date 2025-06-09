@@ -15,16 +15,21 @@ class EnrollmentsPerYearTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'enrollments',
+                '*' => ['year', 'mestrado', 'doutorado'],
             ]);
 
-        $payload = $response->json('enrollments');
-        $this->assertIsArray($payload, 'Esperava um array associativo ano→quantidade');
-        $this->assertNotEmpty($payload, 'Esperava pelo menos um ano no resultado');
+        $payload = $response->json();
+        $this->assertIsArray($payload, 'Esperava um array de objetos com keys year, mestrado e doutorado');
+        $this->assertNotEmpty($payload, 'Esperava pelo menos um item no resultado');
 
-        foreach ($payload as $year => $count) {
-            $this->assertMatchesRegularExpression('/^\d{4}$/', (string) $year, "Chave inesperada: {$year}");
-            $this->assertIsInt($count, "Valor para o ano {$year} não é inteiro");
+        foreach ($payload as $item) {
+            $this->assertArrayHasKey('year', $item);
+            $this->assertArrayHasKey('mestrado', $item);
+            $this->assertArrayHasKey('doutorado', $item);
+
+            $this->assertIsInt($item['year'], "Valor de 'year' não é inteiro");
+            $this->assertIsInt($item['mestrado'], "Valor de 'mestrado' não é inteiro");
+            $this->assertIsInt($item['doutorado'], "Valor de 'doutorado' não é inteiro");
         }
     }
 
@@ -34,16 +39,21 @@ class EnrollmentsPerYearTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'enrollments',
+                '*' => ['year', 'mestrado', 'doutorado'],
             ]);
 
-        $payload = $response->json('enrollments');
+        $payload = $response->json();
         $this->assertIsArray($payload);
         $this->assertNotEmpty($payload);
 
-        foreach ($payload as $year => $count) {
-            $this->assertMatchesRegularExpression('/^\d{4}$/', (string) $year);
-            $this->assertIsInt($count);
+        foreach ($payload as $item) {
+            $this->assertArrayHasKey('year', $item);
+            $this->assertArrayHasKey('mestrado', $item);
+            $this->assertArrayHasKey('doutorado', $item);
+
+            $this->assertIsInt($item['year']);
+            $this->assertIsInt($item['mestrado']);
+            $this->assertIsInt($item['doutorado']);
         }
     }
 
@@ -53,16 +63,21 @@ class EnrollmentsPerYearTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'enrollments',
+                '*' => ['year', 'mestrado', 'doutorado'],
             ]);
 
-        $payload = $response->json('enrollments');
+        $payload = $response->json();
         $this->assertIsArray($payload);
         $this->assertNotEmpty($payload);
 
-        foreach ($payload as $year => $count) {
-            $this->assertMatchesRegularExpression('/^\d{4}$/', (string) $year);
-            $this->assertIsInt($count);
+        foreach ($payload as $item) {
+            $this->assertArrayHasKey('year', $item);
+            $this->assertArrayHasKey('mestrado', $item);
+            $this->assertArrayHasKey('doutorado', $item);
+
+            $this->assertIsInt($item['year']);
+            $this->assertIsInt($item['mestrado']);
+            $this->assertIsInt($item['doutorado']);
         }
     }
 }
