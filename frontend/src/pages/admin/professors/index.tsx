@@ -39,7 +39,7 @@ type Professor = {
   lattes_url: string;
 };
 
-type Qualis = {
+type StratumQualis = {
   id: number;
   code: string;
   score: number;
@@ -47,13 +47,46 @@ type Qualis = {
   updated_at: string;
 };
 
+type Production = {
+  id: number;
+  name: string;
+  title: string;
+  year: number;
+  publisher_type: string | null;
+  stratum_qualis_id: number;
+  publisher_id: number;
+  doi: string | null;
+  publisher?: Publisher | null;
+};
+
+type Publisher = {
+  id: number;
+  initials: string | null;
+  name: string;
+  publisher_type: string;
+  issn: string | null;
+  percentile: string | null;
+  update_date: string | null;
+  tentative_date: string | null;
+  logs: string | null;
+  stratum_qualis_id: number | null;
+  created_at: string;
+  updated_at: string;
+  stratum_qualis: StratumQualis | null;
+};
+
+
+type ProductionResponse = {
+  [key: string]: Production | { [type: string]: string };
+};
+
 export default function ProfessorsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
-  const [isProductionsOpen, setIsProductionsOpen] = useState(false);
-  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(null);
-  const [selectedProductions, setSelectedProductions] = useState<Production[]>([]);
-  const [qualisList, setQualisList] = useState<Qualis[]>([]);
+  const [ searchTerm, setSearchTerm ] = useState('');
+  const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
+  const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
+  const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
+  const [ selectedProductions, setSelectedProductions ] = useState<Production[]>([]);
+  const [ qualisList, setQualisList ] = useState<Qualis[]>([]);
 
   const history = useNavigate();
 
@@ -80,8 +113,13 @@ export default function ProfessorsPage() {
 
   const verProducoes = async (professorId: number) => {
     try {
-      const producoes = await api.getProductionsByProfessor(professorId);
-      setSelectedProductions(producoes);
+      const rawProducoes: ProductionResponse = await api.getProductionsByProfessor(professorId);
+
+      const entries = Object.entries(rawProducoes)
+        .filter(([ key ]) => !isNaN(Number(key)))
+        .map(([ , value ]) => value as Production);
+
+      setSelectedProductions(entries);
       setIsProductionsOpen(true);
     } catch (error) {
       console.error(error);
@@ -220,10 +258,26 @@ export default function ProfessorsPage() {
                 className="rounded border bg-gray-100 p-4 text-sm flex flex-col gap-1"
               >
                 <p><strong>Título da Produção:</strong> {prod.title}</p>
-                <p><strong>Autor:</strong> {prod.publisher_id}</p>
-                <p><strong>Qualis:</strong> {getQualisCode(prod.stratum_qualis_id)}</p>
                 <p><strong>D.O.I.:</strong> {prod.doi || 'erro'}</p>
                 <p><strong>Ano:</strong> {prod.year}</p>
+                {prod.publisher && (
+                  <>
+                    <p><strong>Local:</strong> {prod.publisher.name}</p>
+                    {prod.publisher.initials && (
+                      <p><strong>Sigla:</strong> {prod.publisher.initials}</p>
+                    )}
+                    <p><strong>Tipo:</strong> {prod.publisher.publisher_type}</p>
+                    {prod.publisher.issn && (
+                      <p><strong>ISSN:</strong> {prod.publisher.issn}</p>
+                    )}
+                  </>
+                )}
+
+                {prod.publisher?.stratum_qualis && (
+                  <p>
+                    <strong>Qualis:</strong> {prod.publisher.stratum_qualis.code}
+                  </p>
+                )}
               </div>
             ))}
           </div>

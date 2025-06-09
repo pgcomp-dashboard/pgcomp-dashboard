@@ -30,6 +30,30 @@ type Professor = {
   lattes_url: string;
 };
 
+export interface StratumQualis {
+  id: number;
+  code: string;
+  score: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Publisher {
+  id: number;
+  initials: string | null;
+  name: string;
+  publisher_type: string;
+  issn: string | null;
+  percentile: string | null;
+  update_date: string | null;
+  tentative_date: string | null;
+  logs: string | null;
+  stratum_qualis_id: number | null;
+  created_at: string;
+  updated_at: string;
+  stratum_qualis: StratumQualis | null;
+}
+
 export interface Production {
   id: number;
   title: string;
@@ -38,11 +62,13 @@ export interface Production {
   updated_at: string;
   publisher_type: string | null;
   publisher_id: number | null;
-  last_qualis: string | null; 
+  last_qualis: string | null;
   stratum_qualis_id: number | null;
   sequence_number: number | null;
   doi: string | null;
+  publisher: Publisher | null;
 }
+
 
 export interface Student {
   id: number;
@@ -342,6 +368,7 @@ export class ApiService {
     const response = await this.get<{ data: Production[] }>(`/api/portal/admin/professors/${professorId}/productions`);
     return response.data;
   }
+
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
     const res = (await this.get('/api/dashboard/students')) as Record<
