@@ -26,7 +26,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { MoreVertical, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import api from '@/services/api';
+import api, { Production } from '@/services/api';
 import { Label } from '@/components/ui/label';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -48,17 +48,17 @@ type Qualis = {
 };
 
 export default function ProfessorsPage() {
-  const [ searchTerm, setSearchTerm ] = useState('');
-  const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
-  const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
-  const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
-  const [ selectedProductions, setSelectedProductions ] = useState<Production[]>([]);
-  const [ qualisList, setQualisList ] = useState<Qualis[]>([]);
-  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
+  const [isProductionsOpen, setIsProductionsOpen] = useState(false);
+  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(null);
+  const [selectedProductions, setSelectedProductions] = useState<Production[]>([]);
+  const [qualisList, setQualisList] = useState<Qualis[]>([]);
+
   const history = useNavigate();
 
   const { data: professors = [], isLoading, error } = useQuery({
-    queryKey: [ 'allProfessors' ],
+    queryKey: ['allProfessors'],
     queryFn: () => api.getAllProfessors(),
   });
 
@@ -83,7 +83,7 @@ export default function ProfessorsPage() {
       const producoes = await api.getProductionsByProfessor(professorId);
       setSelectedProductions(producoes);
       setIsProductionsOpen(true);
-    } catch (error){
+    } catch (error) {
       console.error(error);
       alert('Erro ao carregar produções do professor.');
     }
@@ -92,7 +92,7 @@ export default function ProfessorsPage() {
   const verDetalhes = () => {
     setIsDetailProfOpen(false);
   };
-  
+
   const getQualisCode = (qualisId: number) => {
     const qualis = qualisList.find((q) => q.id === qualisId);
     return qualis ? qualis.code : '';

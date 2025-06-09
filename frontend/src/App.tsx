@@ -14,7 +14,7 @@ import QualisPage from './pages/admin/qualis/index';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Toaster } from "sonner";
+import { Toaster } from 'sonner';
 
 
 const queryClient = new QueryClient();
