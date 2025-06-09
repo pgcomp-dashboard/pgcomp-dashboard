@@ -81,12 +81,12 @@ type ProductionResponse = {
 };
 
 export default function ProfessorsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
-  const [isProductionsOpen, setIsProductionsOpen] = useState(false);
-  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(null);
-  const [selectedProductions, setSelectedProductions] = useState<Production[]>([]);
-  const [qualisList, setQualisList] = useState<Qualis[]>([]);
+  const [ searchTerm, setSearchTerm ] = useState('');
+  const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
+  const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
+  const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
+  const [ selectedProductions, setSelectedProductions ] = useState<Production[]>([]);
+  const [ qualisList, setQualisList ] = useState<Qualis[]>([]);
 
   const history = useNavigate();
 
@@ -116,8 +116,8 @@ export default function ProfessorsPage() {
       const rawProducoes: ProductionResponse = await api.getProductionsByProfessor(professorId);
 
       const entries = Object.entries(rawProducoes)
-        .filter(([key]) => !isNaN(Number(key)))
-        .map(([_, value]) => value as Production);
+        .filter(([ key ]) => !isNaN(Number(key)))
+        .map(([ _, value ]) => value as Production);
 
       setSelectedProductions(entries);
       setIsProductionsOpen(true);
