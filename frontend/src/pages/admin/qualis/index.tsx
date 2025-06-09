@@ -109,20 +109,20 @@ export default function QualisPage() {
 
 
   const handleDelete = async (id: number) => {
-  try {
-    await api.deleteQualis(id);
-    await fetchQualisData();
+    try {
+      await api.deleteQualis(id);
+      await fetchQualisData();
 
-    toast.success('Qualis deletado com sucesso!');
-  } catch (error: unknown) {
-    let errorMessage = 'Erro ao excluir Qualis.';
-    if (error instanceof AxiosError) {
-      errorMessage = error.response?.data?.message || errorMessage;
+      toast.success('Qualis deletado com sucesso!');
+    } catch (error: unknown) {
+      let errorMessage = 'Erro ao excluir Qualis.';
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || errorMessage;
+      }
+
+      toast.error(errorMessage);
     }
-
-    toast.error(errorMessage);
-  }
-};
+  };
 
 
 
