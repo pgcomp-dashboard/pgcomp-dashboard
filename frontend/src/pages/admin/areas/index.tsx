@@ -39,7 +39,7 @@ export default function AreasPage() {
     queryFn: () => api.fetchAreas(),
   });
 
-  // ADD THIS: Query for students per field data
+   // Students by area
   const { data: studentsPerField = {} } = useQuery({
     queryKey: [ 'studentsPerField' ],
     queryFn: () => api.studentsPerField(),
