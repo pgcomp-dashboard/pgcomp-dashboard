@@ -83,17 +83,6 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="year" interval={0} style={{ fontSize: 18 }} />
               <YAxis style={{ fontSize: 18 }} />
-              <ReferenceLine
-                y={mediaPorAno}
-                stroke="red"
-                strokeDasharray="3 3"
-                label={{
-                  value: `Média: ${mediaPorAno.toFixed(2)}`,
-                  position: 'top',
-                  fontSize: 16,
-                  fill: 'red',
-                }}
-              />
               <Tooltip content={<CustomTooltip />} />
               {(filter === 'todos' || filter === 'mestrado') && (
                 <Bar dataKey="mestrado" stackId="a" fill="#82ca9d">
@@ -124,6 +113,18 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
                 height={48}
                 formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
                 wrapperStyle={{ fontSize: '18px' }} // Mantém o tamanho da fonte da legenda em 18px
+              />
+              <ReferenceLine
+                y={mediaPorAno}
+                stroke="red"
+                strokeDasharray="3 3"
+                label={{
+                  value: `Média: ${mediaPorAno.toFixed(2)}`,
+                  position: 'top',
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  fill: 'red',
+                }}
               />
             </BarChart>
           </ChartContainer>
