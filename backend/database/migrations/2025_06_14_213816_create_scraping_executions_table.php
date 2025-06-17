@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('scraping_executions', function (Blueprint $table) {
             $table->id();
+            $table->string('command'); 
             $table->timestamp('executed_at')->useCurrent();
         });
     }

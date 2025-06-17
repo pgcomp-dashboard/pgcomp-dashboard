@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class ScrapingExecution extends Model
 {
-    protected $fillable = ['executed_at'];
+    public $timestamps = false;
+
+    protected $fillable = [
+        'command',
+        'executed_at',
+    ];
     protected $casts = [
         'executed_at' => 'datetime',
     ];

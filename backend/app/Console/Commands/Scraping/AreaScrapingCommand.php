@@ -6,6 +6,7 @@ use App\Models\Area;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use App\Services\ScrapingExecutionService;
 
 class AreaScrapingCommand extends Command
 {
@@ -15,6 +16,7 @@ class AreaScrapingCommand extends Command
 
     public function handle()
     {
+        (new ScrapingExecutionService())->register('scraping:area-scraping');
 
         // Access https://pgcomp.ufba.br/area-de-concentracao, get the areas and access its link to get the subareas
         $client = new Client;
