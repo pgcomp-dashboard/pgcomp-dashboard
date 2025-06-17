@@ -1,4 +1,4 @@
-import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, TooltipProps } from 'recharts';
+import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, TooltipProps, ReferenceLine } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { ChartContainer } from '@/components/ui/chart.tsx';
@@ -41,6 +41,10 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
 
   // 👇 Hook sempre será chamado, mesmo com chartData vazio
   const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart(chartData.length, MAX_VISIBLE_BARS);
+
+  const totalEstudantes = chartData.reduce((acc, curr) => acc + curr.value, 0);
+  const mediaPorArea = chartData.length ? totalEstudantes / chartData.length : 0;
+
 
   if (query.isLoading) {
     return <>Carregando...</>;
@@ -96,6 +100,18 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
                     <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
                   ))}
                 </Bar>
+                <ReferenceLine
+                  y={mediaPorArea}
+                  stroke="#212121"
+                  strokeDasharray="3 3"
+                  label={{
+                    value: `Média: ${mediaPorArea.toFixed(1)}`,
+                    position: 'top',
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    fill: '#212121',
+                  }}
+                />
               </BarChart>
             </ChartContainer>
           </div>
