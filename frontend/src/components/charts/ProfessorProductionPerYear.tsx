@@ -5,7 +5,7 @@ import {
   YAxis,
   Tooltip,
   Bar,
-  Cell,
+  Legend,
   TooltipProps,
   ResponsiveContainer, // Importado para que o gráfico seja responsivo dentro do scroll
 } from 'recharts';
@@ -42,12 +42,12 @@ const periodFormSchema = z.object({
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload?.length) {
     return (
-      <div className="bg-white p-3 border-2 rounded">
+      <div className="bg-white p-3 border-2 rounded text-sm">
         <b>{label}</b>
         <br />
         {payload.map((ele, index) => (
           <div key={index}>
-            Produções em {label} : {ele.value}
+            {ele.name === 'conference' && 'Conferência'}{ele.name === 'journal' && 'Periódico'}: {ele.value}
           </div>
         ))}
       </div>
@@ -241,18 +241,20 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                 <XAxis
                   dataKey="year"
                   interval={0}
-                  tickFormatter={(name) =>
-                    name.length > 15 ? name.slice(0, 15) + '...' : name
-                  }
+                  tickFormatter={(name) => name.length > 15 ? name.slice(0, 15) + '...' : name}
                   style={{ fontSize: 18 }}
                 />
                 <YAxis style={{ fontSize: 18 }} />
                 <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-                <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}> {/* Aumentando o tamanho da fonte do label da barra */}
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
-                  ))}
-                </Bar>
+
+                <Bar dataKey="conference" fill="#8884d8" name="Conferência" label={{ position: 'top', style: { fontSize: 14 } }} />
+                <Bar dataKey="journal" fill="#82ca9d" name="Periódico" label={{ position: 'top', style: { fontSize: 14 } }} />
+                <Legend
+                  verticalAlign="top"
+                  height={48}
+                  formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+                  wrapperStyle={{ fontSize: '18px' }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
