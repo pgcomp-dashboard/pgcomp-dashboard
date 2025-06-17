@@ -10,6 +10,7 @@ use Illuminate\Console\Command;
 use QueryPath\DOMQuery;
 use Symfony\Component\Panther\Client as PantherClient;
 use Symfony\Component\Panther\DomCrawler\Crawler;
+use App\Services\ScrapingExecutionService;
 
 class ScholarScrapingCommand extends Command
 {
@@ -32,6 +33,8 @@ class ScholarScrapingCommand extends Command
      */
     public function handle(): int
     {
+        (new ScrapingExecutionService())->register('scraping:scholar-productions-scraping');
+
         $this->getOutput()->info('Coletando dados do Google Scholar...');
         $ufba_teachers = User::where('type', '=', 'professor')->get()->pluck('name');
         $not_found_teachers = [];

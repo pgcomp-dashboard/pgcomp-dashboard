@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use QueryPath\DOMQuery;
+use App\Services\ScrapingExecutionService;
+
 
 class ConferenceScrapingCommand extends Command
 {
@@ -33,6 +35,8 @@ class ConferenceScrapingCommand extends Command
      */
     public function handle(): int
     {
+        (new ScrapingExecutionService())->register('scraping:qualis-conference-scraping');
+
         $this->getOutput()->info('Coletando dados...');
         $dom = $this->getDomQuery();
         $table = $dom->find('table')->first();

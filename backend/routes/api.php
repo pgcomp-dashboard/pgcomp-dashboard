@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\PanelAdmin\StudentProductionController;
 use App\Http\Controllers\Api\PanelAdmin\UserController as UserAdminController;
 use App\Http\Controllers\Api\PanelAdmin\UserProgramController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ScrapingExecutionController;
+
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +35,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
 
 Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     // TODO: Dar nomes melhores e mais padrao
@@ -79,3 +82,4 @@ Route::get('healthcheck', function (Request $request) {
 });
 
 Route::post('login', [AuthController::class, 'login']);
+Route::get('scraping_execution', [ScrapingExecutionController::class, 'listExecutions']);
