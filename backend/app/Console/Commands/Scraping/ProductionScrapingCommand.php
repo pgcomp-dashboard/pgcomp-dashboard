@@ -38,8 +38,8 @@ class ProductionScrapingCommand extends Command
 
         $clientHttp = new Client([
             'base_uri' => config('services.mini_extrator.url'),
-            'timeout' => 180,
-            'connect_timeout' => 180,
+            'timeout' => 300,
+            'connect_timeout' => 300,
         ]);
         /**
          * @var User[] $professors
