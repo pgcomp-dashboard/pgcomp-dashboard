@@ -153,12 +153,12 @@ export class ApiService {
       if (!response.ok) {
         const error: ApiError = {
           code: response.status,
-          errors: [ { description: 'Erro ao se comunicar com a API.' } ],
+          errors: [{ description: 'Erro ao se comunicar com a API.' }],
         };
 
         try {
           const json = await response.json();
-          error.errors = json.errors ?? [ { description: json.message ?? 'Erro desconhecido.' } ];
+          error.errors = json.errors ?? [{ description: json.message ?? 'Erro desconhecido.' }];
         } catch (jsonError) {
           console.error('Erro ao interpretar JSON de erro da API:', jsonError);
         }
@@ -174,7 +174,7 @@ export class ApiService {
         console.error(`Erro na requisição para ${endpoint}:`, e);
         throw {
           code: 408,
-          errors: [ { description: 'Falha de conexão com o servidor.' } ],
+          errors: [{ description: 'Falha de conexão com o servidor.' }],
         } as ApiError;
       }
     }
@@ -212,7 +212,7 @@ export class ApiService {
     });
 
     if (filters) {
-      for (const [ key, value ] of Object.entries(filters)) {
+      for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null) {
           params.append(key, String(value));
         }
@@ -349,19 +349,49 @@ export class ApiService {
     return this.put(`/api/portal/admin/qualis/${id}`, body);
   }
 
-  async getAllProfessors(): Promise<Professor[]> {
-    let allProfessors: Professor[] = [];
+  async fetchProfessors(
+    page: number = 1,
+    perPage: number = 15,
+    filters?: Record<string, any>,
+    orderBy: string = 'name',
+    direction: 'asc' | 'desc' = 'asc',
+  ) {
+    const params = new URLSearchParams({
+      page: String(page),
+      per_page: String(perPage),
+      order_by: orderBy,
+      dir: direction,
+    });
+
+    if (filters) {
+      for (const [key, value] of Object.entries(filters)) {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      }
+    }
+
+    const url = `/api/portal/admin/professors?${params.toString()}`;
+    const res = await this.get<PaginatedResponse<Professor>>(url);
+    return res;
+  }
+
+  async getAllProfessors(searchTerm = ''): Promise<Professor[]> {
+    const allProfessors: Professor[] = [];
     let currentPage = 1;
-    let lastPage = 1;
+    let lastPage: number;
 
     do {
-      const response = await this.get(`/api/portal/admin/professors?page=${currentPage}`) as any;
-      allProfessors = allProfessors.concat(response.data);
-      lastPage = response.last_page;
+      const { data, last_page } = await this.get(
+        `/api/portal/admin/professors?page=${currentPage}&search=${encodeURIComponent(searchTerm)}`
+      ) as any;
+
+      allProfessors.push(...data);
+      lastPage = last_page;
       currentPage++;
     } while (currentPage <= lastPage);
 
-    return allProfessors;
+    return allProfessors.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async getProductionsByProfessor(professorId: number) {
@@ -378,13 +408,13 @@ export class ApiService {
         completed: number,
       }
     >;
-    
-    return Object.entries(res).map(([ course, students ]) => [
+
+    return Object.entries(res).map(([course, students]) => [
       { category: `${course} - Alunos atuais`, amount: students.in_progress },
       { category: `${course} - Alunos concluídos`, amount: students.completed },
     ]).flat();
   }
-  
+
   async createQualis(body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
     const endpoint = '/api/portal/admin/qualis';
     const response = await this.post(endpoint, body, headers);

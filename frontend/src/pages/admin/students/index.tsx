@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Plus, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 
@@ -15,13 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Pencil, Trash } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -65,18 +59,18 @@ interface Course {
 }
 
 export default function StudentsPage() {
-  const [ page, setPage ] = useState(1);
-  const [ perPage, setPerPage ] = useState(10);
-  const [ students, setStudents ] = useState<Student[]>([]);
-  const [ pagination, setPagination ] = useState<any>(null); // temporariamente, para evitar erro de tipo
-  const [ areas, setAreas ] = useState<Area[]>([]);
-  const [ courses, setCourses ] = useState<Course[]>([]);
-  const [ search, setSearch ] = useState('');
-  const [ openAdd, setOpenAdd ] = useState(false);
-  const [ openEdit, setOpenEdit ] = useState(false);
-  const [ openDelete, setOpenDelete ] = useState(false);
-  const [ selectedStudent, setSelectedStudent ] = useState<Student | null>(null);
-  const [ newStudent, setNewStudent ] = useState<Omit<Student, 'id'>>({
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [pagination, setPagination] = useState<any>(null); // temporariamente, para evitar erro de tipo
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [search, setSearch] = useState('');
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [newStudent, setNewStudent] = useState<Omit<Student, 'id'>>({
     name: '',
     email: '',
     registration: 0,
@@ -98,7 +92,7 @@ export default function StudentsPage() {
       filters['filters[0][value]'] = search.trim();
       filters['filters[0][operator]'] = 'like';
     }
-    const [ studentsRes, areasData, coursesData ] = await Promise.all([
+    const [studentsRes, areasData, coursesData] = await Promise.all([
       api.fetchStudents(page, perPage, filters),
       api.fetchAreas(),
       api.fetchCourses(),
@@ -116,10 +110,10 @@ export default function StudentsPage() {
     setAreas(areasData);
     setCourses(coursesData);
   }
-  
+
   useEffect(() => {
     fetchData();
-  }, [ page, perPage, search ]);
+  }, [page, perPage, search]);
 
   const filteredStudents = students.filter(
     (student) =>
@@ -148,7 +142,7 @@ export default function StudentsPage() {
     }
     try {
       const created = await api.createStudent(newStudent);
-      setStudents((old) => [ ...old, created ]);
+      setStudents((old) => [...old, created]);
       setNewStudent({
         name: '',
         email: '',
@@ -400,35 +394,33 @@ export default function StudentsPage() {
                 <TableCell>
                   {student.defended_at ? new Date(student.defended_at).toLocaleDateString('pt-BR') : '—'}
                 </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button data-cy={`area-list-dropdown-${student.registration}`} variant="ghost" className="h-8 w-8 p-0" aria-label="Mais opções">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelectedStudent(student);
-                          setOpenEdit(true);
-                        }}
-                      >
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                       data-cy={`student-list-dropdown-delete-${student.registration}`}
-                        className="text-destructive"
-                        onClick={() => {
-                          setSelectedStudent(student);
-                          setOpenDelete(true);
-                        }}
-                      >
-                        Excluir
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <TableCell className="flex gap-2">
+                  <Button
+                    data-cy={`student-edit-button-${student.registration}`}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 cursor-pointer"
+                    aria-label="Editar"
+                    onClick={() => {
+                      setSelectedStudent(student);
+                      setOpenEdit(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    data-cy={`student-delete-button-${student.registration}`}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive cursor-pointer"
+                    aria-label="Excluir"
+                    onClick={() => {
+                      setSelectedStudent(student);
+                      setOpenDelete(true);
+                    }}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
