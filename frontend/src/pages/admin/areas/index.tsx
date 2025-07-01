@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreHorizontal, Plus, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -11,13 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Pencil, Trash } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -35,31 +29,37 @@ export default function AreasPage() {
   const queryClient = useQueryClient();
 
   const { data: areas = [], isLoading } = useQuery({
-    queryKey: [ 'areas' ],
+    queryKey: ['areas'],
     queryFn: () => api.fetchAreas(),
+  });
+
+  // Students by area
+  const { data: studentsPerField = {} } = useQuery({
+    queryKey: [ 'studentsPerField' ],
+    queryFn: () => api.studentsPerField(),
   });
 
   const addAreaMutation = useMutation({
     mutationFn: (area: { name: string; students: number }) => api.createArea(area),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['areas'] }),
   });
 
   const editAreaMutation = useMutation({
     mutationFn: (area: { id: number; name: string; students: number }) => api.updateArea(area),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['areas'] }),
   });
 
   const deleteAreaMutation = useMutation({
     mutationFn: (id: number) => api.deleteArea(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['areas'] }),
   });
 
-  const [ searchTerm, setSearchTerm ] = useState('');
-  const [ isAddAreaOpen, setIsAddAreaOpen ] = useState(false);
-  const [ isEditAreaOpen, setIsEditAreaOpen ] = useState(false);
-  const [ isDeleteAreaOpen, setIsDeleteAreaOpen ] = useState(false);
-  const [ currentArea, setCurrentArea ] = useState<Area | null>(null);
-  const [ newArea, setNewArea ] = useState({
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isAddAreaOpen, setIsAddAreaOpen] = useState(false);
+  const [isEditAreaOpen, setIsEditAreaOpen] = useState(false);
+  const [isDeleteAreaOpen, setIsDeleteAreaOpen] = useState(false);
+  const [currentArea, setCurrentArea] = useState<Area | null>(null);
+  const [newArea, setNewArea] = useState({
     name: '',
     description: '',
     students: 0,
@@ -178,7 +178,7 @@ export default function AreasPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              {/* <TableHead>N. de estudantes</TableHead> */}
+              <TableHead>N. de estudantes</TableHead> 
               <TableHead className="w-[100px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -186,37 +186,34 @@ export default function AreasPage() {
             {filteredAreas.map((area) => (
               <TableRow key={area.id}>
                 <TableCell className="font-medium">{area.name}</TableCell>
-                {/* <TableCell>{area.students}</TableCell> */}
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button data-cy={`area-list-dropdown-${area.name}`} variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Abrir menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setCurrentArea(area);
-                          setIsEditAreaOpen(true);
-                        }}
-                      >
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        data-cy={`area-list-dropdown-delete-${area.name}`}
-                        className="text-red-600"
-                        onClick={() => {
-                          setCurrentArea(area);
-                          setIsDeleteAreaOpen(true);
-                        }}
-                      >
-                        Apagar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <TableCell>{studentsPerField[area.name] || 0}</TableCell>
+                <TableCell className="flex gap-2">
+                  <Button
+                    data-cy={`area-edit-button-${area.name}`}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 cursor-pointer"
+                    aria-label="Editar"
+                    onClick={() => {
+                      setCurrentArea(area);
+                      setIsEditAreaOpen(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    data-cy={`area-delete-button-${area.name}`}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-red-600 cursor-pointer"
+                    aria-label="Apagar"
+                    onClick={() => {
+                      setCurrentArea(area);
+                      setIsDeleteAreaOpen(true);
+                    }}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -224,7 +221,6 @@ export default function AreasPage() {
         </Table>
       </div>
 
-      {/* Edit Area Dialog */}
       <Dialog open={isEditAreaOpen} onOpenChange={setIsEditAreaOpen}>
         <DialogContent>
           <DialogHeader>
@@ -266,7 +262,6 @@ export default function AreasPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Area Dialog */}
       <Dialog open={isDeleteAreaOpen} onOpenChange={setIsDeleteAreaOpen}>
         <DialogContent>
           <DialogHeader>

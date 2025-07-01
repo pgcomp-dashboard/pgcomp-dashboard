@@ -1,5 +1,6 @@
 import {
   BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell, ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
@@ -89,6 +90,9 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
 
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
 
+  const totalProductions = chartData.reduce((sum, entry) => sum + entry.amount, 0);
+  const mediaProducoes = chartData.length ? totalProductions / chartData.length : 0;
+
   return (
     <>
       {chartData.length > MAX_VISIBLE_BARS && (
@@ -131,6 +135,18 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                     />
                   ))}
                 </Bar>
+                <ReferenceLine
+                  y={mediaProducoes}
+                  stroke="#212121"
+                  strokeDasharray="3 3"
+                  label={{
+                    value: `Média: ${mediaProducoes.toFixed(1)}`,
+                    position: 'top',
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    fill: '#212121',
+                  }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>

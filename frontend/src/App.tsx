@@ -14,6 +14,8 @@ import QualisPage from './pages/admin/qualis/index';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Toaster } from 'sonner';
+
 
 const queryClient = new QueryClient();
 
@@ -46,6 +48,7 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+        <Toaster richColors position="top-right"/>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

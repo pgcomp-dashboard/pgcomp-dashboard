@@ -11,6 +11,7 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use App\Services\ScrapingExecutionService;
 
 class ProductionScrapingCommand extends Command
 {
@@ -33,13 +34,15 @@ class ProductionScrapingCommand extends Command
      */
     public function handle()
     {
+        (new ScrapingExecutionService())->register('scraping:production-scraping');
+
         $this->info('Production scraping command started.');
         $this->info('Fetching data from json file...');
 
         $clientHttp = new Client([
             'base_uri' => config('services.mini_extrator.url'),
-            'timeout' => 180,
-            'connect_timeout' => 180,
+            'timeout' => 300,
+            'connect_timeout' => 300,
         ]);
         /**
          * @var User[] $professors

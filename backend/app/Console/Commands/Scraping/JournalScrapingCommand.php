@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use App\Services\ScrapingExecutionService;
 
 class JournalScrapingCommand extends Command
 {
@@ -33,6 +34,8 @@ class JournalScrapingCommand extends Command
      */
     public function handle(): int
     {
+        (new ScrapingExecutionService())->register('scraping:qualis-journal-scraping');
+
         $data = $this->getSheet();
 
         $this->getOutput()->info('Ajustando dados...');
