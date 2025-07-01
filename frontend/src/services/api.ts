@@ -153,12 +153,12 @@ export class ApiService {
       if (!response.ok) {
         const error: ApiError = {
           code: response.status,
-          errors: [{ description: 'Erro ao se comunicar com a API.' }],
+          errors: [ { description: 'Erro ao se comunicar com a API.' } ],
         };
 
         try {
           const json = await response.json();
-          error.errors = json.errors ?? [{ description: json.message ?? 'Erro desconhecido.' }];
+          error.errors = json.errors ?? [ { description: json.message ?? 'Erro desconhecido.' } ];
         } catch (jsonError) {
           console.error('Erro ao interpretar JSON de erro da API:', jsonError);
         }
@@ -174,7 +174,7 @@ export class ApiService {
         console.error(`Erro na requisição para ${endpoint}:`, e);
         throw {
           code: 408,
-          errors: [{ description: 'Falha de conexão com o servidor.' }],
+          errors: [ { description: 'Falha de conexão com o servidor.' } ],
         } as ApiError;
       }
     }
@@ -212,7 +212,7 @@ export class ApiService {
     });
 
     if (filters) {
-      for (const [key, value] of Object.entries(filters)) {
+      for (const [ key, value ] of Object.entries(filters)) {
         if (value !== undefined && value !== null) {
           params.append(key, String(value));
         }
@@ -364,7 +364,7 @@ export class ApiService {
     });
 
     if (filters) {
-      for (const [key, value] of Object.entries(filters)) {
+      for (const [ key, value ] of Object.entries(filters)) {
         if (value !== undefined && value !== null) {
           params.append(key, String(value));
         }
@@ -383,7 +383,7 @@ export class ApiService {
 
     do {
       const { data, last_page } = await this.get(
-        `/api/portal/admin/professors?page=${currentPage}&search=${encodeURIComponent(searchTerm)}`
+        `/api/portal/admin/professors?page=${currentPage}&search=${encodeURIComponent(searchTerm)}`,
       ) as any;
 
       allProfessors.push(...data);
@@ -409,7 +409,7 @@ export class ApiService {
       }
     >;
 
-    return Object.entries(res).map(([course, students]) => [
+    return Object.entries(res).map(([ course, students ]) => [
       { category: `${course} - Alunos atuais`, amount: students.in_progress },
       { category: `${course} - Alunos concluídos`, amount: students.completed },
     ]).flat();
@@ -425,6 +425,10 @@ export class ApiService {
     const endpoint = `/api/portal/admin/qualis/${id}`;
     const response = await this.delete(endpoint, headers);
     return response;
+  }
+
+  async executeScraping(): Promise<{ id: string; time: string }> {
+    return this.post('/api/scraping/execute', {});
   }
 
 }
