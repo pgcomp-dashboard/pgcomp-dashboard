@@ -84,9 +84,9 @@ O layout da aplicação está disponível no Figma:
 
 <p align="center">
   <img alt="Front-dash" title="#AUFBAProduz" src="imgs/01_Dash_Contadores.png" width="400px"><br/>
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iuNYhJC.png" width="400px"><br/>
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="400px"><br/>
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/9w8HDKq.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="imgs/02_Dash_Producoes_Por_Ano.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="imgs/03_Dash_ProducaoPorQualis.jpeg" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="imgs/04_Dash_Producoes_Por_Docente_Ano.png" width="400px"><br/>
   <img alt="Front-dash" title="#AUFBAProduz" src="imgs/05_Dash_QuantidadeDeAlunosPorOrientador.png" width="400px"><br/>
   <img alt="Front-dash" title="#AUFBAProduz" src="imgs/06_Dash_AlunosPorArea.png" width="400px"><br/>
   <img alt="Front-dash" title="#AUFBAProduz" src="imgs/07_Dash_DefesasPorAno.png" width="400px"><br/>
