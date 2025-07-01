@@ -91,7 +91,7 @@ export default function ProfessorsPage() {
   const history = useNavigate();
 
   const { data: professors = [], isLoading, error } = useQuery({
-    queryKey: ['allProfessors'],
+    queryKey: [ 'allProfessors' ],
     queryFn: () => api.getAllProfessors(),
   });
 
