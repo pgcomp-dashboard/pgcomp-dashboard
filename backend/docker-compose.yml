@@ -64,7 +64,7 @@ services:
             retries: 3
             timeout: 5s
     scriptlattes:
-        image: mnplima/scriptlattes
+        image: mnplima/scriptlattes:1.0
         networks:
             - sail
         ports:

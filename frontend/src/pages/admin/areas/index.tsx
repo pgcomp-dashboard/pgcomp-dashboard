@@ -33,6 +33,12 @@ export default function AreasPage() {
     queryFn: () => api.fetchAreas(),
   });
 
+  // Students by area
+  const { data: studentsPerField = {} } = useQuery({
+    queryKey: [ 'studentsPerField' ],
+    queryFn: () => api.studentsPerField(),
+  });
+
   const addAreaMutation = useMutation({
     mutationFn: (area: { name: string; students: number }) => api.createArea(area),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['areas'] }),
@@ -172,7 +178,7 @@ export default function AreasPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              {/* <TableHead>N. de estudantes</TableHead> */}
+              <TableHead>N. de estudantes</TableHead> 
               <TableHead className="w-[100px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -180,7 +186,7 @@ export default function AreasPage() {
             {filteredAreas.map((area) => (
               <TableRow key={area.id}>
                 <TableCell className="font-medium">{area.name}</TableCell>
-                {/* <TableCell>{area.students}</TableCell> */}
+                <TableCell>{studentsPerField[area.name] || 0}</TableCell>
                 <TableCell className="flex gap-2">
                   <Button
                     data-cy={`area-edit-button-${area.name}`}
@@ -215,7 +221,6 @@ export default function AreasPage() {
         </Table>
       </div>
 
-      {/* Edit Area Dialog */}
       <Dialog open={isEditAreaOpen} onOpenChange={setIsEditAreaOpen}>
         <DialogContent>
           <DialogHeader>
@@ -257,7 +262,6 @@ export default function AreasPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Area Dialog */}
       <Dialog open={isDeleteAreaOpen} onOpenChange={setIsDeleteAreaOpen}>
         <DialogContent>
           <DialogHeader>
