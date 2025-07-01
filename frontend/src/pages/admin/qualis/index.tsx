@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '@/services/api';
+import api, { ApiError } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,6 @@ import { MoreHorizontal, Plus, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { AxiosError } from 'axios';
 
 
 type Qualis = {
@@ -111,13 +110,10 @@ export default function QualisPage() {
       await fetchQualisData();
 
       toast.success('Qualis deletado com sucesso!');
-    } catch (error: unknown) {
-      let errorMessage = 'Erro ao excluir Qualis.';
-      if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.message || errorMessage;
-      }
+    } catch (e: unknown) {
+      const error = e as ApiError;
 
-      toast.error(errorMessage);
+      toast.error(error.errors[0].description);
     }
   };
 
