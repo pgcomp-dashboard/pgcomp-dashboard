@@ -3,11 +3,10 @@ import api, { ApiError } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { MoreHorizontal, Plus, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Pencil, Trash } from "lucide-react";
 import { toast } from 'sonner';
-
 
 type Qualis = {
   id: number;
@@ -23,11 +22,11 @@ interface RequestBodyType {
 }
 
 export default function QualisPage() {
-  const [ qualisList, setQualisList ] = useState<Qualis[]>([]);
-  const [ formData, setFormData ] = useState<RequestBodyType>({ code: '', score: 0 });
-  const [ editingItem, setEditingItem ] = useState<Qualis | null>(null);
-  const [ isAddOpen, setIsAddOpen ] = useState(false);
-  const [ searchTerm, setSearchTerm ] = useState('');
+  const [qualisList, setQualisList] = useState<Qualis[]>([]);
+  const [formData, setFormData] = useState<RequestBodyType>({ code: '', score: 0 });
+  const [editingItem, setEditingItem] = useState<Qualis | null>(null);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const filteredQualisCode = qualisList.filter((s) =>
     s.code.toLowerCase().startsWith(searchTerm.trim().toLowerCase()),
@@ -219,19 +218,25 @@ export default function QualisPage() {
                 <TableCell>{item.score}</TableCell>
                 <TableCell>{new Date(item.created_at).toLocaleDateString('pt-BR')}</TableCell>
                 <TableCell>{new Date(item.updated_at).toLocaleDateString('pt-BR')}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEdit(item)}>Editar</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleDelete(item.id)} className="text-red-600">
-                        Apagar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <TableCell className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 cursor-pointer"
+                    aria-label="Editar"
+                    onClick={() => handleEdit(item)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-red-600 cursor-pointer"
+                    aria-label="Apagar"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
