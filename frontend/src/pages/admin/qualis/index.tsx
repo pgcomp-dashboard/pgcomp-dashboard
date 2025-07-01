@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import api from '@/services/api';
+import api, { ApiError } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { MoreHorizontal, Plus, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
+
 
 type Qualis = {
   id: number;
@@ -48,7 +50,7 @@ export default function QualisPage() {
     });
   };
 
- 
+
 
   const handleSubmit = async () => {
     try {
@@ -93,7 +95,6 @@ export default function QualisPage() {
     setIsAddOpen(true);
   };
 
-
   const handleCancel = () => {
     setEditingItem(null);
     setFormData({ code: '', score: 0 });
@@ -107,8 +108,12 @@ export default function QualisPage() {
     try {
       await api.deleteQualis(id);
       await fetchQualisData();
-    } catch (error) {
-      console.error('Erro ao excluir Qualis:', error);
+
+      toast.success('Qualis deletado com sucesso!');
+    } catch (e: unknown) {
+      const error = e as ApiError;
+
+      toast.error(error.errors[0].description);
     }
   };
 

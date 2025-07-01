@@ -26,7 +26,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { MoreVertical, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import api from '@/services/api';
+import api, { Production } from '@/services/api';
 import { Label } from '@/components/ui/label';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
