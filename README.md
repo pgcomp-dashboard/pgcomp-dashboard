@@ -73,20 +73,24 @@ O layout da aplicação está disponível no Figma:
 ### Frontend-admin
 
 <p align="center">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/lg1DOxE.png" width="400px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/fEXAEFO.png" width="400px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/gqsQFG9.png" width="400px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/Y1eFejQ.png" width="400px">
-  <img alt="Front-admin" title="#AUFBAProduz" src="https://i.imgur.com/0FyV6VZ.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="imgs/01_Admin_Login.png" width="400px"> <br/>  
+  <img alt="Front-admin" title="#AUFBAProduz" src="imgs/02_Admin_Areas.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="imgs/03_Admin_Qualis.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="imgs/04_Admin_Docentes.png" width="400px">
+  <img alt="Front-admin" title="#AUFBAProduz" src="imgs/05_Admin_Discentes.png" width="400px">
 </p>
 
 ### Frontend (Dashboard)
 
 <p align="center">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iuNYhJC.png" width="400px">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="400px">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iOdt54H.png" width="400px">
-  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/viwTjMD.png" width="400px">
+  <img alt="Front-dash" title="#AUFBAProduz" src="imgs/01_Dash_Contadores.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/iuNYhJC.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/vE7JR8T.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="https://i.imgur.com/9w8HDKq.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="imgs/05_Dash_QuantidadeDeAlunosPorOrientador.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="imgs/06_Dash_AlunosPorArea.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="imgs/07_Dash_DefesasPorAno.png" width="400px"><br/>
+  <img alt="Front-dash" title="#AUFBAProduz" src="imgs/08_Dash_MatriculasPorAno.png" width="400px">
 </p>
 
 ---
@@ -99,7 +103,7 @@ O layout da aplicação está disponível no Figma:
 
 ### Diagrama do Banco de Dados
 
-<img alt="Diagrama-bd" title="#PGCompDashboard" src="imgs/Untitled.png" width="500px">
+<img alt="Diagrama-bd" title="#PGCompDashboard" src="imgs/00_der.png" width="500px">
 
 
 ---
@@ -327,17 +331,21 @@ As seguintes ferramentas foram usadas na construção do projeto:
 Esse projeto é baseado em um projeto original diponível [AQUI](https://gitlab.com/aufbaproduz/aufbaproduz).
 
 ### Autores atuais
-- Felipe Paixão
-- Lucas Lopes
-- Lucas França
-- Harrison Borges
-- Paulo Sérgio
-- Rodrigo dos Santos
-- Matheus Nascimento
-- Tatiana Dias
-- Augusto Perin
-- Gustavo Coelho
-- David Freitas
+- Felipe de Sant'Anna Paixão
+- Lucas Lopes Fraga
+- Lucas França Freitas
+- Harrison Borges dos Santos
+- Paulo Sérgio da Soledade Cerqueira
+- Rodrigo dos Santos Silva
+- Matheus Nascimento Pereira de Lima 
+- Tatiana Dias Silva
+- Júlia Brito Mattos
+- Juliana Nascimento Santos
+- Diana Carolina Romero Clavijo 
+- David Santos Ribeiro de Freitas
+- Evilasio de Sousa Junior
+- Carlos Alex Peixoto da Fonseca
+- Renato Marcelo Ramos Souza Santos
 
 ### Autores do projeto original
 - Diego Corrêa
