@@ -4,6 +4,8 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Redis;
+use InvalidArgumentException;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,7 +17,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $day = Redis::get('scraping:run');
         $schedule->command('telescope:prune --hours=48')->daily();
+        $schedule->command('scraping:run')->cron("0 0 */$day * *");
     }
 
     /**
@@ -29,4 +33,5 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
 }
