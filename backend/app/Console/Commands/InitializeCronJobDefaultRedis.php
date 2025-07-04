@@ -9,11 +9,11 @@ class InitializeCronJobDefaultRedis extends Command
 {
     protected $signature = 'app:initialize-cron-job-default-redis';
 
-    protected $description = 'Checks if `scraping:cron` exists in Redis and creates it if missing. This command is scheduled to run every Monday.';
+    protected $description = 'Checks if `scraping:run` exists in Redis and creates it if missing. This command is scheduled to run every Monday.';
 
     public function handle()
     {
-        $key = 'scraping:cron';
+        $key = 'scraping:run';
 
         if (!Redis::exists($key)) {
             Redis::set($key, 7);
