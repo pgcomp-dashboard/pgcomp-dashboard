@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\BaseModel;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Controllers\Api\BaseApiResourceController;
+use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ScrapingExecutionController extends Controller
@@ -30,4 +31,26 @@ class ScrapingExecutionController extends Controller
             'data' => $executions,
         ], 200);
     }
+
+  public function store(BaseResourceIndexRequest $request): JsonResponse
+{
+    $validated = $request->validate(
+        [
+            'days' => ['required', 'integer', 'min:1', 'max:30'],
+        ],
+        [
+            'days.required' => 'O campo "dias" é obrigatório.',
+            'days.integer'  => 'O campo "dias" deve ser um número inteiro.',
+            'days.min'      => 'O valor mínimo permitido para "dias" é 1.',
+            'days.max'      => 'O valor máximo permitido para "dias" é 30.',
+        ]
+    );
+
+    Redis::set('scraping:run', $validated['days']);
+
+    return response()->json(["status" => "success",
+        "message" => "Execução agendada com sucesso.",
+        "days" => $validated['days'],
+    ], 201);
+}
 }
