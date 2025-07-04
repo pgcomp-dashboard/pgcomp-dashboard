@@ -7,7 +7,7 @@ export default function StudentCountCard({
   studentFilter: string;
 }) {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['number_of_students'],
+    queryKey: [ 'number_of_students' ],
     queryFn: () => api.numberOfStudents(),
   });
 
