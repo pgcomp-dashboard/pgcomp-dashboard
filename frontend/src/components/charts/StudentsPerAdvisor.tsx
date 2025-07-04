@@ -26,7 +26,6 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, Di
 import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -59,23 +58,23 @@ const CustomTooltip = ({
 type StudentsPerAdvisorFilter = 'mestrando' | 'doutorando' | 'completed' | undefined;
 
 export default function StudentsPerAdvisorChart() {
-  const [ filter, setFilter ] = useState<StudentsPerAdvisorFilter>(undefined);
-  const [ visibleProfessors, setVisibleProfessors ] = useState(new Map<number, boolean>());
+  const [filter, setFilter] = useState<StudentsPerAdvisorFilter>(undefined);
+  const [visibleProfessors, setVisibleProfessors] = useState(new Map<number, boolean>());
 
   const query = useQuery({
-    queryKey: [ 'totalStudentsPerAdvisor', filter ],
+    queryKey: ['totalStudentsPerAdvisor', filter],
     queryFn: async () => {
       return api.totalStudentsPerAdvisor(filter);
     },
   });
 
   const { data: professors, error: professorsError } = useQuery({
-    queryKey: [ 'professors' ],
+    queryKey: ['professors'],
     queryFn: () => api.professors(),
   });
 
   const chartData = Object.entries(query.data ?? {})
-    .map(([ _, advisor_info ]) => ({
+    .map(([_, advisor_info]) => ({
       id: advisor_info.id,
       name: advisor_info.name,
       quantity: advisor_info.advisedes_count,
@@ -89,10 +88,10 @@ export default function StudentsPerAdvisorChart() {
 
   useEffect(() => {
     if (professors) {
-      const map = new Map(professors.map(p => [ p.id, true ]));
+      const map = new Map(professors.map(p => [p.id, true]));
       setVisibleProfessors(map);
     }
-  }, [ professors ]);
+  }, [professors]);
 
   if (professorsError) {
     return <>Falha ao carregar professores!</>;
