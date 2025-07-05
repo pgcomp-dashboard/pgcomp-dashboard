@@ -77,22 +77,22 @@ type PaginatedResponse<T> = {
 };
 
 export default function ProfessorsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
-  const [isProductionsOpen, setIsProductionsOpen] = useState(false);
-  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(null);
-  const [selectedProductions, setSelectedProductions] = useState<Production[]>([]);
-  const [, setQualisList] = useState<StratumQualis[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+  const [ searchTerm, setSearchTerm ] = useState('');
+  const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
+  const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
+  const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
+  const [ selectedProductions, setSelectedProductions ] = useState<Production[]>([]);
+  const [ , setQualisList ] = useState<StratumQualis[]>([]);
+  const [ currentPage, setCurrentPage ] = useState(1);
+  const [ itemsPerPage, setItemsPerPage ] = useState(10);
+  const [ debouncedSearchTerm ] = useDebounce(searchTerm, 300);
 
   const {
     data,
     isLoading,
     error,
   } = useQuery<PaginatedResponse<Professor>, Error>({
-    queryKey: ['professors', currentPage, itemsPerPage, debouncedSearchTerm],
+    queryKey: [ 'professors', currentPage, itemsPerPage, debouncedSearchTerm ],
     queryFn: () =>
       api.fetchProfessors(currentPage, itemsPerPage, {
         name: debouncedSearchTerm || undefined,
@@ -119,8 +119,8 @@ export default function ProfessorsPage() {
     try {
       const rawProducoes = await api.getProductionsByProfessor(professorId);
       const entries = Object.entries(rawProducoes)
-        .filter(([key]) => !isNaN(Number(key)))
-        .map(([, value]) => value as unknown as Production);
+        .filter(([ key ]) => !isNaN(Number(key)))
+        .map(([ , value ]) => value as unknown as Production);
       setSelectedProductions(entries);
       setIsProductionsOpen(true);
     } catch (error) {
@@ -167,7 +167,7 @@ export default function ProfessorsPage() {
             }}
             className="border rounded-md px-2 py-1 text-sm"
           >
-            {[5, 10, 20, 50, 100].map((option) => (
+            {[ 5, 10, 20, 50, 100 ].map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -279,7 +279,7 @@ export default function ProfessorsPage() {
                 <span className="text-sm">{currentProfessor.email}</span>
               </div>
               <div className="grid gap-1">
-                <Label>URL do Lattes</Label>
+                <Label>Lattes</Label>
                 <a
                   href={currentProfessor.lattes_url}
                   target="_blank"
@@ -288,6 +288,10 @@ export default function ProfessorsPage() {
                 >
                   {currentProfessor.lattes_url}
                 </a>
+              </div>
+              <div className="grid gap-1">
+                <Label>ORCID</Label>
+                <span className="text-sm">0000-0000-0000-0000</span>
               </div>
             </div>
           )}
