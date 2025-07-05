@@ -432,6 +432,20 @@ export class ApiService {
     return this.post('/api/scraping/execute', {});
   }
 
+  async getScrapingExecutions() {
+    const response = await this.get('/api/scraping_execution') as {
+      status: string,
+      message: string,
+      data: {
+        id: number,
+        command: string,
+        executed_at: string,
+      }[],
+    };
+
+    return response.data;
+  }
+
 }
 
 const API_SINGLETON = new ApiService(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');
