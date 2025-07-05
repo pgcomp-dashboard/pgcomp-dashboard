@@ -279,7 +279,7 @@ export default function ProfessorsPage() {
                 <span className="text-sm">{currentProfessor.email}</span>
               </div>
               <div className="grid gap-1">
-                <Label>URL do Lattes</Label>
+                <Label>Lattes</Label>
                 <a
                   href={currentProfessor.lattes_url}
                   target="_blank"
@@ -288,6 +288,10 @@ export default function ProfessorsPage() {
                 >
                   {currentProfessor.lattes_url}
                 </a>
+              </div>
+              <div className="grid gap-1">
+                <Label>ORCID</Label>
+                <span className="text-sm">0000-0000-0000-0000</span>
               </div>
             </div>
           )}
