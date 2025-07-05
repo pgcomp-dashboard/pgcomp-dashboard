@@ -20,14 +20,35 @@ import StudentCountCard from '@/components/StudentCountCard';
 import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
 import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
 import ProductionsPerYearChart from '@/components/charts/ProductionsPerYear.tsx';
+import { useEffect, useState } from 'react';
+import api from '@/services/api';
+
 
 export default function Dashboard() {
+  const [lastExecution, setLastExecution] = useState<string | null>(null);
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+
+  async function fetchLastExecution() {
+    try {
+      const response = await api.getScrapingExecutions();
+      if (response.length > 0 && response[0].last_execution_time) {
+        setLastExecution(response[0].last_execution_time);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar última execução', error);
+    }
+  }
+
+  useEffect(() => {
+    fetchLastExecution();
+  }, []);
 
   return (
     <div className="w-full flex min-h-screen flex-col items-center">
@@ -104,13 +125,13 @@ export default function Dashboard() {
           </div>
           <nav id="nav_desktop" className="hidden md:flex items-center gap-6">
             {
-            <NavLink
-              to="#publications"
-              onClick={() => scrollToSection('publications')}
-              className={'text-sm font-medium transition-colors hover:text-primary'}
-            >
-              Produções científicas
-            </NavLink>
+              <NavLink
+                to="#publications"
+                onClick={() => scrollToSection('publications')}
+                className={'text-sm font-medium transition-colors hover:text-primary'}
+              >
+                Produções científicas
+              </NavLink>
             }
             <NavLink
               to="#quality"
@@ -157,55 +178,67 @@ export default function Dashboard() {
       </header>
       <main className="flex-1 container py-6 space-y-8 w-full lg:px-16">
 
-        <section id="student_count" className="space-x-6 h-[230px] flex flex-row">
-          {/* Grupo Mestrado */}
-          <div className="flex flex-1 flex-col justify-between bg-green-50 p-3 rounded-2xl shadow-sm border border-green-200 space-y-3">
-            <h2 className="text-green-800 font-semibold text-md pl-2">Alunos do Mestrado</h2>
-            <div className="flex flex-row space-x-3">
-              <Card className="flex-1 bg-green-100 border border-green-200">
-                <CardHeader className="flex flex-row items-center justify-between h-[20px]">
-                  <CardTitle className="text-green-900 text-sm">Atuais</CardTitle>
-                </CardHeader>
-                <CardContent className="h-full">
-                  <StudentCountCard studentFilter="Mestrado - Alunos atuais" />
-                </CardContent>
-              </Card>
+        <section id="student_count" className="space-y-4 h-[230px]">
 
-              <Card className="flex-1 bg-green-100 border border-green-200">
-                <CardHeader className="flex flex-row items-center justify-between h-[20px]">
-                  <CardTitle className="text-green-900 text-sm">Concluídos</CardTitle>
-                </CardHeader>
-                <CardContent className="h-full">
-                  <StudentCountCard studentFilter="Mestrado - Alunos concluídos" />
-                </CardContent>
-              </Card>
-            </div>
+          {/* Última execução do script */}
+          <div className="text-gray-700 text-sm font-medium">
+            Última execução do script: {lastExecution ? new Date(lastExecution).toLocaleString() : 'Carregando...'}
           </div>
 
-          {/* Grupo Doutorado */}
-          <div className="flex flex-1 flex-col justify-between bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-200 space-y-3">
-            <h2 className="text-blue-800 font-semibold text-md pl-2">Alunos do Doutorado</h2>
-            <div className="flex flex-row space-x-3">
-              <Card className="flex-1 bg-blue-100 border border-blue-200">
-                <CardHeader className="flex flex-row items-center justify-between h-[20px]">
-                  <CardTitle className="text-blue-900 text-sm">Atuais</CardTitle>
-                </CardHeader>
-                <CardContent className="h-full">
-                  <StudentCountCard studentFilter="Doutorado - Alunos atuais" />
-                </CardContent>
-              </Card>
+          {/* Container dos grupos em linha */}
+          <div className="flex flex-row space-x-6 h-full">
 
-              <Card className="flex-1 bg-blue-100 border border-blue-200">
-                <CardHeader className="flex flex-row items-center justify-between h-[20px]">
-                  <CardTitle className="text-blue-900 text-sm">Concluídos</CardTitle>
-                </CardHeader>
-                <CardContent className="h-full">
-                  <StudentCountCard studentFilter="Doutorado - Alunos concluídos" />
-                </CardContent>
-              </Card>
+            {/* Grupo Mestrado */}
+            <div className="flex flex-1 flex-col justify-between bg-green-50 p-3 rounded-2xl shadow-sm border border-green-200 space-y-3">
+              <h2 className="text-green-800 font-semibold text-md pl-2">Alunos do Mestrado</h2>
+              <div className="flex flex-row space-x-3">
+                <Card className="flex-1 bg-green-100 border border-green-200">
+                  <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+                    <CardTitle className="text-green-900 text-sm">Atuais</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-full">
+                    <StudentCountCard studentFilter="Mestrado - Alunos atuais" />
+                  </CardContent>
+                </Card>
+
+                <Card className="flex-1 bg-green-100 border border-green-200">
+                  <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+                    <CardTitle className="text-green-900 text-sm">Concluídos</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-full">
+                    <StudentCountCard studentFilter="Mestrado - Alunos concluídos" />
+                  </CardContent>
+                </Card>
+              </div>
             </div>
+
+            {/* Grupo Doutorado */}
+            <div className="flex flex-1 flex-col justify-between bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-200 space-y-3">
+              <h2 className="text-blue-800 font-semibold text-md pl-2">Alunos do Doutorado</h2>
+              <div className="flex flex-row space-x-3">
+                <Card className="flex-1 bg-blue-100 border border-blue-200">
+                  <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+                    <CardTitle className="text-blue-900 text-sm">Atuais</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-full">
+                    <StudentCountCard studentFilter="Doutorado - Alunos atuais" />
+                  </CardContent>
+                </Card>
+
+                <Card className="flex-1 bg-blue-100 border border-blue-200">
+                  <CardHeader className="flex flex-row items-center justify-between h-[20px]">
+                    <CardTitle className="text-blue-900 text-sm">Concluídos</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-full">
+                    <StudentCountCard studentFilter="Doutorado - Alunos concluídos" />
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
           </div>
         </section>
+
 
         <section id="publications" className="space-y-10 min-h-[500px]">
           <Card>
@@ -338,3 +371,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
