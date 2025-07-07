@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\BaseModel;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Controllers\Api\BaseApiResourceController;
+use App\Jobs\RunScraping;
 use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -38,6 +39,15 @@ class ScrapingExecutionController extends Controller
 
         return response()->json([
             "intervalDays" => $interval
+        ]);
+    }
+
+    public function execute(): JsonResponse
+    {
+        RunScraping::dispatch('scraping:run');
+
+        return response()->json([
+            'ok' => true,
         ]);
     }
 

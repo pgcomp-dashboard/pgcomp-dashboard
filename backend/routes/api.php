@@ -72,6 +72,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::get('all_area', [AreaController::class, 'allArea']);
         Route::get('scraping_execution_interval', [ScrapingExecutionController::class, 'getInterval']);
         Route::post('scraping_execution_interval', [ScrapingExecutionController::class, 'setInterval']);
+        Route::post('execute_scraping', [ScrapingExecutionController::class, 'execute']);
     });
 });
 
