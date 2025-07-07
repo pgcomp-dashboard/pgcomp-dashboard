@@ -34,6 +34,7 @@ class Scraping extends Command
             $classes = [
                 'AreaScrapingCommand',
                 'SigaaScrapingCommand',
+                'LattesUrlScrapingCommand',
                 'ConferenceScrapingCommand',
                 'JournalScrapingCommand',
                 'ProductionScrapingCommand',
