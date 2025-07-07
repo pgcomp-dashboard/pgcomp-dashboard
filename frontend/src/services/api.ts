@@ -428,8 +428,8 @@ export class ApiService {
     return response;
   }
 
-  async executeScraping(): Promise<{ id: string; time: string }> {
-    return this.post('/api/scraping/execute', {});
+  async executeScraping() {
+    return this.post('/api/portal/admin/execute_scraping', {});
   }
 
   async getScrapingExecutions() {
@@ -444,6 +444,17 @@ export class ApiService {
     };
 
     return response.data;
+  }
+
+  async getScrapingInterval() {
+    const res = await this.get('/api/portal/admin/scraping_execution_interval');
+    return res as {
+      intervalDays: number,
+    };
+  }
+
+  async setScrapingInterval(intervalDays: number) {
+    return this.post('/api/portal/admin/scraping_execution_interval', { days: intervalDays });
   }
 
 }
