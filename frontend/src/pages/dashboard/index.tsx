@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import StudentsPerAdvisorChart from '@/components/charts/StudentsPerAdvisor.tsx';
-import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
+// import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
 import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 // import QualityMetricsChart from '@/components/quality-metrics-chart';
 // import StudentsByFacultyChart from '@/components/students-by-faculty-chart';
@@ -287,7 +287,7 @@ export default function Dashboard() {
           <StudentsPerAdvisorChart />
         </section>
 
-        <section id="area" className="space-y-10 min-h-[500px]">
+        {/* <section id="area" className="space-y-10 min-h-[500px]">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -307,7 +307,7 @@ export default function Dashboard() {
               </CardContent>
             </Tabs>
           </Card>
-        </section>
+        </section> */}
 
         <section id="defenses" className="space-y-10 min-h-[500px]">
           <Card>
