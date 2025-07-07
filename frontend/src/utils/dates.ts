@@ -7,7 +7,7 @@ export function formatDateTime(date: Date): string {
   const month = String(date.getUTCMonth() + 1).padStart(2, '0');
   const year  = date.getUTCFullYear();
 
-  const formatted = `${sec}:${min}:${hour} ${day}/${month}/${year}`;
+  const formatted = `${hour}:${min}:${sec} ${day}/${month}/${year}`;
 
   return formatted;
 }
