@@ -32,7 +32,16 @@ class ScrapingExecutionController extends Controller
         ], 200);
     }
 
-  public function store(BaseResourceIndexRequest $request): JsonResponse
+    public function getInterval(): JsonResponse
+    {
+        $interval = Redis::get('scraping:run');
+
+        return response()->json([
+            "intervalDays" => $interval
+        ]);
+    }
+
+  public function setInterval(BaseResourceIndexRequest $request): JsonResponse
 {
     $validated = $request->validate(
         [
