@@ -1,9 +1,5 @@
 import api from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
-import {
-  NameType,
-  ValueType,
-} from 'recharts/types/component/DefaultTooltipContent';
 
 export default function StudentCountCard({
   studentFilter,
