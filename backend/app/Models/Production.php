@@ -218,6 +218,31 @@ class Production extends BaseModel
     }
 
     /**
+     * @param int year to start count
+     * @return Collection of each user and their total score
+     */
+    public function findAllProfessorProductionsQualisByYear($year)
+    {
+        $data = DB::table('productions')
+        ->select( 'users.name', DB::raw('SUM(stratum_qualis.score) as score'))
+        ->join(
+                'users_productions',
+                'productions.id',
+                '=',
+                'users_productions.productions_id'
+        )
+        ->join('users', 'users.id', '=', 'users_productions.users_id')
+        ->join('stratum_qualis', 'productions.stratum_qualis_id', '=', 'stratum_qualis.id')
+        ->where('users.type', '=', 'professor')
+        ->where('productions.year', '>=', $year)
+        ->groupBy('users.name')
+        ->orderBy('score', 'desc')
+        ->get();
+
+        return $data;
+    }
+
+    /**
      * Does the mapping and sets the stratum qualis of a given production
      */
     protected function setQualis(): void

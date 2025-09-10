@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\PanelAdmin\UserController as UserAdminController;
 use App\Http\Controllers\Api\PanelAdmin\UserProgramController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ScrapingExecutionController;
+use App\Http\Controllers\Api\PanelAdmin\RankingController;
 
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
@@ -70,6 +71,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('professors.productions', ProfessorProductionController::class)
             ->except(['destroy']);
         Route::get('all_area', [AreaController::class, 'allArea']);
+        Route::apiResource('ranking', RankingController::class)->except(['destroy']);
         Route::get('scraping_execution_interval', [ScrapingExecutionController::class, 'getInterval']);
         Route::post('scraping_execution_interval', [ScrapingExecutionController::class, 'setInterval']);
         Route::post('execute_scraping', [ScrapingExecutionController::class, 'execute']);
