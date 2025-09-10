@@ -42,24 +42,24 @@ export default function RankingFourPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-3xl font-bold tracking-tight">Ranking</h1>
       <p className="text-muted-foreground">
-        Visualize o ranking dos docentes com publicações cadastrados no sistema.
+        Visualize o ranking dos docentes com publicações cadastrados no sistema nos ultimos 4 anos.
       </p>
       {/* Tabela */}
-      <div className="rounded-md border">
+      <div className="float-left rounded-md border md:w-1/2">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Colocação</TableHead>
               <TableHead>Nome</TableHead>
-              <TableHead className="text-center">Nome</TableHead>
-              <TableHead className="text-right">Pontuação</TableHead>
+              <TableHead>Pontuação</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {ranking.map((rank, index) => (
               <TableRow key={index}>
                 <TableCell className="font-medium">{index+1}º</TableCell>
-                <TableCell className="font-medium text-center">{rank.name}</TableCell>
-                <TableCell className="text-right flex justify-end gap-2">
+                <TableCell className="font-medium">{rank.name}</TableCell>
+                <TableCell className="text-right flex">
                   {rank.score.toFixed(1)}
                 </TableCell>
               </TableRow>

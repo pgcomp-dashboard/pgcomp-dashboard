@@ -1,7 +1,7 @@
 FROM node:23-alpine AS builder
 
 ARG VITE_API_ENDPOINT
-RUN test -n "$VITE_API_ENDPOINT" || (echo "VITE_API_ENDPOINT not set" && false)
+RUN test -n $VITE_API_ENDPOINT || (echo "VITE_API_ENDPOINT not set" && false)
 ENV VITE_API_ENDPOINT=$VITE_API_ENDPOINT
 
 RUN apk add --no-cache libc6-compat
