@@ -12,7 +12,6 @@
         "ext-zip": "*",
         "aws/aws-sdk-php": "^3.221",
         "doctrine/dbal": "^3.0",
-        "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "knuckleswtf/scribe": "^5.0",
         "laravel/fortify": "^1.11",
