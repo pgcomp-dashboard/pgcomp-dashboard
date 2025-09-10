@@ -234,6 +234,7 @@ class Production extends BaseModel
         ->join('users', 'users.id', '=', 'users_productions.users_id')
         ->join('stratum_qualis', 'productions.stratum_qualis_id', '=', 'stratum_qualis.id')
         ->where('users.type', '=', 'professor')
+        ->whereIn('stratum_qualis.code', ['A1', 'A2', 'A3', 'A4'])
         ->whereBetween('productions.year', [$year1, $year2])
         ->groupBy('users.name')
         ->orderBy('score', 'desc')
