@@ -72,7 +72,7 @@ export default function RankingPage() {
                 <TableCell className="font-medium">{index+1}º</TableCell>
                 <TableCell className="font-medium text-center">{rank.name}</TableCell>
                 <TableCell className="text-right flex justify-end gap-2">
-                  {rank.score}
+                  {rank.score.toFixed(1)}
                 </TableCell>
               </TableRow>
             ))}
