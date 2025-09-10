@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-import api, { ApiError } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Pencil, Trash } from "lucide-react";
+import api, { ApiError } from '@/services/api';
+import { Pencil, Plus, Search, Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 type Qualis = {
@@ -215,7 +214,7 @@ export default function QualisPage() {
             {filteredQualisCode.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.code}</TableCell>
-                <TableCell>{item.score}</TableCell>
+                <TableCell>{item.score.toFixed(1)}</TableCell>
                 <TableCell>{new Date(item.created_at).toLocaleDateString('pt-BR')}</TableCell>
                 <TableCell>{new Date(item.updated_at).toLocaleDateString('pt-BR')}</TableCell>
                 <TableCell className="flex gap-2">

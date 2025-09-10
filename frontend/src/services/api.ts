@@ -405,8 +405,12 @@ export class ApiService {
     return response.data;
   }
 
-  async getRanking() {
-    const response = await this.get<{ data: Ranking[] }>('/api/portal/admin/ranking');
+  async getRanking(year1?: number, year2?: number) {
+    if (year1 && year2) {
+      var response = await this.get<{ data: Ranking[] }>(`/api/portal/admin/ranking?year1=${year1}&year2=${year2}`);
+    } else {
+      var response = await this.get<{ data: Ranking[] }>(`/api/portal/admin/ranking`);
+    }
     return response.data;
   }
 

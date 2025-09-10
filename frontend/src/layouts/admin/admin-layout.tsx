@@ -1,16 +1,17 @@
-import type React from 'react';
 import {
   BookOpen,
   ChevronRight,
   Folders,
   GraduationCap,
   LogOut,
-  Users,
-  User,
   Settings,
   Trophy,
+  User,
+  Users,
 } from 'lucide-react';
+import type React from 'react';
 
+import AppLogo from '@/components/AppLogo';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -30,9 +31,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Link, useNavigate } from 'react-router';
-import AppLogo from '@/components/AppLogo';
 import useAuth from '@/hooks/auth';
+import { Link, useNavigate } from 'react-router';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
@@ -94,6 +94,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <Link to="/admin/ranking">
                     <Trophy className="h-4 w-4" />
                     <span>Ranking</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/ranking-four'}>
+                  <Link to="/admin/ranking-four">
+                    <Trophy className="h-4 w-4" />
+                    <span>Ranking 4 Anos</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

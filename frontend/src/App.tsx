@@ -1,21 +1,22 @@
-import { BrowserRouter, Routes, Route, useNavigate, Outlet } from 'react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { BrowserRouter, Outlet, Route, Routes, useNavigate } from 'react-router';
 
 import useAuth from '@/hooks/auth';
-import { AuthProvider } from '@/providers/AuthProvider';
 import LoginPage from '@/pages/login';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Toaster } from 'sonner';
 import AdminLayout from './layouts/admin/admin-layout';
 import AreasPage from './pages/admin/areas';
-import DashboardPage from './pages/dashboard';
-import StudentsPage from './pages/admin/students';
 import ProfessorsPage from './pages/admin/professors';
 import QualisPage from './pages/admin/qualis/index';
 import RankingPage from './pages/admin/ranking';
+import RankingFourPage from './pages/admin/ranking-four';
+import StudentsPage from './pages/admin/students';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Toaster } from 'sonner';
+import DashboardPage from './pages/dashboard';
 
 
 const queryClient = new QueryClient();
@@ -45,7 +46,8 @@ function App() {
                 <Route path='/admin/qualis' element={<QualisPage />}/>
                 <Route path='/admin/system-config' element={<SystemConfigPage />}/>
                 <Route path='/admin/user-config' element={<UserConfigPage />} />
-                <Route path='/admin/ranking' element={<RankingPage />}/>
+                <Route path='/admin/ranking' element={<RankingPage />} />
+                <Route path='/admin/ranking-four' element={<RankingFourPage />}/>
               </Route>
             </Route>
           </Routes>
