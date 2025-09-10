@@ -106,6 +106,11 @@ export interface Course {
   name: string;
 }
 
+type Ranking = {
+  name: string;
+  score: number;
+}
+
 export type RequestBodyType = BodyInit | object | null | undefined;
 
 export class ApiService {
@@ -400,6 +405,10 @@ export class ApiService {
     return response.data;
   }
 
+  async getRanking() {
+    const response = await this.get<{ data: Ranking[] }>('/api/portal/admin/ranking');
+    return response.data;
+  }
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
     const res = (await this.get('/api/dashboard/students')) as Record<

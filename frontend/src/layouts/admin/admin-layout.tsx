@@ -8,6 +8,7 @@ import {
   Users,
   User,
   Settings,
+  Trophy,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -85,6 +86,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <Link to="/admin/students" data-cy="link-discentes">
                     <GraduationCap className="h-4 w-4" />
                     <span>Discentes</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/ranking'}>
+                  <Link to="/admin/ranking">
+                    <Trophy className="h-4 w-4" />
+                    <span>Ranking</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

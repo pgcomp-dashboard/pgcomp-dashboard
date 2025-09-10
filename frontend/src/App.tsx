@@ -11,6 +11,7 @@ import DashboardPage from './pages/dashboard';
 import StudentsPage from './pages/admin/students';
 import ProfessorsPage from './pages/admin/professors';
 import QualisPage from './pages/admin/qualis/index';
+import RankingPage from './pages/admin/ranking';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -43,7 +44,8 @@ function App() {
                 {/* <Route path="students/:id/xml-upload" element={<XmlUpload/>}/> */}
                 <Route path='/admin/qualis' element={<QualisPage />}/>
                 <Route path='/admin/system-config' element={<SystemConfigPage />}/>
-                <Route path='/admin/user-config' element={<UserConfigPage />}/>
+                <Route path='/admin/user-config' element={<UserConfigPage />} />
+                <Route path='/admin/ranking' element={<RankingPage />}/>
               </Route>
             </Route>
           </Routes>
