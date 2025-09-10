@@ -13,7 +13,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $code
- * @property int $score
+ * @property float $score
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  *
@@ -44,7 +44,7 @@ class StratumQualis extends BaseModel
     {
         return [
             'code' => 'required|string|max:2',
-            'score' => 'required|int',
+            'score' => 'required|decimal:0,2',
         ];
     }
 
@@ -67,7 +67,7 @@ class StratumQualis extends BaseModel
     {
         return [
             'code' => 'string|max:2',
-            'score' => 'int',
+            'score' => 'decimal:0,2',
         ];
     }
 
