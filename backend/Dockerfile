@@ -19,7 +19,9 @@ FROM php:8.4-fpm-alpine
 # Install required packages: system libraries, Nginx, Supervisor, and build dependencies for PECL extensions
 RUN apk add --no-cache nginx supervisor
 
-ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN chmod 755 /usr/local/bin/install-php-extensions
 
 RUN install-php-extensions gd pdo pdo_mysql redis
 
@@ -54,9 +56,11 @@ RUN php artisan view:cache && \
 COPY production/supervisord.conf /etc/supervisord.conf
 
 # Expose port 80 to be used by Nginx
-EXPOSE 8080
+EXPOSE 5000
 
-COPY --chmod=755 production/docker-entrypoint.sh /
+COPY production/docker-entrypoint.sh /
+
+RUN chmod 755 /docker-entrypoint.sh
 
 # Start Supervisor (which in turn starts both PHP-FPM and Nginx)
 CMD ["/docker-entrypoint.sh"]
