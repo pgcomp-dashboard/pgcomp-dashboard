@@ -1,6 +1,3 @@
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -12,6 +9,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import api, { RequestBodyType } from '@/services/api';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+type UserInfo = {
+  name: string;
+  email: string;
+};
 
 const userConfigFormSchema = z.object({
   exampleInput: z.string(),
@@ -28,6 +35,21 @@ const updatePasswordFormSchema = z.object({
 
 export default function SystemConfigPage() {
 
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+
+  useEffect(() => {
+    async function fetchPersonalInfo() {
+      try {
+        const userInfo = await api.getUserInfo();
+        setUserInfo(userInfo);
+        console.log(userInfo);
+      } catch (err) {
+        console.error('Erro ao carregar Informações do Usuário:', err);
+      }
+    }
+    fetchPersonalInfo()
+  }, [])
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -38,6 +60,8 @@ export default function SystemConfigPage() {
       </div>
       <h3 className='text-xl font-bold tracking-tight'>Configurações do usuário</h3>
       <div className="rounded-md border p-12">
+        <div>{userInfo?.name}</div>
+        <div>{userInfo?.email}</div>
         <UserConfigForm />
       </div>
       <h3 className='text-xl font-bold tracking-tight'>Configurações de segurança</h3>
@@ -94,9 +118,18 @@ function UpdatePasswordForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof updatePasswordFormSchema>) {
-    // TODO: remove this mock
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof updatePasswordFormSchema>) {
+    console.log(JSON.stringify(values))
+    const payload: RequestBodyType = {
+      password: values.password,
+      confirmPassword: values.confirmPassword
+    }
+    try {
+      const response = await api.updateUserPassword(JSON.stringify(payload))
+      console.log(response.status);
+    } catch (err) {
+      console.error('Erro ao mudar senha:', err);
+    }
   }
   return (
     <Form {...form}>

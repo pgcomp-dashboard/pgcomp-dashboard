@@ -11,6 +11,11 @@ export function parseApiError(error: unknown): string {
   return 'Erro desconhecido.';
 }
 
+type UserInfo = {
+  name: string;
+  email: string;
+}
+
 export interface Advisor {
   id: number;
   name: string;
@@ -405,6 +410,11 @@ export class ApiService {
     return response.data;
   }
 
+  async getProductionsOfUser() {
+    const response = await this.get<{ data: Production[] }>('/api/portal/admin/professors/productions');
+    return response.data;
+  }
+
   async getRanking(year1?: number, year2?: number) {
     if (year1 && year2) {
       var response = await this.get<{ data: Ranking[] }>(`/api/portal/admin/ranking?year1=${year1}&year2=${year2}`);
@@ -412,6 +422,15 @@ export class ApiService {
       var response = await this.get<{ data: Ranking[] }>(`/api/portal/admin/ranking`);
     }
     return response.data;
+  }
+
+  async getUserInfo() {
+    var response = await this.get<{ data: UserInfo }>('/api/portal/user/info')
+    return response.data;
+  }
+
+  async updateUserPassword(body: RequestBodyType) {
+    return this.put<{ status: string, message: string }>('/api/portal/user/update', body);
   }
 
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {

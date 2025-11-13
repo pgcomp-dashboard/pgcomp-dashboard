@@ -9,6 +9,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'sonner';
 import AdminLayout from './layouts/admin/admin-layout';
 import AreasPage from './pages/admin/areas';
+import MyProductionsPage from './pages/admin/my-productions';
 import ProfessorsPage from './pages/admin/professors';
 import QualisPage from './pages/admin/qualis/index';
 import RankingPage from './pages/admin/ranking';
@@ -47,7 +48,8 @@ function App() {
                 <Route path='/admin/system-config' element={<SystemConfigPage />}/>
                 <Route path='/admin/user-config' element={<UserConfigPage />} />
                 <Route path='/admin/ranking' element={<RankingPage />} />
-                <Route path='/admin/ranking-four' element={<RankingFourPage />}/>
+                <Route path='/admin/ranking-four' element={<RankingFourPage />} />
+                <Route path='/admin/productions' element={<MyProductionsPage />}/>
               </Route>
             </Route>
           </Routes>

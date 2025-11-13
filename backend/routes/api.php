@@ -55,6 +55,8 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
 
 Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' => 'portal'], function () {
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
+    Route::get('user/info', [UserAdminController::class, 'getUserInfo']);
+    Route::put('user/update', [UserAdminController::class, 'changePassword']);
 
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
         Route::apiResource('journals', PublisherController::class, ['as' => 'journals']);
@@ -72,6 +74,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
             ->except(['destroy']);
         Route::get('all_area', [AreaController::class, 'allArea']);
         Route::apiResource('ranking', RankingController::class)->except(['destroy']);
+        Route::get('user/productions', [ProductionAdminController::class, 'userProductions']);
         Route::get('scraping_execution_interval', [ScrapingExecutionController::class, 'getInterval']);
         Route::post('scraping_execution_interval', [ScrapingExecutionController::class, 'setInterval']);
         Route::post('execute_scraping', [ScrapingExecutionController::class, 'execute']);

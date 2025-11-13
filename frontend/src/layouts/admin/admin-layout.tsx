@@ -1,6 +1,7 @@
 import {
   BookOpen,
   ChevronRight,
+  File,
   Folders,
   GraduationCap,
   LogOut,
@@ -102,6 +103,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <Link to="/admin/ranking-four">
                     <Trophy className="h-4 w-4" />
                     <span>Ranking 4 Anos</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/productions'}>
+                  <Link to="/admin/productions">
+                    <File className="h-4 w-4" />
+                    <span>Minhas Produções</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

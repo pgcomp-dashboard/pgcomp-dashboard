@@ -70,4 +70,17 @@ class ProductionController extends BaseApiResourceController
             ->where('users.id', '=', $professors)
             ->first();
     }
+
+    public function userProductions(Request $request)
+    {
+        $userId = $request->user()->id;
+
+        return $this->newBaseQuery()
+            ->with('publisher')
+            ->select('*')
+            ->join('users_productions', 'id', '=', 'users_productions.productions_id')
+            ->join('users', 'users_productions.users_id', '=', 'users.id')
+            ->where('users.type', '=', UserType::PROFESSOR)
+            ->where('users.id', '=', $userId);
+    }
 }
