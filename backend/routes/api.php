@@ -89,4 +89,6 @@ Route::get('healthcheck', function (Request $request) {
 });
 
 Route::post('login', [AuthController::class, 'login']);
+Route::post('forgot-password', [UserAdminController::class, 'forgotPassword']);
+Route::post('reset-password', [UserAdminController::class, 'resetPassword']);
 Route::get('scraping_execution', [ScrapingExecutionController::class, 'listExecutions']);
