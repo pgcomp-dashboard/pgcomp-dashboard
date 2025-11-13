@@ -433,6 +433,14 @@ export class ApiService {
     return this.put<{ status: string, message: string }>('/api/portal/user/update', body);
   }
 
+  async forgotPassword(body: RequestBodyType) {
+    return this.post <{ status: string, message: string } >('/api/forgot-password', body);
+  }
+
+  async resetUserPassword(body: RequestBodyType) {
+    return this.post<{ status: string, message: string }>('/api/reset-password', body);
+  }
+
   async numberOfStudents(): Promise<{ category: string; amount: number }[]> {
     const res = (await this.get('/api/dashboard/students')) as Record<
       string,

@@ -18,6 +18,8 @@ import StudentsPage from './pages/admin/students';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
 import DashboardPage from './pages/dashboard';
+import ResetPasswordPage from './pages/reset-password';
+import ForgotPasswordPage from './pages/login/forgot-password';
 
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ function App() {
             <Route path='/'>
               <Route index element={<DashboardPage />} />
               <Route path="login" element={<LoginPage />} />
+              <Route path="forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="reset-password" element={<ResetPasswordPage />} />
               <Route path='admin' element={<AdminLayout><EnsureAuthenticated /></AdminLayout>}>
                 <Route index element={<Redirect to='/admin/areas' />} />
                 <Route path='areas' element={<AreasPage />} />
