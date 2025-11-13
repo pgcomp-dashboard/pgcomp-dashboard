@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import api, { ApiError } from '@/services/api';
 import { useState } from 'react';
 import useAuth from '@/hooks/auth';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 const formSchema = z.object({
   email: z.string().email('Email inválido!'),
@@ -95,6 +95,9 @@ export default function LoginPage() {
             </div>
             {status && <span className="my-2 text-destructive">{status}</span>}
             <Button type="submit" disabled={form.formState.isSubmitting}>Entrar</Button>
+            <div className='text-center'>
+              <Link to="/forgot-password" ><u>Esqueceu sua senha?</u></Link>
+              </div>
           </div>
         </form>
       </Form>

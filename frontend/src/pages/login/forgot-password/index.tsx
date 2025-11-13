@@ -40,15 +40,16 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Configurações do sistema</h1>
-          <p className="text-muted-foreground">Aqui você pode configurar o sistema do PGCOMP Dashboard.</p>
+    <div className="flex items-center justify-center h-screen space-y-6">
+      <div>
+        <div className="flex-col justify-center text-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Esqueceu sua senha?</h1>
+          </div>
+          <p className="text-muted-foreground">Solicite a recuperação de senha de sua conta.</p>
         </div>
-      </div>
-      <h3 className='text-xl font-bold tracking-tight'>Configurações do usuário</h3>
-      <div className="rounded-md border p-12">
+
+        <div className="rounded-md border p-12">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -67,9 +68,10 @@ export default function ForgotPasswordPage() {
             </FormItem>
           )}
             />
-            <Button type="submit" disabled={form.formState.isSubmitting}>Entrar</Button>
+            <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>Solicitar troca de senha</Button>
           </form>
         </Form>
+        </div>
       </div>
     </div>
   );

@@ -15,8 +15,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  token: z.string(),
-  email: z.string().email('Email inválido!'),
   password: z.string().min(1, 'Senha muito curta!'),
   confirmPassword: z.string().min(1, 'Senha muito curta!'),
 })
@@ -29,9 +27,8 @@ export default function ResetPasswordPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      token: '',
-      email: '',
       password: '',
+      confirmPassword: ''
     },
   });
 
@@ -58,14 +55,15 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="flex items-center justify-center h-screen space-y-6">
+      <div>
+      <div className="flex-col justify-center text-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Configurações do sistema</h1>
-          <p className="text-muted-foreground">Aqui você pode configurar o sistema do PGCOMP Dashboard.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Troca de senha</h1>
         </div>
+        <p className="text-muted-foreground">Digite a nova senha da sua conta</p>
       </div>
-      <h3 className='text-xl font-bold tracking-tight'>Configurações do usuário</h3>
+
       <div className="rounded-md border p-12">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -101,10 +99,11 @@ export default function ResetPasswordPage() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={form.formState.isSubmitting}>Entrar</Button>
+        <Button className='w-full' type="submit" disabled={form.formState.isSubmitting}>Confirmar troca de senha</Button>
       </form>
     </Form>
-      </div>
+        </div>
+        </div>
     </div>
   );
 }
