@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Scraping;
 
+use App\Enums\UserCategory;
 use DOMElement;
 use Exception;
 use Illuminate\Console\Command;
@@ -33,6 +34,7 @@ class LattesUrlScrapingCommand extends Command
     public function handle()
     {
         $dom = $this->getDOMQuery('https://pgcomp.ufba.br/corpo-docente');
+        $test = $dom;
 
         $data = [
             // The website has three tables
@@ -41,6 +43,7 @@ class LattesUrlScrapingCommand extends Command
             ...$this->processTable($dom, 3),
         ];
 
+
         foreach ($data as $item) {
             /** @var array{name: string, lattes: string} $item */
 
@@ -48,8 +51,9 @@ class LattesUrlScrapingCommand extends Command
 
             if ($professor) {
                 $professor->lattes_url = $item["lattes"];
+                $professor->category = $item["category"];
                 $professor->save();
-                $this->info("Updated " . $professor->name . " -> " . $professor->lattes_url);
+                $this->info("Updated " . $professor->name . " -> " . $professor->lattes_url . " Categoria: " . $professor->category);
             }
         }
     }
@@ -57,17 +61,19 @@ class LattesUrlScrapingCommand extends Command
     private function processTable(DOMQuery $dom, int $nth = 1) {
         $items = $dom->find('div.table-responsive:nth-child(' . $nth . ') > table:nth-child(1) > tbody > tr')->getIterator();
 
+        $category = $nth == 1 ? UserCategory::PERMANENTE : ($nth == 2 ? UserCategory::COLABORADOR : UserCategory::VISITANTE);
+
         $data = [];
 
         foreach ($items as $item) {
             /** @var DOMQuery $item */
-            $data[] = $this->getLattesFromTableRow($item);
+            $data[] = $this->getLattesFromTableRow($item, $category->value);
         }
 
         return $data;
     }
 
-    private function getLattesFromTableRow(DOMQuery $tr) {
+    private function getLattesFromTableRow(DOMQuery $tr, $category) {
         /** @var Array<DOMElement> $children */
         $children = $tr->children()->toArray();
 
@@ -81,6 +87,7 @@ class LattesUrlScrapingCommand extends Command
                 $name
             )),
             'lattes' => $lattes,
+            'category' => $category
         ];
     }
 

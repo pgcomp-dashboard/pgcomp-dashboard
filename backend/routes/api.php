@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\PanelAdmin\PublisherController;
 use App\Http\Controllers\Api\PanelAdmin\StratumQualisController;
 use App\Http\Controllers\Api\PanelAdmin\StudentController as StudentAdminController;
 use App\Http\Controllers\Api\PanelAdmin\StudentProductionController;
+use App\Http\Controllers\Api\PanelAdmin\TestController;
 use App\Http\Controllers\Api\PanelAdmin\UserController as UserAdminController;
 use App\Http\Controllers\Api\PanelAdmin\UserProgramController;
 use App\Http\Controllers\Api\UserController;
@@ -33,12 +34,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Middleware
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+//Free access testing Routes
+Route::apiResource('test',TestController::class);
 
-Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
+// Dashboard Routes
+Route::group( ['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     // TODO: Dar nomes melhores e mais padrao
     Route::get('program', [DashboardController::class, 'programName']);
     Route::get('all_production', [DashboardController::class, 'totalProductionsPerYear']);
@@ -53,11 +58,21 @@ Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
     Route::get('professor/{professorId}/productions', [DashboardController::class, 'professorProduction']);
 });
 
+// Logged group routes
 Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' => 'portal'], function () {
-    Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
+    // All roles Access Routes
+    Route::get('journal',[ PublisherController::class, 'journalByIssn']);
+    Route::get('conference', [PublisherController::class, 'conferenceByInitials']);
     Route::get('user/info', [UserAdminController::class, 'getUserInfo']);
     Route::put('user/update', [UserAdminController::class, 'changePassword']);
+    Route::apiResource('ranking', RankingController::class)->except(['destroy']);
+    Route::get('user/productions', [ProductionAdminController::class, 'userProductions']);
+    Route::post('user/productions',[ProductionAdminController::class,'userCreateProduction']);
+    Route::apiResource('user/productions', ProductionAdminController::class);
+    Route::post('user/productions/doi',[ProductionAdminController::class,'productionFromDoi']);
+    Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
+    // Admin group routes
     Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
         Route::apiResource('journals', PublisherController::class, ['as' => 'journals']);
         Route::apiResource('conferences', PublisherController::class, ['as' => 'conferences']);
@@ -73,14 +88,18 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::apiResource('professors.productions', ProfessorProductionController::class)
             ->except(['destroy']);
         Route::get('all_area', [AreaController::class, 'allArea']);
-        Route::apiResource('ranking', RankingController::class)->except(['destroy']);
-        Route::get('user/productions', [ProductionAdminController::class, 'userProductions']);
+
+        //Update Qualis By SpreadSheets
+        Route::post('user/conference-qualis-spreadsheet', [StratumQualisController::class, 'importConferenceFile']);
+        Route::post('user/journal-qualis-spreadsheet', [StratumQualisController::class, 'importJournalFile']);
+
         Route::get('scraping_execution_interval', [ScrapingExecutionController::class, 'getInterval']);
         Route::post('scraping_execution_interval', [ScrapingExecutionController::class, 'setInterval']);
         Route::post('execute_scraping', [ScrapingExecutionController::class, 'execute']);
     });
 });
 
+// Healthcheck route
 Route::get('healthcheck', function (Request $request) {
     \Illuminate\Support\Facades\DB::getPdo();
     $startTime = defined('LARAVEL_START') ? LARAVEL_START : $request->server('REQUEST_TIME_FLOAT');
@@ -88,6 +107,7 @@ Route::get('healthcheck', function (Request $request) {
     return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
 });
 
+// Free Access routes
 Route::post('login', [AuthController::class, 'login']);
 Route::post('forgot-password', [UserAdminController::class, 'forgotPassword']);
 Route::post('reset-password', [UserAdminController::class, 'resetPassword']);

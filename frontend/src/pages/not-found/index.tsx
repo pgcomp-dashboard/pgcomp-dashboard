@@ -1,6 +1,6 @@
 import { NavLink }  from 'react-router';
 
-export default function Index() {
+export default function NotFoundPage() {
   return (
     <div className="w-full h-full min-h-screen flex flex-col items-center justify-around">
       <h1 className="text-4xl font-bold p-2">Página não encontrada</h1>

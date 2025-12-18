@@ -60,8 +60,8 @@ export default function SystemConfigPage() {
       </div>
       <h3 className='text-xl font-bold tracking-tight'>Configurações do usuário</h3>
       <div className="rounded-md border p-12">
-        <div>{userInfo?.name}</div>
-        <div>{userInfo?.email}</div>
+        {/*<div>{userInfo?.name}</div>
+        <div>{userInfo?.email}</div>*/}
         <UserConfigForm />
       </div>
       <h3 className='text-xl font-bold tracking-tight'>Configurações de segurança</h3>

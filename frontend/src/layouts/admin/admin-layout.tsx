@@ -19,7 +19,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
@@ -39,12 +42,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const auth = useAuth();
   const navigate = useNavigate();
   const pathname = '/admin' as string; // TODO: get from react-router
+  const roles = auth?.user?.roles || ["basic"]
 
   function handleLogout() {
-    if (!auth.isLoading) {
+    if (!auth?.isLoading) {
       navigate('/');
-      setTimeout(() => auth.logout(), 100);
+      setTimeout(() => auth?.logout(), 100);
     }
+  }
+
+  function swichProfile(profile: string) {
+    auth?.changeProfile(profile)
   }
 
   return (
@@ -59,13 +67,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/areas'}>
-                  <Link to="/admin/areas" data-cy="link-areas">
-                    <Users className="h-4 w-4" />
-                    <span>Áreas</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={pathname === '/welcome'}>
+                    <Link to="/welcome" data-cy="link-areas">
+                      <Users className="h-4 w-4" />
+                      <span>Pagina Inicial</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              {auth?.profile === "admin" &&
+                <>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={pathname === '/admin/areas'}>
+                    <Link to="/admin/areas" data-cy="link-areas">
+                      <Users className="h-4 w-4" />
+                      <span>Áreas</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === '/admin/qualis'}>
                   <Link to="/admin/qualis">
@@ -89,31 +107,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <span>Discentes</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
+                </SidebarMenuItem>
+                </>
+              }
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/ranking'}>
-                  <Link to="/admin/ranking">
+                <SidebarMenuButton asChild isActive={pathname === '/portal/ranking'}>
+                  <Link to="/portal/ranking">
                     <Trophy className="h-4 w-4" />
                     <span>Ranking</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/ranking-four'}>
-                  <Link to="/admin/ranking-four">
+                <SidebarMenuButton asChild isActive={pathname === '/portal/ranking-four'}>
+                  <Link to="/portal/ranking-four">
                     <Trophy className="h-4 w-4" />
                     <span>Ranking 4 Anos</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/productions'}>
-                  <Link to="/admin/productions">
-                    <File className="h-4 w-4" />
-                    <span>Minhas Produções</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              { auth?.profile !== "admin" &&
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={pathname === '/portal/productions'}>
+                    <Link to="/portal/productions">
+                      <File className="h-4 w-4" />
+                      <span>Minhas Produções</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              }
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="border-t">
@@ -141,25 +163,49 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                      A
+                      { auth?.user?.name[0] }
                     </div>
-                    <span className="text-sm font-medium hidden md:inline">Usuário Administrador</span>
+                    <span className="text-sm font-medium hidden md:inline">{ auth?.user?.name }</span>
                     <ChevronRight className="h-4 w-4 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    {roles?.length > 1 &&
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                            <span>Selecionar Perfil</span>
+                          </Button>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          {
+                            roles?.map((role) => (
+                              <DropdownMenuItem asChild>
+                                <Link onClick={() => swichProfile(role)} to="/admin/" rel="noopener noreferrer" className="flex items-center gap-2">
+                                  <span>{role}</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            ))
+                          }
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                    }
+                    </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/admin/user-config" rel="noopener noreferrer" className="flex items-center gap-2">
                       <User className="h-4 w-4" />
                       <span>Configurações da conta</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin/system-config" rel="noopener noreferrer" className="flex items-center gap-2">
+                  {auth?.profile === "admin" &&
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/system-config" rel="noopener noreferrer" className="flex items-center gap-2">
                       <Settings className="h-4 w-4" />
                       <span>Configurações do sistema</span>
-                    </Link>
-                  </DropdownMenuItem>
+                      </Link>
+                    </DropdownMenuItem>
+                  }
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Button asChild variant='ghost' onClick={handleLogout}>

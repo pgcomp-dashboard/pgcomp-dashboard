@@ -224,7 +224,7 @@ class Production extends BaseModel
     public function findAllProfessorProductionsQualisByYear($year1, $year2)
     {
         $data = DB::table('productions')
-        ->select( 'users.name', DB::raw('SUM(stratum_qualis.score) as score'))
+        ->select( 'users.name', 'users.category', 'users.lattes_url', DB::raw('SUM(stratum_qualis.score) as score'))
         ->join(
                 'users_productions',
                 'productions.id',
@@ -236,7 +236,7 @@ class Production extends BaseModel
         ->where('users.type', '=', 'professor')
         ->whereIn('stratum_qualis.code', ['A1', 'A2', 'A3', 'A4'])
         ->whereBetween('productions.year', [$year1, $year2])
-        ->groupBy('users.name')
+        ->groupBy('users.name','users.category', 'users.lattes_url')
         ->orderBy('score', 'desc')
         ->get();
 

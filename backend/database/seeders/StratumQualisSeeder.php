@@ -24,7 +24,7 @@ class StratumQualisSeeder extends Seeder
             ['code' => 'B2', 'score' => 30],
             ['code' => 'B3', 'score' => 20],
             ['code' => 'B4', 'score' => 10],
-            ['code' => '-', 'score' => 0],
+            ['code' => 'NI', 'score' => 0],
         ];
 
         foreach ($data as $item) {

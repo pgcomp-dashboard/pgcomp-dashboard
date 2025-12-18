@@ -47,6 +47,9 @@ class ConferenceScrapingCommand extends Command
             $header[] = Str::of($th->text())->trim()->value();
         }
 
+        //$this->info(implode($ths));
+        $this->info($ths);
+
         /** @var \QueryPath\QueryPathIterator $rows */
         $rows = $table->find('tr')->getIterator();
         $rows->next(); // header

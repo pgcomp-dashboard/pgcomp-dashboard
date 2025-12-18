@@ -25,9 +25,17 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('login');
+        $userName = $user->name;
+        if ($user->is_admin){
+            $userRole = ["admin", "basic"];
+        } else {
+            $userRole = ["basic"];
+        }
 
         return response()->json([
             'token' => $token->plainTextToken,
+            'name' => $userName,
+            'roles' => $userRole
         ]);
     }
 }

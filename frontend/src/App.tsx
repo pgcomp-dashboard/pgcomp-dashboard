@@ -18,8 +18,10 @@ import StudentsPage from './pages/admin/students';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
 import DashboardPage from './pages/dashboard';
-import ResetPasswordPage from './pages/reset-password';
 import ForgotPasswordPage from './pages/login/forgot-password';
+import NotFoundPage from './pages/not-found';
+import ResetPasswordPage from './pages/reset-password';
+import WelcomePage from './pages/admin/welcome';
 
 
 const queryClient = new QueryClient();
@@ -35,26 +37,26 @@ function App() {
               <Route path="login" element={<LoginPage />} />
               <Route path="forgot-password" element={<ForgotPasswordPage />} />
               <Route path="reset-password" element={<ResetPasswordPage />} />
-              <Route path='admin' element={<AdminLayout><EnsureAuthenticated /></AdminLayout>}>
-                <Route index element={<Redirect to='/admin/areas' />} />
-                <Route path='areas' element={<AreasPage />} />
-                <Route path='students' element={<StudentsPage />} />
-                {/* <Route path='qualis' element={<Session/>}/> */}
-                {<Route path='professors' element={<ProfessorsPage />} /> }
-                {/* <Route path='professors/:id' element={<PersonInfo/>}/> */}
-                {/* <Route path="professors/:id/productions" element={<UserProductions/>}/> */}
-                {/* <Route path="professors/:id/xml-upload" element={<XmlUpload/>}/> */}
-                {/* <Route path='students' element={<Session/>}/> */}
-                {/* <Route path='students/:id' element={<PersonInfo/>}/> */}
-                {/* <Route path="students/:id/productions" element={<UserProductions/>}/> */}
-                {/* <Route path="students/:id/xml-upload" element={<XmlUpload/>}/> */}
-                <Route path='/admin/qualis' element={<QualisPage />}/>
-                <Route path='/admin/system-config' element={<SystemConfigPage />}/>
-                <Route path='/admin/user-config' element={<UserConfigPage />} />
-                <Route path='/admin/ranking' element={<RankingPage />} />
-                <Route path='/admin/ranking-four' element={<RankingFourPage />} />
-                <Route path='/admin/productions' element={<MyProductionsPage />}/>
+              <Route element={<AdminLayout><EnsureAuthenticated /></AdminLayout>}>
+                <Route path='welcome' element={<WelcomePage /> } />
+                <Route path='portal'>
+                  <Route index element={<Redirect to='/welcome' />} />
+                  <Route path='ranking' element={<RankingPage />} />
+                  <Route path='ranking-four' element={<RankingFourPage />} />
+                  <Route path='user-config' element={<UserConfigPage />} />
+                  <Route path='productions' element={<MyProductionsPage />} />
+                </Route>
+                <Route path='admin'>
+                  <Route index element={<Redirect to='/welcome' />} />
+                  <Route path='areas' element={<AreasPage />} />
+                  <Route path='students' element={<StudentsPage />} />
+                  <Route path='professors' element={<ProfessorsPage />} />
+                  <Route path='qualis' element={<QualisPage />}/>
+                  <Route path='system-config' element={<SystemConfigPage />}/>
+                  <Route path='productions' element={<MyProductionsPage />} />
+                </Route>
               </Route>
+              <Route path='*' element={<NotFoundPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
@@ -68,11 +70,11 @@ function App() {
 function EnsureAuthenticated() {
   const auth = useAuth();
 
-  if (auth.isLoading) {
+  if (auth?.isLoading) {
     return <>Carregando...</>;
   }
 
-  if (auth.isAuthenticated) {
+  if (auth?.isAuthenticated) {
     return <Outlet />;
   } else {
     console.error('User not authenticated. Redirecting back to login page...');

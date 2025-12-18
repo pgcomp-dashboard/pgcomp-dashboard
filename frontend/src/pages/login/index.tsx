@@ -18,6 +18,11 @@ import { useState } from 'react';
 import useAuth from '@/hooks/auth';
 import { Link, useNavigate } from 'react-router';
 
+export interface User {
+  name: string,
+  roles: string[]
+}
+
 const formSchema = z.object({
   email: z.string().email('Email inválido!'),
   password: z.string().min(1, 'Senha muito curta!'),
@@ -39,7 +44,9 @@ export default function LoginPage() {
     try {
       const response = await api.login(values.email, values.password);
 
-      auth.login(response.token);
+      const user: User = { name:response.name, roles:response.roles}
+
+      auth?.login(response.token, user);
 
       navigate('/admin');
     } catch (e: unknown) {

@@ -13,7 +13,7 @@ export function colorFromName(name: string): string {
     B2: '#dda0dd', // Lavanda (transição para frio)
     B3: '#9370db', // Roxo médio
     B4: '#4169e1', // Azul royal
-    '-': '#1e90ff', // Azul claro (frio máximo)
+    NI: '#1e90ff', // Azul claro (frio máximo)
   };
 
   // Prioridade: se for Qualis conhecido, retorna cor específica

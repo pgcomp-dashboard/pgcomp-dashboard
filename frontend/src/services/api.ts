@@ -61,7 +61,7 @@ export interface Publisher {
 }
 
 export interface Production {
-  id: number;
+  productions_id: number;
   title: string;
   year: number;
   created_at: string;
@@ -113,6 +113,8 @@ export interface Course {
 
 type Ranking = {
   name: string;
+  category: string;
+  lattes_url: string;
   score: number;
 }
 
@@ -164,12 +166,12 @@ export class ApiService {
       if (!response.ok) {
         const error: ApiError = {
           code: response.status,
-          errors: [ { description: 'Erro ao se comunicar com a API.' } ],
+          errors: [{ description: 'Erro ao se comunicar com a API.' }],
         };
 
         try {
           const json = await response.json();
-          error.errors = json.errors ?? [ { description: json.message ?? 'Erro desconhecido.' } ];
+          error.errors = json.errors ?? [{ description: json.message ?? 'Erro desconhecido.' }];
         } catch (jsonError) {
           console.error('Erro ao interpretar JSON de erro da API:', jsonError);
         }
@@ -185,7 +187,7 @@ export class ApiService {
         console.error(`Erro na requisição para ${endpoint}:`, e);
         throw {
           code: 408,
-          errors: [ { description: 'Falha de conexão com o servidor.' } ],
+          errors: [{ description: 'Falha de conexão com o servidor.' }],
         } as ApiError;
       }
     }
@@ -223,7 +225,7 @@ export class ApiService {
     });
 
     if (filters) {
-      for (const [ key, value ] of Object.entries(filters)) {
+      for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null) {
           params.append(key, String(value));
         }
@@ -345,7 +347,7 @@ export class ApiService {
 
   // Auth
   async login(email: string, password: string) {
-    return this.post<{ token: string }>('/api/login', { email, password });
+    return this.post<{ token: string, name: string, roles: string[] }>('/api/login', { email, password });
   }
 
   // Qualis
@@ -375,7 +377,7 @@ export class ApiService {
     });
 
     if (filters) {
-      for (const [ key, value ] of Object.entries(filters)) {
+      for (const [key, value] of Object.entries(filters)) {
         if (value !== undefined && value !== null) {
           params.append(key, String(value));
         }
@@ -406,26 +408,65 @@ export class ApiService {
   }
 
   async getProductionsByProfessor(professorId: number) {
-    const response = await this.get<{ data: Production[] }>(`/api/portal/admin/professors/${professorId}/productions`);
+    const response = await this.get<{ data: Production[] }>(`/api/portal/admin/professors/${professorId}/productions/`);
     return response.data;
   }
 
   async getProductionsOfUser() {
-    const response = await this.get<{ data: Production[] }>('/api/portal/admin/professors/productions');
+    const response = await this.get<{ data: Production[] }>('/api/portal/user/productions');
     return response.data;
   }
 
   async getRanking(year1?: number, year2?: number) {
     if (year1 && year2) {
-      var response = await this.get<{ data: Ranking[] }>(`/api/portal/admin/ranking?year1=${year1}&year2=${year2}`);
+      var response = await this.get<{ data: Ranking[] }>(`/api/portal/ranking?year1=${year1}&year2=${year2}`);
     } else {
-      var response = await this.get<{ data: Ranking[] }>(`/api/portal/admin/ranking`);
+      var response = await this.get<{ data: Ranking[] }>(`/api/portal/ranking`);
     }
     return response.data;
   }
 
   async getUserInfo() {
     var response = await this.get<{ data: UserInfo }>('/api/portal/user/info')
+    return response.data;
+  }
+
+  async createUserProduction(body: RequestBodyType) {
+    return this.post<{status: string, message: string}>('/api/portal/user/productions', body);
+  }
+
+  async createProductionXML(body: FormData) {
+    return this.post<{status: string, message: string}>('/api/portal/user/lattes-update', body);
+  }
+
+  async createProductionDoi(body: RequestBodyType) {
+    return this.post<{status: string, message: string}>('/api/portal/user/productions/doi', body);
+  }
+
+  async updateProduction(id: number, body: RequestBodyType) {
+    return this.put<{ status: string, message: string }>(`/api/portal/admin/${id}/production/`, body);
+  }
+
+  async deleteProduction(id: number) {
+
+  }
+
+  async getJournals() {
+    const response = await this.get<{data: Publisher[]}>('/api/portal/journals');
+    return response.data;
+  }
+
+  async getConferences() {
+    return (await this.get<{data: Publisher[]}>('/api/portal/conferences')).data;
+  }
+
+  async getConferenceByInitial(initial: string) {
+    const response = await this.get<{ data: Publisher }>(`/api/portal/conference?initial=${initial}`)
+    return response.data;
+  }
+
+  async getJournalByIssn(issn: string) {
+    const response = await this.get<{ data: Publisher }>(`/api/portal/journal?issn=${issn}`);
     return response.data;
   }
 

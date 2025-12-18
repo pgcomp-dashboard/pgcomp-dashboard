@@ -205,7 +205,6 @@ export default function QualisPage() {
             <TableRow>
               <TableHead>Código</TableHead>
               <TableHead>Pontuação</TableHead>
-              <TableHead>Criado</TableHead>
               <TableHead>Atualizado</TableHead>
               <TableHead>Ações</TableHead>
             </TableRow>
@@ -215,7 +214,6 @@ export default function QualisPage() {
               <TableRow key={item.id}>
                 <TableCell>{item.code}</TableCell>
                 <TableCell>{item.score.toFixed(1)}</TableCell>
-                <TableCell>{new Date(item.created_at).toLocaleDateString('pt-BR')}</TableCell>
                 <TableCell>{new Date(item.updated_at).toLocaleDateString('pt-BR')}</TableCell>
                 <TableCell className="flex gap-2">
                   <Button

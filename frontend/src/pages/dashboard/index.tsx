@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router';
 import { Menu } from 'lucide-react';
+import { NavLink } from 'react-router';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,16 +16,19 @@ import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
 
 import logoImage from '@/assets/logo.png';
 import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
-import StudentCountCard from '@/components/StudentCountCard';
 import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
-import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
 import ProductionsPerYearChart from '@/components/charts/ProductionsPerYear.tsx';
-import { useEffect, useState } from 'react';
+import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
+import StudentCountCard from '@/components/StudentCountCard';
+import useAuth from '@/hooks/auth';
 import api from '@/services/api';
+import { useEffect, useState } from 'react';
 
 
 export default function Dashboard() {
-  const [ lastExecution, setLastExecution ] = useState<string | null>(null);
+  const [lastExecution, setLastExecution] = useState<string | null>(null);
+
+  const auth = useAuth();
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -33,7 +36,6 @@ export default function Dashboard() {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
 
   async function fetchLastExecution() {
     try {
@@ -113,7 +115,12 @@ export default function Dashboard() {
                   </div>
                   <Button asChild className="sm:flex">
                     <NavLink to={'/admin'} rel="noopener noreferrer">
-                      Login
+                      {
+                        auth?.isAuthenticated ?
+                          <p>Portal</p>
+                          :
+                          <p>Login</p>
+                      }
                     </NavLink>
                   </Button>
                 </nav>
@@ -171,7 +178,12 @@ export default function Dashboard() {
           </nav>
           <Button asChild className="hidden sm:flex">
             <NavLink to={'/admin'} rel="noopener noreferrer">
-              Login
+              {
+                auth?.isAuthenticated ?
+                  <p>Portal</p>
+                  :
+                  <p>Login</p>
+              }
             </NavLink>
           </Button>
         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserCategory;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use App\Exceptions\IsProtectedException;
@@ -111,6 +112,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'siape',
         'name',
         'type',
+        'category',
         'area_id',
         'email',
         'password',
@@ -152,6 +154,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             'siape' => 'nullable|int|required_if:type,'.UserType::PROFESSOR->value,
             'name' => 'required|string|max:255',
             'type' => ['required', new Enum(UserType::class)],
+            'category' => ['nullable', new Enum(UserCategory::class)],
             'area_id' => [
                 'nullable',
                 'int',
@@ -384,7 +387,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return $query->count('students.id');
     }
-    
+
     public function sendPasswordResetNotification($token)
     {
         ResetPasswordNotification::createUrlUsing(function (User $user, string $token) {
@@ -397,6 +400,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public function updateLattes(array $data): void
     {
+        error_log("entered the update function");
         foreach ($data['productions'] as $production) {
             if (! $production['doi']) {
                 continue;

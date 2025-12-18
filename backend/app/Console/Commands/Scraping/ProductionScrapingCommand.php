@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Scraping;
 
+use App\Enums\ProductionSource;
 use App\Enums\UserType;
 use App\Models\Production;
 use App\Models\Publishers;
@@ -114,6 +115,7 @@ class ProductionScrapingCommand extends Command
                     'doi' => $production['link'],
                 ],
                 [
+                    'source' => ProductionSource::SCRIPT,
                     'title' => $production['titulo'],
                     'year' => $production['ano'],
                     'publisher_id' => $publisher->id ?? null,

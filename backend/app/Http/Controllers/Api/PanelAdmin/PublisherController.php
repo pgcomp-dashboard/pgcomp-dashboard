@@ -56,4 +56,22 @@ class PublisherController extends BaseApiResourceController
             ->select($this->selectColumns)
             ->where('publishers.publisher_type', '=', 'conference');
     }
+
+    public function conferenceByInitials(Request $request){
+        $initial = $request->query('initial');
+        $publisher = Publishers::where('initials', '=',$initial)->first();
+        return response()->json([
+                'data' => $publisher,
+            ]);
+    }
+
+    public function journalByIssn(Request $request){
+        $issn = $request->query('issn');
+        $issn = str_replace("-", "", $issn);
+        error_log($issn);
+        $publisher = Publishers::where('issn', '=',$issn)->first();
+        return response()->json([
+                'data' => $publisher,
+            ]);
+    }
 }
