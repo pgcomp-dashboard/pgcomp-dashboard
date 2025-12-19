@@ -12,9 +12,9 @@ import {
 } from '@/components/ui/table';
 import api from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
-import { ToggleLeft, ToggleLeftIcon, ToggleRight } from 'lucide-react';
+import { Paperclip, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 type Ranking = {
   name: string;
@@ -23,9 +23,14 @@ type Ranking = {
   score: number;
 }
 
+type RankingProps = {
+  rankList: Ranking[]
+}
+
 export default function RankingPage() {
 
   const [isToggled, setIsToggled] = useState(false);
+  const navigate = useNavigate();
 
   const handleToggle = () => {
     setIsToggled(!isToggled);
@@ -67,13 +72,13 @@ export default function RankingPage() {
     <div className="flex flex-col gap-4">
       <div className='flex justify-between'>
         <div className='flex gap-2'>
-        <h1 className="text-3xl font-bold tracking-tight">Ranking</h1>
-        <Button onClick={() => window.open('http://wwws.cnpq.br/cvlattesweb/pkg_login.oauth2_redirect')}>
-          <h1 className="font-bold tracking-tight float-left">Editar Lattes</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Ranking</h1>
+          <Button onClick={() => window.open('http://wwws.cnpq.br/cvlattesweb/pkg_login.oauth2_redirect')}>
+            <h1 className="font-bold tracking-tight float-left">Editar Lattes</h1>
           </Button>
         </div>
-        <div>
-          <Label>Permanentes</Label>
+        <div className='flex gap-4'>
+          <Label>Permanentes:</Label>
           <Button onClick={handleToggle} className=''>
           {isToggled ? <ToggleRight /> : <ToggleLeft />}
         </Button>
@@ -83,44 +88,54 @@ export default function RankingPage() {
         Visualize o ranking dos docentes com publicações cadastrados no sistema no ultimo ano.
       </p>
       {/* Tabela */}
-      <div className="float-left rounded-md border md:w-1/2">
+      <div className="float-left rounded-md border w-full md:w-1/2">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Colocação</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Categoria</TableHead>
-              <TableHead>Pontuação</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {ranking.map((rank, index) => (
-                !isToggled ?
-                <TableRow className={rank.score >= 250 ?'font-medium bg-green-100 hover:bg-green-200' : '' }key={index}>
-                <TableCell className="font-medium">{index + 1}º</TableCell>
-                <TableCell className="font-medium"><Link to={rank.lattes_url} target="_blank">{rank.name}</Link></TableCell>
-                <TableCell className="font-medium">
-                  {rank.category}
-                </TableCell>
-                <TableCell className="font-medium float-left">
-                  {rank.score.toFixed(1)}
-                </TableCell>
-                </TableRow>
-                : rank.category == 'permanente' ?
-                <TableRow className={rank.score >= 250 ?'font-medium bg-green-100 hover:bg-green-200' : '' }key={index}>
-                <TableCell className="font-medium">{index + 1}º</TableCell>
-                <TableCell className="font-medium"><Link to={rank.lattes_url} target="_blank">{rank.name}</Link></TableCell>
-                <TableCell className="font-medium">
-                  {rank.category}
-                </TableCell>
-                <TableCell className="font-medium float-left">
-                  {rank.score.toFixed(1)}
-                </TableCell>
-                  </TableRow> : null
-            ))}
-          </TableBody>
+          {!isToggled ?
+            <ShowRanking rankList={ranking} />
+            :
+            <ShowRanking rankList={ranking.filter((rank) => rank.category == 'permanente')} />
+          }
         </Table>
       </div>
     </div>
   );
+}
+
+function ShowRanking({ rankList }: RankingProps) {
+  return (
+    <>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Colocação</TableHead>
+          <TableHead>Nome</TableHead>
+          <TableHead>Categoria</TableHead>
+          <TableHead>Pontuação</TableHead>
+          <TableHead>Lattes</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rankList.map((rank, index) => (
+          <TableRow className={rank.score >= 250 ? 'font-medium bg-green-100 hover:bg-green-200' : ''} key={index}>
+            <TableCell className="font-medium">{index + 1}º</TableCell>
+            <TableCell className="font-medium">
+              <Link to='/portal/productions'>
+                {rank.name}
+              </Link>
+            </TableCell>
+            <TableCell className="font-medium">
+              {rank.category}
+            </TableCell>
+            <TableCell className="font-medium">
+              {rank.score.toFixed(1)}
+            </TableCell>
+            <TableCell className="font-medium">
+              <Link to={rank.lattes_url} target="_blank">
+                <Paperclip />
+              </Link>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </>
+  )
 }

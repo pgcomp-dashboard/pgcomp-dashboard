@@ -68,7 +68,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
     Route::apiResource('ranking', RankingController::class)->except(['destroy']);
     Route::get('user/productions', [ProductionAdminController::class, 'userProductions']);
     Route::post('user/productions',[ProductionAdminController::class,'userCreateProduction']);
-    Route::apiResource('user/productions', ProductionAdminController::class);
+    Route::apiResource('user/productions', ProductionAdminController::class)->only(['destroy']);
     Route::post('user/productions/doi',[ProductionAdminController::class,'productionFromDoi']);
     Route::post('user/lattes-update', [UserController::class, 'importLattesFile']);
 
@@ -96,6 +96,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'name' => 'portal.', 'prefix' =>
         Route::get('scraping_execution_interval', [ScrapingExecutionController::class, 'getInterval']);
         Route::post('scraping_execution_interval', [ScrapingExecutionController::class, 'setInterval']);
         Route::post('execute_scraping', [ScrapingExecutionController::class, 'execute']);
+        Route::post('execute_professor_scraping', [ScrapingExecutionController::class, 'professor_scraping']);
     });
 });
 

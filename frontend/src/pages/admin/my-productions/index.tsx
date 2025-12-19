@@ -36,7 +36,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FileText, Plus, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ProductionDOIForm } from './components/doiForm';
@@ -101,9 +101,24 @@ const updateProductionFormSchema = z.object({
 export default function MyProductionsPage() {
 
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [, setQualisList] = useState<StratumQualis[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [productionList, setProductionList] = useState<Production[]>([])
   const [selectedProduction, setSelectedProduction] = useState<Production>();
   const [chosenForm, setChosenForm] = useState<FormType>("none");
+
+  useEffect(() => {
+    async function fetchQualis() {
+      try {
+        const qualis = await api.getAllQualis();
+        setQualisList(qualis);
+        console.log(qualis);
+      } catch (err) {
+        console.error('Erro ao carregar Qualis:', err);
+      }
+    }
+    fetchQualis();
+  }, []);
 
   const {
     data,
@@ -116,13 +131,14 @@ export default function MyProductionsPage() {
     placeholderData: (prevData) => prevData,
   });
 
-  var entries
+  var entries: Production[] = []
   if (data) {
     entries = Object.entries(data)
       .filter(([key]) => !isNaN(Number(key)))
       .map(([, value]) => value as unknown as Production);
 
     entries.sort((a, b) => b.year - a.year);
+    if(productionList.length == 0) setProductionList(entries)
   }
 
   async function onSubmit(values: z.infer<typeof updateProductionFormSchema>) {
@@ -150,10 +166,17 @@ export default function MyProductionsPage() {
     }
   }
 
-  function deleteProduction() {
+  async function deleteProduction(id: number) {
     console.log('Deletar :', selectedProduction?.title)
     try {
-
+      if (!selectedProduction) return;
+      const response = await api.deleteProduction(id);
+      if (response.status == '200') {
+        const list = productionList.filter((entry) => { return entry.productions_id !== selectedProduction.productions_id })
+        setProductionList(list)
+        setIsDeleteOpen(false)
+      }
+      console.log(response.message)
     } catch (err) {
       console.error('Erro ao deletar a publicação:', err)
     }
@@ -177,17 +200,18 @@ export default function MyProductionsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className='flex justify-around'>
+      {chosenForm != "none" ?
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Minhas Produções</h1>
-          {chosenForm == "none" &&
+          <Button onClick={() => { setChosenForm("none") }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
+        </div>
+        :
+        <div className='flex justify-around'>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Minhas Produções</h1>
             <p className="text-muted-foreground">
               Visualize e edite suas produções.
             </p>
-          }</div>
-        {chosenForm != "none" ?
-          <Button onClick={() => { setChosenForm("none") }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
-          :
+          </div>
           <div className='flex flex-col gap-2 justify-center items-center'>
             <Label>Adicionar Produção</Label>
             <div className='flex gap-2'>
@@ -207,8 +231,8 @@ export default function MyProductionsPage() {
               </Button>
             </div>
           </div>
-        }
-      </div>
+        </div>
+      }
 
       {/* Tabela */}
       {chosenForm === "none" ?
@@ -216,7 +240,7 @@ export default function MyProductionsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className='text-center'>Nome</TableHead>
+                <TableHead className='text-center'>Título</TableHead>
                 <TableHead className='text-center'>Ano</TableHead>
                 <TableHead className='text-center'>Tipo</TableHead>
                 <TableHead className='text-center'>Ações</TableHead>
@@ -230,15 +254,18 @@ export default function MyProductionsPage() {
                   </TableCell>
                 </TableRow>
                 :
-                entries?.map((production) => (
+                productionList.map((production) => (
                   <TableRow key={production.productions_id}>
-
                     <TableCell className="font-medium">{production.title}</TableCell>
                     <TableCell className="font-medium text-center">
                       {production.year}
                     </TableCell>
                     <TableCell className="font-medium text-center">
                       {production.publisher_type}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {production.publisher?.stratum_qualis?.code} -
+                      {production.publisher?.stratum_qualis?.score}
                     </TableCell>
                     <TableCell className="text-right flex justify-end gap-2">
                       <Button
@@ -386,10 +413,14 @@ export default function MyProductionsPage() {
               setSelectedProduction(undefined)
               setIsDeleteOpen(false)
             }}>Cancelar</Button>
-            <Button type="button" className='items-center bg-red-400 text-black hover:bg-red-600' onClick={deleteProduction}>Confirmar</Button>
+            <Button type="button" className='items-center bg-red-400 text-black hover:bg-red-600' onClick={() => {
+              if (selectedProduction) deleteProduction(selectedProduction.productions_id)
+            }}>Confirmar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
+
+function ShowProductions(){}

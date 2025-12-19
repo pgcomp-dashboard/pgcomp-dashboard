@@ -43,7 +43,7 @@ function App() {
                   <Route index element={<Redirect to='/welcome' />} />
                   <Route path='ranking' element={<RankingPage />} />
                   <Route path='ranking-four' element={<RankingFourPage />} />
-                  <Route path='user-config' element={<UserConfigPage />} />
+
                   <Route path='productions' element={<MyProductionsPage />} />
                 </Route>
                 <Route path='admin'>
@@ -51,7 +51,8 @@ function App() {
                   <Route path='areas' element={<AreasPage />} />
                   <Route path='students' element={<StudentsPage />} />
                   <Route path='professors' element={<ProfessorsPage />} />
-                  <Route path='qualis' element={<QualisPage />}/>
+                  <Route path='qualis' element={<QualisPage />} />
+                  <Route path='user-config' element={<UserConfigPage />} />
                   <Route path='system-config' element={<SystemConfigPage />}/>
                   <Route path='productions' element={<MyProductionsPage />} />
                 </Route>

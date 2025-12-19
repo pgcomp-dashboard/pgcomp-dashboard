@@ -126,7 +126,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              { auth?.profile !== "admin" &&
+              {auth?.profile !== "admin" &&
+                <div>
+                <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/professors'}>
+                  <Link to="/admin/professors">
+                    <Folders className="h-4 w-4" />
+                    <span>Docentes</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={pathname === '/portal/productions'}>
                     <Link to="/portal/productions">
@@ -134,7 +143,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       <span>Minhas Produções</span>
                     </Link>
                   </SidebarMenuButton>
-                </SidebarMenuItem>
+                  </SidebarMenuItem>
+                </div>
               }
             </SidebarMenu>
           </SidebarContent>

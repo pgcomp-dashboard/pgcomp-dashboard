@@ -22,6 +22,10 @@ const systemConfigFormSchema = z.object({
   scrapingIntervalDays: z.coerce.number({ message: 'Número inválido' }).min(1, 'Número precisa ser maior que 0'),
 });
 
+const lattesIdFormSchema = z.object({
+  lattes_id: z.coerce.number({ message: 'Id inválido' }),
+});
+
 export default function SystemConfigPage() {
   const queryClient = useQueryClient();
 
@@ -51,8 +55,29 @@ export default function SystemConfigPage() {
     },
   });
 
+  const lattesIdForm = useForm<z.infer<typeof lattesIdFormSchema>>({
+    resolver: zodResolver(lattesIdFormSchema),
+    defaultValues: {
+      lattes_id: 99999,
+    }
+  })
+
   function onSubmit(values: z.infer<typeof systemConfigFormSchema>) {
     api.setScrapingInterval(values.scrapingIntervalDays);
+  }
+
+  async function onSubmitLattesId(values: z.infer<typeof lattesIdFormSchema>) {
+
+    const request = {
+      "lattes_id": values.lattes_id
+    }
+
+    try {
+      await api.executeScrapingForAProfessor(request);
+      queryClient.invalidateQueries({ queryKey: [ 'scraping_execution' ] });
+    } catch (error) {
+      alert('Erro ao executar o scraping: ' + parseApiError(error));
+    }
   }
 
   useEffect(() => {
@@ -92,6 +117,30 @@ export default function SystemConfigPage() {
             />
             <Button disabled={!scrapingInterval} type="submit">Atualizar</Button>
             <Button variant="outline" className="ml-6" onClick={executeScrapping}>Executar scrapping agora</Button>
+          </form>
+        </Form>
+      </div>
+      <div className="rounded-md border p-12">
+        <Form {...form}>
+          <form onSubmit={lattesIdForm.handleSubmit(onSubmitLattesId)} className="space-y-8">
+            <FormField
+              control={lattesIdForm.control}
+              disabled={!scrapingInterval}
+              name="lattes_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lattes ID Scraping</FormLabel>
+                  <FormControl>
+                    <Input type='number' {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Executa o scrapping para 1 professor.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button variant="outline" type="submit" className="ml-6">Executar scrapping</Button>
           </form>
         </Form>
       </div>

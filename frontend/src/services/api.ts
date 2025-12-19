@@ -432,15 +432,16 @@ export class ApiService {
   }
 
   async createUserProduction(body: RequestBodyType) {
-    return this.post<{status: string, message: string}>('/api/portal/user/productions', body);
+    return this.post<{status: string, message: string, data: Production}>('/api/portal/user/productions', body);
   }
 
-  async createProductionXML(body: FormData) {
-    return this.post<{status: string, message: string}>('/api/portal/user/lattes-update', body);
+  //Doesn't work, probably because of headers
+  async createProductionXML(body: FormData, headers: Record<string, string> = {}) {
+    return this.post<{status: string, message: string}>('/api/portal/user/lattes-update', body, headers);
   }
 
   async createProductionDoi(body: RequestBodyType) {
-    return this.post<{status: string, message: string}>('/api/portal/user/productions/doi', body);
+    return this.post<{status: string, message: string, data: Production}>('/api/portal/user/productions/doi', body);
   }
 
   async updateProduction(id: number, body: RequestBodyType) {
@@ -448,7 +449,7 @@ export class ApiService {
   }
 
   async deleteProduction(id: number) {
-
+    return this.delete<{ status: string, message: string }>(`/api/portal/user/productions/${id}`);
   }
 
   async getJournals() {
@@ -511,6 +512,10 @@ export class ApiService {
 
   async executeScraping() {
     return this.post('/api/portal/admin/execute_scraping', {});
+  }
+
+  async executeScrapingForAProfessor(body: RequestBodyType) {
+    return this.post('/api/portal/admin/execute_professor_scraping', body);
   }
 
   async getScrapingExecutions() {

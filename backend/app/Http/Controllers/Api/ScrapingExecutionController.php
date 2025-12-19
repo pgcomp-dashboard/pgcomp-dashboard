@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\ScrapingExecution;
-use Illuminate\Http\JsonResponse;
 use App\Models\BaseModel;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Controllers\Api\BaseApiResourceController;
@@ -51,7 +51,17 @@ class ScrapingExecutionController extends Controller
         ]);
     }
 
-  public function setInterval(BaseResourceIndexRequest $request): JsonResponse
+    public function professor_scraping(Request $request): JsonResponse
+    {
+        $lattes_id = $request['lattes_id'];
+        RunScraping::dispatch('scraping:professor-production-scraping', $lattes_id);
+
+        return response()->json([
+            'ok' => true,
+        ]);
+    }
+
+    public function setInterval(BaseResourceIndexRequest $request): JsonResponse
 {
     $validated = $request->validate(
         [

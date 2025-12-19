@@ -14,7 +14,9 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use function PHPUnit\Framework\isArray;
 
 class ProductionController extends BaseApiResourceController
 {
@@ -43,9 +45,33 @@ class ProductionController extends BaseApiResourceController
 
     public function destroy(int $id)
     {
-        $model = $this->modelClass()::findOrFail($id);
+        $user = Auth::user();
+        $userId = $user->id;
 
-        return $model;
+        $production = Production::findOrFail($id);
+
+        if ($production) {
+            $constrain = DB::table('users_productions')
+                ->where('users_id', '=', $userId)
+                ->where('productions_id', '=', $id)
+                ->delete();
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Produção não encontrada'
+            ]);
+        }
+
+        if ($constrain) {
+            $success = $production->delete();
+        }
+
+        if ($constrain && $success) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Produção deletada com sucesso'
+            ]);
+        }
     }
 
     public function studentQuery($students)
@@ -92,19 +118,18 @@ class ProductionController extends BaseApiResourceController
         error_log($user);
         error_log($userId);
 
-        $publications = $this->newBaseQuery()
+        $productions = $this->newBaseQuery()
             ->with('publisher')
             ->select('*')
             ->join('users_productions', 'id', '=', 'users_productions.productions_id')
             ->join('users', 'users_productions.users_id', '=', 'users.id')
-            ->where('users.type', '=', UserType::PROFESSOR)
             ->where('users.id', '=', $userId)
             ->get();
 
-        error_log($publications);
+        error_log($productions);
 
         return response()->json([
-            'data' => $publications,
+            'data' => $productions,
         ]);
     }
 
@@ -115,7 +140,10 @@ class ProductionController extends BaseApiResourceController
 
         $request['users_id'] = $userId;
         $request['source'] = ProductionSource::MANUAL->value;
-        return $this->store($request);
+        $data = $this->store($request);
+        return response()->json([
+            'data'=> $data
+        ]);
     }
 
     public function productionFromDoi(Request $request)
@@ -124,6 +152,7 @@ class ProductionController extends BaseApiResourceController
         $userId = $user->id;
 
         $doi = $request['doi'];
+        $type = $request['type'];
 
         $clientHttp = new Client;
 
@@ -132,7 +161,6 @@ class ProductionController extends BaseApiResourceController
         error_log("fetching data");
 
         try {
-            //$response = $clientHttp->get("/{$doi}");
             $response = $clientHttp->get($url, ['query' => []]);
 
             if ($response->getStatusCode() !== 200) {
@@ -147,15 +175,40 @@ class ProductionController extends BaseApiResourceController
                 'message' => $e->getMessage()
             ];
         }
+
         $data = json_decode($response->getBody(), true);
         $message = $data['message'];
+        $productionDoi = 'http://dx.doi.org/'.$message['DOI'];
         $title = $message['title'][0];
+
+        if(Production::where('doi', '=',$productionDoi)->count() > 0){
+            return response("Produção já cadastrada", 400);
+        }
+        if (!empty($message['subtitle'])) {
+            $title = $title . ' ' . $message['subtitle'][0];
+        }
+        error_log("Title: $title");
         $year = $message['published']['date-parts'][0][0];
-        $publisherName = $message['container-title'];
-        $publisherIssn = $message['ISSN'][0];
-        $publisher = Publishers::whereLike('name', $publisherName)
-            ->orWhereLike('issn', Str::numbers($publisherIssn))
-            ->first();
+        $productionDoi = $message['DOI'];
+
+        $publisherIssn = 0;
+        if ($type == 'journal') {
+            $publisherIssn = $message['ISSN'];
+            $publisherName = $message['container-title'];
+            foreach ($message['ISSN'] as $issn) {
+                $publisher = Publishers::whereLike('name', $publisherName)
+                    ->orWhereLike('issn', Str::numbers($issn))
+                    ->first();
+                if ($publisher) {
+                    break;
+                }
+            }
+        } else {
+            $publisherName = $message['event']['name'];
+            $publisher = Publishers::whereLike('name', $publisherName)
+                        ->orWhereLike('issn', Str::numbers($publisherIssn))
+                        ->first();
+        }
 
         $production = [
             'users_id' => $userId,
@@ -163,7 +216,8 @@ class ProductionController extends BaseApiResourceController
             'title' => $title,
             'year' => $year,
             'publisher_type' => $publisher->publisher_type ?? null,
-            'publisher_id' => $publisher->id ?? null
+            'publisher_id' => $publisher->id ?? null,
+            'doi'=> $productionDoi
         ];
 
         if (!$publisher) {
@@ -173,6 +227,8 @@ class ProductionController extends BaseApiResourceController
         $saveProduction = Production::createOrFirst($production);
         $saveProduction->saveInterTable($production['users_id']);
 
-        return $saveProduction;
+        return response()->json([
+            'data'=>$production
+        ]);
     }
 }

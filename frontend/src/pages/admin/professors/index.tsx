@@ -331,7 +331,7 @@ export default function ProfessorsPage() {
                 )}
                 {prod.publisher?.stratum_qualis && (
                   <p>
-                    <strong>Qualis:</strong> {prod.publisher.stratum_qualis.code}
+                    <strong>Qualis:</strong> {prod.publisher.stratum_qualis.code} - { prod.publisher.stratum_qualis.score}
                   </p>
                 )}
               </div>

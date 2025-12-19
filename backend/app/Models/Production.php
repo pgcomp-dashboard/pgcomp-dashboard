@@ -88,6 +88,10 @@ class Production extends BaseModel
         static::updating(function (self $production) {
             $production->setQualis();
         });
+
+        static::deleting(function (self $production) {
+            
+        });
     }
 
     /**

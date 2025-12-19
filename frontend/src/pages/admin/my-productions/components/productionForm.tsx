@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import api from '@/services/api';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -56,31 +57,23 @@ type Production = {
   publisher: Publisher | null;
 };
 
+type ProductionFormProps = {
+  qualisList: StratumQualis[]
+}
+
 const createProductionFormSchema = z.object({
   title: z.string(),
   year: z.coerce.number(),
 });
 
 export function ProductionCreateForm() {
+
   const [production, setProduction] = useState<Production>();
-  const [qualisList, setQualisList] = useState<StratumQualis[]>([]);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [publisher, setPublisher] = useState<Publisher | null>(null);
   const [publisherType, setPublisherType] = useState('');
   const [publisherNotFound, setPublisherNotFound] = useState(false);
   const [publisherSearch, setPublisherSearch] = useState<string>('')
-
-  useEffect(() => {
-    async function fetchQualis() {
-      try {
-        const qualis = await api.getAllQualis();
-        setQualisList(qualis);
-        console.log(qualis);
-      } catch (err) {
-        console.error('Erro ao carregar Qualis:', err);
-      }
-    }
-    fetchQualis();
-  }, []);
 
   const form = useForm<z.infer<typeof createProductionFormSchema>>({
     resolver: zodResolver(createProductionFormSchema),
@@ -110,9 +103,10 @@ export function ProductionCreateForm() {
 
     try {
       const response = await api.createUserProduction(JSON.stringify(payload));
-      console.log(response.status);
+      setProduction(response.data);
+      setIsConfirmationOpen(true)
     } catch (err) {
-      console.error('Erro ao criar publicação:', err);
+      console.error('Erro ao criar produção:', err);
     }
   }
 
@@ -123,7 +117,6 @@ export function ProductionCreateForm() {
 
   function handleValueChange(value: string) {
     setPublisherType(value)
-    console.log(value)
   }
 
   async function getPublisherByIssn(issn: string) {
@@ -133,7 +126,7 @@ export function ProductionCreateForm() {
       const response = await api.getJournalByIssn(issn)
       setPublisher(response)
       if (!response) setPublisherNotFound(true);
-      if (response.stratum_qualis_id) console.log(qualisList[response.stratum_qualis_id].code)
+      if (response.stratum_qualis_id) console.log(response.stratum_qualis?.code)
     } catch (err) {
       console.log('Erro ao buscar revista', err)
     }
@@ -153,12 +146,14 @@ export function ProductionCreateForm() {
   }
 
   return (
-    <>
-      <div className="flex flex-col rounded-md gap-3">
-        <h1>Adicione uma publicação no sistema</h1>
-        <div>
-          {
-            <RadioGroup defaultValue='journal' onValueChange={handleValueChange}>
+    <div className="flex flex-col w-full items-center align-middle">
+      <div className="flex flex-col rounded-md gap-4">
+        <div className="flex flex-col items-center align-middle">
+          <h1 className="text-3xl font-bold">Adicionar manualmente</h1>
+          <h1>Adicione uma produção no sistema</h1>
+        </div>
+        <div className="flex flex-col items-center align-middle">
+          <RadioGroup className='flex' defaultValue='journal' onValueChange={handleValueChange}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value='conference' id='conference' />
                 <Label>Conferencia</Label>
@@ -167,10 +162,10 @@ export function ProductionCreateForm() {
                 <RadioGroupItem value='journal' id='journal' />
                 <Label>Revista</Label>
               </div>
-            </RadioGroup>
-          }
+          </RadioGroup>
         </div>
-      </div>
+
+        <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
@@ -203,13 +198,9 @@ export function ProductionCreateForm() {
             <Table>
               <TableBody>
                 <TableRow>
-                  <TableCell>
-                    <Label>Issn/Sigla:</Label>
-                  </TableCell>
-                  <TableCell>
-                    <Input type="text" onChange={handleInput} />
-                  </TableCell>
-                  <TableCell>
+                      <TableCell className="flex flex-row gap-2">
+                        <Label>Buscar Revista/Conferência: </Label>
+                        <Input placeholder="ISSN/Sigla" type="text" onChange={handleInput} />
                     <Button type='button' onClick={() => {
                       publisherType == "journal" ?
                         getPublisherByIssn(publisherSearch)
@@ -220,6 +211,7 @@ export function ProductionCreateForm() {
                 </TableRow>
                 {!publisherNotFound ?
                   <TableRow>
+                        <TableCell>
                     {publisher &&
                       <div>
                         <div>
@@ -227,20 +219,49 @@ export function ProductionCreateForm() {
                         </div>
                         <div>
                           <b>CÓDIGO QUALIS:</b> {publisher.stratum_qualis_id &&
-                            qualisList[publisher.stratum_qualis_id].code}
+                            publisher.stratum_qualis?.code}
                         </div>
                       </div>
-                    }
+                          }
+                        </TableCell>
                   </TableRow>
                   :
-                  <div>{publisherType == 'journal' ? 'Revista' : 'Conferencia'} não encontrada</div>
+                      <TableRow>
+                        <TableCell>
+                          <div>{publisherType === 'journal' ? 'Revista' : 'Conferencia'} não encontrada</div>
+                        </TableCell>
+                      </TableRow>
                 }
               </TableBody>
             </Table>
           </div>
           <Button type="submit">Criar Produção</Button>
         </form>
-      </Form >
-    </>
+          </Form >
+        </div>
+      </div>
+      {/* Dialog - Confirmar exclusão de produção */}
+      <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+        <DialogContent className="[&>button:last-child]:hidden">
+          <DialogHeader>
+            <DialogTitle className='text-center'> Sua Produção foi cadastrada com Sucesso:</DialogTitle>
+            <DialogDescription />
+          </DialogHeader>
+          <div className='flex flex-col gap-2'>
+            <div><Label>Titulo: </Label>
+              {production?.title} </div>
+            <div><Label>Ano: </Label>
+              {production?.year} </div>
+          </div>
+          <DialogFooter className='w-full items-center'>
+            <Button type="button" className='items-center bg-green-400 hover:bg-green-500' onClick={() => {
+              setIsConfirmationOpen(false)
+              form.resetField('title')
+              form.resetField('year')
+            }}>Confirmar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
