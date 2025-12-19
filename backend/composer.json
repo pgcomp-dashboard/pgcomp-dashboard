@@ -11,6 +11,7 @@
         "ext-simplexml": "*",
         "ext-zip": "*",
         "aws/aws-sdk-php": "^3.221",
+        "darkaonline/l5-swagger": "^9.0",
         "doctrine/dbal": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
         "knuckleswtf/scribe": "^5.0",
