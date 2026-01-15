@@ -108,8 +108,10 @@ class ConferenceQualisXLSX
             array_push($data,$arr);
             //error_log(implode($arr));
         }
-        array_splice($data, 0, 2);
-        error_log($data[0][0]);
-        return $data;
+        if ($data[1][0] === "Sigla") {
+            array_splice($data, 0, 2);
+            //error_log($data[0][0]);
+            return $data;
+        }
     }
 }

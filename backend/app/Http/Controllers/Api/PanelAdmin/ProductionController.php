@@ -182,7 +182,9 @@ class ProductionController extends BaseApiResourceController
         $title = $message['title'][0];
 
         if(Production::where('doi', '=',$productionDoi)->count() > 0){
-            return response("Produção já cadastrada", 400);
+            return response()->json([
+                'message' => "Produção já cadastrada",
+            ], 400);
         }
         if (!empty($message['subtitle'])) {
             $title = $title . ' ' . $message['subtitle'][0];
@@ -197,7 +199,7 @@ class ProductionController extends BaseApiResourceController
             $publisherName = $message['container-title'];
             foreach ($message['ISSN'] as $issn) {
                 $publisher = Publishers::whereLike('name', $publisherName)
-                    ->orWhereLike('issn', Str::numbers($issn))
+                    ->orWhereLike('issn', Str::of($issn)->trim()->remove('-')->value())
                     ->first();
                 if ($publisher) {
                     break;
@@ -217,7 +219,7 @@ class ProductionController extends BaseApiResourceController
             'year' => $year,
             'publisher_type' => $publisher->publisher_type ?? null,
             'publisher_id' => $publisher->id ?? null,
-            'doi'=> $productionDoi
+            'doi'=> "http://dx.doi.org/". $productionDoi
         ];
 
         if (!$publisher) {
@@ -228,7 +230,19 @@ class ProductionController extends BaseApiResourceController
         $saveProduction->saveInterTable($production['users_id']);
 
         return response()->json([
+            'status'=> 201,
+            'message'=>"Criado com sucesso",
             'data'=>$production
         ]);
+    }
+
+    public function update(Request $request, int $id){
+
+
+        $production = Production::findOrFail($id);
+
+        $production->update($request->all());
+
+        return $production;
     }
 }

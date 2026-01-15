@@ -2,6 +2,8 @@ import api from '@/services/api';
 import React, { createContext, useEffect, useState } from 'react';
 
 const AUTH_TOKEN_STORAGE_KEY = 'auth-token';
+const USER_INFO_STORAGE_KEY = 'user-info';
+const ACTIVE_PROFILE_STORAGE_KEY = 'current-profile'
 
 export interface User {
   name: string,
@@ -10,7 +12,7 @@ export interface User {
 
 export interface AuthContextType {
   user: User | undefined,
-  profile: string,
+  activeProfile: string | undefined,
   isLoading: boolean,
   isAuthenticated: boolean,
   login(token: string, userData: User): void,
@@ -34,14 +36,24 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [token, setToken] = useState<string | undefined>(undefined);
   const [user, setUser] = useState<User | undefined>(undefined);
-  const [profile, setProfile] = useState<string>("basic")
+  const [activeProfile, setActiveProfile] = useState<string | undefined>(undefined)
 
-  // Load the initial token
+  // Load the initial infos
   useEffect(() => {
     const storedToken = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+    const userInfo = localStorage.getItem(USER_INFO_STORAGE_KEY);
+    const profile = localStorage.getItem(ACTIVE_PROFILE_STORAGE_KEY)
 
     if (storedToken) {
       setToken(storedToken);
+    }
+
+    if (userInfo) {
+      setUser(JSON.parse(userInfo));
+    }
+
+    if (profile) {
+      setActiveProfile(profile)
     }
 
     setLoading(false);
@@ -52,10 +64,27 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
     api.setAuthToken(token);
     if (token) {
       localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
+      if (user) {
+        localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(user));
+      }
+      if (activeProfile) {
+        localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, activeProfile);
+      }
     } else {
       localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+      localStorage.removeItem(USER_INFO_STORAGE_KEY);
+      localStorage.removeItem(ACTIVE_PROFILE_STORAGE_KEY);
+
     }
-  }, [ token ]);
+  }, [token]);
+
+  //Run when profile change
+  useEffect(() => {
+    if (activeProfile) {
+      localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, activeProfile)
+    }
+
+  }, [activeProfile])
 
   function login(token: string, userData: User) {
     setToken(token);
@@ -65,16 +94,16 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
   function logout() {
     setToken(undefined);
     setUser(undefined);
-    setProfile("")
+    setActiveProfile("basic")
   }
 
   function changeProfile(role: string){
-    setProfile(role)
+    setActiveProfile(role)
   }
 
   const contextValue: AuthContextType = {
     user,
-    profile,
+    activeProfile,
     isLoading: loading,
     isAuthenticated: !!token,
     login,

@@ -12,15 +12,18 @@ class UserController extends Controller
 {
     public function importLattesFile(Request $request)
     {
+        error_log("Estou no import lattes file");
+        //$user = $request->user()->id;
         $user = Auth::user();
-        //error_log($user->id);
-        //error_log($request['file']);
+        //dd($request->all());
+        error_log($request->file('file'));
 
         $request->validate([
             'file' => ['required', 'file', 'mimetypes:application/zip,application/x-zip-compressed,application/xml,text/xml', 'max:5120'],
         ]);
 
         $file = $request->file('file');
+        //dd($file);
         $path = $file->store('lattes-files');
 
         $data = LattesZipXml::extractProductions($path);

@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use QueryPath\DOMQuery;
 use App\Models\User;
 
@@ -50,6 +51,9 @@ class LattesUrlScrapingCommand extends Command
             $professor = User::where('name', $item["name"])->first();
 
             if ($professor) {
+                $lattes_id = Str::remove("http://lattes.cnpq.br/", $item["lattes"]);
+
+                $professor->lattes_id = $lattes_id;
                 $professor->lattes_url = $item["lattes"];
                 $professor->category = $item["category"];
                 $professor->save();
@@ -95,7 +99,7 @@ class LattesUrlScrapingCommand extends Command
     {
         $httpClient = new Client;
         try {
-            $response = $httpClient->get($url, ['query' => $queryParams]);
+            $response = $httpClient->get($url, ['query' => $queryParams, 'verify' => false]);
         } catch (GuzzleException $e) {
             Log::error('Erro ao buscar dados.', func_get_args());
             Log::error($e);

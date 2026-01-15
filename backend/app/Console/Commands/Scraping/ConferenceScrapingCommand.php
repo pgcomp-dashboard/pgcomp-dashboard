@@ -45,10 +45,8 @@ class ConferenceScrapingCommand extends Command
         $ths = $dom->find('table tbody tr')->first()->find('td');
         foreach ($ths->getIterator() as $th) {
             $header[] = Str::of($th->text())->trim()->value();
-        }
 
-        //$this->info(implode($ths));
-        $this->info($ths);
+        }
 
         /** @var \QueryPath\QueryPathIterator $rows */
         $rows = $table->find('tr')->getIterator();
@@ -76,7 +74,7 @@ class ConferenceScrapingCommand extends Command
                     throw new ModelNotFoundException('ERROR');
                 }
 
-                $stratumQualisId = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+                $stratumQualisId = StratumQualis::findByCode($item['Qualis_Final'], PublisherType::CONFERENCE->value, ['id'])->id;
             } catch (ModelNotFoundException) {
                 $stratumQualisId = null;
             }

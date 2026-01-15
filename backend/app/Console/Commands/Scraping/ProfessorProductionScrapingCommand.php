@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Scraping;
 
+use App\Enums\ProductionSource;
 use App\Enums\UserType;
 use App\Models\Production;
 use App\Models\Publishers;
@@ -117,12 +118,13 @@ class ProfessorProductionScrapingCommand extends Command
                     'doi' => $production['link'],
                 ],
                 [
+                    'source' => ProductionSource::SCRIPT->value,
                     'title' => $production['titulo'],
                     'year' => $production['ano'],
                     'publisher_id' => $publisher->id ?? null,
                     'publisher_type' => $publisher->publisher_type ?? null,
                     'last_qualis' => $production['qualis'],
-                    'stratum_qualis_id' => StratumQualis::where('code', $production['qualis'])->first()->id ?? null,
+                    'stratum_qualis_id' => StratumQualis::where('type', $publisher->publisher_type ?? null)->where('code', $production['qualis'])->first()->id ?? null,
                 ]
             );
         }

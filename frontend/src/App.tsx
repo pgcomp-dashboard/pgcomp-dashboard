@@ -13,7 +13,6 @@ import MyProductionsPage from './pages/admin/my-productions';
 import ProfessorsPage from './pages/admin/professors';
 import QualisPage from './pages/admin/qualis/index';
 import RankingPage from './pages/admin/ranking';
-import RankingFourPage from './pages/admin/ranking-four';
 import StudentsPage from './pages/admin/students';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
@@ -42,7 +41,6 @@ function App() {
                 <Route path='portal'>
                   <Route index element={<Redirect to='/welcome' />} />
                   <Route path='ranking' element={<RankingPage />} />
-                  <Route path='ranking-four' element={<RankingFourPage />} />
 
                   <Route path='productions' element={<MyProductionsPage />} />
                 </Route>

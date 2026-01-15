@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\BaseModel;
 use App\Models\StratumQualis;
 use Illuminate\Support\Facades\DB;
+use Str;
 
 class StratumQualisController extends BaseApiResourceController
 {
@@ -53,8 +54,6 @@ class StratumQualisController extends BaseApiResourceController
 
     public function importConferenceFile(Request $request)
     {
-        $user = Auth::user();
-
         $request->validate([
             'file' => ['required', 'file', 'mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'max:5120'],
         ]);
@@ -63,33 +62,69 @@ class StratumQualisController extends BaseApiResourceController
         $path = $file->store('conference-qualis-files');
 
         $data = ConferenceQualisXLSX::extractConferenceQualis($path);
-        foreach($data as $publisher){
-            Publishers::create([
-                'initials'=>$publisher[0],
-                'name'=>$publisher[1],
-                'stratum_qualis_id'=>StratumQualis::where('code', $publisher[2])->first()->id ?? null,
-                'publisher_type'=>PublisherType::CONFERENCE->value
+
+        if (sizeof($data) > 1) {
+            foreach ($data as $publisher) {
+                Publishers::updateOrCreate(
+                    [
+                        'initials' => $publisher[0],
+                        'name' => $publisher[1]
+                    ],
+                    [
+                        'initials' => $publisher[0],
+                        'name' => $publisher[1],
+                        'stratum_qualis_id' => StratumQualis::where('type', PublisherType::CONFERENCE->value)->where('code', $publisher[2])->first()->id ?? null,
+                        'publisher_type' => PublisherType::CONFERENCE->value
+                    ]
+                );
+            }
+            return response()->json([
+                "status" => 200,
+                "message" => "Planilha de Conferencia Adicionada com sucesso"
+            ]);
+        } else {
+            return response()->json([
+                "status" => 404,
+                "message" => "Erro ao tratar a planilha"
             ]);
         }
-        //$user->updateLattes($data);
-        //error_log($data);
-        return $data;
     }
 
     public function importJournalFile(Request $request)
     {
-        $user = Auth::user();
-
         $request->validate([
             'file' => ['required', 'file', 'mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'max:5120'],
         ]);
 
         $file = $request->file('file');
-        $path = $file->store('lattes-files');
+        $path = $file->store('conference-qualis-files');
 
-        $data = JournalQualisXLSX::extractProductions($path);
-        //$user->updateLattes($data);
-        //error_log($data);
-        return $data;
+        $data = JournalQualisXLSX::extractJournalQualis($path);
+
+        if (sizeof($data) > 1) {
+            foreach ($data as $publisher) {
+                Publishers::updateOrCreate(
+                    [
+                        'issn' => Str::of($publisher[0])->trim()->remove('-')->value(),
+                        'name' => $publisher[1]
+                    ],
+                    [
+                        'issn' => Str::of($publisher[0])->trim()->remove('-')->value(),
+                        'name' => $publisher[1],
+                        'stratum_qualis_id' => StratumQualis::where('type', PublisherType::JOURNAL->value)->where('code', $publisher[2])->first()->id ?? null,
+                        'publisher_type' => PublisherType::JOURNAL->value
+                    ]
+                );
+            }
+            return response()->json([
+                "status" => 200,
+                "message" => "Planilha de Revistas Adicionada com sucesso"
+            ]);
+        } else {
+            return response()->json([
+                "status" => 404,
+                "message" => "Erro ao tratar a planilha"
+            ]);
+        }
     }
 }

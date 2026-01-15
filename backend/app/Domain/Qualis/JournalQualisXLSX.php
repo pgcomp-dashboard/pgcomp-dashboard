@@ -22,29 +22,27 @@ class JournalQualisXLSX
     {
     }
 
-
     /**
-     * @throws Exception
+     * @return array{
+     *     lattes_id: string,
+     *     lattes_updated_at: Carbon,
+     *     productions: array<int, array{
+     *          source: string,
+     *          title: string,
+     *          year: string,
+     *          publisher_id: string,
+     *          publisher_type: string,
+     *          doi: string,
+     *          sequence_number: string
+     *      }>
+     * }
+     * @throws InvalidXml
      */
-    private function extractXmlFromZip(): ?string
+    public static function extractJournalQualis(string $storagePath): array
     {
-        $conferenceFile = 'Domain/Qualis/09012022_CLASSIFICACAODEEVENTOSPARA20172020.xlsx';
-        $journalFile = 'Domain/Qualis/classificacoes_publicadas_ciencia_da_computacao_2022_1721678829186.xlsx';
-        $tempDir = 'Domain/Qualis/Extracted';
+        $loadXml = new static($storagePath);
+        $file = $loadXml->loadFile();
 
-        $zip = new ZipArchive();
-        if (!$zip->open(app_path($conferenceFile))) {
-            throw new Exception('Invalid file.');
-        }
-        $zip->extractTo($tempDir);
-        $strings = simplexml_load_file($tempDir . '/xl/sharedStrings.xml');
-        $sheet   = simplexml_load_file($tempDir . '/xl/worksheets/sheet1.xml');
-        $xlrows = $sheet->sheetData->row;
-
-        $zip->close();
-        if (empty($file)) {
-            throw new Exception('curriculo.xml not found in zip file.');
-        }
 
         return $file;
     }
@@ -52,23 +50,70 @@ class JournalQualisXLSX
     /**
      * @throws InvalidXml
      */
-    private function validate(string $file): void
+    /**
+     * @throws InvalidXml
+     * @throws Exception
+     */
+    private function loadFile()
     {
-        $xml = new DOMDocument();
-        $xml->loadXML($file);
+        $mimeType = Storage::mimeType($this->storagePath);
+        if ($mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            $data = $this->extractXmlFromZip();
+        } else {
+            throw new Exception("Invalid MIME type {$mimeType}.");
+        }
+        //$this->validate($file);
 
-        $xsdPath = app_path('Domain/Lattes/xml_cvbase_src_main_resources_CurriculoLattes2022.xsd');
+        return $data;
+    }
 
-        $oldUseInternalErrors = libxml_use_internal_errors(true);
-        $isValid = $xml->schemaValidate($xsdPath);
-        $errors = libxml_get_errors();
-        libxml_clear_errors();
-        libxml_use_internal_errors($oldUseInternalErrors);
+    /**
+     * @throws Exception
+     */
+    private function extractXmlFromZip()
+    {
+        $dir = app_path('Domain/Qualis/Extracted');
+        $zip = new ZipArchive();
+        if (!$zip->open(Storage::path($this->storagePath))) {
+            throw new Exception('Invalid Zip file.');
+        }
+        $zip->extractTo($dir);
+        $strings = simplexml_load_file($dir . '/xl/sharedStrings.xml');
+        $sheet   = simplexml_load_file($dir . '/xl/worksheets/sheet1.xml');
 
+        $rows = $sheet->sheetData->row;
 
+        $data = array();
 
-        if (!$isValid) {
-            throw new InvalidXml($errors);
+        foreach ($rows as $row) {
+            $arr = array();
+
+            foreach ($row->c as $cell) {
+                $v = (string) $cell->v;
+
+                if (isset($cell['t']) && $cell['t'] == 's') {
+                    $s = array();
+                    $si = $strings->si[(int) $v];
+
+                    // Register & alias the default namespace or you'll get empty results in the xpath query
+                    $si->registerXPathNamespace('n', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+
+                    // Cat together all of the 't' (text?) node values
+                    foreach ($si->xpath('.//n:t') as $t) {
+                        $s[] = (string) $t;
+                    }
+
+                    $v = implode($s);
+                }
+                $arr[] = $v;
+            }
+            array_push($data,$arr);
+        }
+
+        if ($data[0][0] === "ISSN") {
+            array_splice($data, 0, 1);
+            //error_log($data[0][0]);
+            return $data;
         }
     }
 }

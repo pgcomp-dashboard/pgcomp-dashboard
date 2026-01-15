@@ -38,6 +38,7 @@ type Professor = {
 
 export interface StratumQualis {
   id: number;
+  type: string;
   code: string;
   score: number;
   created_at: string;
@@ -112,10 +113,19 @@ export interface Course {
 }
 
 type Ranking = {
+  user_id: number,
   name: string;
   category: string;
+  total_score: number;
   lattes_url: string;
-  score: number;
+  productions: {
+    production_id: number;
+    title: string;
+    year: number;
+    publisher_type: string;
+    code: string;
+    score: number;
+  }[];
 }
 
 export type RequestBodyType = BodyInit | object | null | undefined;
@@ -130,6 +140,14 @@ export class ApiService {
 
   setAuthToken(token?: string) {
     this.authToken = token;
+  }
+
+  getAuthToken() {
+    return this.authToken
+  }
+
+  getBaseUrl() {
+    return this.baseUrl;
   }
 
   private async request<T>(
@@ -232,28 +250,28 @@ export class ApiService {
       }
     }
 
-    const url = `/api/portal/admin/students?${params.toString()}`;
+    const url = `/api/admin/students?${params.toString()}`;
     const res = await this.get<PaginatedResponse<Student>>(url);
     return res;
   }
 
   async createStudent(student: Omit<Student, 'id'>) {
-    const res = await this.post<{ status: string; data: Student }>('/api/portal/admin/students', student);
+    const res = await this.post<{ status: string; data: Student }>('/api/admin/students', student);
     return res.data;
   }
 
   async updateStudent(id: number, student: Omit<Student, 'id'>) {
-    const res = await this.put<Student>(`/api/portal/admin/students/${id}`, student);
+    const res = await this.put<Student>(`/api/admin/students/${id}`, student);
     return res;
   }
 
   async deleteStudent(id: number) {
-    return this.delete<{ status: string; message: string }>(`/api/portal/admin/students/${id}`);
+    return this.delete<{ status: string; message: string }>(`/api/admin/students/${id}`);
   }
 
   // Courses
   async fetchCourses() {
-    const res = await this.get<{ data: Course[] }>('/api/portal/admin/courses');
+    const res = await this.get<{ data: Course[] }>('/api/admin/courses');
     return res.data;
   }
 
@@ -262,7 +280,7 @@ export class ApiService {
   // --------------------------
 
   async fetchAreas(): Promise<Area[]> {
-    const response = await this.get('/api/portal/admin/areas') as {
+    const response = await this.get('/api/admin/areas') as {
       data: {
         id: number,
         area: string,
@@ -277,7 +295,7 @@ export class ApiService {
 
   async createArea(area: { name: string }) {
     const res = await this.post<{ data: { id: number; area: string } }>(
-      '/api/portal/admin/areas',
+      '/api/admin/areas',
       { area: area.name },
     );
     return { id: res.data.id, name: res.data.area, students: 0 };
@@ -285,14 +303,14 @@ export class ApiService {
 
   async updateArea(area: { id: number; name: string }) {
     const res = await this.put<{ data: { id: number; area: string } }>(
-      `/api/portal/admin/areas/${area.id}`,
+      `/api/admin/areas/${area.id}`,
       { area: area.name },
     );
     return { id: res.data.id, name: res.data.area, students: 0 };
   }
 
   async deleteArea(id: number) {
-    return this.delete<{ message: string }>(`/api/portal/admin/areas/${id}`);
+    return this.delete<{ message: string }>(`/api/admin/areas/${id}`);
   }
 
   // Dashboard
@@ -351,15 +369,49 @@ export class ApiService {
   }
 
   // Qualis
+  async createQualis(body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
+    const endpoint = '/api/admin/qualis';
+    const response = await this.post(endpoint, body, headers);
+    return response;
+  }
+
   async getAllQualis() {
-    const res = await this.get<{ data: Array<{ id: number; code: string; score: number; created_at: string; updated_at: string }> }>(
-      '/api/portal/admin/qualis',
+    const res = await this.get<{ data: Array<{ id: number; type: string; code: string; score: number; created_at: string; updated_at: string }> }>(
+      '/api/portal/qualis?per_page=20',
     );
     return res.data;
   }
 
   async updateQualis(id: number, body: RequestBodyType) {
-    return this.put(`/api/portal/admin/qualis/${id}`, body);
+    return this.put(`/api/admin/qualis/${id}`, body);
+  }
+
+  async deleteQualis(id: number, headers: Record<string, string> = {}): Promise<unknown> {
+    const endpoint = `/api/admin/qualis/${id}`;
+    const response = await this.delete(endpoint, headers);
+    return response;
+  }
+
+  async createQualisBySpreadSheet(formData: FormData, type: "journal" | "conference") {
+    if (type === "journal") {
+      const response = await fetch(this.baseUrl + "/api/admin/journal-qualis-spreadsheet", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Authorization": `Bearer ${this.authToken}`,
+        }
+      });
+      return response;
+    } else if (type === "conference") {
+      const response = await fetch(this.baseUrl + "/api/admin/conference-qualis-spreadsheet", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Authorization": `Bearer ${this.authToken}`,
+        }
+      });
+      return response;
+    }
   }
 
   async fetchProfessors(
@@ -384,7 +436,7 @@ export class ApiService {
       }
     }
 
-    const url = `/api/portal/admin/professors?${params.toString()}`;
+    const url = `/api/admin/professors?${params.toString()}`;
     const res = await this.get<PaginatedResponse<Professor>>(url);
     return res;
   }
@@ -396,7 +448,7 @@ export class ApiService {
 
     do {
       const { data, last_page } = await this.get(
-        `/api/portal/admin/professors?page=${currentPage}&search=${encodeURIComponent(searchTerm)}`,
+        `/api/admin/professors?page=${currentPage}&search=${encodeURIComponent(searchTerm)}`,
       ) as any;
 
       allProfessors.push(...data);
@@ -408,7 +460,7 @@ export class ApiService {
   }
 
   async getProductionsByProfessor(professorId: number) {
-    const response = await this.get<{ data: Production[] }>(`/api/portal/admin/professors/${professorId}/productions/`);
+    const response = await this.get<{ data: Production[] }>(`/api/admin/professors/${professorId}/productions/`);
     return response.data;
   }
 
@@ -418,6 +470,15 @@ export class ApiService {
   }
 
   async getRanking(year1?: number, year2?: number) {
+    if (year1 && year2) {
+      var response = await this.get<{ data: Ranking[] }>(`/api/portal/ranking?year1=${year1}&year2=${year2}`);
+    } else {
+      var response = await this.get<{ data: Ranking[] }>(`/api/portal/ranking`);
+    }
+    return response.data;
+  }
+
+  async getRankingProductionsOfUser(year1?: number, year2?: number) {
     if (year1 && year2) {
       var response = await this.get<{ data: Ranking[] }>(`/api/portal/ranking?year1=${year1}&year2=${year2}`);
     } else {
@@ -441,11 +502,11 @@ export class ApiService {
   }
 
   async createProductionDoi(body: RequestBodyType) {
-    return this.post<{status: string, message: string, data: Production}>('/api/portal/user/productions/doi', body);
+    return this.post<{ status: number, message: string, data: Production }>('/api/portal/user/productions/doi', body);
   }
 
   async updateProduction(id: number, body: RequestBodyType) {
-    return this.put<{ status: string, message: string }>(`/api/portal/admin/${id}/production/`, body);
+    return this.put<{ status: string, message: string }>(`/api/portal/user/productions/${id}`, body);
   }
 
   async deleteProduction(id: number) {
@@ -498,24 +559,14 @@ export class ApiService {
     ]).flat();
   }
 
-  async createQualis(body: RequestBodyType, headers: Record<string, string> = {}): Promise<unknown> {
-    const endpoint = '/api/portal/admin/qualis';
-    const response = await this.post(endpoint, body, headers);
-    return response;
-  }
 
-  async deleteQualis(id: number, headers: Record<string, string> = {}): Promise<unknown> {
-    const endpoint = `/api/portal/admin/qualis/${id}`;
-    const response = await this.delete(endpoint, headers);
-    return response;
-  }
 
   async executeScraping() {
-    return this.post('/api/portal/admin/execute_scraping', {});
+    return this.post('/api/admin/execute_scraping', {});
   }
 
   async executeScrapingForAProfessor(body: RequestBodyType) {
-    return this.post('/api/portal/admin/execute_professor_scraping', body);
+    return this.post('/api/admin/execute_professor_scraping', body);
   }
 
   async getScrapingExecutions() {
@@ -533,14 +584,14 @@ export class ApiService {
   }
 
   async getScrapingInterval() {
-    const res = await this.get('/api/portal/admin/scraping_execution_interval');
+    const res = await this.get('/api/admin/scraping_execution_interval');
     return res as {
       intervalDays: number,
     };
   }
 
   async setScrapingInterval(intervalDays: number) {
-    return this.post('/api/portal/admin/scraping_execution_interval', { days: intervalDays });
+    return this.post('/api/admin/scraping_execution_interval', { days: intervalDays });
   }
 
 }

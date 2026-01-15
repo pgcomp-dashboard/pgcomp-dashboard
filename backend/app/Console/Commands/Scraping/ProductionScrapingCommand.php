@@ -115,13 +115,13 @@ class ProductionScrapingCommand extends Command
                     'doi' => $production['link'],
                 ],
                 [
-                    'source' => ProductionSource::SCRIPT,
+                    'source' => ProductionSource::SCRIPT->value,
                     'title' => $production['titulo'],
                     'year' => $production['ano'],
                     'publisher_id' => $publisher->id ?? null,
                     'publisher_type' => $publisher->publisher_type ?? null,
                     'last_qualis' => $production['qualis'],
-                    'stratum_qualis_id' => StratumQualis::where('code', $production['qualis'])->first()->id ?? null,
+                    'stratum_qualis_id' => StratumQualis::where('type', $publisher->publisher_type ?? null)->where('code', $production['qualis'])->first()->id ?? null,
                 ]
             );
         }

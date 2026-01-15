@@ -48,7 +48,7 @@ class JournalScrapingCommand extends Command
                     throw new ModelNotFoundException('ERROR');
                 }
 
-                $stratumQualisId = StratumQualis::findByCode($item['Qualis_Final'], ['id'])->id;
+                $stratumQualisId = StratumQualis::findByCode($item['Qualis_Final'], PublisherType::JOURNAL->value,['id'])->id;
             } catch (ModelNotFoundException) {
                 $stratumQualisId = null;
             }

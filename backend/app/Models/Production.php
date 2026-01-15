@@ -90,7 +90,7 @@ class Production extends BaseModel
         });
 
         static::deleting(function (self $production) {
-            
+
         });
     }
 
@@ -225,10 +225,10 @@ class Production extends BaseModel
      * @param int year to start count
      * @return Collection of each user and their total score
      */
-    public function findAllProfessorProductionsQualisByYear($year1, $year2)
+    public function findAllProfessorQualisSumByYear($year1, $year2)
     {
         $data = DB::table('productions')
-        ->select( 'users.name', 'users.category', 'users.lattes_url', DB::raw('SUM(stratum_qualis.score) as score'))
+            ->select('users.id', 'users.name', 'users.category', 'users.lattes_url', DB::raw('SUM(stratum_qualis.score) as score'))
         ->join(
                 'users_productions',
                 'productions.id',
@@ -237,14 +237,45 @@ class Production extends BaseModel
         )
         ->join('users', 'users.id', '=', 'users_productions.users_id')
         ->join('stratum_qualis', 'productions.stratum_qualis_id', '=', 'stratum_qualis.id')
-        ->where('users.type', '=', 'professor')
-        ->whereIn('stratum_qualis.code', ['A1', 'A2', 'A3', 'A4'])
-        ->whereBetween('productions.year', [$year1, $year2])
-        ->groupBy('users.name','users.category', 'users.lattes_url')
+            ->where('users.type', '=', 'professor')
+            ->whereBetween('productions.year', [$year1, $year2])
+            ->groupBy('users.id', 'users.name', 'users.category', 'users.lattes_url')
         ->orderBy('score', 'desc')
         ->get();
 
         return $data;
+    }
+
+    public function findProductionsUsedInRankingByYear($year1, $year2)
+    {
+        $data = DB::table('productions')
+            ->select('users.id as user_id', 'users.name as user_name', 'users.category', 'users.lattes_url', 'productions.id as productions_id', 'productions.title', 'productions.year', 'productions.publisher_type', 'stratum_qualis.code', 'stratum_qualis.score')
+            ->leftJoin('users_productions', 'productions.id', '=', 'users_productions.productions_id')
+            ->leftJoin('users', 'users.id', '=', 'users_productions.users_id')
+            ->leftJoin('stratum_qualis', 'productions.stratum_qualis_id', '=', 'stratum_qualis.id')
+            ->where('users.type', '=', 'professor')
+            //->where('users.id', '=', $id)
+            ->whereBetween('productions.year', [$year1, $year2])
+            ->get()
+            ->groupBy('user_id');
+
+        $result = $data->map(function ($productions, $user) {
+            return [
+                'user_id' => $user,
+                'name' => $productions->first()->user_name,
+                'category' => $productions->first()->category,
+                'lattes_url' => $productions->first()->lattes_url,
+                'total_score' => $productions->sum('score'),
+                'productions' => $productions->map(function ($production) {
+                    unset($production->user_id);
+                    unset($production->user_name);
+                    unset($production->category);
+                    unset($production->lattes_url);
+                    return $production;
+                })
+            ];
+        })->sortByDesc('total_score')->values();
+        return ($result);
     }
 
     /**

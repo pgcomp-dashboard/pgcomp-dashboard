@@ -1,3 +1,4 @@
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { toast } from 'sonner';
 
 type Qualis = {
   id: number;
+  type: string;
   code: string;
   score: number;
   created_at: string;
@@ -16,13 +18,14 @@ type Qualis = {
 };
 
 interface RequestBodyType {
+  type: string;
   code: string;
   score: number;
 }
 
 export default function QualisPage() {
   const [qualisList, setQualisList] = useState<Qualis[]>([]);
-  const [formData, setFormData] = useState<RequestBodyType>({ code: '', score: 0 });
+  const [formData, setFormData] = useState<RequestBodyType>({ type: '', code: '', score: 0 });
   const [editingItem, setEditingItem] = useState<Qualis | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +38,7 @@ export default function QualisPage() {
     try {
       const data = await api.getAllQualis();
       setQualisList(data);
+      console.log(qualisList)
     } catch (error) {
       console.error('Erro ao buscar os dados do Qualis:', error);
     }
@@ -43,12 +47,11 @@ export default function QualisPage() {
   const handleEdit = (item: Qualis) => {
     setEditingItem(item);
     setFormData({
+      type: item.type,
       code: item.code,
       score: item.score,
     });
   };
-
-
 
   const handleSubmit = async () => {
     try {
@@ -59,6 +62,7 @@ export default function QualisPage() {
       }
 
       const payload: RequestBodyType = {
+        type: formData.type,
         code: formData.code,
         score: parsedScore,
       };
@@ -71,7 +75,7 @@ export default function QualisPage() {
 
       await fetchQualisData();
       setEditingItem(null);
-      setFormData({ code: '', score: 0 });
+      setFormData({ type: '', code: '', score: 0 });
       setIsAddOpen(false);
 
     } catch (error) {
@@ -89,13 +93,13 @@ export default function QualisPage() {
 
   const handleAddNew = () => {
     setEditingItem(null);
-    setFormData({ code: '', score: 0 });
+    setFormData({ type: '', code: '', score: 0 });
     setIsAddOpen(true);
   };
 
   const handleCancel = () => {
     setEditingItem(null);
-    setFormData({ code: '', score: 0 });
+    setFormData({ type: '', code: '', score: 0 });
   };
 
   useEffect(() => {
@@ -199,47 +203,104 @@ export default function QualisPage() {
 
       {/* Tabela de Qualis */}
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Código</TableHead>
-              <TableHead>Pontuação</TableHead>
-              <TableHead>Atualizado</TableHead>
-              <TableHead>Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredQualisCode.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.code}</TableCell>
-                <TableCell>{item.score.toFixed(1)}</TableCell>
-                <TableCell>{new Date(item.updated_at).toLocaleDateString('pt-BR')}</TableCell>
-                <TableCell className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 cursor-pointer"
-                    aria-label="Editar"
-                    onClick={() => handleEdit(item)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-red-600 cursor-pointer"
-                    aria-label="Apagar"
-                    onClick={() => handleDelete(item.id)}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <Accordion
+        type="multiple"
+      >
+        <AccordionItem value="journal">
+          <AccordionTrigger>Qualis das produçoes de Revistas</AccordionTrigger>
+          <AccordionContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Código</TableHead>
+                    <TableHead>Pontuação</TableHead>
+                    <TableHead>Atualizado</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredQualisCode.filter((item) => item.type === "journal")
+                    .map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.code}</TableCell>
+                        <TableCell>{item.score.toFixed(1)}</TableCell>
+                        <TableCell>{new Date(item.updated_at).toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 cursor-pointer"
+                            aria-label="Editar"
+                            onClick={() => handleEdit(item)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-red-600 cursor-pointer"
+                            aria-label="Apagar"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="conference">
+          <AccordionTrigger>Qualis das produçoes de Conferencias</AccordionTrigger>
+          <AccordionContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Código</TableHead>
+                    <TableHead>Pontuação</TableHead>
+                    <TableHead>Atualizado</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredQualisCode.filter((item) => item.type === "conference")
+                    .map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.code}</TableCell>
+                        <TableCell>{item.score.toFixed(1)}</TableCell>
+                        <TableCell>{new Date(item.updated_at).toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 cursor-pointer"
+                            aria-label="Editar"
+                            onClick={() => handleEdit(item)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-red-600 cursor-pointer"
+                            aria-label="Apagar"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }

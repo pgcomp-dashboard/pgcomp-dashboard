@@ -67,9 +67,7 @@ class PublisherController extends BaseApiResourceController
 
     public function journalByIssn(Request $request){
         $issn = $request->query('issn');
-        $issn = str_replace("-", "", $issn);
-        error_log($issn);
-        $publisher = Publishers::where('issn', '=',$issn)->first();
+        $publisher = Publishers::where('issn', '=', Str::of($issn)->trim()->remove('-')->value())->first();
         return response()->json([
                 'data' => $publisher,
             ]);

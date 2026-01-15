@@ -128,18 +128,4 @@ class AreaController extends BaseApiResourceController
             'message' => 'Área excluída com sucesso',
         ], 200);
     }
-
-    public function allArea()
-    {
-        $areas = Area::select('id', 'area')->get();
-        if ($areas->isEmpty()) {
-            throw new NotFoundHttpException('Nenhuma área encontrada');
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Áreas encontradas com sucesso',
-            'data' => $areas,
-        ], 200);
-    }
 }

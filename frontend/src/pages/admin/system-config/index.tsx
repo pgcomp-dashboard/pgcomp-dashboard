@@ -1,6 +1,3 @@
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -12,11 +9,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import api, { parseApiError } from '@/services/api';
 import { formatDateTime } from '@/utils/dates';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const systemConfigFormSchema = z.object({
   scrapingIntervalDays: z.coerce.number({ message: 'Número inválido' }).min(1, 'Número precisa ser maior que 0'),
@@ -26,7 +28,16 @@ const lattesIdFormSchema = z.object({
   lattes_id: z.coerce.number({ message: 'Id inválido' }),
 });
 
+const MAX_FILE_SIZE = 5000000; // 5MB
+
+const fileFormSchema = z.object({
+  file: z.instanceof(File)
+    .refine((file) => file?.size <= MAX_FILE_SIZE, "Max size is 5MB.")
+    .refine((file) => file?.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Apenas arquivos .xlsx são suportados.")
+})
+
 export default function SystemConfigPage() {
+  const [spreadSheetType, setSpreadSheetType] = useState<"journal" | "conference">("journal")
   const queryClient = useQueryClient();
 
   const { data: scrapingInterval } = useQuery({
@@ -40,6 +51,7 @@ export default function SystemConfigPage() {
   });
 
   async function executeScrapping() {
+    console.log("Scrap execute form")
     try {
       await api.executeScraping();
       queryClient.invalidateQueries({ queryKey: [ 'scraping_execution' ] });
@@ -55,6 +67,12 @@ export default function SystemConfigPage() {
     },
   });
 
+  function onSubmit(values: z.infer<typeof systemConfigFormSchema>) {
+    console.log("Scrap submit form")
+
+    api.setScrapingInterval(values.scrapingIntervalDays);
+  }
+
   const lattesIdForm = useForm<z.infer<typeof lattesIdFormSchema>>({
     resolver: zodResolver(lattesIdFormSchema),
     defaultValues: {
@@ -62,11 +80,8 @@ export default function SystemConfigPage() {
     }
   })
 
-  function onSubmit(values: z.infer<typeof systemConfigFormSchema>) {
-    api.setScrapingInterval(values.scrapingIntervalDays);
-  }
-
   async function onSubmitLattesId(values: z.infer<typeof lattesIdFormSchema>) {
+    console.log("Lattes_id submit form")
 
     const request = {
       "lattes_id": values.lattes_id
@@ -77,6 +92,29 @@ export default function SystemConfigPage() {
       queryClient.invalidateQueries({ queryKey: [ 'scraping_execution' ] });
     } catch (error) {
       alert('Erro ao executar o scraping: ' + parseApiError(error));
+    }
+  }
+
+
+  const fileForm = useForm<z.infer<typeof fileFormSchema>>({
+    resolver: zodResolver(fileFormSchema)
+  })
+
+  async function onSubmitFile(values: z.infer<typeof fileFormSchema>) {
+    try {
+      const formData = new FormData()
+      formData.append("file", values.file);
+
+      const response = await api.createQualisBySpreadSheet(formData, spreadSheetType)
+
+      if (response?.status === 200) {
+        const result = await response.json();
+        console.log("Sucesso:", result);
+      } else {
+        console.error("Erro no upload");
+      }
+    } catch (err) {
+      console.error("Erro ao conectar com o servidor:", err);
     }
   }
 
@@ -121,11 +159,10 @@ export default function SystemConfigPage() {
         </Form>
       </div>
       <div className="rounded-md border p-12">
-        <Form {...form}>
+        <Form {...lattesIdForm}>
           <form onSubmit={lattesIdForm.handleSubmit(onSubmitLattesId)} className="space-y-8">
             <FormField
               control={lattesIdForm.control}
-              disabled={!scrapingInterval}
               name="lattes_id"
               render={({ field }) => (
                 <FormItem>
@@ -140,7 +177,47 @@ export default function SystemConfigPage() {
                 </FormItem>
               )}
             />
-            <Button variant="outline" type="submit" className="ml-6">Executar scrapping</Button>
+            <Button variant="outline" type="submit" className="ml-6">Executar</Button>
+          </form>
+        </Form>
+      </div>
+      <div className="rounded-md border p-12">
+        <Form {...fileForm}>
+          <form onSubmit={fileForm.handleSubmit(onSubmitFile)} className="space-y-8">
+            <div className='flex flex-col gap-4'>
+              <FormLabel>Planilha Qualis</FormLabel>
+              <RadioGroup className='flex' defaultValue='journal' onValueChange={(value) => {
+                setSpreadSheetType(value as "journal" | "conference")
+              }}>
+                <div className='flex gap-2 items-center'>
+                  <RadioGroupItem value='journal' id='journal' />
+                  <Label>Revista</Label>
+                </div>
+                <div className='flex gap-2 items-center'>
+                  <RadioGroupItem value='conference' id='conference' />
+                  <Label>Conferencia</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <FormField
+              control={fileForm.control}
+              name="file"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input type='file' onChange={(e) => {
+                      if (!e.target.files) return
+                      field.onChange(e.target.files[0])
+                    }} />
+                  </FormControl>
+                  <FormDescription>
+                    Arquivo que será utilizado para popular/atualizar os qualis das revistas ou conferencias
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button variant="outline" type="submit" className="ml-6" disabled={fileForm.formState.isSubmitting}>{fileForm.formState.isSubmitting ? "Enviando..." : "Upload"}</Button>
           </form>
         </Form>
       </div>

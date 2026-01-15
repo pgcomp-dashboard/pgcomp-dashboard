@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PublisherType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,6 +34,7 @@ class StratumQualis extends BaseModel
     use HasFactory;
 
     protected $fillable = [
+        'type',
         'code',
         'score',
     ];
@@ -43,6 +45,7 @@ class StratumQualis extends BaseModel
     public static function creationRules(): array
     {
         return [
+            'type' => 'required|in:journal,conference',
             'code' => 'required|string|max:2',
             'score' => 'required|decimal:0,2',
         ];
@@ -55,9 +58,10 @@ class StratumQualis extends BaseModel
      * @param array columns
      * @return self stratumQualis by code
      */
-    public static function findByCode(string $code, array $columns = ['*']): self
+    public static function findByCode(string $code, string $type, array $columns = ['*']): self
     {
-        return self::where('code', $code)->firstOrFail($columns);
+        return self::where('type', $type)
+        ->where('code', $code)->firstOrFail($columns);
     }
 
     /**
@@ -66,6 +70,7 @@ class StratumQualis extends BaseModel
     public function updateRules(): array
     {
         return [
+            'type' => 'string|in:journal,conference',
             'code' => 'string|max:2',
             'score' => 'decimal:0,2',
         ];

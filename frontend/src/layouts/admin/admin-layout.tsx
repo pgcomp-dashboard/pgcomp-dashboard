@@ -74,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              {auth?.profile === "admin" &&
+              {auth?.activeProfile === "admin" &&
                 <>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={pathname === '/admin/areas'}>
@@ -108,6 +108,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </Link>
                 </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/professors'}>
+                  <Link to="/admin/professors">
+                    <Folders className="h-4 w-4" />
+                    <span>Docentes</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
                 </>
               }
               <SidebarMenuItem>
@@ -118,24 +126,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/portal/ranking-four'}>
-                  <Link to="/portal/ranking-four">
-                    <Trophy className="h-4 w-4" />
-                    <span>Ranking 4 Anos</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {auth?.profile !== "admin" &&
+              {auth?.activeProfile !== "admin" &&
                 <div>
-                <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/professors'}>
-                  <Link to="/admin/professors">
-                    <Folders className="h-4 w-4" />
-                    <span>Docentes</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={pathname === '/portal/productions'}>
                     <Link to="/portal/productions">
@@ -190,8 +182,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </DropdownMenuSubTrigger>
                         <DropdownMenuSubContent>
                           {
-                            roles?.map((role) => (
-                              <DropdownMenuItem asChild>
+                            roles?.map((role, index) => (
+                              <DropdownMenuItem key={index} asChild>
                                 <Link onClick={() => swichProfile(role)} to="/admin/" rel="noopener noreferrer" className="flex items-center gap-2">
                                   <span>{role}</span>
                                 </Link>
@@ -208,7 +200,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       <span>Configurações da conta</span>
                     </Link>
                   </DropdownMenuItem>
-                  {auth?.profile === "admin" &&
+                  {auth?.activeProfile === "admin" &&
                     <DropdownMenuItem asChild>
                       <Link to="/admin/system-config" rel="noopener noreferrer" className="flex items-center gap-2">
                       <Settings className="h-4 w-4" />

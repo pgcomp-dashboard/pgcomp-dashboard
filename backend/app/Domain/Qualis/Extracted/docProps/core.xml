@@ -1,2 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>Microsoft Office User</dc:creator><cp:lastModifiedBy>Avelino Francisco Zorzo</cp:lastModifiedBy><cp:lastPrinted>2023-01-02T13:02:42Z</cp:lastPrinted><dcterms:created xsi:type="dcterms:W3CDTF">2023-01-02T12:47:47Z</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">2023-01-06T16:04:05Z</dcterms:modified></cp:coreProperties>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<coreProperties xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <dcterms:created xsi:type="dcterms:W3CDTF">2026-01-12T23:13:34Z</dcterms:created>
+  <dc:creator>Apache POI</dc:creator>
+</coreProperties>
