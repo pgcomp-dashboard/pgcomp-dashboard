@@ -9,7 +9,7 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 
 # Install production dependencies (without dev dependencies)
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN composer install --no-dev --ignore-platform-reqs --optimize-autoloader --no-scripts
 
 # -----------------------
 # Stage 2: Application Image with Nginx, PHP-FPM, and Supervisor
@@ -56,7 +56,7 @@ RUN php artisan view:cache && \
 COPY production/supervisord.conf /etc/supervisord.conf
 
 # Expose port 80 to be used by Nginx
-EXPOSE 5000
+EXPOSE 80
 
 COPY production/docker-entrypoint.sh /
 

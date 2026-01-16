@@ -90,8 +90,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('journals', PublisherController::class, ['as' => 'journals']);
         Route::apiResource('conferences', PublisherController::class, ['as' => 'conferences']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
-        Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
-        Route::apiResource('qualis', StratumQualisController::class);
+        //Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
+        //Route::apiResource('qualis', StratumQualisController::class);
         Route::apiResource('areas', AreaController::class);
         Route::apiResource('students', StudentAdminController::class);
         Route::apiResource('students.productions', StudentProductionController::class)

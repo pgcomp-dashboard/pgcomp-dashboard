@@ -1,4 +1,4 @@
-FROM node:23-alpine AS builder
+FROM node:24-alpine AS builder
 
 ARG VITE_API_ENDPOINT
 RUN test -n $VITE_API_ENDPOINT || (echo "VITE_API_ENDPOINT not set" && false)
@@ -7,16 +7,28 @@ ENV VITE_API_ENDPOINT=$VITE_API_ENDPOINT
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    else echo "Lockfile not found." && exit 1; \
-    fi
+COPY package.json ./
+
+RUN npm i
 
 COPY . .
 
-EXPOSE 5000
+RUN npm run build
 
-CMD ["npm", "run", "dev"]
+# ────────────────
+# Stage 2: Serve
+# ────────────────
+FROM nginx:stable-alpine
+
+# Remove default static content
+#RUN rm -rf /usr/share/nginx/html/*
+
+# Write our custom nginx config
+#COPY nginx/conf /default.conf
+
+# Copy built assets from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

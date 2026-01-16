@@ -16,7 +16,7 @@ import api from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { Paperclip } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 
 type Ranking = {
   user_id: number,
@@ -41,7 +41,6 @@ type RankingProps = {
 }
 
 export default function RankingPage() {
-  const navigate = useNavigate();
   const date = new Date();
 
   const [isToggled, setIsToggled] = useState(false);

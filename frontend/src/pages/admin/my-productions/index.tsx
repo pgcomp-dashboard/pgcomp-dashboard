@@ -117,7 +117,6 @@ export default function MyProductionsPage() {
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [qualisList, setQualisList] = useState<StratumQualis[]>([]);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [productionList, setProductionList] = useState<Production[]>([])
   const [selectedProduction, setSelectedProduction] = useState<Production>();
   const [chosenForm, setChosenForm] = useState<FormType>("none");
@@ -199,7 +198,6 @@ export default function MyProductionsPage() {
       if (response.status == '200') {
         const list = productionList.filter((entry) => { return entry.productions_id !== selectedProduction.productions_id })
         setProductionList(list)
-        setIsDeleteOpen(false)
       }
       console.log(response.message)
     } catch (err) {
@@ -337,7 +335,6 @@ export default function MyProductionsPage() {
                             size="icon"
                             onClick={() => {
                               setSelectedProduction(production)
-                              setIsDeleteOpen(true)
                             }}
                             title="Deletar"
                           >
@@ -356,7 +353,6 @@ export default function MyProductionsPage() {
                                 <Button className="bg-white text-black"
                                   onClick={() => {
                                     setSelectedProduction(undefined)
-                                    setIsDeleteOpen(false)
                                   }}>Cancelar
                                 </Button>
                               </AlertDialogCancel>
