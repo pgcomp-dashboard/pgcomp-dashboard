@@ -178,7 +178,7 @@ export default function AreasPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead>N. de estudantes</TableHead> 
+              <TableHead>N. de estudantes</TableHead>
               <TableHead className="w-[100px]">Ações</TableHead>
             </TableRow>
           </TableHeader>

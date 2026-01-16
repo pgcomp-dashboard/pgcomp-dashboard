@@ -120,9 +120,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               }
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === '/portal/ranking'}>
-                  <Link to="/portal/ranking">
+                  <Link to="/portal/credenciamento">
                     <Trophy className="h-4 w-4" />
-                    <span>Ranking</span>
+                    <span>Credenciamento</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

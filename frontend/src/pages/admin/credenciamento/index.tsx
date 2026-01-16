@@ -40,7 +40,7 @@ type RankingProps = {
   rankerList: Ranking[]
 }
 
-export default function RankingPage() {
+export default function CredenciamentoPage() {
   const date = new Date();
 
   const [isToggled, setIsToggled] = useState(false);

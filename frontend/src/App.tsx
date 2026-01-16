@@ -9,18 +9,18 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'sonner';
 import AdminLayout from './layouts/admin/admin-layout';
 import AreasPage from './pages/admin/areas';
+import CredenciamentoPage from './pages/admin/credenciamento';
 import MyProductionsPage from './pages/admin/my-productions';
 import ProfessorsPage from './pages/admin/professors';
 import QualisPage from './pages/admin/qualis/index';
-import RankingPage from './pages/admin/ranking';
 import StudentsPage from './pages/admin/students';
 import SystemConfigPage from './pages/admin/system-config';
 import UserConfigPage from './pages/admin/user-config';
+import WelcomePage from './pages/admin/welcome';
 import DashboardPage from './pages/dashboard';
 import ForgotPasswordPage from './pages/login/forgot-password';
 import NotFoundPage from './pages/not-found';
 import ResetPasswordPage from './pages/reset-password';
-import WelcomePage from './pages/admin/welcome';
 
 
 const queryClient = new QueryClient();
@@ -40,7 +40,7 @@ function App() {
                 <Route path='welcome' element={<WelcomePage /> } />
                 <Route path='portal'>
                   <Route index element={<Redirect to='/welcome' />} />
-                  <Route path='ranking' element={<RankingPage />} />
+                  <Route path='credenciamento' element={<CredenciamentoPage />} />
 
                   <Route path='productions' element={<MyProductionsPage />} />
                 </Route>
