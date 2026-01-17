@@ -8,6 +8,7 @@ import api from '@/services/api';
 import { colorFromName } from '@/utils/color';
 import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import ChartScrollWrapper from './ChartScrollWrapper';
 import { useRef, useState, useEffect } from 'react';
 
 const MAX_VISIBLE_BARS = 15;
@@ -83,7 +84,7 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
     }
   }, []);
 
-  const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart(
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(
     chartData.length,
     MAX_VISIBLE_BARS,
   );
@@ -93,16 +94,21 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
   const totalProductions = chartData.reduce((sum, entry) => sum + entry.amount, 0);
   const mediaProducoes = chartData.length ? totalProductions / chartData.length : 0;
 
+  // Tamanhos de fonte responsivos
+  const fontSize = isMobile ? 11 : 18;
+  const labelFontSize = isMobile ? 12 : 18;
+
   return (
     <>
       {chartData.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-      <div
-        className={`block w-full overflow-x-auto pb-4 ${marginBottom}`}
-        style={{ minHeight: '400px' }}
+      <ChartScrollWrapper
+        minWidth={chartWidth}
+        isScrollable={isScrollable}
+        className={marginBottom}
       >
-        <div style={{ minWidth: chartWidth }} ref={chartRef}>
+        <div ref={chartRef}>
           <ChartContainer
             config={{
               year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
@@ -119,14 +125,14 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                   tickFormatter={(name) =>
                     String(name).length > 15 ? String(name).slice(0, 15) + '...' : String(name)
                   }
-                  style={{ fontSize: 18 }}
+                  style={{ fontSize }}
                 />
-                <YAxis style={{ fontSize: 18 }} />
+                <YAxis style={{ fontSize }} />
                 <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
                 <Bar
                   dataKey="amount"
                   fill="#8884d8"
-                  label={{ position: 'top', style: { fontSize: 18 } }}
+                  label={{ position: 'top', style: { fontSize: labelFontSize } }}
                 >
                   {chartData.map((entry, index) => (
                     <Cell
@@ -142,7 +148,7 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                   label={{
                     value: `Média: ${mediaProducoes.toFixed(1)}`,
                     position: 'top',
-                    fontSize: 16,
+                    fontSize: isMobile ? 14 : 16,
                     fontWeight: 'bold',
                     fill: '#212121',
                   }}
@@ -151,7 +157,7 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
             </ResponsiveContainer>
           </ChartContainer>
         </div>
-      </div>
+      </ChartScrollWrapper>
     </>
   );
 }

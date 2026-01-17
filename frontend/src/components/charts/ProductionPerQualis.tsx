@@ -17,6 +17,7 @@ import { colorFromName } from '@/utils/color.ts';
 // 👇 Importando suporte à expansão com scroll
 import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 15;
 
@@ -41,8 +42,13 @@ export default function ProductionPerQualisChart() {
     : [];
 
   // Hook de controle de expansão (antes do return)
-  const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart(years.length, MAX_VISIBLE_BARS);
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(years.length, MAX_VISIBLE_BARS);
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
+
+  // Tamanhos de fonte responsivos
+  const fontSize = isMobile ? 11 : 18;
+  const legendFontSize = isMobile ? 13 : 18;
+  const labelFontSize = isMobile ? 10 : 16;
 
   if (isLoading) return <>Carregando...</>;
   if (error) return <>Erro ao carregar o gráfico</>;
@@ -67,22 +73,23 @@ export default function ProductionPerQualisChart() {
       )}
 
       {/* Div com scroll horizontal e largura mínima dinâmica */}
-      <div
-        className={`block w-full overflow-x-auto pb-4 ${marginBottom}`}
-        style={{ minHeight: '400px' }}
+      <ChartScrollWrapper
+        minWidth={chartWidth}
+        isScrollable={isScrollable}
+        className={marginBottom}
       >
-        <div style={{ minWidth: chartWidth }} ref={chartRef}>
+        <div ref={chartRef}>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart
               data={chartData}
               margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" tick={{ fontSize: 18 }} />
-              <YAxis tick={{ fontSize: 18 }} />
+              <XAxis dataKey="year" tick={{ fontSize }} />
+              <YAxis tick={{ fontSize }} />
               <Legend
-                wrapperStyle={{ fontSize: 18 }}
-                payload={[...allQualis].map((qualis) => ({
+                wrapperStyle={{ fontSize: legendFontSize }}
+                payload={[ ...allQualis ].map((qualis) => ({
                   value: qualis,
                   type: 'square',
                   color: colorFromName(qualis),
@@ -113,7 +120,7 @@ export default function ProductionPerQualisChart() {
                           x={numX + numWidth / 2}
                           y={numY + numHeight / 2}
                           fill="#fff"
-                          fontSize={12}
+                          fontSize={labelFontSize}
                           fontWeight="bold"
                           textAnchor="middle"
                           dominantBaseline="middle"
@@ -129,7 +136,7 @@ export default function ProductionPerQualisChart() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </ChartScrollWrapper>
     </>
   );
 }

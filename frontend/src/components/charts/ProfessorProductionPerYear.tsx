@@ -30,6 +30,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 // Importando suporte à expansão com scroll
 import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import ChartScrollWrapper from './ChartScrollWrapper';
 
 // Definir o número máximo de barras visíveis antes de ativar a rolagem
 const MAX_VISIBLE_BARS = 15; // Ajuste este valor conforme necessário
@@ -202,12 +203,16 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
     }
   }, []);
 
-  const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart(
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(
     chartData.length, // Usamos chartData.length para determinar o número de barras
     MAX_VISIBLE_BARS,
   );
 
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
+
+  // Tamanhos de fonte responsivos
+  const fontSize = isMobile ? 11 : 18;
+  const labelFontSize = isMobile ? 12 : 18;
 
   return (
     <>
@@ -217,11 +222,12 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
       )}
 
       {/* Div com scroll horizontal e largura mínima dinâmica */}
-      <div
-        className={`block w-full overflow-x-auto pb-4 ${marginBottom}`}
-        style={{ minHeight: '400px' }}
+      <ChartScrollWrapper
+        minWidth={chartWidth}
+        isScrollable={isScrollable}
+        className={marginBottom}
       >
-        <div style={{ minWidth: chartWidth }} ref={chartRef}>
+        <div ref={chartRef}>
           <ChartContainer
             config={{
               year: {
@@ -244,11 +250,11 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                   tickFormatter={(name) =>
                     name.length > 15 ? name.slice(0, 15) + '...' : name
                   }
-                  style={{ fontSize: 18 }}
+                  style={{ fontSize }}
                 />
-                <YAxis style={{ fontSize: 18 }} />
+                <YAxis style={{ fontSize }} />
                 <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-                <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: 18 } }}> {/* Aumentando o tamanho da fonte do label da barra */}
+                <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: labelFontSize } }}>
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
                   ))}
@@ -257,7 +263,7 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
             </ResponsiveContainer>
           </ChartContainer>
         </div>
-      </div>
+      </ChartScrollWrapper>
     </>
   );
 }

@@ -19,6 +19,7 @@ import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipCont
 // Adicionados para expansão com scroll
 import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 10;
 
@@ -50,7 +51,7 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
     },
   });
 
-  const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart((data ?? []).length, MAX_VISIBLE_BARS);
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart((data ?? []).length, MAX_VISIBLE_BARS);
 
   const totalDefesas = (data ?? []).reduce((sum, item) => {
     if (filter === 'mestrado') return sum + item.mestrado;
@@ -59,6 +60,11 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
   }, 0);
   
   const mediaPorAno = data?.length ? totalDefesas / data.length : 0;
+
+  // Tamanhos de fonte responsivos
+  const fontSize = isMobile ? 11 : 18;
+  const labelFontSize = isMobile ? 12 : 18;
+  const legendFontSize = isMobile ? 13 : 18;
 
   if (isLoading) return <>Carregando...</>;
   if (error) return <>Erro ao carregar o gráfico</>;
@@ -69,67 +75,67 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
 
-      <div className={`block w-full overflow-x-auto pb-4 ${isScrollable ? 'mb-20' : 'mb-6'}`} style={{ minHeight: '400px' }}>
-        <div style={{ minWidth: chartWidth }}>
-          <ChartContainer
-            config={{
-              year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
-              mestrado: { label: 'Mestrado', color: '#4ab773' },
-              doutorado: { label: 'Doutorado', color: '#8884d8' },
-            }}
-            className="w-full h-[400px]"
-          >
-            <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 20 }} data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" interval={0} style={{ fontSize: 18 }} />
-              <YAxis style={{ fontSize: 18 }} />
-              <Tooltip content={<CustomTooltip />} />
-              {(filter === 'todos' || filter === 'mestrado') && (
-                <Bar dataKey="mestrado" stackId="a" fill="#82ca9d">
-                  {/* Removido o 'label' do Bar e adicionado LabelList */}
-                  <LabelList
-                    dataKey="mestrado"
-                    position="center"
-                    fill="#fff" // Cor do texto branca
-                    fontSize={18} // Tamanho da fonte 18
-                    fontWeight="bold" // Negrito
-                  />
-                </Bar>
-              )}
-              {(filter === 'todos' || filter === 'doutorado') && (
-                <Bar dataKey="doutorado" stackId="a" fill="#8884d8">
-                  {/* Removido o 'label' do Bar e adicionado LabelList */}
-                  <LabelList
-                    dataKey="doutorado"
-                    position="center"
-                    fill="#fff" // Cor do texto branca
-                    fontSize={18} // Tamanho da fonte 18
-                    fontWeight="bold" // Negrito
-                  />
-                </Bar>
-              )}
-              <Legend
-                verticalAlign="top"
-                height={48}
-                formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
-                wrapperStyle={{ fontSize: '18px' }} // Mantém o tamanho da fonte da legenda em 18px
-              />
-              <ReferenceLine
-                y={mediaPorAno}
-                stroke="red"
-                strokeDasharray="3 3"
-                label={{
-                  value: `Média: ${mediaPorAno.toFixed(2)}`,
-                  position: 'top',
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  fill: 'red',
-                }}
-              />
-            </BarChart>
-          </ChartContainer>
-        </div>
-      </div>
+      <ChartScrollWrapper
+        minWidth={chartWidth}
+        isScrollable={isScrollable}
+        className={isScrollable ? 'mb-20' : 'mb-6'}
+      >
+        <ChartContainer
+          config={{
+            year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
+            mestrado: { label: 'Mestrado', color: '#4ab773' },
+            doutorado: { label: 'Doutorado', color: '#8884d8' },
+          }}
+          className="w-full h-[400px]"
+        >
+          <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 20 }} data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="year" interval={0} style={{ fontSize }} />
+            <YAxis style={{ fontSize }} />
+            <Tooltip content={<CustomTooltip />} />
+            {(filter === 'todos' || filter === 'mestrado') && (
+              <Bar dataKey="mestrado" stackId="a" fill="#82ca9d">
+                <LabelList
+                  dataKey="mestrado"
+                  position="center"
+                  fill="#fff"
+                  fontSize={labelFontSize}
+                  fontWeight="bold"
+                />
+              </Bar>
+            )}
+            {(filter === 'todos' || filter === 'doutorado') && (
+              <Bar dataKey="doutorado" stackId="a" fill="#8884d8">
+                <LabelList
+                  dataKey="doutorado"
+                  position="center"
+                  fill="#fff"
+                  fontSize={labelFontSize}
+                  fontWeight="bold"
+                />
+              </Bar>
+            )}
+            <Legend
+              verticalAlign="top"
+              height={48}
+              formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+              wrapperStyle={{ fontSize: `${legendFontSize}px` }}
+            />
+            <ReferenceLine
+              y={mediaPorAno}
+              stroke="red"
+              strokeDasharray="3 3"
+              label={{
+                value: `Média: ${mediaPorAno.toFixed(2)}`,
+                position: 'top',
+                fontSize: isMobile ? 14 : 16,
+                fontWeight: 'bold',
+                fill: 'red',
+              }}
+            />
+          </BarChart>
+        </ChartContainer>
+      </ChartScrollWrapper>
     </>
   );
 }

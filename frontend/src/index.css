@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./styles/breakpoints.css";
+@import "./styles/responsive-utilities.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -14,6 +16,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Mobile-first font size */
+  font-size: 16px;
+  
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -126,6 +132,30 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Mobile-first: prevent horizontal scroll */
+    overflow-x: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Responsive improvements */
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Ensure touch targets are at least 44x44px on mobile */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  @media (min-width: 768px) {
+    button, a, input, select, textarea {
+      min-height: auto;
+      min-width: auto;
+    }
   }
 
   :root {
