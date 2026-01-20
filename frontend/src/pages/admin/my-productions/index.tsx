@@ -249,28 +249,28 @@ export default function MyProductionsPage() {
           <Button onClick={() => { setChosenForm("none") }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
         </div>
         :
-        <div className='flex justify-around'>
+        <div className='flex flex-col md:flex-row gap-4 md:justify-around'>
           <div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Minhas Produções</h1>
-              <Button onClick={() => fullDelete(productionList)}>Deletar Todas</Button>
+            <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Minhas Produções</h1>
+              <Button className='w-full sm:w-auto' onClick={() => fullDelete(productionList)}>Deletar Todas</Button>
             </div>
             <p className="text-muted-foreground">
               Visualize e edite suas produções.
             </p>
           </div>
-          <div className='flex flex-col gap-2 justify-center items-center'>
+          <div className='flex flex-col gap-2 justify-center md:items-center'>
             <Label>Adicionar Produção</Label>
-            <div className='flex gap-2'>
-              <Button data-cy="add-area-button" className='w-auto' onClick={() => { setChosenForm("xml") }}>
+            <div className='flex flex-col sm:flex-row gap-2'>
+              <Button data-cy="add-area-button" className='w-full sm:w-auto' onClick={() => { setChosenForm("xml") }}>
                 <Plus className="mr-2 h-4 w-4" />
                 XML
               </Button>
-              <Button data-cy="add-area-button" onClick={() => { setChosenForm("doi") }}>
+              <Button data-cy="add-area-button" className='w-full sm:w-auto' onClick={() => { setChosenForm("doi") }}>
                 <Plus className="mr-2 h-4 w-4" />
                 DOI
               </Button>
-              <Button data-cy="add-area-button" onClick={() => {
+              <Button data-cy="add-area-button" className='w-full sm:w-auto' onClick={() => {
                 setChosenForm("other")
               }}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -283,72 +283,158 @@ export default function MyProductionsPage() {
 
       {/* Tabela */}
       {chosenForm === "none" ?
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='text-center'>Título</TableHead>
-                <TableHead className='text-center'>Ano</TableHead>
-                <TableHead className='text-center'>Tipo</TableHead>
-                <TableHead className='text-center'>Qualis</TableHead>
-                <TableHead className='text-center'>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data?.length == 0 ?
+        <>
+          {/* Desktop: Tabela */}
+          <div className="hidden md:block rounded-md border">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell className='flex items-center justify-center'>
-                    Não foram encontradas produções cadastradas para o usuário
-                  </TableCell>
+                  <TableHead className='text-center'>Título</TableHead>
+                  <TableHead className='text-center'>Ano</TableHead>
+                  <TableHead className='text-center'>Tipo</TableHead>
+                  <TableHead className='text-center'>Qualis</TableHead>
+                  <TableHead className='text-center'>Ações</TableHead>
                 </TableRow>
-                :
-                productionList.map((production) => (
-                  <TableRow key={production.productions_id}>
-                    <TableCell className="font-medium">{production.title}</TableCell>
-                    <TableCell className="font-medium text-center">
-                      {production.year}
+              </TableHeader>
+              <TableBody>
+                {data?.length == 0 ?
+                  <TableRow>
+                    <TableCell className='flex items-center justify-center'>
+                      Não foram encontradas produções cadastradas para o usuário
                     </TableCell>
-                    <TableCell className="font-medium text-center">
-                      {production.publisher_type ? production.publisher_type : "NI"}
-                    </TableCell>
-                    <TableCell className="font-medium text-center">
-                      {production.publisher?.stratum_qualis?.code} -
-                      {production.publisher?.stratum_qualis?.score}
-                    </TableCell>
-                    <TableCell className="text-right flex justify-end gap-2">
+                  </TableRow>
+                  :
+                  productionList.map((production) => (
+                    <TableRow key={production.productions_id}>
+                      <TableCell className="font-medium">{production.title}</TableCell>
+                      <TableCell className="font-medium text-center">
+                        {production.year}
+                      </TableCell>
+                      <TableCell className="font-medium text-center">
+                        {production.publisher_type ? production.publisher_type : "NI"}
+                      </TableCell>
+                      <TableCell className="font-medium text-center">
+                        {production.publisher?.stratum_qualis?.code} -
+                        {production.publisher?.stratum_qualis?.score}
+                      </TableCell>
+                      <TableCell className="text-right flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedProduction(production)
+                            setIsEditOpen(true)
+                          }
+                          }
+                          title="Editar"
+                        >
+                          <FileText className="h-5 w-5" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setSelectedProduction(production)
+                              }}
+                              title="Deletar"
+                            >
+                              <Trash className="text-red-500 h-5 w-5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogPortal>
+                            <AlertDialogOverlay />
+                            <AlertDialogContent>
+                              <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Essa ação não pode ser desfeita. Isso vai permanentemente deletar a produção {selectedProduction?.title}.
+                              </AlertDialogDescription>
+                              <div className="flex justify-end gap-4">
+                                <AlertDialogCancel asChild>
+                                  <Button className="bg-white text-black"
+                                    onClick={() => {
+                                      setSelectedProduction(undefined)
+                                    }}>Cancelar
+                                  </Button>
+                                </AlertDialogCancel>
+                                <AlertDialogAction asChild>
+                                  <Button className="bg-red-400 hover:bg-red-500" onClick={() => {
+                                    if (selectedProduction) deleteProduction(selectedProduction.productions_id)
+                                  }}>Sim, deletar produção</Button>
+                                </AlertDialogAction>
+                              </div>
+                            </AlertDialogContent>
+                          </AlertDialogPortal>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile: Cards */}
+          <div className="md:hidden flex flex-col gap-3">
+            {data?.length == 0 ?
+              <div className='p-4 text-center text-muted-foreground'>
+                Não foram encontradas produções cadastradas para o usuário
+              </div>
+              :
+              productionList.map((production) => (
+                <div key={production.productions_id} className="rounded-lg border p-4 bg-white">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold text-sm line-clamp-2 flex-1">{production.title}</h3>
+                      <span className="text-sm font-medium text-primary whitespace-nowrap">{production.year}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground">Tipo</span>
+                        <span className="font-medium">{production.publisher_type ? production.publisher_type : "NI"}</span>
+                      </div>
+                      <div className="flex flex-col gap-1 items-end">
+                        <span className="text-xs text-muted-foreground">Qualis</span>
+                        <span className="font-medium">
+                          {production.publisher?.stratum_qualis?.code} - {production.publisher?.stratum_qualis?.score}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-2 border-t">
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="outline"
+                        className="flex-1"
                         onClick={() => {
                           setSelectedProduction(production)
                           setIsEditOpen(true)
-                        }
-                        }
-                        title="Editar"
+                        }}
                       >
-                        <FileText className="h-5 w-5" />
+                        <FileText className="h-4 w-4 mr-2" />
+                        Editar
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
-                            variant="ghost"
-                            size="icon"
+                            variant="outline"
+                            className="flex-1 text-red-500 hover:text-red-600"
                             onClick={() => {
                               setSelectedProduction(production)
                             }}
-                            title="Deletar"
                           >
-                            <Trash className="text-red-500 h-5 w-5" />
+                            <Trash className="h-4 w-4 mr-2" />
+                            Deletar
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogPortal>
                           <AlertDialogOverlay />
-                          <AlertDialogContent>
+                          <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
                             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                             <AlertDialogDescription>
                               Essa ação não pode ser desfeita. Isso vai permanentemente deletar a produção {selectedProduction?.title}.
                             </AlertDialogDescription>
-                            <div className="flex justify-end gap-4">
+                            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
                               <AlertDialogCancel asChild>
                                 <Button className="bg-white text-black"
                                   onClick={() => {
@@ -365,12 +451,12 @@ export default function MyProductionsPage() {
                           </AlertDialogContent>
                         </AlertDialogPortal>
                       </AlertDialog>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </>
         : chosenForm === "xml" ?
           <ProductionXMLForm />
           : chosenForm === "doi" ?
@@ -504,12 +590,12 @@ function ProductionDOIForm() {
   }
 
   return (
-    <div className='flex flex-col items-center align-middle'>
-      <div className='flex flex-col w-1/2 gap-4 items-center align-middle'>
-        <h1 className="text-3xl font-bold">Adicionar com D.O.I</h1>
-        <h1 className="text-muted-foreground">Adicione suas produções a partir do D.O.I.</h1>
+    <div className='flex flex-col items-center align-middle px-4'>
+      <div className='flex flex-col w-full sm:w-2/3 md:w-1/2 gap-4 items-center align-middle'>
+        <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com D.O.I</h1>
+        <h1 className="text-muted-foreground text-center">Adicione suas produções a partir do D.O.I.</h1>
         {
-          <RadioGroup className='flex' defaultValue='conference' onValueChange={handleValueChange}>
+          <RadioGroup className='flex flex-col sm:flex-row gap-3' defaultValue='conference' onValueChange={handleValueChange}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value='conference' id='conference' />
               <Label>Conferencia</Label>
@@ -520,7 +606,7 @@ function ProductionDOIForm() {
             </div>
           </RadioGroup>
         }
-        <div className="flex flex-col rounded-md gap-4">
+        <div className="flex flex-col rounded-md gap-4 w-full">
           <Input placeholder='D.O.I' type="text" onChange={handleInput} />
           <Button onClick={createProduction}>Importar produções</Button>
         </div>
@@ -612,14 +698,14 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
   }
 
   return (
-    <div className="flex flex-col w-full items-center align-middle">
-      <div className="flex flex-col rounded-md gap-4">
+    <div className="flex flex-col w-full items-center align-middle px-4">
+      <div className="flex flex-col rounded-md gap-4 w-full sm:w-11/12 md:w-4/5 lg:w-3/4">
         <div className="flex flex-col items-center align-middle">
-          <h1 className="text-3xl font-bold">Adicionar manualmente</h1>
-          <h1>Adicione uma produção no sistema</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar manualmente</h1>
+          <h1 className="text-center">Adicione uma produção no sistema</h1>
         </div>
         <div className="flex flex-col items-center align-middle">
-          <RadioGroup className='flex' defaultValue='conference' onValueChange={handleValueChange}>
+          <RadioGroup className='flex flex-col sm:flex-row gap-3' defaultValue='conference' onValueChange={handleValueChange}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value='conference' id='conference' />
               <Label>Conferencia</Label>
@@ -661,46 +747,48 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
                     </FormItem>
                   )}
                 />
-                <Table>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="flex flex-row gap-2">
-                        <Label>Buscar Revista/Conferência: </Label>
-                        <Input placeholder="ISSN/Sigla" type="text" onChange={handleInput} />
-                        <Button type='button' onClick={() => {
-                          publisherType === "journal" ?
-                            getPublisherByIssn(publisherSearch)
-                            :
-                            getPublisherByInitials(publisherSearch)
-                        }}>Buscar</Button>
-                      </TableCell>
-                    </TableRow>
-                    {!publisherNotFound ?
+                <div className="rounded-md border overflow-hidden">
+                  <Table>
+                    <TableBody>
                       <TableRow>
-                        <TableCell>
-                          {publisher &&
-                            <div>
-                              <div>
-                                <b>NOME:</b> {publisher.name}
-                              </div>
-                              <div>
-                                <b>CÓDIGO QUALIS:</b> {qualis.find((item) => item.id === publisher.stratum_qualis_id)?.code}
-                              </div>
-                            </div>
-                          }
+                        <TableCell className="flex flex-col sm:flex-row gap-2 p-4">
+                          <Label className="min-w-fit self-center">Buscar Revista/Conferência: </Label>
+                          <Input placeholder="ISSN/Sigla" type="text" onChange={handleInput} />
+                          <Button type='button' className="w-full sm:w-auto" onClick={() => {
+                            publisherType === "journal" ?
+                              getPublisherByIssn(publisherSearch)
+                              :
+                              getPublisherByInitials(publisherSearch)
+                          }}>Buscar</Button>
                         </TableCell>
                       </TableRow>
-                      :
-                      <TableRow>
-                        <TableCell>
-                          <div>{publisherType === 'journal' ? 'Revista' : 'Conferencia'} não encontrada</div>
-                        </TableCell>
-                      </TableRow>
-                    }
-                  </TableBody>
-                </Table>
+                      {!publisherNotFound ?
+                        <TableRow>
+                          <TableCell>
+                            {publisher &&
+                              <div className="flex flex-col gap-1 text-sm">
+                                <div>
+                                  <b>NOME:</b> {publisher.name}
+                                </div>
+                                <div>
+                                  <b>CÓDIGO QUALIS:</b> {qualis.find((item) => item.id === publisher.stratum_qualis_id)?.code}
+                                </div>
+                              </div>
+                            }
+                          </TableCell>
+                        </TableRow>
+                        :
+                        <TableRow>
+                          <TableCell>
+                            <div>{publisherType === 'journal' ? 'Revista' : 'Conferencia'} não encontrada</div>
+                          </TableCell>
+                        </TableRow>
+                      }
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
-              <Button type="submit">Criar Produção</Button>
+              <Button type="submit" className="w-full sm:w-auto">Criar Produção</Button>
             </form>
           </Form >
         </div>
@@ -770,11 +858,11 @@ function ProductionXMLForm() {
   }
 
   return (
-    <div className='flex flex-col items-center align-middle'>
-      <div className='flex flex-col w-1/3 gap-4 items-center align-middle'>
-        <h1 className="text-3xl font-bold">Adicionar com XML</h1>
+    <div className='flex flex-col items-center align-middle px-4'>
+      <div className='flex flex-col w-full sm:w-2/3 md:w-1/2 lg:w-1/3 gap-4 items-center align-middle'>
+        <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com XML</h1>
         <p className="text-muted-foreground text-center">Adicione suas produções a partir do XML do lattes, coloque o arquivo zip disponibilizado ao baixar.</p>
-        <div className="flex flex-col rounded-md gap-4">
+        <div className="flex flex-col rounded-md gap-4 w-full">
           <Input type="file" onChange={handleFileChange} />
           {file && status !== "uploading" &&
             <Button type="submit" disabled={!file} onClick={onSubmit}>Enviar</Button>

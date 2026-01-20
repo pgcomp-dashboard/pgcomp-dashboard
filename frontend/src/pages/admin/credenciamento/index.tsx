@@ -87,25 +87,28 @@ export default function CredenciamentoPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className='flex justify-between'>
-        <div className='flex gap-2'>
-          <h1 className="text-3xl font-bold tracking-tight">Ranking</h1>
-          <Button onClick={() => window.open('http://wwws.cnpq.br/cvlattesweb/pkg_login.oauth2_redirect')}>
-            <h1 className="font-bold tracking-tight float-left">Editar Lattes</h1>
+      <div className='flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start'>
+        <div className='flex flex-col gap-2 sm:flex-row sm:gap-2 sm:items-center'>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Ranking</h1>
+          <Button 
+            onClick={() => window.open('http://wwws.cnpq.br/cvlattesweb/pkg_login.oauth2_redirect')}
+            className="w-full sm:w-auto"
+          >
+            <h1 className="text-sm sm:text-base font-bold tracking-tight">Editar Lattes</h1>
           </Button>
         </div>
-        <div className='flex gap-4 items-center'>
-          <Label>Permanentes</Label>
+        <div className='flex gap-4 items-center justify-end'>
+          <Label className="text-sm">Permanentes</Label>
           <Switch onCheckedChange={handleToggle} />
         </div>
       </div>
-      <p className="text-muted-foreground">
+      <p className="text-sm sm:text-base text-muted-foreground">
         Visualize o ranking dos docentes com publicações cadastrados no sistema.
-        Pela <Link to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf" target='_blank'> Resolução</Link> são considerados os ultimos 4 anos completos.
+        Pela <Link to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf" target='_blank' className="underline"> Resolução</Link> são considerados os ultimos 4 anos completos.
         Para o calculo estão sendo considerados as produções de {date.getFullYear() - 4} até {date.getFullYear() - 1}
       </p>
-      {/* Tabela */}
-      <div className="float-left rounded-md border w-full md:w-1/2">
+      {/* Tabela - Desktop */}
+      <div className="hidden md:block rounded-md border w-full">
         <Table>
           {!isToggled ?
             <ShowRanking rankerList={ranking} />
@@ -113,6 +116,15 @@ export default function CredenciamentoPage() {
             <ShowRanking rankerList={ranking.filter((rank) => rank.category == 'permanente')} />
           }
         </Table>
+      </div>
+      
+      {/* Cards - Mobile */}
+      <div className="md:hidden flex flex-col gap-3">
+        {!isToggled ?
+          <ShowRankingCards rankerList={ranking} />
+          :
+          <ShowRankingCards rankerList={ranking.filter((rank) => rank.category == 'permanente')} />
+        }
       </div>
     </div>
   );
@@ -182,4 +194,89 @@ function ShowRanking({ rankerList }: RankingProps) {
       </Dialog>
     </>
   )
+}
+
+// Componente de Cards para Mobile
+function ShowRankingCards({ rankerList }: RankingProps) {
+  const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
+  const [ currentProductionList, setCurrentProductionList ] = useState<Production[] | null>(null);
+
+  return (
+    <>
+      {rankerList.map((rank, index) => (
+        <div 
+          key={index}
+          className={`rounded-lg border p-4 ${
+            rank.total_score >= 250 
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-white'
+          }`}
+        >
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl font-bold text-primary">{index + 1}º</span>
+              <div className="flex flex-col">
+                <Button 
+                  variant='ghost' 
+                  className={`p-0 h-auto font-semibold text-left justify-start hover:underline ${
+                    rank.total_score >= 250 ? 'hover:bg-transparent' : ''
+                  }`}
+                  onClick={() => {
+                    setCurrentProductionList(rank.productions);
+                    setIsProductionsOpen(true);
+                  }}
+                >
+                  {rank.name.replace(/ D([aeiou]s?) /g, ' d$1 ')}
+                </Button>
+                <span className="text-sm text-muted-foreground capitalize">
+                  {rank.category}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between pt-3 border-t">
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground">Pontuação</span>
+              <span className="text-xl font-bold">{rank.total_score.toFixed(1)}</span>
+            </div>
+            <Link 
+              to={rank.lattes_url} 
+              target="_blank"
+              className="flex items-center gap-2 text-sm text-primary hover:underline"
+            >
+              <Paperclip className="h-4 w-4" />
+              <span>Lattes</span>
+            </Link>
+          </div>
+        </div>
+      ))}
+
+      <Dialog open={isProductionsOpen} onOpenChange={setIsProductionsOpen}>
+        <DialogContent className="max-w-[95vw] sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Produções Consideradas</DialogTitle>
+            <DialogDescription>Visualizar produçoes consideradas na pontuação. Caso queira mais detalhes sobre suas produções vá a aba Minhas Produções</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+            {currentProductionList ? (
+              currentProductionList.map((production, index) => (
+                <div key={index}
+                  className="rounded border bg-gray-100 p-4 text-sm flex flex-col gap-1">
+                  <p><strong>Título da Produção:</strong> {production.title}</p>
+                  <p><strong>Ano:</strong> {production.year}</p>
+                  <p><strong>Qualis:</strong> {production.code ? production.code : 'Não encontrado'}</p>
+                  <p><strong>Pontuação:</strong> {production.score ? production.score : 0}</p>
+                  <p><strong>Tipo de Publicação:</strong> {production.publisher_type ? production.publisher_type : 'Não encontrado'}</p>
+                </div>
+              ))
+            ) : null}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsProductionsOpen(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

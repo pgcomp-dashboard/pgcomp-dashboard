@@ -7,6 +7,7 @@ import '@/services/api';
 // Adições para scroll horizontal
 import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 10;
 
@@ -40,8 +41,11 @@ export default function PublicationsChart({ filter }: { filter?: 'journal' | 'co
   }));
 
   // 👇 Hook de scroll
-  const { expanded, toggleExpand, isScrollable, chartWidth } = useExpandableChart(chartData.length, MAX_VISIBLE_BARS);
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(chartData.length, MAX_VISIBLE_BARS);
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
+
+  // Tamanhos de fonte responsivos
+  const fontSize = isMobile ? 11 : 18;
 
   if (query.error) {
     return <>Falha ao carregar gráfico!</>;
@@ -59,53 +63,52 @@ export default function PublicationsChart({ filter }: { filter?: 'journal' | 'co
       )}
 
       {/* Scroll horizontal com altura garantida e espaçamento adequado */}
-      <div
-        className={`block w-full overflow-x-auto pb-4 ${marginBottom}`}
-        style={{ minHeight: '400px' }}
+      <ChartScrollWrapper
+        minWidth={chartWidth}
+        isScrollable={isScrollable}
+        className={marginBottom}
       >
-        <div style={{ minWidth: chartWidth }}>
-          <div className="flex items-center justify-center h-[400px]">
-            <ChartContainer
-              config={{
-                journals: {
-                  label: 'Periódicos',
-                  color: 'hsl(var(--chart-2))',
-                },
-                conferences: {
-                  label: 'Conferências',
-                  color: 'hsl(var(--chart-3))',
-                },
-              }}
-              className="w-full h-full"
+        <div className="flex items-center justify-center h-[400px]">
+          <ChartContainer
+            config={{
+              journals: {
+                label: 'Periódicos',
+                color: 'hsl(var(--chart-2))',
+              },
+              conferences: {
+                label: 'Conferências',
+                color: 'hsl(var(--chart-3))',
+              },
+            }}
+            className="w-full h-full"
+          >
+            <LineChart
+              data={chartData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
             >
-              <LineChart
-                data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="year" style={{ fontSize: 18 }}/>
-                <YAxis style={{ fontSize: 18 }}/>
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="journals"
-                  stroke="#5B9279"
-                  strokeWidth={2}
-                  activeDot={{ r: 8 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="conferences"
-                  stroke="#8FCB9B"
-                  strokeWidth={2}
-                  activeDot={{ r: 8 }}
-                />
-              </LineChart>
-            </ChartContainer>
-          </div>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="year" style={{ fontSize }}/>
+              <YAxis style={{ fontSize }}/>
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="journals"
+                stroke="#5B9279"
+                strokeWidth={2}
+                activeDot={{ r: 8 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="conferences"
+                stroke="#8FCB9B"
+                strokeWidth={2}
+                activeDot={{ r: 8 }}
+              />
+            </LineChart>
+          </ChartContainer>
         </div>
-      </div>
+      </ChartScrollWrapper>
     </>
   );
 }
