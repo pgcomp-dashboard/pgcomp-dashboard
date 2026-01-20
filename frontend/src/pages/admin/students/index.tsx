@@ -192,15 +192,15 @@ export default function StudentsPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Discentes</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Discentes</h1>
           <p className="text-muted-foreground">Gerencie os estudantes cadastrados no sistema.</p>
         </div>
 
         <Dialog open={openAdd} onOpenChange={setOpenAdd}>
           <DialogTrigger asChild>
-            <Button data-cy="add-student-button"><Plus className="mr-2 h-4 w-4" /> Adicionar estudante</Button>
+            <Button data-cy="add-student-button" className="w-full sm:w-auto"><Plus className="mr-2 h-4 w-4" /> Adicionar estudante</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -318,8 +318,8 @@ export default function StudentsPage() {
 
 
       <div className="rounded-md border">
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 border-b">
+          <div className="relative flex-1 w-full">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
@@ -333,13 +333,13 @@ export default function StudentsPage() {
             />
           </div>
 
-          <div>
-            <label htmlFor="perPageSelect" className="mr-2 text-sm text-muted-foreground">
-              Estudantes por página:
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <label htmlFor="perPageSelect" className="text-sm text-muted-foreground whitespace-nowrap">
+              Por página:
             </label>
             <select
               id="perPageSelect"
-              className="border rounded px-2 py-1 text-sm"
+              className="border rounded px-2 py-1 text-sm w-full sm:w-auto"
               value={perPage}
               onChange={(e) => {
                 setPerPage(Number(e.target.value));
@@ -356,87 +356,168 @@ export default function StudentsPage() {
           </div>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Matrícula</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Curso</TableHead>
-              <TableHead>Área</TableHead>
-              <TableHead>Lattes</TableHead>
-              <TableHead>Data de defesa</TableHead>
-              <TableHead>Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredStudents.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell>{student.registration}</TableCell>
-                <TableCell>{student.name}</TableCell>
-                <TableCell>{student.email}</TableCell>
-                <TableCell>{getCourseName(student.course_id)}</TableCell>
-                <TableCell>{getAreaName(student.area_id ?? 0)}</TableCell>
-                <TableCell>
-                  {student.lattes_url ? (
-                    <a
-                      href={student.lattes_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 underline"
+        {/* Desktop: Tabela */}
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Matrícula</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Curso</TableHead>
+                <TableHead>Área</TableHead>
+                <TableHead>Lattes</TableHead>
+                <TableHead>Data de defesa</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredStudents.map((student) => (
+                <TableRow key={student.id}>
+                  <TableCell>{student.registration}</TableCell>
+                  <TableCell>{student.name}</TableCell>
+                  <TableCell>{student.email}</TableCell>
+                  <TableCell>{getCourseName(student.course_id)}</TableCell>
+                  <TableCell>{getAreaName(student.area_id ?? 0)}</TableCell>
+                  <TableCell>
+                    {student.lattes_url ? (
+                      <a
+                        href={student.lattes_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 underline"
+                      >
+                        Lattes
+                      </a>
+                    ) : (
+                      '—'
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {student.defended_at ? new Date(student.defended_at).toLocaleDateString('pt-BR') : '—'}
+                  </TableCell>
+                  <TableCell className="flex gap-2">
+                    <Button
+                      data-cy={`student-edit-button-${student.registration}`}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 cursor-pointer"
+                      aria-label="Editar"
+                      onClick={() => {
+                        setSelectedStudent(student);
+                        setOpenEdit(true);
+                      }}
                     >
-                      Lattes
-                    </a>
-                  ) : (
-                    '—'
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      data-cy={`student-delete-button-${student.registration}`}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive cursor-pointer"
+                      aria-label="Excluir"
+                      onClick={() => {
+                        setSelectedStudent(student);
+                        setOpenDelete(true);
+                      }}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Mobile: Cards */}
+        <div className="md:hidden flex flex-col gap-3 p-4">
+          {filteredStudents.map((student) => (
+            <div key={student.id} className="rounded-lg border p-4 bg-white">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium text-muted-foreground">#{student.registration}</span>
+                    </div>
+                    <h3 className="font-semibold text-base">{student.name}</h3>
+                    {student.email && <p className="text-sm text-muted-foreground mt-1">{student.email}</p>}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-xs text-muted-foreground">Curso</span>
+                    <p className="font-medium">{getCourseName(student.course_id)}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Área</span>
+                    <p className="font-medium">{getAreaName(student.area_id ?? 0)}</p>
+                  </div>
+                  {student.lattes_url && (
+                    <div>
+                      <span className="text-xs text-muted-foreground">Lattes</span>
+                      <p>
+                        <a
+                          href={student.lattes_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-600 underline text-sm"
+                        >
+                          Ver CV
+                        </a>
+                      </p>
+                    </div>
                   )}
-                </TableCell>
-                <TableCell>
-                  {student.defended_at ? new Date(student.defended_at).toLocaleDateString('pt-BR') : '—'}
-                </TableCell>
-                <TableCell className="flex gap-2">
+                  {student.defended_at && (
+                    <div>
+                      <span className="text-xs text-muted-foreground">Defesa</span>
+                      <p className="font-medium">{new Date(student.defended_at).toLocaleDateString('pt-BR')}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-2 border-t">
                   <Button
-                    data-cy={`student-edit-button-${student.registration}`}
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 cursor-pointer"
-                    aria-label="Editar"
+                    variant="outline"
+                    className="flex-1"
                     onClick={() => {
                       setSelectedStudent(student);
                       setOpenEdit(true);
                     }}
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Editar
                   </Button>
                   <Button
-                    data-cy={`student-delete-button-${student.registration}`}
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive cursor-pointer"
-                    aria-label="Excluir"
+                    variant="outline"
+                    className="flex-1 text-red-500 hover:text-red-600"
                     onClick={() => {
                       setSelectedStudent(student);
                       setOpenDelete(true);
                     }}
                   >
-                    <Trash className="h-4 w-4" />
+                    <Trash className="h-4 w-4 mr-2" />
+                    Deletar
                   </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {pagination && (
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t">
             <span className="text-sm text-muted-foreground">
               Página {pagination.current_page} de {pagination.last_page}
             </span>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               {/* Botão Primeira Página */}
               <Button
                 variant="outline"
                 size="sm"
+                className="hidden sm:flex"
                 disabled={pagination.current_page === 1}
                 onClick={() => {
                   setPage(1);
@@ -450,6 +531,7 @@ export default function StudentsPage() {
               <Button
                 variant="outline"
                 size="sm"
+                className="flex-1 sm:flex-none"
                 disabled={pagination.current_page === 1}
                 onClick={() => {
                   setPage((prev) => Math.max(prev - 1, 1));
@@ -463,6 +545,7 @@ export default function StudentsPage() {
               <Button
                 variant="outline"
                 size="sm"
+                className="flex-1 sm:flex-none"
                 disabled={pagination.current_page === pagination.last_page}
                 onClick={() => {
                   setPage((prev) => Math.min(prev + 1, pagination.last_page));
@@ -476,6 +559,7 @@ export default function StudentsPage() {
               <Button
                 variant="outline"
                 size="sm"
+                className="hidden sm:flex"
                 disabled={pagination.current_page === pagination.last_page}
                 onClick={() => {
                   setPage(pagination.last_page);

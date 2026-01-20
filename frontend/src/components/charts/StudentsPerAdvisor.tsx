@@ -22,6 +22,7 @@ import {
 // 👇 Adições para scroll e expansão
 import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import ChartScrollWrapper from './ChartScrollWrapper';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
@@ -83,8 +84,13 @@ export default function StudentsPerAdvisorChart() {
     .filter(e => isProfessorVisible(e.id));
 
   // Hook SEMPRE é chamado
-  const { expanded, toggleExpand, isScrollable, chartWidth } =
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } =
     useExpandableChart(chartData.length, MAX_VISIBLE_BARS);
+
+  // Tamanhos de fonte responsivos
+  const xAxisFontSize = isMobile ? 10 : 14;
+  const yAxisFontSize = isMobile ? 12 : 18;
+  const labelFontSize = isMobile ? 12 : 18;
 
   useEffect(() => {
     if (professors) {
@@ -176,63 +182,62 @@ export default function StudentsPerAdvisorChart() {
           </div>
 
           {/* 👇 Scroll horizontal com largura mínima dinâmica */}
-          <div
-            className={`block w-full overflow-x-auto pb-4 ${isScrollable ? 'mb-20' : 'mb-6'}`}
-            style={{ minHeight: '400px' }}
+          <ChartScrollWrapper
+            minWidth={chartWidth}
+            isScrollable={isScrollable}
+            className={isScrollable ? 'mb-20' : 'mb-6'}
           >
-            <div style={{ minWidth: chartWidth }}>
-              <div className="flex items-center justify-center">
-                <ChartContainer
-                  config={{
-                    journals: {
-                      label: 'Periódicos',
-                      color: 'hsl(var(--chart-2))',
-                    },
-                    conferences: {
-                      label: 'Conferências',
-                      color: 'hsl(var(--chart-3))',
-                    },
-                  }}
-                  className="w-full h-[400px]"
+            <div className="flex items-center justify-center">
+              <ChartContainer
+                config={{
+                  journals: {
+                    label: 'Periódicos',
+                    color: 'hsl(var(--chart-2))',
+                  },
+                  conferences: {
+                    label: 'Conferências',
+                    color: 'hsl(var(--chart-3))',
+                  },
+                }}
+                className="w-full h-[400px]"
+              >
+                <BarChart
+                  margin={{ top: 20, right: 5, left: 5, bottom: 80 }}
+                  data={chartData}
                 >
-                  <BarChart
-                    margin={{ top: 20, right: 5, left: 5, bottom: 80 }}
-                    data={chartData}
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="name"
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    tickFormatter={(name) =>
+                      name.length > 15 ? name.slice(0, 15) + '...' : name
+                    }
+                    style={{ fontSize: xAxisFontSize }}
+                  />
+                  <YAxis style={{ fontSize: yAxisFontSize }} />
+                  <Tooltip
+                    content={
+                      <CustomTooltip active={false} payload={[]} label={''} />
+                    }
+                  />
+                  <Bar
+                    dataKey="quantity"
+                    fill="#8884d8"
+                    label={{ position: 'top', style: { fontSize: labelFontSize } }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="name"
-                      interval={0}
-                      angle={-45}
-                      textAnchor="end"
-                      tickFormatter={(name) =>
-                        name.length > 15 ? name.slice(0, 15) + '...' : name
-                      }
-                      style={{ fontSize: 14 }} // Aumentando o tamanho da fonte do eixo X
-                    />
-                    <YAxis style={{ fontSize: 18 }} /> {/* também fonte maior */}
-                    <Tooltip
-                      content={
-                        <CustomTooltip active={false} payload={[]} label={''} />
-                      }
-                    />
-                    <Bar
-                      dataKey="quantity"
-                      fill="#8884d8"
-                      label={{ position: 'top', style: { fontSize: 18 } }}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={colorFromName(entry.name)}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ChartContainer>
-              </div>
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={colorFromName(entry.name)}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
             </div>
-          </div>
+          </ChartScrollWrapper>
         </CardContent>
       </Card>
     </>

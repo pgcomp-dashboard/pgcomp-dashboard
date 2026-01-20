@@ -137,10 +137,12 @@ export default function ProfessorsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-3xl font-bold tracking-tight">Docentes</h1>
-      <p className="text-muted-foreground">
-        Visualize e gerencie os docentes cadastrados no sistema.
-      </p>
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Docentes</h1>
+        <p className="text-muted-foreground">
+          Visualize e gerencie os docentes cadastrados no sistema.
+        </p>
+      </div>
 
       {/* Filtros e paginação */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -156,8 +158,8 @@ export default function ProfessorsPage() {
             }}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="itemsPerPage">Itens por página:</Label>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <Label htmlFor="itemsPerPage" className="whitespace-nowrap">Itens por página:</Label>
           <select
             id="itemsPerPage"
             value={itemsPerPage}
@@ -165,7 +167,7 @@ export default function ProfessorsPage() {
               setItemsPerPage(Number(e.target.value));
               setCurrentPage(1);
             }}
-            className="border rounded-md px-2 py-1 text-sm"
+            className="border rounded-md px-2 py-1 text-sm w-full sm:w-auto"
           >
             {[ 5, 10, 20, 50, 100 ].map((option) => (
               <option key={option} value={option}>
@@ -176,8 +178,8 @@ export default function ProfessorsPage() {
         </div>
       </div>
 
-      {/* Tabela */}
-      <div className="rounded-md border">
+      {/* Desktop: Tabela */}
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -216,7 +218,7 @@ export default function ProfessorsPage() {
         </Table>
 
         {/* Paginação */}
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between p-4">
           <span className="text-sm text-muted-foreground">
             Página {currentPage} de {totalPages}
           </span>
@@ -252,6 +254,66 @@ export default function ProfessorsPage() {
               disabled={currentPage === totalPages}
             >
               {'>>'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile: Cards */}
+      <div className="md:hidden">
+        <div className="flex flex-col gap-3">
+          {professors.map((professor) => (
+            <div key={professor.id} className="rounded-lg border p-4 bg-white">
+              <div className="flex flex-col gap-3">
+                <h3 className="font-semibold text-base">{professor.name}</h3>
+                
+                <div className="flex gap-2 pt-2 border-t">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      setCurrentProfessor(professor);
+                      setIsDetailProfOpen(true);
+                    }}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Detalhes
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => verProducoes(professor.id)}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Produções
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Paginação Mobile */}
+        <div className="flex flex-col gap-3 mt-4">
+          <span className="text-sm text-muted-foreground text-center">
+            Página {currentPage} de {totalPages}
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              ‹ Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Próxima ›
             </Button>
           </div>
         </div>

@@ -1,0 +1,77 @@
+/**
+ * Mobile-First Breakpoints Configuration
+ * 
+ * Base styles apply to mobile (320px+)
+ * Use media queries to enhance for larger screens
+ */
+
+:root {
+  /* Breakpoint values */
+  --breakpoint-mobile: 320px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1440px;
+  
+  /* Fluid typography - Mobile first */
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --font-size-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  --font-size-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 2.5rem);
+  --font-size-4xl: clamp(2.25rem, 1.8rem + 2.25vw, 3rem);
+  
+  /* Fluid spacing - Mobile first */
+  --spacing-xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+  --spacing-sm: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+  --spacing-md: clamp(0.75rem, 0.6rem + 0.75vw, 1rem);
+  --spacing-lg: clamp(1rem, 0.8rem + 1vw, 1.5rem);
+  --spacing-xl: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+  --spacing-2xl: clamp(2rem, 1.6rem + 2vw, 3rem);
+  --spacing-3xl: clamp(3rem, 2.4rem + 3vw, 4rem);
+  
+  /* Container widths */
+  --container-mobile: 100%;
+  --container-tablet: 720px;
+  --container-desktop: 960px;
+  --container-wide: 1200px;
+  
+  /* Grid columns */
+  --grid-cols-mobile: 1;
+  --grid-cols-tablet: 2;
+  --grid-cols-desktop: 3;
+  
+  /* Header heights */
+  --header-height-mobile: 4rem;
+  --header-height-desktop: 5rem;
+  
+  /* Sidebar widths */
+  --sidebar-width-mobile: 100%;
+  --sidebar-width-tablet: 18rem;
+  --sidebar-width-desktop: 16rem;
+}
+
+/* Mobile first base styles already applied in :root */
+
+/* Tablet breakpoint (768px+) */
+@media (min-width: 768px) {
+  :root {
+    --grid-cols: var(--grid-cols-tablet);
+    --header-height: var(--header-height-desktop);
+  }
+}
+
+/* Desktop breakpoint (1024px+) */
+@media (min-width: 1024px) {
+  :root {
+    --grid-cols: var(--grid-cols-desktop);
+  }
+}
+
+/* Wide screens (1440px+) */
+@media (min-width: 1440px) {
+  :root {
+    --container-max: var(--container-wide);
+  }
+}

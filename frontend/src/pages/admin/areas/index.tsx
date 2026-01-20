@@ -111,14 +111,14 @@ export default function AreasPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Áreas acadêmicas</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Áreas acadêmicas</h1>
           <p className="text-muted-foreground">Gerencie as áreas cadastradas no sistema.</p>
         </div>
         <Dialog open={isAddAreaOpen} onOpenChange={setIsAddAreaOpen}>
           <DialogTrigger asChild>
-            <Button data-cy="add-area-button">
+            <Button data-cy="add-area-button" className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" /> Adicionar área
             </Button>
           </DialogTrigger>
@@ -173,7 +173,8 @@ export default function AreasPage() {
         </div>
       </div>
 
-      <div className="rounded-md border">
+      {/* Desktop: Tabela */}
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -219,6 +220,49 @@ export default function AreasPage() {
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile: Cards */}
+      <div className="md:hidden flex flex-col gap-3">
+        {filteredAreas.map((area) => (
+          <div key={area.id} className="rounded-lg border p-4 bg-white">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-base">{area.name}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {studentsPerField[area.name] || 0} estudante{(studentsPerField[area.name] || 0) !== 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-2 border-t">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setCurrentArea(area);
+                    setIsEditAreaOpen(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 text-red-500 hover:text-red-600"
+                  onClick={() => {
+                    setCurrentArea(area);
+                    setIsDeleteAreaOpen(true);
+                  }}
+                >
+                  <Trash className="h-4 w-4 mr-2" />
+                  Deletar
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       <Dialog open={isEditAreaOpen} onOpenChange={setIsEditAreaOpen}>
