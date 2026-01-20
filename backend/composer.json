@@ -21,7 +21,6 @@
         "laravel/telescope": "^5.0",
         "laravel/tinker": "^2.7",
         "pestphp/pest": "^3.0",
-        "predis/predis": "*",
         "querypath/querypath": "^3.0",
         "symfony/panther": "^2.1"
     },

@@ -10,7 +10,8 @@ use App\Models\BaseModel;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Jobs\RunScraping;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
+//use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ScrapingExecutionController extends Controller
@@ -35,7 +36,7 @@ class ScrapingExecutionController extends Controller
 
     public function getInterval(): JsonResponse
     {
-        $interval = Redis::get('scraping:run');
+        $interval = Cache::get('scraping:run');
 
         return response()->json([
             "intervalDays" => $interval
@@ -75,7 +76,7 @@ class ScrapingExecutionController extends Controller
         ]
     );
 
-    Redis::set('scraping:run', $validated['days']);
+    Cache::set('scraping:run', $validated['days']);
 
     return response()->json(["status" => "success",
         "message" => "Execução agendada com sucesso.",
