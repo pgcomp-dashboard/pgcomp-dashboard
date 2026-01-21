@@ -35,8 +35,12 @@ export default function ResetPasswordPage() {
   const queryString: string = window.location.search
   const urlParams: URLSearchParams = new URLSearchParams(queryString)
 
+  console.log(queryString)
+
   const token: string | null = urlParams.get('token');
   const email: string | null = urlParams.get('email');
+
+  console.log(token, email)
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(JSON.stringify(values))
