@@ -20,13 +20,13 @@ RUN npm run build
 # ────────────────
 FROM nginx:stable-alpine
 
-# Remove default static content
-#RUN rm -rf /usr/share/nginx/html/*
+# 1. Remove ALL default configs to avoid conflicts
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Write our custom nginx config
-#COPY nginx/conf /default.conf
+# 2. Copy custom config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built assets from the builder stage
+# 3. Copy assets
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
