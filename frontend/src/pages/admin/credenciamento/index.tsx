@@ -1,5 +1,6 @@
 'use client';
 
+import LattesIcon from '@/components/LattesIcon';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -89,13 +90,7 @@ export default function CredenciamentoPage() {
     <div className="flex flex-col gap-4">
       <div className='flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start'>
         <div className='flex flex-col gap-2 sm:flex-row sm:gap-2 sm:items-center'>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Ranking</h1>
-          <Button 
-            onClick={() => window.open('http://wwws.cnpq.br/cvlattesweb/pkg_login.oauth2_redirect')}
-            className="w-full sm:w-auto"
-          >
-            <h1 className="text-sm sm:text-base font-bold tracking-tight">Editar Lattes</h1>
-          </Button>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Credenciamento</h1>
         </div>
         <div className='flex gap-4 items-center justify-end'>
           <Label className="text-sm">Permanentes</Label>
@@ -117,7 +112,7 @@ export default function CredenciamentoPage() {
           }
         </Table>
       </div>
-      
+
       {/* Cards - Mobile */}
       <div className="md:hidden flex flex-col gap-3">
         {!isToggled ?
@@ -160,7 +155,7 @@ function ShowRanking({ rankerList }: RankingProps) {
               <TableCell className="font-medium">{rank.total_score.toFixed(1)}</TableCell>
               <TableCell className="font-medium">
                 <Link to={rank.lattes_url} target="_blank">
-                  <Paperclip />
+                  <LattesIcon />
                 </Link>
               </TableCell>
             </TableRow>
@@ -204,11 +199,11 @@ function ShowRankingCards({ rankerList }: RankingProps) {
   return (
     <>
       {rankerList.map((rank, index) => (
-        <div 
+        <div
           key={index}
           className={`rounded-lg border p-4 ${
-            rank.total_score >= 250 
-              ? 'bg-green-50 border-green-200' 
+            rank.total_score >= 250
+              ? 'bg-green-50 border-green-200'
               : 'bg-white'
           }`}
         >
@@ -216,8 +211,8 @@ function ShowRankingCards({ rankerList }: RankingProps) {
             <div className="flex items-center gap-3">
               <span className="text-2xl font-bold text-primary">{index + 1}º</span>
               <div className="flex flex-col">
-                <Button 
-                  variant='ghost' 
+                <Button
+                  variant='ghost'
                   className={`p-0 h-auto font-semibold text-left justify-start hover:underline ${
                     rank.total_score >= 250 ? 'hover:bg-transparent' : ''
                   }`}
@@ -234,18 +229,18 @@ function ShowRankingCards({ rankerList }: RankingProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between pt-3 border-t">
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">Pontuação</span>
               <span className="text-xl font-bold">{rank.total_score.toFixed(1)}</span>
             </div>
-            <Link 
-              to={rank.lattes_url} 
+            <Link
+              to={rank.lattes_url}
               target="_blank"
               className="flex items-center gap-2 text-sm text-primary hover:underline"
             >
-              <Paperclip className="h-4 w-4" />
+              <LattesIcon className="h-4 w-4" />
               <span>Lattes</span>
             </Link>
           </div>

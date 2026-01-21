@@ -109,14 +109,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </Link>
                 </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/professors'}>
-                  <Link to="/admin/professors">
-                    <Folders className="h-4 w-4" />
-                    <span>Docentes</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
                 </>
               }
               <SidebarMenuItem>
@@ -166,7 +158,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <span>Voltar para Dashboard</span>
                 </Link>
               </Button>
-              
+
               {/* Botão completo - Desktop */}
               <Button variant="outline" size="sm" asChild className="hidden lg:flex">
                 <Link to="/">Ver dashboard pública</Link>
