@@ -14,3 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/test', function () {});
+Route::get('/reset-password/{token}', function ($token) {
+    return redirect('https://dashboard-pgcomp.app.ic.ufba.br/reset-password/' . $token);
+})->name('password.reset');
