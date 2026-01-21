@@ -513,6 +513,10 @@ export class ApiService {
     return this.delete<{ status: string, message: string }>(`/api/portal/user/productions/${id}`);
   }
 
+  async clearProduction() {
+    return this.delete<{ status: string, message: string }>(`/api/portal/user/productions/all`);
+  }
+
   async getJournals() {
     const response = await this.get<{data: Publisher[]}>('/api/portal/journals');
     return response.data;
