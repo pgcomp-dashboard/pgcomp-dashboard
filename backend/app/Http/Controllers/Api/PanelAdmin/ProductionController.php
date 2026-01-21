@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Models\BaseModel;
 use App\Models\Production;
 use App\Models\Publishers;
+use App\Models\User;
 use Auth;
 use Exception;
 use GuzzleHttp\Client;
@@ -244,5 +245,37 @@ class ProductionController extends BaseApiResourceController
         $production->update($request->all());
 
         return $production;
+    }
+
+    public function deleteAll()
+    {
+        if (Auth::check()) {
+            $userId = Auth::user()->id;
+        }
+
+        $user = User::findOrFail($userId);
+
+        $constrains = DB::table('users_productions')
+            ->where('users_id', '=', $user->id)
+            ->get();
+
+        $count = 0;
+        foreach ($constrains as $constrain) {
+            $key = DB::table('users_productions')
+                ->where('users_id', '=', $constrain->users_id)
+                ->where('productions_id', '=', $constrain->productions_id)
+                ->delete();
+            $production = Production::findOrFail($constrain->productions_id)->delete();
+            if($key and $production){
+                $count++;
+            }
+        }
+
+        if ($userId) {
+            return response()->json([
+                "status" => 200,
+                "data" => "Deleted $count productions"
+            ]);
+        }
     }
 }
