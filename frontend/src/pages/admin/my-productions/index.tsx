@@ -388,7 +388,7 @@ export default function MyProductionsPage() {
                       <h3 className="font-semibold text-sm line-clamp-2 flex-1">{production.title}</h3>
                       <span className="text-sm font-medium text-primary whitespace-nowrap">{production.year}</span>
                     </div>
-                    
+
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex flex-col gap-1">
                         <span className="text-xs text-muted-foreground">Tipo</span>
@@ -836,13 +836,15 @@ function ProductionXMLForm() {
     console.log("Tem File")
     setStatus("uploading")
     console.log(file)
+    const apiUrl = api.getBaseUrl() + '/api/portal/user/lattes-update';
+
 
     const formData = new FormData()
     formData.append('file', file)
 
     try {
       //console.log(api.getAuthToken())
-      const response = await fetch(api.getBaseUrl+'/api/portal/user/lattes-update', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer ' + api.getAuthToken(),
