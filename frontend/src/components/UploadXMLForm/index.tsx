@@ -41,6 +41,7 @@ export default function UploadXMLForm() {
         toast.success("Produções cadastradas com sucesso")
         setStatus("success")
         navigate('/portal/productions');
+        window.location.reload();
       } else {
         setStatus("error")
         toast.error("Erro no cadastro das produções")

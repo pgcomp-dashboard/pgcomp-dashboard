@@ -26,6 +26,13 @@ import {
 } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -54,7 +61,7 @@ type StratumQualis = {
 };
 
 type Production = {
-  productions_id: number;
+  id: number;
   title: string;
   year: number;
   created_at: string;
@@ -88,6 +95,7 @@ type Publisher = {
 interface RequestBodyType {
   title: string;
   year: number;
+  publisher_type: string;
   stratum_qualis_id: number | null;
   doi: string | null;
 }
@@ -104,7 +112,8 @@ type FormType = "none" | "xml" | "doi" | "other";
 const updateProductionFormSchema = z.object({
   title: z.string().min(1, "Campo obrigatório"),
   year: z.coerce.number().min(1900, "Ano inválido"),
-  qualis: z.string().min(1, "Campo obrigatório"),
+  type: z.string().min(1, "Campo obrigatório"),
+  qualis_code: z.string().min(1, "Campo obrigatório"),
   doi: z.string().min(1, "Campo obrigatório")
 });
 
@@ -160,27 +169,38 @@ export default function MyProductionsPage() {
   }, [data])
 
   async function onSubmit(values: z.infer<typeof updateProductionFormSchema>) {
-    console.log("Submiting")
-    console.log(JSON.stringify(values))
+    //console.log("Submiting")
+    //console.log(JSON.stringify(values))
+    console.log(productionList)
     const parsedYear = parseFloat(values.year.toString());
     if (isNaN(parsedYear)) {
       console.error('Ano Inválido');
       return;
     }
 
-    const qualis = qualisList.filter((item) => item.type === selectedProduction?.publisher_type).find((item) => item.code === values.qualis)
-
+    const qualis = qualisList.filter((item) => item.type === values.type).find((item) => item.code === values.qualis_code)
+    //console.log("Qualis :" + qualis);
     const payload: RequestBodyType = {
       title: values.title,
       year: parsedYear,
+      publisher_type: values.type,
       stratum_qualis_id: qualis ? qualis.id : null,
       doi: values.doi
     }
+    //console.log(payload)
     try {
       if (selectedProduction) {
-        const response = await api.updateProduction(selectedProduction.productions_id, JSON.stringify(payload));
-        console.log(response.status);
-        if (response) {
+
+        const response = await api.updateProduction(selectedProduction.id, JSON.stringify(payload));
+
+        if (response.status == "200") {
+          const updatedList = productionList.map((entry) => {
+            if (entry.id === selectedProduction.id) {
+              return { ...entry, ...payload, source: 'manual' };
+            }
+            return entry
+          })
+          setProductionList(updatedList);
           toast.success("Atualizado com sucesso")
           setIsEditOpen(false);
         }
@@ -196,7 +216,7 @@ export default function MyProductionsPage() {
       if (!selectedProduction) return;
       const response = await api.deleteProduction(id);
       if (response.status == '200') {
-        const list = productionList.filter((entry) => { return entry.productions_id !== selectedProduction.productions_id })
+        const list = productionList.filter((entry) => { return entry.id !== selectedProduction.id })
         setProductionList(list)
         toast.success("Produção deletada com sucesso.");
       }
@@ -218,14 +238,6 @@ export default function MyProductionsPage() {
     } catch (err) {
       toast.error("Erro ao deletar produções.")
     }
-    // productions.forEach(async element => {
-    //   try {
-    //     const response = await api.deleteProduction(element.productions_id);
-    //     if (response.status == '200') { console.log(response.message) }
-    //   } catch (err) {
-    //     console.log(err)
-    //   }
-    // });
   }
 
   const form = useForm<z.infer<typeof updateProductionFormSchema>>({
@@ -233,6 +245,7 @@ export default function MyProductionsPage() {
     defaultValues: {
       title: selectedProduction?.title,
       year: selectedProduction?.year,
+      qualis_code: selectedProduction?.last_qualis ?? undefined,
       doi: selectedProduction?.doi || undefined
     },
   });
@@ -242,7 +255,8 @@ export default function MyProductionsPage() {
       form.reset({
         title: selectedProduction.title,
         year: selectedProduction.year,
-        qualis: selectedProduction.last_qualis || "",
+        type: selectedProduction.publisher_type ?? undefined,
+        qualis_code: selectedProduction.last_qualis || "",
         doi: selectedProduction.doi || ""
       });
     }
@@ -271,24 +285,18 @@ export default function MyProductionsPage() {
               <Button onClick={() => { setChosenForm("none") }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
             </div>
               }
-              {chosenForm != "xml" &&
-                <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("xml") }}>
-                  <Plus className="mr-2 h-4 w-4" />
+              <Button disabled={chosenForm == "xml"} data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("xml") }}>
+                <Plus className="mr-2 h-4 w-4" />
                   XML
-                </Button>
-              }
-              {chosenForm != "doi" &&
-                <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("doi") }}>
+              </Button>
+              <Button disabled={chosenForm == "doi"} data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("doi") }}>
                   <Plus className="mr-2 h-4 w-4" />
                   DOI
                 </Button>
-              }
-              {chosenForm != "other" &&
-                <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("other") }}>
+              <Button disabled={chosenForm == "other"} data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("other") }}>
                   <Plus className="mr-2 h-4 w-4" />
                   FORM
-                </Button>
-              }
+              </Button>
               {chosenForm == "none" &&
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -347,7 +355,7 @@ export default function MyProductionsPage() {
                   </TableRow>
                   :
                   productionList.map((production) => (
-                    <TableRow key={production.productions_id}>
+                    <TableRow key={production.id}>
                       <TableCell className="font-medium">{production.title}</TableCell>
                       <TableCell className="font-medium text-center">
                         {production.year}
@@ -359,10 +367,10 @@ export default function MyProductionsPage() {
                         {production.publisher_type ? production.source : "NI"}
                       </TableCell>
                       <TableCell className="font-medium text-center">
-                        {production.publisher?.stratum_qualis?.code}
+                        {production.stratum_qualis_id && qualisList.find((qualis) => qualis.id == production.stratum_qualis_id)?.code}
                       </TableCell>
                       <TableCell className="font-medium text-center">
-                        {production.publisher?.stratum_qualis?.score}
+                        {production.stratum_qualis_id && qualisList.find((qualis) => qualis.id == production.stratum_qualis_id)?.score}
                       </TableCell>
                       <TableCell className="text-right flex justify-end gap-2">
                         <Button
@@ -407,7 +415,7 @@ export default function MyProductionsPage() {
                                 </AlertDialogCancel>
                                 <AlertDialogAction asChild>
                                   <Button className="bg-red-400 hover:bg-red-500" onClick={() => {
-                                    if (selectedProduction) deleteProduction(selectedProduction.productions_id)
+                                    if (selectedProduction) deleteProduction(selectedProduction.id)
                                   }}>Sim, deletar produção</Button>
                                 </AlertDialogAction>
                               </div>
@@ -429,7 +437,7 @@ export default function MyProductionsPage() {
               </div>
               :
               productionList.map((production) => (
-                <div key={production.productions_id} className="rounded-lg border p-4 bg-white">
+                <div key={production.id} className="rounded-lg border p-4 bg-white">
                   <div className="flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-semibold text-sm line-clamp-2 flex-1">{production.title}</h3>
@@ -491,7 +499,7 @@ export default function MyProductionsPage() {
                               </AlertDialogCancel>
                               <AlertDialogAction asChild>
                                 <Button className="bg-red-400 hover:bg-red-500" onClick={() => {
-                                  if (selectedProduction) deleteProduction(selectedProduction.productions_id)
+                                  if (selectedProduction) deleteProduction(selectedProduction.id)
                                 }}>Sim, deletar produção</Button>
                               </AlertDialogAction>
                             </div>
@@ -558,12 +566,38 @@ export default function MyProductionsPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="qualis"
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo</FormLabel>
+                      <FormDescription>
+                        {/*{selectedProduction?.publisher_type || "N/A"}*/}
+                      </FormDescription>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione o tipo de produção" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="journal">Revista</SelectItem>
+                            <SelectItem value="conference">Conferência</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="qualis_code"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Qualis:</FormLabel>
                       <FormDescription>
-                        {selectedProduction?.last_qualis || "N/A"}
+                        {selectedProduction?.stratum_qualis_id && qualisList.find((qualis) => qualis.id == selectedProduction.stratum_qualis_id)?.code || "N/A"}
                       </FormDescription>
                       <FormControl>
                         <Input type="text" {...field} />
@@ -607,6 +641,7 @@ export default function MyProductionsPage() {
 function ProductionDOIForm() {
   const [doi, setDoi] = useState<String>('');
   const [publisherType, setPublisherType] = useState('conference');
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleInput(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.value) {
@@ -621,11 +656,13 @@ function ProductionDOIForm() {
   async function createProduction() {
     if (!doi) return;
 
+    setIsLoading(true);
     const request = {
       'type': publisherType,
       'doi': doi
     }
-    console.log("Enviando")
+
+    //console.log("Enviando")
     try {
       const response = await api.createProductionDoi(request)
       console.log(response)
@@ -635,6 +672,8 @@ function ProductionDOIForm() {
     } catch (err) {
       toast.error('Erro ao criar produção')
       console.error('Erro ao criar produção:', err);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -643,21 +682,22 @@ function ProductionDOIForm() {
       <div className='flex flex-col w-full md:w-1/2 gap-4 items-center align-middle'>
         <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com D.O.I</h1>
         <h1 className="text-muted-foreground text-center">Adicione suas produções a partir do D.O.I.</h1>
-        {
-          <RadioGroup className='flex flex-row gap-6 md:gap-4' defaultValue='conference' onValueChange={handleValueChange}>
-            <div className="flex w-1/2 items-center space-x-2">
-              <RadioGroupItem value='conference' id='conference' />
-              <Label>Conferencia</Label>
-            </div>
-            <div className="flex w-1/2 items-center space-x-2">
-              <RadioGroupItem value='journal' id='journal' />
-              <Label>Revista</Label>
-            </div>
-          </RadioGroup>
-        }
+        <RadioGroup className='flex flex-row gap-6 md:gap-4' defaultValue='conference' onValueChange={handleValueChange}>
+          <div className="flex w-1/2 items-center space-x-2">
+            <RadioGroupItem value='conference' id='conference' />
+            <Label>Conferencia</Label>
+          </div>
+          <div className="flex w-1/2 items-center space-x-2">
+            <RadioGroupItem value='journal' id='journal' />
+            <Label>Revista</Label>
+          </div>
+        </RadioGroup>
         <div className="flex flex-col rounded-md gap-4 w-full">
           <Input placeholder='D.O.I' type="text" onChange={handleInput} />
-          <Button onClick={createProduction}>Importar produções</Button>
+          <Button onClick={createProduction} disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading ? "Importando..." : "Importar produções"}
+          </Button>
         </div>
       </div>
     </div>

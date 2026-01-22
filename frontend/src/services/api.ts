@@ -67,7 +67,7 @@ export interface Publisher {
 }
 
 export interface Production {
-  productions_id: number;
+  id: number;
   title: string;
   year: number;
   created_at: string;
