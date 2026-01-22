@@ -183,15 +183,17 @@ export default function ProfessorsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-center">Nome</TableHead>
+              <TableHead className="text-center">Categoria</TableHead>
+              <TableHead className="text-center">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {professors.map((professor) => (
               <TableRow key={professor.id}>
-                <TableCell className="font-medium">{professor.name}</TableCell>
-                <TableCell className="text-right flex justify-end gap-2">
+                <TableCell className="font-medium text-center">{professor.name}</TableCell>
+                <TableCell className="font-medium text-center">Permanente</TableCell>
+                <TableCell className="flex justify-center gap-2">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -266,7 +268,7 @@ export default function ProfessorsPage() {
             <div key={professor.id} className="rounded-lg border p-4 bg-white">
               <div className="flex flex-col gap-3">
                 <h3 className="font-semibold text-base">{professor.name}</h3>
-                
+
                 <div className="flex gap-2 pt-2 border-t">
                   <Button
                     variant="outline"

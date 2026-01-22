@@ -16,12 +16,21 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 type UserInfo = {
+  registration: string;
+  siape: string;
   name: string;
+  type: string;
+  category: string;
   email: string;
+  lattes_url: string;
 };
 
 const userConfigFormSchema = z.object({
-  exampleInput: z.string(),
+  name: z.string(),
+  email: z.string(),
+  registration: z.string().optional().nullable(),
+  siape: z.string().optional().nullable(),
+  lattes_url: z.string().optional().nullable(),
 });
 
 const updatePasswordFormSchema = z.object({
@@ -34,22 +43,6 @@ const updatePasswordFormSchema = z.object({
   });
 
 export default function SystemConfigPage() {
-
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-
-  useEffect(() => {
-    async function fetchPersonalInfo() {
-      try {
-        const userInfo = await api.getUserInfo();
-        setUserInfo(userInfo);
-        console.log(userInfo);
-      } catch (err) {
-        console.error('Erro ao carregar Informações do Usuário:', err);
-      }
-    }
-    fetchPersonalInfo()
-  }, [])
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -60,8 +53,6 @@ export default function SystemConfigPage() {
       </div>
       <h3 className='text-xl font-bold tracking-tight'>Configurações do usuário</h3>
       <div className="rounded-md border p-12">
-        <div>{userInfo?.name}</div>
-        <div>{userInfo?.email}</div>
         <UserConfigForm />
       </div>
       <h3 className='text-xl font-bold tracking-tight'>Configurações de segurança</h3>
@@ -73,32 +64,112 @@ export default function SystemConfigPage() {
 }
 
 function UserConfigForm() {
+  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchPersonalInfo() {
+      try {
+        const info = await api.getUserInfo();
+        setUserInfo(info.data);
+        console.log(info.data);
+      } catch (err) {
+        console.error('Erro ao carregar Informações do Usuário:', err);
+      }
+    }
+    fetchPersonalInfo()
+  }, [])
+
   const form = useForm<z.infer<typeof userConfigFormSchema>>({
     resolver: zodResolver(userConfigFormSchema),
     defaultValues: {
-      exampleInput: 'Hello there!',
+      name: "",
+      email: "",
+      registration: "",
+      siape: "",
+      lattes_url: "",
+    },
+    values: userInfo,
+    resetOptions: {
+      keepDirtyValues: true,
     },
   });
 
-  function onSubmit(values: z.infer<typeof userConfigFormSchema>) {
-    // TODO: remove this mock
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof userConfigFormSchema>) {
+    try {
+      // Clean up empty strings to null or undefined if needed, or send as is
+      await api.updateUserInfo(values as any);
+      alert('Informações atualizadas com sucesso!');
+    } catch (err) {
+      console.error('Erro ao atualizar usuário:', err);
+      alert('Erro ao atualizar usuário.');
+    }
   }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="exampleInput"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Input de teste</FormLabel>
+              <FormLabel>Nome:</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} className={!form.formState.dirtyFields.name ? "text-muted-foreground/60" : "text-foreground font-medium"} />
               </FormControl>
-              <FormDescription>
-                Formulário ainda a ser definido.
-              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email:</FormLabel>
+              <FormControl>
+                <Input {...field} className={!form.formState.dirtyFields.email ? "text-muted-foreground/60" : "text-foreground font-medium"} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="registration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Matrícula (Estudante):</FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value || ''} className={!form.formState.dirtyFields.registration ? "text-muted-foreground/60" : "text-foreground font-medium"} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="siape"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>SIAPE (Professor):</FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value || ''} className={!form.formState.dirtyFields.siape ? "text-muted-foreground/60" : "text-foreground font-medium"} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <FormField
+          control={form.control}
+          name="lattes_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL Lattes:</FormLabel>
+              <FormControl>
+                <Input {...field} value={field.value || ''} className={!form.formState.dirtyFields.lattes_url ? "text-muted-foreground/60" : "text-foreground font-medium"} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

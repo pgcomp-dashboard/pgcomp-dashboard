@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table';
 import api from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
-import { Paperclip } from 'lucide-react';
+import { BookOpenTextIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
@@ -92,9 +92,9 @@ export default function CredenciamentoPage() {
         <div className='flex flex-col gap-2 sm:flex-row sm:gap-2 sm:items-center'>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Credenciamento</h1>
         </div>
-        <div className='flex gap-4 items-center justify-end'>
-          <Label className="text-sm">Permanentes</Label>
-          <Switch onCheckedChange={handleToggle} />
+        <div className='flex flex-col gap-2 md:flex-row md:gap-4 items-center justify-end'>
+          <Label className="text-xs md:text-sm">Mostrar Todos</Label>
+          <Switch className=" md:scale-100" onCheckedChange={handleToggle} />
         </div>
       </div>
       <p className="text-sm sm:text-base text-muted-foreground">
@@ -102,13 +102,14 @@ export default function CredenciamentoPage() {
         Pela <Link to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf" target='_blank' className="underline"> Resolução</Link> são considerados os ultimos 4 anos completos.
         Para o calculo estão sendo considerados as produções de {date.getFullYear() - 4} até {date.getFullYear() - 1}
       </p>
+
       {/* Tabela - Desktop */}
       <div className="hidden md:block rounded-md border w-full">
         <Table>
           {!isToggled ?
-            <ShowRanking rankerList={ranking} />
-            :
             <ShowRanking rankerList={ranking.filter((rank) => rank.category == 'permanente')} />
+            :
+            <ShowRanking rankerList={ranking} />
           }
         </Table>
       </div>
@@ -116,9 +117,9 @@ export default function CredenciamentoPage() {
       {/* Cards - Mobile */}
       <div className="md:hidden flex flex-col gap-3">
         {!isToggled ?
-          <ShowRankingCards rankerList={ranking} />
-          :
           <ShowRankingCards rankerList={ranking.filter((rank) => rank.category == 'permanente')} />
+          :
+          <ShowRankingCards rankerList={ranking} />
         }
       </div>
     </div>
@@ -133,28 +134,35 @@ function ShowRanking({ rankerList }: RankingProps) {
     <>
       <TableHeader>
         <TableRow>
-          <TableHead>Colocação</TableHead>
-          <TableHead>Nome</TableHead>
-          <TableHead>Categoria</TableHead>
-          <TableHead>Pontuação</TableHead>
-          <TableHead>Lattes</TableHead>
+          <TableHead className="text-center">Colocação</TableHead>
+          <TableHead className="text-center">Nome</TableHead>
+          <TableHead className="text-center">Categoria</TableHead>
+          <TableHead className="text-center">Publicações</TableHead>
+          <TableHead className="text-center">Pontuação</TableHead>
+          <TableHead className="text-center">Lattes</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {rankerList ?
           rankerList.map((rank, index) => (
-            <TableRow className={rank.total_score >= 250 ? 'font-medium bg-green-100 hover:bg-green-200' : ''} key={index}>
-              <TableCell className="font-medium">{index + 1}º</TableCell>
-              <TableCell className="font-medium">
-                <Button variant='ghost' className={rank.total_score >= 250 ? 'hover:bg-green-200' : 'hover:bg-transparent'} onClick={() => {
+            <TableRow className={rank.total_score < 250 ? 'font-medium bg-red-100 hover:bg-red-200' : ''} key={index}>
+              <TableCell className="font-medium text-center">{index + 1}º</TableCell>
+              <TableCell className="font-medium text-center">
+                <Button variant='ghost' className='hover:bg-transparent' onClick={() => {
                   setCurrentProductionList(rank.productions)
                   setIsProductionsOpen(true)
                 }}>{rank.name.replace(/ D([aeiou]s?) /g, " d$1 ")}</Button>
               </TableCell>
-              <TableCell className="font-medium">{rank.category.replace(/^./, (match) => match.toUpperCase())}</TableCell>
-              <TableCell className="font-medium">{rank.total_score.toFixed(1)}</TableCell>
-              <TableCell className="font-medium">
-                <Link to={rank.lattes_url} target="_blank">
+              <TableCell className="font-medium text-center">{rank.category.replace(/^./, (match) => match.toUpperCase())}</TableCell>
+              <TableCell className="font-medium text-center">
+                <Button variant='ghost' className='hover:bg-transparent h-full' onClick={() => {
+                  setCurrentProductionList(rank.productions)
+                  setIsProductionsOpen(true)
+                }}> <BookOpenTextIcon className="size-6" /></Button>
+              </TableCell>
+              <TableCell className="font-medium     text-center">{rank.total_score.toFixed(1)}</TableCell>
+              <TableCell className="font-medium text-center">
+                <Link to={rank.lattes_url} target="_blank" className='flex justify-center'>
                   <LattesIcon />
                 </Link>
               </TableCell>
@@ -202,8 +210,8 @@ function ShowRankingCards({ rankerList }: RankingProps) {
         <div
           key={index}
           className={`rounded-lg border p-4 ${
-            rank.total_score >= 250
-              ? 'bg-green-50 border-green-200'
+            rank.total_score < 250
+              ? 'bg-red-50 border-red-200'
               : 'bg-white'
           }`}
         >

@@ -243,56 +243,80 @@ export default function MyProductionsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {chosenForm != "none" ?
-        <div>
-          <Button onClick={() => { setChosenForm("none") }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
+    <div className="flex flex-col items-center gap-4">
+      <div className='flex flex-col items-center gap-2 w-full' >
+        <div className='flex flex-col items-center gap-2'>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Minhas Produções</h1>
+          <p className="text-muted-foreground">
+            Visualize, crie e edite suas produções.
+          </p>
         </div>
-        :
-        <div className='flex flex-col md:flex-row gap-4 md:justify-around'>
-          <div>
-            <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Minhas Produções</h1>
-              <Button className='w-full sm:w-auto' onClick={() => fullDelete(productionList)}>Deletar Todas</Button>
+        <div className='flex w-full justify-start'>
+          {chosenForm != "none" ?
+            <div>
+              <Button onClick={() => { setChosenForm("none") }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
             </div>
-            <p className="text-muted-foreground">
-              Visualize e edite suas produções.
-            </p>
-          </div>
-          <div className='flex flex-col gap-2 justify-center md:items-center'>
-            <Label>Adicionar Produção</Label>
-            <div className='flex flex-col sm:flex-row gap-2'>
-              <Button data-cy="add-area-button" className='w-full sm:w-auto' onClick={() => { setChosenForm("xml") }}>
-                <Plus className="mr-2 h-4 w-4" />
-                XML
-              </Button>
-              <Button data-cy="add-area-button" className='w-full sm:w-auto' onClick={() => { setChosenForm("doi") }}>
-                <Plus className="mr-2 h-4 w-4" />
-                DOI
-              </Button>
-              <Button data-cy="add-area-button" className='w-full sm:w-auto' onClick={() => {
-                setChosenForm("other")
-              }}>
-                <Plus className="mr-2 h-4 w-4" />
-                FORM
-              </Button>
+            :
+            <div className='flex flex-col gap-4 md:justify-around'>
+              <Label>Adicionar Produção</Label>
+              <div className='flex flex-row flex-wrap gap-2'>
+                <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("xml") }}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  XML
+                </Button>
+                <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("doi") }}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  DOI
+                </Button>
+                <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("other") }}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  FORM
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      data-cy="add-area-button"
+                      className='w-[calc(50%-0.25rem)] sm:w-auto bg-red-400 hover:bg-red-500'>
+                      Deletar Todas
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogPortal>
+                    <AlertDialogOverlay />
+                    <AlertDialogContent>
+                      <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Essa ação não pode ser desfeita. Isso vai permanentemente deletar todas as produções.
+                      </AlertDialogDescription>
+                      <div className="flex justify-end gap-4">
+                        <AlertDialogCancel asChild>
+                          <Button className="bg-white text-black">Cancelar</Button>
+                        </AlertDialogCancel>
+                        <AlertDialogAction asChild>
+                          <Button className="bg-red-400 hover:bg-red-500" onClick={() => fullDelete(productionList)}>Sim, deletar produção</Button>
+                        </AlertDialogAction>
+                      </div>
+                    </AlertDialogContent>
+                  </AlertDialogPortal>
+                </AlertDialog>
+              </div>
             </div>
-          </div>
+          }
         </div>
-      }
-
+      </div>
       {/* Tabela */}
       {chosenForm === "none" ?
         <>
           {/* Desktop: Tabela */}
-          <div className="hidden md:block rounded-md border">
+          <div className="hidden w-full md:block rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className='text-center'>Título</TableHead>
                   <TableHead className='text-center'>Ano</TableHead>
                   <TableHead className='text-center'>Tipo</TableHead>
+                  <TableHead className='text-center'>Origem</TableHead>
                   <TableHead className='text-center'>Qualis</TableHead>
+                  <TableHead className='text-center'>Pontuação</TableHead>
                   <TableHead className='text-center'>Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -314,7 +338,12 @@ export default function MyProductionsPage() {
                         {production.publisher_type ? production.publisher_type : "NI"}
                       </TableCell>
                       <TableCell className="font-medium text-center">
-                        {production.publisher?.stratum_qualis?.code} -
+                        {production.publisher_type ? production.publisher_type : "NI"}
+                      </TableCell>
+                      <TableCell className="font-medium text-center">
+                        {production.publisher?.stratum_qualis?.code}
+                      </TableCell>
+                      <TableCell className="font-medium text-center">
                         {production.publisher?.stratum_qualis?.score}
                       </TableCell>
                       <TableCell className="text-right flex justify-end gap-2">
@@ -542,11 +571,13 @@ export default function MyProductionsPage() {
                   )}
                 />
               </div>
-              <Button type="button" onClick={() => setIsEditOpen(false)}>Fechar</Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
-              </Button>
+              <div className="flex justify-end gap-2">
+                <Button type="button" size="lg" onClick={() => setIsEditOpen(false)}>Fechar</Button>
+                <Button type="submit" size="lg" className="bg-green-700 hover:bg-green-800" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
+                </Button>
+              </div>
             </form>
           </Form>
         </DialogContent>
@@ -590,17 +621,17 @@ function ProductionDOIForm() {
   }
 
   return (
-    <div className='flex flex-col items-center align-middle px-4'>
-      <div className='flex flex-col w-full sm:w-2/3 md:w-1/2 gap-4 items-center align-middle'>
+    <div className='flex flex-col w-full items-center align-middle px-4'>
+      <div className='flex flex-col w-full md:w-1/2 gap-4 items-center align-middle'>
         <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com D.O.I</h1>
         <h1 className="text-muted-foreground text-center">Adicione suas produções a partir do D.O.I.</h1>
         {
-          <RadioGroup className='flex flex-col sm:flex-row gap-3' defaultValue='conference' onValueChange={handleValueChange}>
-            <div className="flex items-center space-x-2">
+          <RadioGroup className='flex flex-row gap-6 md:gap-4' defaultValue='conference' onValueChange={handleValueChange}>
+            <div className="flex w-1/2 items-center space-x-2">
               <RadioGroupItem value='conference' id='conference' />
               <Label>Conferencia</Label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex w-1/2 items-center space-x-2">
               <RadioGroupItem value='journal' id='journal' />
               <Label>Revista</Label>
             </div>
@@ -831,11 +862,8 @@ function ProductionXMLForm() {
   }
 
   async function onSubmit() {
-    console.log("Submiting")
     if (!file) return;
-    console.log("Tem File")
     setStatus("uploading")
-    console.log(file)
     const apiUrl = api.getBaseUrl() + '/api/portal/user/lattes-update';
 
 
@@ -843,7 +871,6 @@ function ProductionXMLForm() {
     formData.append('file', file)
 
     try {
-      //console.log(api.getAuthToken())
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -852,40 +879,49 @@ function ProductionXMLForm() {
         body: formData
       });
       console.log(response)
-      if (response.status === 201) toast.success("Produções cadastradas com sucesso")
+      if (response.status === 201) {
+        toast.success("Produções cadastradas com sucesso")
+        setStatus("success")
+      } else {
+        setStatus("error")
+        toast.error("Erro no cadastro das produções")
+      }
     } catch (err) {
+      setStatus("error")
       toast.error("Erro no cadastro das produções")
       console.error('Erro ao criar produções:', err);
     }
   }
 
   return (
-    <div className='flex flex-col items-center align-middle px-4'>
-      <div className='flex flex-col w-full sm:w-2/3 md:w-1/2 lg:w-1/3 gap-4 items-center align-middle'>
+    <div className='flex flex-col w-full items-center align-middle px-4'>
+      <div className='flex flex-col w-2/3 md:w-1/2 lg:w-1/3 gap-4 items-center align-middle'>
         <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com XML</h1>
         <p className="text-muted-foreground text-center">Adicione suas produções a partir do XML do lattes, coloque o arquivo zip disponibilizado ao baixar.</p>
         <div className="flex flex-col rounded-md gap-4 w-full">
           <Input type="file" onChange={handleFileChange} />
-          {file && status !== "uploading" &&
-            <Button type="submit" disabled={!file} onClick={onSubmit}>Enviar</Button>
-          }
+
+          <Button type="submit" disabled={!file || status === 'uploading'} onClick={onSubmit}>
+            {status === 'uploading' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {status === 'uploading' ? "Enviando..." : "Enviar"}
+          </Button>
+
           <div>
             {file &&
-              <div>
-                <div>{file.name}</div>
-                <div>{(file.size / 1024).toFixed(2)} Kb</div>
-                <div>{file.type}</div>
+              <div className='text-sm text-muted-foreground mb-2'>
+                <div>Arquivo: {file.name}</div>
+                <div>Tamanho: {(file.size / 1024).toFixed(2)} Kb</div>
               </div>}
             {status === 'success' && (
-              <p>
-                File Uploaded sucessfuly
-              </p>
+              <div className="p-3 bg-green-100 text-green-700 rounded-md text-sm border border-green-200">
+                Arquivo enviado com sucesso! As produções estão sendo processadas.
+              </div>
             )
             }
             {status === 'error' && (
-              <p>
-                Uploaded failed
-              </p>
+              <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm border border-red-200">
+                Falha no envio do arquivo. Tente novamente.
+              </div>
             )
             }
           </div>

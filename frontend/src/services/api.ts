@@ -12,9 +12,14 @@ export function parseApiError(error: unknown): string {
 }
 
 type UserInfo = {
+  registration: string;
+  siape: string;
   name: string;
+  type: string;
+  category: string;
   email: string;
-}
+  lattes_url: string;
+};
 
 export interface Advisor {
   id: number;
@@ -488,15 +493,17 @@ export class ApiService {
   }
 
   async getUserInfo() {
-    var response = await this.get<{ data: UserInfo }>('/api/portal/user/info')
-    return response.data;
+    return await this.get<{ data: UserInfo }>('/api/portal/user')
+  }
+
+  async updateUserInfo(body: RequestBodyType) {
+    return await this.put<{ status: number, data: UserInfo }>('/api/portal/user', body);
   }
 
   async createUserProduction(body: RequestBodyType) {
     return this.post<{status: string, message: string, data: Production}>('/api/portal/user/productions', body);
   }
 
-  //Doesn't work, probably because of headers
   async createProductionXML(body: FormData, headers: Record<string, string> = {}) {
     return this.post<{status: string, message: string}>('/api/portal/user/lattes-update', body, headers);
   }

@@ -161,7 +161,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               {/* Botão completo - Desktop */}
               <Button variant="outline" size="sm" asChild className="hidden lg:flex">
-                <Link to="/">Ver dashboard pública</Link>
+                <Link to="/">Dashboard PGCOMP</Link>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
