@@ -53,10 +53,11 @@ class LattesZipXml
         $productions = $xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'ARTIGOS-PUBLICADOS'}->{'ARTIGO-PUBLICADO'} ?? [];
         /** @var SimpleXMLElement $item */
         foreach ($productions as $item) {
-            $doi = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
+            $doiEnd = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
             if (!trim($doi)) {
                 continue;
             }
+            $doi = "http://dx.doi.org/"+$doiEnd;
             $title = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['ANO-DO-ARTIGO'];
             $issn = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['ISSN'];
@@ -68,7 +69,6 @@ class LattesZipXml
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
                 $publisher_id = Publishers::where('issn', $issn)->first()?->id;
-                error_log($publisher_id);
             }
 
             $production = compact('source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');
@@ -91,7 +91,6 @@ class LattesZipXml
             $publisher_id = null;
             $publisher_type = PublisherType::CONFERENCE->value;
             $source = ProductionSource::XML->value;
-            error_log($source);
 
             if ($conferenceName) {
                 $publisher_id = Publishers::where('name', $conferenceName)->first()?->id;

@@ -29,7 +29,7 @@ class UserController extends Controller
         $data = LattesZipXml::extractProductions($path);
         //if($data){
         //    return $data['productions'];
-        dd($data);
+        //dd($data);
         //}
         $user->updateLattes($data);
         return response()->json($data, 201);
