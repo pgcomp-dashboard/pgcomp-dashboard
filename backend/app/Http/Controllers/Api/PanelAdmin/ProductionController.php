@@ -254,28 +254,21 @@ class ProductionController extends BaseApiResourceController
     public function deleteAll()
     {
         if (Auth::check()) {
-            $userId = Auth::user()->id;
+            $user = Auth::user();
         }
 
-        $user = User::findOrFail($userId);
-
-        $constrains = DB::table('users_productions')
-            ->where('users_id', '=', $user->id)
-            ->get();
+        $userProductions = $user->writerOf;
 
         $count = 0;
-        foreach ($constrains as $constrain) {
-            $key = DB::table('users_productions')
-                ->where('users_id', '=', $constrain->users_id)
-                ->where('productions_id', '=', $constrain->productions_id)
-                ->delete();
-            $production = Production::findOrFail($constrain->productions_id)->delete();
-            if($key and $production){
+        foreach ($userProductions as $production) {
+            $production->removeInterTable($user->id);
+            $success = $production->delete();
+            if ($success) {
                 $count++;
             }
         }
 
-        if ($userId) {
+        if ($user->id) {
             return response()->json([
                 "status" => 200,
                 "data" => "Deleted $count productions"

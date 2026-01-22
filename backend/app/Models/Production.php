@@ -127,7 +127,8 @@ class Production extends BaseModel
             'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255'],
             'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
             'sequence_number' => 'nullable|int',
-            'source' => 'nullable|string|max:255'
+            'source' => 'nullable|string|max:255',
+            'stratum_qualis_id' => 'nullable|int'
         ];
     }
 
