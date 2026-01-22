@@ -63,7 +63,7 @@ class LattesZipXml
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
             $publisher_type = PublisherType::JOURNAL->value;
-            $source = ProductionSource::MANUAL;
+            $source = ProductionSource::XML->value;
 
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
@@ -90,7 +90,8 @@ class LattesZipXml
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
             $publisher_type = PublisherType::CONFERENCE->value;
-            $source = ProductionSource::MANUAL->value;
+            $source = ProductionSource::XML->value;
+            error_log($source);
 
             if ($conferenceName) {
                 $publisher_id = Publishers::where('name', $conferenceName)->first()?->id;

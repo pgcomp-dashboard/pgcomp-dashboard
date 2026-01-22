@@ -16,7 +16,7 @@ class UserController extends Controller
         //$user = $request->user()->id;
         $user = Auth::user();
         //dd($request->all());
-        error_log($request->file('file'));
+        //error_log($request->file('file'));
 
         $request->validate([
             'file' => ['required', 'file', 'mimetypes:application/zip,application/x-zip-compressed,application/xml,text/xml', 'max:5120'],
@@ -29,6 +29,7 @@ class UserController extends Controller
         $data = LattesZipXml::extractProductions($path);
         //if($data){
         //    return $data['productions'];
+        dd($data);
         //}
         $user->updateLattes($data);
         return response()->json($data, 201);

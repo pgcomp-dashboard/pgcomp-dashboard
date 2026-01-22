@@ -58,6 +58,7 @@ class Production extends BaseModel
         'publisher_type',
         'publisher_id',
         'doi',
+        'source',
     ];
 
     /**
@@ -72,6 +73,7 @@ class Production extends BaseModel
             'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
             'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
             'sequence_number' => 'nullable|int',
+            'source' => 'nullable|string|max:255'
         ];
     }
 
@@ -125,6 +127,7 @@ class Production extends BaseModel
             'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255'],
             'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
             'sequence_number' => 'nullable|int',
+            'source' => 'nullable|string|max:255'
         ];
     }
 
@@ -136,6 +139,11 @@ class Production extends BaseModel
     public function saveInterTable($users_id)// : void
     {
         $this->isWroteBy()->attach($users_id);
+    }
+
+    public function removeInterTable($users_id)
+    {
+        $this->isWroteBy()->detach($users_id);
     }
 
     /**

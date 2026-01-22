@@ -51,23 +51,27 @@ class ProductionController extends BaseApiResourceController
 
         $production = Production::findOrFail($id);
 
-        if ($production) {
-            $constrain = DB::table('users_productions')
-                ->where('users_id', '=', $userId)
-                ->where('productions_id', '=', $id)
-                ->delete();
-        } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Produção não encontrada'
-            ]);
-        }
+        $production->removeInterTable($userId);
 
-        if ($constrain) {
-            $success = $production->delete();
-        }
+        $success = $production->delete();
 
-        if ($constrain && $success) {
+        // if ($production) {
+        //     $constrain = DB::table('users_productions')
+        //         ->where('users_id', '=', $userId)
+        //         ->where('productions_id', '=', $id)
+        //         ->delete();
+        // } else {
+        //     return response()->json([
+        //         'status' => 404,
+        //         'message' => 'Produção não encontrada'
+        //     ]);
+        // }
+
+        // if ($constrain) {
+        //     $success = $production->delete();
+        // }
+
+        if ($success) {
             return response()->json([
                 'status' => 200,
                 'message' => 'Produção deletada com sucesso'
