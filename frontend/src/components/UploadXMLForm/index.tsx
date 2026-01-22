@@ -4,7 +4,11 @@ import { ChangeEvent, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+<<<<<<< HEAD
 import { useNavigate } from "react-router";
+=======
+import { Navigate, useNavigate } from "react-router";
+>>>>>>> 673d5156103ae3b511af2be4bae75b02a9295133
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
