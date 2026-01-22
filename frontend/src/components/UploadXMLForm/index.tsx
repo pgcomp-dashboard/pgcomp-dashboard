@@ -40,7 +40,7 @@ export default function UploadXMLForm() {
       if (response.status === 201) {
         toast.success("Produções cadastradas com sucesso")
         setStatus("success")
-        navigate('/productions');
+        navigate('/portal/productions');
       } else {
         setStatus("error")
         toast.error("Erro no cadastro das produções")
