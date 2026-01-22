@@ -1,3 +1,4 @@
+import UploadXMLForm from "@/components/UploadXMLForm";
 import WelcomeImage from "@/components/WelcomeImage";
 
 export default function WelcomePage() {
@@ -9,7 +10,14 @@ export default function WelcomePage() {
           <h1 className="text-3xl font-bold tracking-tight">PGCOMP é CAPES 6!</h1>
           <p className="text-muted-foreground">Bem vindo(a) ao portal do pgcomp dashboard</p>
         </div>
-        <WelcomeImage className="rounded-md border w-200" />
+        <div className="flex flex-wrap">
+          <div className="w-full lg:w-1/2">
+            <UploadXMLForm />
+          </div>
+          <div className="w-full lg:w-1/2">
+            <WelcomeImage className="rounded-md border w-200" />
+          </div>
+        </div>
       </div>
     </div>
   );

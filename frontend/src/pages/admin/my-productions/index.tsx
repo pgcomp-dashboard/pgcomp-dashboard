@@ -33,6 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import UploadXMLForm from '@/components/UploadXMLForm';
 import api from '@/services/api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DialogDescription } from '@radix-ui/react-dialog';
@@ -65,6 +66,7 @@ type Production = {
   sequence_number: number | null;
   doi: string | null;
   publisher: Publisher | null;
+  source: string
 };
 
 type Publisher = {
@@ -198,22 +200,34 @@ export default function MyProductionsPage() {
       if (response.status == '200') {
         const list = productionList.filter((entry) => { return entry.productions_id !== selectedProduction.productions_id })
         setProductionList(list)
+        toast.success("Produção deletada com sucesso.");
       }
       console.log(response.message)
     } catch (err) {
-      console.error('Erro ao deletar a publicação:', err)
+      console.error('Erro ao deletar a produção:', err)
     }
   }
 
-  function fullDelete(productions: Production[]) {
-    productions.forEach(async element => {
-      try {
-        const response = await api.deleteProduction(element.productions_id);
-        if (response.status == '200') { console.log(response.message) }
-      } catch (err) {
-        console.log(err)
+  async function fullDelete() {
+    try {
+      const response = await api.clearProduction()
+      console.log(response)
+      if (response.status == '200') {
+        setProductionList([]);
+        toast.success("Produções deletadas com sucesso.");
       }
-    });
+
+    } catch (err) {
+      toast.error("Erro ao deletar produções.")
+    }
+    // productions.forEach(async element => {
+    //   try {
+    //     const response = await api.deleteProduction(element.productions_id);
+    //     if (response.status == '200') { console.log(response.message) }
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
+    // });
   }
 
   const form = useForm<z.infer<typeof updateProductionFormSchema>>({
@@ -252,26 +266,32 @@ export default function MyProductionsPage() {
           </p>
         </div>
         <div className='flex w-full justify-start'>
-          {chosenForm != "none" ?
+          <div className='flex flex-col gap-4 md:justify-around'> <Label>Adicionar Produção</Label>
+            <div className='flex flex-row flex-wrap gap-2'>
+              {chosenForm != "none" &&
             <div>
               <Button onClick={() => { setChosenForm("none") }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
             </div>
-            :
-            <div className='flex flex-col gap-4 md:justify-around'>
-              <Label>Adicionar Produção</Label>
-              <div className='flex flex-row flex-wrap gap-2'>
+              }
+              {chosenForm != "xml" &&
                 <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("xml") }}>
                   <Plus className="mr-2 h-4 w-4" />
                   XML
                 </Button>
+              }
+              {chosenForm != "doi" &&
                 <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("doi") }}>
                   <Plus className="mr-2 h-4 w-4" />
                   DOI
                 </Button>
+              }
+              {chosenForm != "other" &&
                 <Button data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => { setChosenForm("other") }}>
                   <Plus className="mr-2 h-4 w-4" />
                   FORM
                 </Button>
+              }
+              {chosenForm == "none" &&
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
@@ -292,15 +312,15 @@ export default function MyProductionsPage() {
                           <Button className="bg-white text-black">Cancelar</Button>
                         </AlertDialogCancel>
                         <AlertDialogAction asChild>
-                          <Button className="bg-red-400 hover:bg-red-500" onClick={() => fullDelete(productionList)}>Sim, deletar produção</Button>
+                          <Button className="bg-red-400 hover:bg-red-500" onClick={() => fullDelete()}>Sim, deletar produção</Button>
                         </AlertDialogAction>
                       </div>
                     </AlertDialogContent>
                   </AlertDialogPortal>
                 </AlertDialog>
+              }
               </div>
-            </div>
-          }
+          </div>
         </div>
       </div>
       {/* Tabela */}
@@ -338,7 +358,7 @@ export default function MyProductionsPage() {
                         {production.publisher_type ? production.publisher_type : "NI"}
                       </TableCell>
                       <TableCell className="font-medium text-center">
-                        {production.publisher_type ? production.publisher_type : "NI"}
+                        {production.publisher_type ? production.source : "NI"}
                       </TableCell>
                       <TableCell className="font-medium text-center">
                         {production.publisher?.stratum_qualis?.code}
@@ -487,7 +507,7 @@ export default function MyProductionsPage() {
           </div>
         </>
         : chosenForm === "xml" ?
-          <ProductionXMLForm />
+          <UploadXMLForm />
           : chosenForm === "doi" ?
             <ProductionDOIForm />
             :
@@ -851,82 +871,82 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
   )
 }
 
-function ProductionXMLForm() {
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<UploadStatus>("idle");
+// function ProductionXMLForm() {
+//   const [file, setFile] = useState<File | null>(null);
+//   const [status, setStatus] = useState<UploadStatus>("idle");
 
-  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.files) {
-      setFile(e.target.files[0])
-    }
-  }
+//   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+//     if (e.target.files) {
+//       setFile(e.target.files[0])
+//     }
+//   }
 
-  async function onSubmit() {
-    if (!file) return;
-    setStatus("uploading")
-    const apiUrl = api.getBaseUrl() + '/api/portal/user/lattes-update';
+//   async function onSubmit() {
+//     if (!file) return;
+//     setStatus("uploading")
+//     const apiUrl = api.getBaseUrl() + '/api/portal/user/lattes-update';
 
 
-    const formData = new FormData()
-    formData.append('file', file)
+//     const formData = new FormData()
+//     formData.append('file', file)
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + api.getAuthToken(),
-        },
-        body: formData
-      });
-      console.log(response)
-      if (response.status === 201) {
-        toast.success("Produções cadastradas com sucesso")
-        setStatus("success")
-      } else {
-        setStatus("error")
-        toast.error("Erro no cadastro das produções")
-      }
-    } catch (err) {
-      setStatus("error")
-      toast.error("Erro no cadastro das produções")
-      console.error('Erro ao criar produções:', err);
-    }
-  }
+//     try {
+//       const response = await fetch(apiUrl, {
+//         method: 'POST',
+//         headers: {
+//           'Authorization': 'Bearer ' + api.getAuthToken(),
+//         },
+//         body: formData
+//       });
+//       console.log(response)
+//       if (response.status === 201) {
+//         toast.success("Produções cadastradas com sucesso")
+//         setStatus("success")
+//       } else {
+//         setStatus("error")
+//         toast.error("Erro no cadastro das produções")
+//       }
+//     } catch (err) {
+//       setStatus("error")
+//       toast.error("Erro no cadastro das produções")
+//       console.error('Erro ao criar produções:', err);
+//     }
+//   }
 
-  return (
-    <div className='flex flex-col w-full items-center align-middle px-4'>
-      <div className='flex flex-col w-2/3 md:w-1/2 lg:w-1/3 gap-4 items-center align-middle'>
-        <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com XML</h1>
-        <p className="text-muted-foreground text-center">Adicione suas produções a partir do XML do lattes, coloque o arquivo zip disponibilizado ao baixar.</p>
-        <div className="flex flex-col rounded-md gap-4 w-full">
-          <Input type="file" onChange={handleFileChange} />
+//   return (
+//     <div className='flex flex-col w-full items-center align-middle px-4'>
+//       <div className='flex flex-col w-2/3 md:w-1/2 lg:w-1/3 gap-4 items-center align-middle'>
+//         <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com XML</h1>
+//         <p className="text-muted-foreground text-center">Adicione suas produções a partir do XML do lattes, coloque o arquivo zip disponibilizado ao baixar.</p>
+//         <div className="flex flex-col rounded-md gap-4 w-full">
+//           <Input type="file" onChange={handleFileChange} />
 
-          <Button type="submit" disabled={!file || status === 'uploading'} onClick={onSubmit}>
-            {status === 'uploading' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {status === 'uploading' ? "Enviando..." : "Enviar"}
-          </Button>
+//           <Button type="submit" disabled={!file || status === 'uploading'} onClick={onSubmit}>
+//             {status === 'uploading' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+//             {status === 'uploading' ? "Enviando..." : "Enviar"}
+//           </Button>
 
-          <div>
-            {file &&
-              <div className='text-sm text-muted-foreground mb-2'>
-                <div>Arquivo: {file.name}</div>
-                <div>Tamanho: {(file.size / 1024).toFixed(2)} Kb</div>
-              </div>}
-            {status === 'success' && (
-              <div className="p-3 bg-green-100 text-green-700 rounded-md text-sm border border-green-200">
-                Arquivo enviado com sucesso! As produções estão sendo processadas.
-              </div>
-            )
-            }
-            {status === 'error' && (
-              <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm border border-red-200">
-                Falha no envio do arquivo. Tente novamente.
-              </div>
-            )
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+//           <div>
+//             {file &&
+//               <div className='text-sm text-muted-foreground mb-2'>
+//                 <div>Arquivo: {file.name}</div>
+//                 <div>Tamanho: {(file.size / 1024).toFixed(2)} Kb</div>
+//               </div>}
+//             {status === 'success' && (
+//               <div className="p-3 bg-green-100 text-green-700 rounded-md text-sm border border-green-200">
+//                 Arquivo enviado com sucesso! As produções estão sendo processadas.
+//               </div>
+//             )
+//             }
+//             {status === 'error' && (
+//               <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm border border-red-200">
+//                 Falha no envio do arquivo. Tente novamente.
+//               </div>
+//             )
+//             }
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   )
+// }

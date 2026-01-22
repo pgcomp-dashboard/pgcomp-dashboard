@@ -13,6 +13,7 @@ import api, { RequestBodyType } from '@/services/api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 type UserInfo = {
@@ -47,11 +48,11 @@ export default function SystemConfigPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Configurações do sistema</h1>
-          <p className="text-muted-foreground">Aqui você pode configurar o sistema do PGCOMP Dashboard.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Configurações do Usuário</h1>
+          <p className="text-muted-foreground">Aqui você pode configurar suas informações no PGCOMP Dashboard.</p>
         </div>
       </div>
-      <h3 className='text-xl font-bold tracking-tight'>Configurações do usuário</h3>
+      <h3 className='text-xl font-bold tracking-tight'>Informações do usuário</h3>
       <div className="rounded-md border p-12">
         <UserConfigForm />
       </div>
@@ -95,13 +96,13 @@ function UserConfigForm() {
   });
 
   async function onSubmit(values: z.infer<typeof userConfigFormSchema>) {
+    console.log(values)
     try {
-      // Clean up empty strings to null or undefined if needed, or send as is
-      await api.updateUserInfo(values as any);
-      alert('Informações atualizadas com sucesso!');
+      await api.updateUserInfo(values);
+      toast.success('Informações atualizadas com sucesso!');
     } catch (err) {
       console.error('Erro ao atualizar usuário:', err);
-      alert('Erro ao atualizar usuário.');
+      toast.error('Erro ao atualizar usuário.');
     }
   }
   return (
@@ -174,7 +175,9 @@ function UserConfigForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Atualizar</Button>
+        <Button type="submit" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? 'Atualizando...' : 'Atualizar'}
+        </Button>
       </form>
     </Form>
   );
