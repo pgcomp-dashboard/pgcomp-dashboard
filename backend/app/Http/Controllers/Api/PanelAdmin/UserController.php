@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Models\BaseModel;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -23,11 +24,20 @@ class UserController extends BaseApiResourceController
     {
         $user = $request->user();
         return response()->json([
-                'data' => [
-                    'name' => $user->name,
-                    'email' => $user->email
-                ]
+                'data' => $user
             ]);
+    }
+
+    public function updateUserInfo(Request $request){
+        $user = User::findOrFail(Auth::user()->id);
+        $user->update($request->all());
+
+        if($user){
+            return response()->json([
+                'status' => 200,
+                'data' => $user,
+            ]);
+        }
     }
 
     public function changePassword(Request $request){
