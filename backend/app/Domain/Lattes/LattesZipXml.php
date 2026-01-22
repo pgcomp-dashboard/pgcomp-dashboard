@@ -53,11 +53,11 @@ class LattesZipXml
         $productions = $xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'ARTIGOS-PUBLICADOS'}->{'ARTIGO-PUBLICADO'} ?? [];
         /** @var SimpleXMLElement $item */
         foreach ($productions as $item) {
-            $doiEnd = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
+            $doi = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
             if (!trim($doi)) {
                 continue;
             }
-            $doi = "http://dx.doi.org/"+$doiEnd;
+            $doi = "http://dx.doi.org/".$doi;
             $title = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['ANO-DO-ARTIGO'];
             $issn = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['ISSN'];
