@@ -11,6 +11,7 @@ enum ProductionSource: string
     case SCRIPT = 'script';
     case XML = 'xml';
     case MANUAL = 'manual';
+    case DOI = 'doi';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum ProductionSource: string
             self::XML => 'xml',
             self::SCRIPT => 'script',
             self::MANUAL => 'manual',
+            self::DOI => 'doi'
         };
     }
 }

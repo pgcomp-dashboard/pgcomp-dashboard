@@ -78,7 +78,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('ranking', RankingController::class)->except(['destroy']);
     Route::get('user/productions', [ProductionAdminController::class, 'userProductions']);
     Route::post('user/productions',[ProductionAdminController::class,'userCreateProduction']);
-            Route::delete('user/productions/all', [ProductionAdminController::class, 'deleteAll']);
+    Route::delete('user/productions/all', [ProductionAdminController::class, 'deleteAll']);
     //Route::put('user/productions', [ProductionAdminController::class, 'updateProduction']);
     Route::apiResource('user/productions', ProductionAdminController::class)->only(['update', 'destroy']);
     Route::post('user/productions/doi',[ProductionAdminController::class,'productionFromDoi']);

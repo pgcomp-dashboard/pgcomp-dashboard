@@ -120,22 +120,13 @@ class ProductionController extends BaseApiResourceController
         $user = Auth::user();
         $userId = $user->id;
 
-        error_log($user);
-        error_log($userId);
+        $productions = $user->writerOf;
 
-        $productions = $this->newBaseQuery()
-            ->with('publisher')
-            ->select('*')
-            ->join('users_productions', 'id', '=', 'users_productions.productions_id')
-            ->join('users', 'users_productions.users_id', '=', 'users.id')
-            ->where('users.id', '=', $userId)
-            ->get();
+        foreach ($productions as $production) {
+            unset($production['pivot']);
+        }
 
-        error_log($productions);
-
-        return response()->json([
-            'data' => $productions,
-        ]);
+        return response()->json(['data' => $productions], 200);
     }
 
     public function userCreateProduction(Request $request)
@@ -163,14 +154,13 @@ class ProductionController extends BaseApiResourceController
 
         $url = "https://api.crossref.org/works/doi/{$doi}";
 
-        error_log("fetching data");
+        //error_log("fetching data");
 
         try {
             $response = $clientHttp->get($url, ['query' => []]);
 
             if ($response->getStatusCode() !== 200) {
                 error_log("Error fetching data for {$doi}");
-
                 return 3;
             }
 
@@ -219,12 +209,12 @@ class ProductionController extends BaseApiResourceController
 
         $production = [
             'users_id' => $userId,
-            'source' => ProductionSource::MANUAL->value,
+            'source' => ProductionSource::DOI->value,
             'title' => $title,
             'year' => $year,
-            'publisher_type' => $publisher->publisher_type ?? null,
+            'publisher_type' => $publisher->publisher_type ?? $type,
             'publisher_id' => $publisher->id ?? null,
-            'doi'=> "http://dx.doi.org/". $productionDoi
+            'doi' => "http://dx.doi.org/" . $productionDoi
         ];
 
         if (!$publisher) {
@@ -246,9 +236,13 @@ class ProductionController extends BaseApiResourceController
 
         $production = Production::findOrFail($id);
 
-        $production->update($request->all());
+        error_log($request);
 
-        return $production;
+        $production->update($request->all());
+        $production->source = ProductionSource::MANUAL->value;
+        $production->save();
+
+        return response()->json(['status' => 200, 'data' => $production]);
     }
 
     public function deleteAll()

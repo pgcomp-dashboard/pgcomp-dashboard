@@ -59,6 +59,7 @@ class Production extends BaseModel
         'publisher_id',
         'doi',
         'source',
+        'stratum_qualis_id'
     ];
 
     /**
@@ -69,11 +70,12 @@ class Production extends BaseModel
         return [
             'title' => ['required', 'string', 'max:255', Rule::unique(Production::class, 'title')->whereNull('doi')],
             'year' => 'required|int|date_format:Y',
-            'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255'],
+            'publisher_type' => ['nullable', 'string', 'max:255'],
             'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
             'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
             'sequence_number' => 'nullable|int',
-            'source' => 'nullable|string|max:255'
+            'source' => 'nullable|string|max:255',
+            'stratum_qualis_id' => 'nullable|int'
         ];
     }
 
