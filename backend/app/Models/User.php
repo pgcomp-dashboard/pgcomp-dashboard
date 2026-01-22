@@ -288,6 +288,16 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
         return [
             'name' => 'string|max:255',
+            'email' => [
+                'nullable',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique(User::class)->ignore($this->id),
+            ],
+            'registration' => 'nullable|int',
+            'siape' => 'nullable|int',
+            'type' => ['nullable', new Enum(UserType::class)],
             'area_id' => [
                 'nullable',
                 'int',

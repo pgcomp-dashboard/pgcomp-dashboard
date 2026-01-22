@@ -31,6 +31,6 @@ class UserController extends Controller
         //    return $data['productions'];
         //}
         $user->updateLattes($data);
-        return $data;
+        return response()->json($data, 201);
     }
 }

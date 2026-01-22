@@ -71,7 +71,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         function () {
     Route::get('journal',[ PublisherController::class, 'journalByIssn']);
     Route::get('conference', [PublisherController::class, 'conferenceByInitials']);
-    Route::get('user/info', [UserAdminController::class, 'getUserInfo']);
+    Route::get('user', [UserAdminController::class, 'getUserInfo']);
+    Route::put('user', [UserAdminController::class, 'updateUserInfo']);
     Route::put('user/update', [UserAdminController::class, 'changePassword']);
     Route::apiResource('qualis', StratumQualisController::class)->only(['index']);
     Route::apiResource('ranking', RankingController::class)->except(['destroy']);
