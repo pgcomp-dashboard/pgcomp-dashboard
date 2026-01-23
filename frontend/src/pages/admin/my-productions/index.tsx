@@ -123,12 +123,14 @@ const createProductionFormSchema = z.object({
 });
 
 export default function MyProductionsPage() {
+  const date = new Date();
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [qualisList, setQualisList] = useState<StratumQualis[]>([]);
   const [productionList, setProductionList] = useState<Production[]>([])
   const [selectedProduction, setSelectedProduction] = useState<Production>();
   const [chosenForm, setChosenForm] = useState<FormType>("none");
+  const [totalScore, setTotalScore] = useState(0);
 
   useEffect(() => {
     async function fetchQualis() {
@@ -158,15 +160,28 @@ export default function MyProductionsPage() {
 
   useEffect(() => {
     if (data) {
-    entries = Object.entries(data)
-      .filter(([key]) => !isNaN(Number(key)))
-      .map(([, value]) => value as unknown as Production);
+      entries = Object.entries(data)
+        .filter(([key]) => !isNaN(Number(key)))
+        .map(([, value]) => value as unknown as Production);
 
-    entries.sort((a, b) => b.year - a.year);
-    if(productionList.length == 0) setProductionList(entries)
-
+      entries.sort((a, b) => b.year - a.year);
+      if (productionList.length == 0) setProductionList(entries)
     }
   }, [data])
+
+  useEffect(() => {
+    if (qualisList.length > 0) {
+      const validList = productionList.filter((item) => { return item.year >= date.getFullYear() - 4 && item.year <= date.getFullYear() - 1 })
+      const score = validList.reduce((accumulator, production) => {
+        if (production.stratum_qualis_id) {
+          const qualis = qualisList.find((q) => q.id === production.stratum_qualis_id)
+          return accumulator + (qualis ? qualis.score : 0)
+        }
+        else return accumulator;
+      }, 0)
+      setTotalScore(score)
+    }
+  }, [productionList, qualisList])
 
   async function onSubmit(values: z.infer<typeof updateProductionFormSchema>) {
     //console.log("Submiting")
@@ -270,7 +285,7 @@ export default function MyProductionsPage() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className='flex flex-col items-center gap-2 w-full' >
+      <div className='flex flex-col items-center gap-5 w-full' >
         <div className='flex flex-col items-center gap-2'>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Minhas Produções</h1>
           <p className="text-muted-foreground">
@@ -278,8 +293,12 @@ export default function MyProductionsPage() {
           </p>
         </div>
         <div className='flex w-full justify-start'>
-          <div className='flex flex-col gap-4 md:justify-around'> <Label>Adicionar Produção</Label>
-            <div className='flex flex-row flex-wrap gap-2'>
+          <div className='flex flex-col gap-4 md:justify-around'>
+            <div className='flex justify-between'>
+              <Label>Adicionar Produção</Label>
+              <Label>Pontuação total: {totalScore}</Label>
+            </div>
+            <div className='flex flex-row flex-wrap gap-2 w-full'>
               {chosenForm != "none" &&
             <div>
               <Button onClick={() => { setChosenForm("none") }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
@@ -325,7 +344,7 @@ export default function MyProductionsPage() {
                   </AlertDialogPortal>
                 </AlertDialog>
               }
-              </div>
+            </div>
           </div>
         </div>
       </div>
