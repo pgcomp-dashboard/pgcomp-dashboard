@@ -203,6 +203,10 @@ export class ApiService {
         throw error;
       }
 
+      if (response.status === 204) {
+        return {} as T;
+      }
+
       return await response.json() as T;
     } catch (e: unknown) {
       if (Object.prototype.hasOwnProperty.call(e, 'code') && Object.prototype.hasOwnProperty.call(e, 'errors')) {

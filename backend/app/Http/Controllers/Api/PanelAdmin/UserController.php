@@ -67,7 +67,9 @@ class UserController extends BaseApiResourceController
 
         $status = Password::sendResetLink(
             $request->only('email')
-    );
+        );
+
+        return response()->noContent();
     }
 
     public function resetPassword(Request $request)
@@ -90,6 +92,8 @@ class UserController extends BaseApiResourceController
             event(new PasswordReset($user));
         }
         );
+
+        return response()->noContent();
     }
     public function store(Request $request)
     {

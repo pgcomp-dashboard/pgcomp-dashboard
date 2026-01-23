@@ -11,7 +11,10 @@ import {
 import { Input } from '@/components/ui/input';
 import api, { RequestBodyType } from '@/services/api';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -24,6 +27,8 @@ const formSchema = z.object({
   });;
 
 export default function ResetPasswordPage() {
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,7 +48,6 @@ export default function ResetPasswordPage() {
   console.log(token, email)
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(JSON.stringify(values))
     const payload: RequestBodyType = {
       token: token,
       email: email,
@@ -51,10 +55,12 @@ export default function ResetPasswordPage() {
       password_confirmation: values.confirmPassword
     }
     try {
-      const response = await api.resetUserPassword(JSON.stringify(payload))
-      console.log(response.status);
+      await api.resetUserPassword(JSON.stringify(payload))
+      toast.success('Senha alterada com sucesso!');
+      navigate('/login')
     } catch (err) {
       console.error('Erro ao trocar senha:', err);
+      toast.error('Erro ao alterar senha.');
     }
   }
 
@@ -102,12 +108,15 @@ export default function ResetPasswordPage() {
               <FormMessage />
             </FormItem>
           )}
-        />
-        <Button className='w-full' type="submit" disabled={form.formState.isSubmitting}>Confirmar troca de senha</Button>
-      </form>
-    </Form>
+              />
+              <Button className='w-full' type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {form.formState.isSubmitting ? "Confirmando..." : "Confirmar troca de senha"}
+              </Button>
+            </form>
+          </Form>
         </div>
-        </div>
+      </div>
     </div>
   );
 }

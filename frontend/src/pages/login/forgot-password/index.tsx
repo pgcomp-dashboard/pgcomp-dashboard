@@ -11,7 +11,9 @@ import {
 import { Input } from '@/components/ui/input';
 import api, { RequestBodyType } from '@/services/api';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -34,8 +36,10 @@ export default function ForgotPasswordPage() {
     try {
       const response = await api.forgotPassword(JSON.stringify(payload))
       console.log(response.status);
+      toast.success('Email de recuperação enviado com sucesso!');
     } catch (err) {
       console.error('Erro ao solicitar troca de senha', err);
+      toast.error('Erro ao solicitar troca de senha.');
     }
   }
 
@@ -68,7 +72,10 @@ export default function ForgotPasswordPage() {
             </FormItem>
           )}
             />
-            <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>Solicitar troca de senha</Button>
+              <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {form.formState.isSubmitting ? "Enviando..." : "Solicitar troca de senha"}
+              </Button>
           </form>
         </Form>
         </div>
