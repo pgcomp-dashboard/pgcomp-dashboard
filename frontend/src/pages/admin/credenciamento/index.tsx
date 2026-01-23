@@ -88,15 +88,12 @@ export default function CredenciamentoPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className='flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start'>
-        <div className='flex flex-row gap-2 sm:flex-row sm:gap-2 sm:items-center'>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Credenciamento</h1>
-          <div className='flex flex-row gap-2 md:gap-4 items-center justify-end'>
-            <Label className="text-xs md:text-sm">Mostrar Todos</Label>
-            <Switch checked={isToggled} onChange={handleToggle} size="medium" color="primary" />
-          </div>
+      <div className='flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center'>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Credenciamento</h1>
+        <div className='flex flex-row gap-2 md:gap-4 items-center justify-end'>
+          <Label className="text-xs md:text-sm">Mostrar Todos</Label>
+          <Switch checked={isToggled} onChange={handleToggle} size="medium" color="primary" />
         </div>
-
       </div>
       <p className="text-sm sm:text-base text-muted-foreground">
         Visualize o ranking dos docentes com publicações cadastrados no sistema.
