@@ -4,7 +4,7 @@ import LattesIcon from '@/components/LattesIcon';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import Switch from '@mui/material/Switch';
 import {
   Table,
   TableBody,
@@ -89,13 +89,17 @@ export default function CredenciamentoPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className='flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start'>
-        <div className='flex flex-col gap-2 sm:flex-row sm:gap-2 sm:items-center'>
+        <Link to="/" >
+          <Button variant="outline" className='self-start md:self-auto'>Voltar ao Dashboard</Button>
+        </Link>
+        <div className='flex flex-row justify-between gap-2 sm:flex-row sm:gap-2 sm:items-center'>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Credenciamento</h1>
+          <div className='flex flex-row gap-2 md:gap-4 items-center justify-end'>
+            <Label className="text-xs md:text-sm">Mostrar Todos</Label>
+            <Switch checked={isToggled} onChange={handleToggle} size="medium" color="primary" />
+          </div>
         </div>
-        <div className='flex flex-col gap-2 md:flex-row md:gap-4 items-center justify-end'>
-          <Label className="text-xs md:text-sm">Mostrar Todos</Label>
-          <Switch className=" md:scale-100" onCheckedChange={handleToggle} />
-        </div>
+
       </div>
       <p className="text-sm sm:text-base text-muted-foreground">
         Visualize o ranking dos docentes com publicações cadastrados no sistema.
@@ -145,7 +149,7 @@ function ShowRanking({ rankerList }: RankingProps) {
       <TableBody>
         {rankerList ?
           rankerList.map((rank, index) => (
-            <TableRow className={rank.total_score < 250 ? 'font-medium bg-red-100 hover:bg-red-200' : ''} key={index}>
+            <TableRow className={rank.total_score >= 250 ? 'font-medium bg-green-100 hover:bg-green-200' : 'bg-red-50'} key={index}>
               <TableCell className="font-medium text-center">{index + 1}º</TableCell>
               <TableCell className="font-medium text-center">
                 <Button variant='ghost' className='hover:bg-transparent' onClick={() => {
@@ -210,9 +214,9 @@ function ShowRankingCards({ rankerList }: RankingProps) {
         <div
           key={index}
           className={`rounded-lg border p-4 ${
-            rank.total_score < 250
-              ? 'bg-red-50 border-red-200'
-              : 'bg-white'
+            rank.total_score >= 250
+              ? 'bg-green-50 border-green-200'
+              : ''
           }`}
         >
           <div className="flex items-start justify-between mb-3">

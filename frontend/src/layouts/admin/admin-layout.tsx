@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   BookOpen,
   ChevronRight,
   File,
@@ -152,13 +151,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="text-sm sm:text-base font-medium truncate">Painel de administração</div>
             <div className="ml-auto flex items-center gap-2 sm:gap-4">
               {/* Botão Voltar para Dashboard - Mobile e Tablet */}
-              <Button variant="ghost" size="sm" asChild className="lg:hidden text-xs sm:text-sm">
-                <Link to="/" className="flex items-center gap-1">
-                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span>Voltar para Dashboard</span>
-                </Link>
-              </Button>
-
               {/* Botão completo - Desktop */}
               <Button variant="outline" size="sm" asChild className="hidden lg:flex">
                 <Link to="/">Dashboard PGCOMP</Link>
