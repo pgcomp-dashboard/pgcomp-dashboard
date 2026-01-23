@@ -89,10 +89,10 @@ export default function CredenciamentoPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className='flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start'>
-        <Link to="/" >
+        <Link to="/" className='md:hidden' >
           <Button variant="outline" className='self-start md:self-auto'>Voltar ao Dashboard</Button>
         </Link>
-        <div className='flex flex-row justify-between gap-2 sm:flex-row sm:gap-2 sm:items-center'>
+        <div className='flex flex-row justify-between gap-2 sm:flex-row sm:gap-2 sm:items-center w-full'>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Credenciamento</h1>
           <div className='flex flex-row gap-2 md:gap-4 items-center justify-end'>
             <Label className="text-xs md:text-sm">Mostrar Todos</Label>
