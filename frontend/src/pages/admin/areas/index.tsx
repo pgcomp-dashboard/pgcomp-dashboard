@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Plus, Search } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -11,55 +11,51 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Pencil, Trash } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import api from '@/services/api';
+import { areaService } from '@/services/modules/area.service';
+import { dashboardService } from '@/services/modules/dashboard.service';
+import { Area } from '@/types/academic';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
-interface Area {
-  id: number;
-  name: string;
-  students: number;
-}
+import { Pencil, Trash } from 'lucide-react';
 
 // Sample area data
 export default function AreasPage() {
   const queryClient = useQueryClient();
 
   const { data: areas = [], isLoading } = useQuery({
-    queryKey: ['areas'],
-    queryFn: () => api.fetchAreas(),
+    queryKey: [ 'areas' ],
+    queryFn: () => areaService.fetchAreas(),
   });
 
   // Students by area
   const { data: studentsPerField = {} } = useQuery({
     queryKey: [ 'studentsPerField' ],
-    queryFn: () => api.studentsPerField(),
+    queryFn: () => dashboardService.studentsPerField(),
   });
 
   const addAreaMutation = useMutation({
-    mutationFn: (area: { name: string; students: number }) => api.createArea(area),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['areas'] }),
+    mutationFn: (area: { name: string; students: number }) => areaService.createArea(area),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
   });
 
   const editAreaMutation = useMutation({
-    mutationFn: (area: { id: number; name: string; students: number }) => api.updateArea(area),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['areas'] }),
+    mutationFn: (area: { id: number; name: string; students: number }) => areaService.updateArea(area),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
   });
 
   const deleteAreaMutation = useMutation({
-    mutationFn: (id: number) => api.deleteArea(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['areas'] }),
+    mutationFn: (id: number) => areaService.deleteArea(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
   });
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isAddAreaOpen, setIsAddAreaOpen] = useState(false);
-  const [isEditAreaOpen, setIsEditAreaOpen] = useState(false);
-  const [isDeleteAreaOpen, setIsDeleteAreaOpen] = useState(false);
-  const [currentArea, setCurrentArea] = useState<Area | null>(null);
-  const [newArea, setNewArea] = useState({
+  const [ searchTerm, setSearchTerm ] = useState('');
+  const [ isAddAreaOpen, setIsAddAreaOpen ] = useState(false);
+  const [ isEditAreaOpen, setIsEditAreaOpen ] = useState(false);
+  const [ isDeleteAreaOpen, setIsDeleteAreaOpen ] = useState(false);
+  const [ currentArea, setCurrentArea ] = useState<Area | null>(null);
+  const [ newArea, setNewArea ] = useState({
     name: '',
     description: '',
     students: 0,
@@ -235,7 +231,7 @@ export default function AreasPage() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex gap-2 pt-2 border-t">
                 <Button
                   variant="outline"

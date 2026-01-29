@@ -58,6 +58,8 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property string|null $defended_at
  * @property string|null $lattes_id
  * @property string|null $lattes_updated_at
+ * @property string|null $admin_status
+ * @property string|null $admin_requested_at
  * @property-read Collection|User[] $advisedes
  * @property-read int|null $advisedes_count
  * @property-read Collection|User[] $advisors
@@ -119,6 +121,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'course_id',
         'lattes_url',
         'is_admin',
+        'admin_status',
+        'admin_requested_at',
+        'approved_by_id',
         'is_protected',
         'defended_at',
     ];
@@ -137,12 +142,17 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'type' => UserType::class,
         'siape' => 'int',
         'course_id' => 'int',
+        'admin_requested_at' => 'datetime'
     ];
 
     protected $attributes = [
         'is_admin' => false,
         'is_protected' => true,
     ];
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
 
     /**
      * @return array creation rules to validate attributes.
@@ -241,6 +251,16 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     }
 
     /**
+     * Establishes a relationship of belongsTo with the User Model
+     *
+     * @return BelongsTo Relation of belongsTo user -> user
+     */
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by_id');
+    }
+
+    /**
      * Find a user based on a given name
      *
      * @param  string  $UserName,  a string of user`name
@@ -305,6 +325,10 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ],
             'course_id' => $courseIdRules,
             'lattes_url' => 'nullable|string|max:255',
+            'is_admin' => 'nullable|bool',
+            'admin_status' => ['nullable', Rule::in(['approved', 'rejected', 'pending'])],
+            'admin_requested_at' => 'nullable|date',
+            'approved_by_id' =>['nullable', 'int', Rule::exists(User::class, 'id')]
         ];
     }
 
@@ -447,16 +471,24 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public static function mestrandos(): Builder
     {
-        return static::query()
-            ->join('courses', 'courses.id', '=', 'users.course_id')
-            ->where('courses.name', 'Mestrado');
+        return static::query()->whereHas('course', function ($query) {
+            $query->where('name', 'Mestrado');
+        });
+
+        //return static::query()
+        //    ->join('courses', 'courses.id', '=', 'users.course_id')
+        //    ->where('courses.name', 'Mestrado');
     }
 
     public static function doutorandos(): Builder
     {
-        return static::query()
-            ->join('courses', 'courses.id', '=', 'users.course_id')
-            ->where('courses.name', 'Doutorado');
+        return static::query()->whereHas('course', function ($query) {
+            $query->where('name', 'Doutorado');
+        });
+
+        //return static::query()
+        //    ->join('courses', 'courses.id', '=', 'users.course_id')
+        //    ->where('courses.name', 'Doutorado');
     }
 
     public static function createOrUpdateStudentByScraping(array $data): User
@@ -482,4 +514,15 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             $data
         );
     }
+
+    public function scopeOnlyPendingAdminRequest($query)
+    {
+        return $query->where('admin_status', 'pending');
+    }
+
+    public function scopeAnyAdminRequest($query)
+    {
+        return $query->whereNotNull('admin_status');
+    }
+
 }

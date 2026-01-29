@@ -1,36 +1,36 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartContainer } from '@/components/ui/chart';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { colorFromName } from '@/utils/color';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
+import { Settings2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react'; // Importado useRef
+import { useForm } from 'react-hook-form';
 import {
+  Bar,
   BarChart,
   CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  TooltipProps,
   XAxis,
   YAxis,
-  Tooltip,
-  Bar,
-  Cell,
-  TooltipProps,
-  ResponsiveContainer, // Importado para que o gráfico seja responsivo dentro do scroll
 } from 'recharts';
-import { Settings2 } from 'lucide-react';
-import { ChartContainer } from '@/components/ui/chart';
-import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
-import { colorFromName } from '@/utils/color';
-import './chart.css';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { useEffect, useState, useRef } from 'react'; // Importado useRef
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import './chart.css';
 
 // Importando suporte à expansão com scroll
-import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ChartScrollWrapper from './ChartScrollWrapper';
+import { dashboardService } from '@/services/modules/dashboard.service';
 
 // Definir o número máximo de barras visíveis antes de ativar a rolagem
 const MAX_VISIBLE_BARS = 15; // Ajuste este valor conforme necessário
@@ -69,12 +69,12 @@ export default function ProfessorProductionPerYear() {
 
   const { data: professors, error: professorsError } = useQuery({
     queryKey: [ 'professors' ],
-    queryFn: () => api.professors(),
+    queryFn: () => dashboardService.professors(),
   });
 
   const { data: productions, error } = useQuery({
     queryKey: [ 'professorProductionPerYear', currentProfessorId, period.from, period.to ],
-    queryFn: () => api.professorProductionPerYear(currentProfessorId as number, period.from, period.to),
+    queryFn: () => dashboardService.professorProductionPerYear(currentProfessorId as number, period.from, period.to),
     enabled: currentProfessorId !== null,
   });
 
@@ -267,4 +267,3 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
     </>
   );
 }
-

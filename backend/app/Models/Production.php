@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +45,8 @@ use Illuminate\Validation\Rule;
  * @method static Builder|Production whereTitle($value)
  * @method static Builder|Production whereUpdatedAt($value)
  * @method static Builder|Production whereYear($value)
+ * @method static void saveInterTable()
+ * @method static void removeInterTable()
  *
  * @mixin Eloquent
  */
@@ -101,7 +103,7 @@ class Production extends BaseModel
     /**
      * Establishes a relationship of belonging-to-many with the user model. When the user write the production.
      *
-     * @return BelongsTo a user can have several products
+     * @return BelongsToMany a user can have several products
      */
     public function isWroteBy(): BelongsToMany
     {
@@ -139,12 +141,12 @@ class Production extends BaseModel
      *
      * @param int id to create the relationship between production and user
      */
-    public function saveInterTable($users_id)// : void
+    public function saveInterTable($users_id): void
     {
         $this->isWroteBy()->attach($users_id);
     }
 
-    public function removeInterTable($users_id)
+    public function removeInterTable($users_id): void
     {
         $this->isWroteBy()->detach($users_id);
     }
@@ -217,7 +219,7 @@ class Production extends BaseModel
     /**
      * @param int id of user
      * @param int id of production
-     * @return stdClass production of a given user
+     * @return Builder production of a given user
      */
     public function findAllUserProductions($user, $production)
     {

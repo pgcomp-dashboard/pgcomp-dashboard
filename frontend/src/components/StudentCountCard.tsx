@@ -1,4 +1,4 @@
-import api from '@/services/api';
+import { dashboardService } from '@/services/modules/dashboard.service';
 import { useQuery } from '@tanstack/react-query';
 
 export default function StudentCountCard({
@@ -8,7 +8,7 @@ export default function StudentCountCard({
 }) {
   const { data, isLoading, error } = useQuery({
     queryKey: [ 'number_of_students' ],
-    queryFn: () => api.numberOfStudents(),
+    queryFn: () => dashboardService.numberOfStudents(),
   });
 
   if (isLoading) return <>Carregando...</>;
@@ -23,5 +23,3 @@ export default function StudentCountCard({
     </div>
   );
 }
-
-

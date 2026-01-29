@@ -12,39 +12,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import api from '@/services/api';
+import { dashboardService } from '@/services/modules/dashboard.service';
+import { Ranking, RankingProduction } from '@/types/academic';
 import Switch from '@mui/material/Switch';
 import { useQuery } from '@tanstack/react-query';
 import { BookOpenTextIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
-type Ranking = {
-  user_id: number,
-  name: string;
-  category: string;
-  total_score: number;
-  lattes_url: string;
-  productions: Production[];
-}
-
-type Production = {
-  production_id: number;
-  title: string;
-  year: number;
-  publisher_type: string;
-  code: string;
-  score: number;
-}
-
 type RankingProps = {
   rankerList: Ranking[]
-}
+};
 
 export default function CredenciamentoPage() {
   const date = new Date();
 
-  const [isToggled, setIsToggled] = useState(false);
+  const [ isToggled, setIsToggled ] = useState(false);
   //const [selectedRanker, setSelectedRanker] = useState<Ranking | undefined>(undefined);
   //const [showingProductions, setShowingProductions] = useState<Production[] | undefined>(undefined)
 
@@ -59,7 +42,7 @@ export default function CredenciamentoPage() {
   } = useQuery<Ranking[] , Error>({
     queryKey: [ 'ranking' ],
     queryFn: () =>
-      api.getRankingProductionsOfUser(date.getFullYear() - 4, date.getFullYear() - 1),
+      dashboardService.getRankingProductionsOfUser(date.getFullYear() - 4, date.getFullYear() - 1),
     placeholderData: (prevData) => prevData,
   });
 
@@ -125,8 +108,8 @@ export default function CredenciamentoPage() {
 }
 
 function ShowRanking({ rankerList }: RankingProps) {
-  const [isProductionsOpen, setIsProductionsOpen] = useState(false)
-  const [currentProductionList, setCurrentProductionList] = useState<Production[] | null>(null)
+  const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
+  const [ currentProductionList, setCurrentProductionList ] = useState<RankingProduction[] | null>(null);
 
   return (
     <>
@@ -147,15 +130,15 @@ function ShowRanking({ rankerList }: RankingProps) {
               <TableCell className="font-medium text-center">{index + 1}º</TableCell>
               <TableCell className="font-medium text-center">
                 <Button variant='ghost' className='hover:bg-transparent' onClick={() => {
-                  setCurrentProductionList(rank.productions)
-                  setIsProductionsOpen(true)
-                }}>{rank.name.replace(/ D([aeiou]s?) /g, " d$1 ")}</Button>
+                  setCurrentProductionList(rank.productions);
+                  setIsProductionsOpen(true);
+                }}>{rank.name.replace(/ D([aeiou]s?) /g, ' d$1 ')}</Button>
               </TableCell>
               <TableCell className="font-medium text-center">{rank.category.replace(/^./, (match) => match.toUpperCase())}</TableCell>
               <TableCell className="font-medium text-center">
                 <Button variant='ghost' className='hover:bg-transparent h-full' onClick={() => {
-                  setCurrentProductionList(rank.productions)
-                  setIsProductionsOpen(true)
+                  setCurrentProductionList(rank.productions);
+                  setIsProductionsOpen(true);
                 }}> <BookOpenTextIcon className="size-6" /></Button>
               </TableCell>
               <TableCell className="font-medium     text-center">{rank.total_score.toFixed(1)}</TableCell>
@@ -181,9 +164,9 @@ function ShowRanking({ rankerList }: RankingProps) {
                   className="rounded border bg-gray-100 p-4 text-sm flex flex-col gap-1">
                   <p><strong>Título da Produção:</strong> {production.title}</p>
                   <p><strong>Ano:</strong> {production.year}</p>
-                  <p><strong>Qualis:</strong> {production.code ? production.code : "Não encontrado"}</p>
+                  <p><strong>Qualis:</strong> {production.code ? production.code : 'Não encontrado'}</p>
                   <p><strong>Pontuação:</strong> {production.score ? production.score : 0}</p>
-                  <p><strong>Tipo de Publicação:</strong> {production.publisher_type ? production.publisher_type : "Não encontrado"}</p>
+                  <p><strong>Tipo de Publicação:</strong> {production.publisher_type ? production.publisher_type : 'Não encontrado'}</p>
                 </div>
               ))
             ) : null}
@@ -194,13 +177,13 @@ function ShowRanking({ rankerList }: RankingProps) {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
 
 // Componente de Cards para Mobile
 function ShowRankingCards({ rankerList }: RankingProps) {
   const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
-  const [ currentProductionList, setCurrentProductionList ] = useState<Production[] | null>(null);
+  const [ currentProductionList, setCurrentProductionList ] = useState<RankingProduction[] | null>(null);
 
   return (
     <>

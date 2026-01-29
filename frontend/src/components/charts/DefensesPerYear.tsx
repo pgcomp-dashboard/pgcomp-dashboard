@@ -1,24 +1,24 @@
-import {
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Bar,
-  TooltipProps,
-  Legend,
-  LabelList,
-  ReferenceLine,
-} from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
-import './chart.css';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  Legend,
+  ReferenceLine,
+  Tooltip,
+  TooltipProps,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import './chart.css';
 
 // Adicionados para expansão com scroll
-import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import { useExpandableChart } from '@/hooks/useExpandableChart';
+import { dashboardService } from '@/services/modules/dashboard.service';
 import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 10;
@@ -46,8 +46,8 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
   const { data, isLoading, error } = useQuery({
     queryKey: [ 'defenses_per_year' ],
     queryFn: async () => {
-      const res = await api.defensesPerYear();
-      return Array.isArray(res) ? res : [ res ];
+      const response = await dashboardService.defensesPerYear();
+      return Array.isArray(response) ? response : [ response ];
     },
   });
 
@@ -58,7 +58,7 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
     if (filter === 'doutorado') return sum + item.doutorado;
     return sum + item.mestrado + item.doutorado;
   }, 0);
-  
+
   const mediaPorAno = data?.length ? totalDefesas / data.length : 0;
 
   // Tamanhos de fonte responsivos

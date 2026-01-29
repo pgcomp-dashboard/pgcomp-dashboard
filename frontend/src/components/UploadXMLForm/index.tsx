@@ -1,19 +1,18 @@
-import api from "@/services/api";
-import { Loader2 } from "lucide-react";
-import { ChangeEvent, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Progress } from "../ui/progress";
-import { UploadCloud } from "lucide-react";
-import { useNavigate } from "react-router";
+import { apiClient } from '@/services/http-client';
+import { Loader2, UploadCloud } from 'lucide-react';
+import { ChangeEvent, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Progress } from '../ui/progress';
 
-type UploadStatus = "idle" | "uploading" | "success" | "error";
+type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
 export default function UploadXMLForm() {
   const navigate = useNavigate();
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<UploadStatus>("idle");
+  const [ file, setFile ] = useState<File | null>(null);
+  const [ status, setStatus ] = useState<UploadStatus>('idle');
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
@@ -23,34 +22,34 @@ export default function UploadXMLForm() {
 
   async function onSubmit() {
     if (!file) return;
-    setStatus("uploading");
-    const apiUrl = api.getBaseUrl() + "/api/portal/user/lattes-update";
+    setStatus('uploading');
+    const apiUrl = apiClient.getBaseUrl() + '/api/portal/user/lattes-update';
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
 
     try {
       const response = await fetch(apiUrl, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          Authorization: "Bearer " + api.getAuthToken(),
+          Authorization: 'Bearer ' + apiClient.getAuthToken(),
         },
         body: formData,
       });
       console.log(response);
       if (response.status === 201) {
-        toast.success("Produções cadastradas com sucesso");
-        setStatus("success");
-        navigate("/portal/productions");
+        toast.success('Produções cadastradas com sucesso');
+        setStatus('success');
+        navigate('/portal/productions');
         window.location.reload();
       } else {
-        setStatus("error");
-        toast.error("Erro no cadastro das produções");
+        setStatus('error');
+        toast.error('Erro no cadastro das produções');
       }
     } catch (err) {
-      setStatus("error");
-      toast.error("Erro no cadastro das produções");
-      console.error("Erro ao criar produções:", err);
+      setStatus('error');
+      toast.error('Erro no cadastro das produções');
+      console.error('Erro ao criar produções:', err);
     }
   }
 
@@ -83,17 +82,17 @@ export default function UploadXMLForm() {
 
           <Button
             type="submit"
-            disabled={!file || status === "uploading"}
+            disabled={!file || status === 'uploading'}
             onClick={onSubmit}
             className=" text-white"
           >
-            {status === "uploading" && (
+            {status === 'uploading' && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            {status === "uploading" ? "Enviando..." : "Upload"}
+            {status === 'uploading' ? 'Enviando...' : 'Upload'}
           </Button>
 
-          {status === "uploading" && <Progress value={50} className="mt-4" />}
+          {status === 'uploading' && <Progress value={50} className="mt-4" />}
 
           <div>
             {file && (
@@ -103,13 +102,13 @@ export default function UploadXMLForm() {
                 <div>Tamanho: {(file.size / 1024).toFixed(2)} Kb</div>
               </div>
             )}
-            {status === "success" && (
+            {status === 'success' && (
               <div className="p-3 bg-green-100 text-green-700 rounded-md text-sm border border-green-200">
                 Arquivo enviado com sucesso! As produções estão sendo
                 processadas.
               </div>
             )}
-            {status === "error" && (
+            {status === 'error' && (
               <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm border border-red-200">
                 Falha no envio do arquivo. Tente novamente.
               </div>

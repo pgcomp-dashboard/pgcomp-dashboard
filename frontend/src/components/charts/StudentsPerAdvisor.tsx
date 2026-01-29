@@ -1,35 +1,34 @@
+import { ChartContainer } from '@/components/ui/chart';
+import { colorFromName } from '@/utils/color';
 import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
+  Cell,
+  Tooltip,
+  TooltipProps,
   XAxis,
   YAxis,
-  BarChart,
-  Tooltip,
-  Bar,
-  Cell,
-  TooltipProps,
 } from 'recharts';
-import { ChartContainer } from '@/components/ui/chart';
-import '@/services/api';
-import { colorFromName } from '@/utils/color';
-import './chart.css';
 import {
   NameType,
   ValueType,
 } from 'recharts/types/component/DefaultTooltipContent';
+import './chart.css';
 
 // 👇 Adições para scroll e expansão
-import { useExpandableChart } from '@/hooks/useExpandableChart';
-import ExpandChartButton from '@/components/ui/ExpandChartButton';
-import ChartScrollWrapper from './ChartScrollWrapper';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import { useExpandableChart } from '@/hooks/useExpandableChart';
 import { User } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import ChartScrollWrapper from './ChartScrollWrapper';
+import { dashboardService } from '@/services/modules/dashboard.service';
 
 const MAX_VISIBLE_BARS = 8;
 
@@ -65,17 +64,17 @@ export default function StudentsPerAdvisorChart() {
   const query = useQuery({
     queryKey: [ 'totalStudentsPerAdvisor', filter ],
     queryFn: async () => {
-      return api.totalStudentsPerAdvisor(filter);
+      return dashboardService.totalStudentsPerAdvisor(filter);
     },
   });
 
   const { data: professors, error: professorsError } = useQuery({
     queryKey: [ 'professors' ],
-    queryFn: () => api.professors(),
+    queryFn: () => dashboardService.professors(),
   });
 
   const chartData = Object.entries(query.data ?? {})
-    .map(([ _, advisor_info ]) => ({
+    .map(([, advisor_info ]) => ({
       id: advisor_info.id,
       name: advisor_info.name,
       quantity: advisor_info.advisedes_count,

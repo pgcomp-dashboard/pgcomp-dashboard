@@ -1,22 +1,22 @@
+import { colorFromName } from '@/utils/color.ts';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 import {
-  ResponsiveContainer,
-  BarChart,
   Bar,
+  BarChart,
   CartesianGrid,
+  LabelList,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  Legend,
-  LabelList,
 } from 'recharts';
-import { useQuery } from '@tanstack/react-query';
-import { useRef, useState, useEffect } from 'react';
-import api from '@/services/api';
-import { colorFromName } from '@/utils/color.ts';
 
 // 👇 Importando suporte à expansão com scroll
-import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import { useExpandableChart } from '@/hooks/useExpandableChart';
+import { dashboardService } from '@/services/modules/dashboard.service';
 import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 15;
@@ -33,7 +33,7 @@ export default function ProductionPerQualisChart() {
 
   const { data: response, isLoading, error } = useQuery({
     queryKey: [ 'productionPerQualis' ],
-    queryFn: () => api.productionPerQualis(),
+    queryFn: () => dashboardService.productionPerQualis(),
   });
 
   const years: number[] = Array.isArray(response?.years) ? response.years : [];
@@ -62,7 +62,7 @@ export default function ProductionPerQualisChart() {
     return entry;
   });
 
-  const qualisOrder = [ 'A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', '-' ];
+  const qualisOrder = [ 'A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C', '-' ];
   const allQualis = qualisOrder.filter((q) => data.some((d) => d.label === q));
 
   return (

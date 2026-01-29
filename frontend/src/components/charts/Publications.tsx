@@ -1,13 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import '@/services/api';
+import { useQuery } from '@tanstack/react-query';
+import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from 'recharts';
 
 // Adições para scroll horizontal
-import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ChartScrollWrapper from './ChartScrollWrapper';
+import { dashboardService } from '@/services/modules/dashboard.service';
 
 const MAX_VISIBLE_BARS = 10;
 
@@ -31,7 +30,7 @@ export default function PublicationsChart({ filter }: { filter?: 'journal' | 'co
   const query = useQuery({
     queryKey: [ 'totalProductionsPerYear', filter ],
     queryFn: async () => {
-      return api.totalProductionsPerYear(filter);
+      return dashboardService.totalProductionsPerYear(filter);
     },
   });
 

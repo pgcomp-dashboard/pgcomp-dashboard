@@ -1,13 +1,5 @@
 'use client';
 
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,63 +10,25 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Eye, FileText } from 'lucide-react';
-import api from '@/services/api';
 import { Label } from '@/components/ui/label';
-import { useState, useEffect } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { professorService } from '@/services/modules/professor.service';
+import { qualisService } from '@/services/modules/qualis.service';
+import { Production, StratumQualis } from '@/types/academic';
+import { PaginatedResponse } from '@/types/common';
+import { Professor } from '@/types/user';
 import { useQuery } from '@tanstack/react-query';
+import { Eye, FileText } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
-type Professor = {
-  id: number;
-  name: string;
-  siape: number;
-  email: string;
-  lattes_url: string;
-};
-
-type StratumQualis = {
-  id: number;
-  code: string;
-  score: number;
-  created_at: string;
-  updated_at: string;
-};
-
-type Production = {
-  id: number;
-  name: string;
-  title: string;
-  year: number;
-  publisher_type: string | null;
-  stratum_qualis_id: number;
-  publisher_id: number;
-  doi: string | null;
-  publisher?: Publisher | null;
-};
-
-type Publisher = {
-  id: number;
-  initials: string | null;
-  name: string;
-  publisher_type: string;
-  issn: string | null;
-  percentile: string | null;
-  update_date: string | null;
-  tentative_date: string | null;
-  logs: string | null;
-  stratum_qualis_id: number | null;
-  created_at: string;
-  updated_at: string;
-  stratum_qualis: StratumQualis | null;
-};
-
-type PaginatedResponse<T> = {
-  data: T[];
-  total: number;
-  current_page: number;
-  per_page: number;
-};
 
 export default function ProfessorsPage() {
   const [ searchTerm, setSearchTerm ] = useState('');
@@ -94,7 +48,7 @@ export default function ProfessorsPage() {
   } = useQuery<PaginatedResponse<Professor>, Error>({
     queryKey: [ 'professors', currentPage, itemsPerPage, debouncedSearchTerm ],
     queryFn: () =>
-      api.fetchProfessors(currentPage, itemsPerPage, {
+      professorService.fetchProfessors(currentPage, itemsPerPage, {
         name: debouncedSearchTerm || undefined,
       }),
     placeholderData: (prevData) => prevData,
@@ -106,7 +60,7 @@ export default function ProfessorsPage() {
   useEffect(() => {
     async function fetchQualis() {
       try {
-        const qualis = await api.getAllQualis();
+        const qualis = await qualisService.getAllQualis();
         setQualisList(qualis);
       } catch (err) {
         console.error('Erro ao carregar Qualis:', err);
@@ -117,7 +71,7 @@ export default function ProfessorsPage() {
 
   const verProducoes = async (professorId: number) => {
     try {
-      const rawProducoes = await api.getProductionsByProfessor(professorId);
+      const rawProducoes = await professorService.getProductionsByProfessor(professorId);
       const entries = Object.entries(rawProducoes)
         .filter(([ key ]) => !isNaN(Number(key)))
         .map(([ , value ]) => value as unknown as Production);
@@ -192,7 +146,7 @@ export default function ProfessorsPage() {
             {professors.map((professor) => (
               <TableRow key={professor.id}>
                 <TableCell className="font-medium text-center">{professor.name}</TableCell>
-                <TableCell className="font-medium text-center">Permanente</TableCell>
+                <TableCell className="font-medium text-center">{professor.category?.replace(/^./, (match) => match.toUpperCase()) || 'Não Encontrado'}</TableCell>
                 <TableCell className="flex justify-center gap-2">
                   <Button
                     variant="ghost"
