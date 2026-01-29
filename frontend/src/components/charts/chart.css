@@ -1,74 +1,78 @@
 .tooltip-text {
-    color: darkblue;
-    margin-top: 2 !important;
+  color: darkblue;
+  margin-top: 2 !important;
 }
 
 /* Container de gráfico com scroll horizontal otimizado para mobile */
 .chart-scroll-container {
-    position: relative;
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox */
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox */
 }
 
 /* Estilização da scrollbar para Webkit (Chrome, Safari, Edge) */
 .chart-scroll-container::-webkit-scrollbar {
-    height: 8px;
+  height: 8px;
 }
 
 .chart-scroll-container::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
 }
 
 .chart-scroll-container::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
 
 .chart-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Indicador visual de scroll (fade nas bordas) - apenas mobile */
 @media (max-width: 767px) {
-    .chart-scroll-container::before,
-    .chart-scroll-container::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 20px; /* Espaço para scrollbar */
-        width: 20px;
-        pointer-events: none;
-        z-index: 10;
-    }
-    
-    .chart-scroll-container::before {
-        left: 0;
-        background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent);
-    }
-    
-    .chart-scroll-container::after {
-        right: 0;
-        background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
-    }
-    
-    /* Remove fade quando totalmente scrollado */
-    .chart-scroll-container[data-scroll-start="true"]::before {
-        opacity: 0;
-    }
-    
-    .chart-scroll-container[data-scroll-end="true"]::after {
-        opacity: 0;
-    }
+  .chart-scroll-container::before,
+  .chart-scroll-container::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 20px; /* Espaço para scrollbar */
+    width: 20px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .chart-scroll-container::before {
+    left: 0;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.9),
+      transparent
+    );
+  }
+
+  .chart-scroll-container::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+  }
+
+  /* Remove fade quando totalmente scrollado */
+  .chart-scroll-container[data-scroll-start="true"]::before {
+    opacity: 0;
+  }
+
+  .chart-scroll-container[data-scroll-end="true"]::after {
+    opacity: 0;
+  }
 }
 
 /* Padding no mobile para espaço de toque */
 @media (max-width: 767px) {
-    .chart-scroll-container {
-        padding: 0 4px 12px;
-    }
+  .chart-scroll-container {
+    padding: 0 4px 12px;
+  }
 }

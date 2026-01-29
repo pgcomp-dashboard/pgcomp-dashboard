@@ -1,10 +1,10 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import api from '@/services/api';
+import { Area, Course } from '@/types/academic';
+import { Student } from '@/types/user';
+import { Plus, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import {
   Dialog,
@@ -15,16 +15,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Pencil, Trash } from "lucide-react";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -33,49 +32,30 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { adminService } from '@/services/modules/admin.service';
+import { areaService } from '@/services/modules/area.service';
+import { studentService } from '@/services/modules/student.service';
+import { PaginatedResponse } from '@/types/common';
+import { Pencil, Trash } from 'lucide-react';
 
-interface Student {
-  id: number;
-  name: string;
-  email: string | null;
-  registration: number | null;
-  type: 'student';
-  is_admin: boolean;
-  area_id: number | null;
-  course_id: number;
-  lattes_url: string | null;
-  defended_at: string | null;
-  is_protected: boolean;
-}
-
-interface Area {
-  id: number;
-  name: string;
-}
-
-interface Course {
-  id: number;
-  name: string;
-}
 
 export default function StudentsPage() {
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [pagination, setPagination] = useState<any>(null); // temporariamente, para evitar erro de tipo
-  const [areas, setAreas] = useState<Area[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [search, setSearch] = useState('');
-  const [openAdd, setOpenAdd] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [newStudent, setNewStudent] = useState<Omit<Student, 'id'>>({
+  const [ page, setPage ] = useState(1);
+  const [ perPage, setPerPage ] = useState(10);
+  const [ students, setStudents ] = useState<Student[]>([]);
+  const [ pagination, setPagination ] = useState<PaginatedResponse<Student> | null>(null);
+  const [ areas, setAreas ] = useState<Area[]>([]);
+  const [ courses, setCourses ] = useState<Course[]>([]);
+  const [ search, setSearch ] = useState('');
+  const [ openAdd, setOpenAdd ] = useState(false);
+  const [ openEdit, setOpenEdit ] = useState(false);
+  const [ openDelete, setOpenDelete ] = useState(false);
+  const [ selectedStudent, setSelectedStudent ] = useState<Student | null>(null);
+  const [ newStudent, setNewStudent ] = useState<Omit<Student, 'id'>>({
     name: '',
     email: '',
     registration: 0,
     type: 'student',
-    is_admin: false,
     area_id: 0,
     course_id: 0,
     lattes_url: '',
@@ -92,10 +72,10 @@ export default function StudentsPage() {
       filters['filters[0][value]'] = search.trim();
       filters['filters[0][operator]'] = 'like';
     }
-    const [studentsRes, areasData, coursesData] = await Promise.all([
-      api.fetchStudents(page, perPage, filters),
-      api.fetchAreas(),
-      api.fetchCourses(),
+    const [ studentsRes, areasData, coursesData ] = await Promise.all([
+      studentService.fetchStudents(page, perPage, filters),
+      areaService.fetchAreas(),
+      adminService.fetchCourses(),
     ]);
 
     setStudents(studentsRes.data);
@@ -106,14 +86,14 @@ export default function StudentsPage() {
       total: studentsRes.total,
       from: studentsRes.from,
       to: studentsRes.to,
-    });
+    } as PaginatedResponse<Student>);
     setAreas(areasData);
     setCourses(coursesData);
   }
 
   useEffect(() => {
     fetchData();
-  }, [page, perPage, search]);
+  }, [ page, perPage, search ]);
 
   const filteredStudents = students.filter(
     (student) =>
@@ -141,14 +121,13 @@ export default function StudentsPage() {
       return;
     }
     try {
-      const created = await api.createStudent(newStudent);
-      setStudents((old) => [...old, created]);
+      const created = await studentService.createStudent(newStudent);
+      setStudents((old) => [ ...old, created ]);
       setNewStudent({
         name: '',
         email: '',
         registration: 0,
         type: 'student',
-        is_admin: false,
         area_id: 0,
         course_id: 0,
         lattes_url: '',
@@ -156,7 +135,7 @@ export default function StudentsPage() {
         is_protected: false,
       });
       setOpenAdd(false);
-      fetchData()
+      fetchData();
     } catch (error) {
       console.error('Erro ao adicionar estudante:', error);
     }
@@ -170,7 +149,7 @@ export default function StudentsPage() {
       return false;
     }
     try {
-      const updated = await api.updateStudent(selectedStudent.id, selectedStudent);
+      const updated = await studentService.updateStudent(selectedStudent.id, selectedStudent);
       setStudents((old) => old.map((s) => (s.id === updated.id ? updated : s)));
       setOpenEdit(false);
     } catch (error) {
@@ -182,7 +161,7 @@ export default function StudentsPage() {
   async function deleteStudent() {
     if (!selectedStudent) return;
     try {
-      await api.deleteStudent(selectedStudent.id);
+      await studentService.deleteStudent(selectedStudent.id);
       setStudents((old) => old.filter((s) => s.id !== selectedStudent.id));
       setOpenDelete(false);
     } catch (error) {
@@ -299,7 +278,6 @@ export default function StudentsPage() {
                   email: '',
                   registration: 0,
                   type: 'student',
-                  is_admin: false,
                   area_id: 0,
                   course_id: 0,
                   lattes_url: '',
@@ -430,7 +408,7 @@ export default function StudentsPage() {
           </Table>
         </div>
 
-        {/* Mobile: Cards */}
+        {/* Mobile: Cards */ null}
         <div className="md:hidden flex flex-col gap-3 p-4">
           {filteredStudents.map((student) => (
             <div key={student.id} className="rounded-lg border p-4 bg-white">
@@ -444,7 +422,7 @@ export default function StudentsPage() {
                     {student.email && <p className="text-sm text-muted-foreground mt-1">{student.email}</p>}
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-xs text-muted-foreground">Curso</span>

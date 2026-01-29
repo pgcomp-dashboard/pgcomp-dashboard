@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface ProgressProps {
   value: number; // Valor do progresso (0 a 100)

@@ -12,7 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import api, { parseApiError } from '@/services/api';
+import { parseApiError } from '@/services/http-client';
+import { adminService } from '@/services/modules/admin.service';
+import { qualisService } from '@/services/modules/qualis.service';
 import { formatDateTime } from '@/utils/dates';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -32,28 +34,28 @@ const MAX_FILE_SIZE = 5000000; // 5MB
 
 const fileFormSchema = z.object({
   file: z.instanceof(File)
-    .refine((file) => file?.size <= MAX_FILE_SIZE, "Max size is 5MB.")
-    .refine((file) => file?.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Apenas arquivos .xlsx são suportados.")
-})
+    .refine((file) => file?.size <= MAX_FILE_SIZE, 'Max size is 5MB.')
+    .refine((file) => file?.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'Apenas arquivos .xlsx são suportados.'),
+});
 
 export default function SystemConfigPage() {
-  const [spreadSheetType, setSpreadSheetType] = useState<"journal" | "conference">("journal")
+  const [ spreadSheetType, setSpreadSheetType ] = useState<'journal' | 'conference'>('journal');
   const queryClient = useQueryClient();
 
   const { data: scrapingInterval } = useQuery({
     queryKey: [ 'scraping_interval' ],
-    queryFn: () => api.getScrapingInterval(),
+    queryFn: () => adminService.getScrapingInterval(),
   });
 
   const { data: scrapingHistory, error: scrapingHistoryError } = useQuery({
     queryKey: [ 'scraping_execution' ],
-    queryFn: () => api.getScrapingExecutions(),
+    queryFn: () => adminService.getScrapingExecutions(),
   });
 
   async function executeScrapping() {
-    console.log("Scrap execute form")
+    console.log('Scrap execute form');
     try {
-      await api.executeScraping();
+      await adminService.executeScraping();
       queryClient.invalidateQueries({ queryKey: [ 'scraping_execution' ] });
     } catch (error) {
       alert('Erro ao executar o scraping: ' + parseApiError(error));
@@ -68,27 +70,27 @@ export default function SystemConfigPage() {
   });
 
   function onSubmit(values: z.infer<typeof systemConfigFormSchema>) {
-    console.log("Scrap submit form")
+    console.log('Scrap submit form');
 
-    api.setScrapingInterval(values.scrapingIntervalDays);
+    adminService.setScrapingInterval(values.scrapingIntervalDays);
   }
 
   const lattesIdForm = useForm<z.infer<typeof lattesIdFormSchema>>({
     resolver: zodResolver(lattesIdFormSchema),
     defaultValues: {
       lattes_id: 99999,
-    }
-  })
+    },
+  });
 
   async function onSubmitLattesId(values: z.infer<typeof lattesIdFormSchema>) {
-    console.log("Lattes_id submit form")
+    console.log('Lattes_id submit form');
 
     const request = {
-      "lattes_id": values.lattes_id
-    }
+      'lattes_id': values.lattes_id,
+    };
 
     try {
-      await api.executeScrapingForAProfessor(request);
+      await adminService.executeScrapingForAProfessor(request);
       queryClient.invalidateQueries({ queryKey: [ 'scraping_execution' ] });
     } catch (error) {
       alert('Erro ao executar o scraping: ' + parseApiError(error));
@@ -97,24 +99,24 @@ export default function SystemConfigPage() {
 
 
   const fileForm = useForm<z.infer<typeof fileFormSchema>>({
-    resolver: zodResolver(fileFormSchema)
-  })
+    resolver: zodResolver(fileFormSchema),
+  });
 
   async function onSubmitFile(values: z.infer<typeof fileFormSchema>) {
     try {
-      const formData = new FormData()
-      formData.append("file", values.file);
+      const formData = new FormData();
+      formData.append('file', values.file);
 
-      const response = await api.createQualisBySpreadSheet(formData, spreadSheetType)
+      const response = await qualisService.createQualisBySpreadSheet(formData, spreadSheetType);
 
       if (response?.status === 200) {
         const result = await response.json();
-        console.log("Sucesso:", result);
+        console.log('Sucesso:', result);
       } else {
-        console.error("Erro no upload");
+        console.error('Erro no upload');
       }
     } catch (err) {
-      console.error("Erro ao conectar com o servidor:", err);
+      console.error('Erro ao conectar com o servidor:', err);
     }
   }
 
@@ -187,7 +189,7 @@ export default function SystemConfigPage() {
             <div className='flex flex-col gap-4'>
               <FormLabel>Planilha Qualis</FormLabel>
               <RadioGroup className='flex' defaultValue='journal' onValueChange={(value) => {
-                setSpreadSheetType(value as "journal" | "conference")
+                setSpreadSheetType(value as 'journal' | 'conference');
               }}>
                 <div className='flex gap-2 items-center'>
                   <RadioGroupItem value='journal' id='journal' />
@@ -206,8 +208,8 @@ export default function SystemConfigPage() {
                 <FormItem>
                   <FormControl>
                     <Input type='file' onChange={(e) => {
-                      if (!e.target.files) return
-                      field.onChange(e.target.files[0])
+                      if (!e.target.files) return;
+                      field.onChange(e.target.files[0]);
                     }} />
                   </FormControl>
                   <FormDescription>
@@ -217,7 +219,7 @@ export default function SystemConfigPage() {
                 </FormItem>
               )}
             />
-            <Button variant="outline" type="submit" className="ml-6" disabled={fileForm.formState.isSubmitting}>{fileForm.formState.isSubmitting ? "Enviando..." : "Upload"}</Button>
+            <Button variant="outline" type="submit" className="ml-6" disabled={fileForm.formState.isSubmitting}>{fileForm.formState.isSubmitting ? 'Enviando...' : 'Upload'}</Button>
           </form>
         </Form>
       </div>

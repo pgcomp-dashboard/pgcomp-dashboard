@@ -1,13 +1,13 @@
-import { Cell, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, TooltipProps, ReferenceLine } from 'recharts';
-import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
 import { ChartContainer } from '@/components/ui/chart.tsx';
+import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import { useExpandableChart } from '@/hooks/useExpandableChart';
 import { colorFromName } from '@/utils/color.ts';
+import { useQuery } from '@tanstack/react-query';
+import { Bar, BarChart, CartesianGrid, Cell, ReferenceLine, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import './chart.css';
-import { useExpandableChart } from '@/hooks/useExpandableChart';
-import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import ChartScrollWrapper from './ChartScrollWrapper';
+import { dashboardService } from '@/services/modules/dashboard.service';
 
 const MAX_VISIBLE_BARS = 15;
 
@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando' | 'doutorando' | 'completed' }) {
   const query = useQuery({
     queryKey: [ 'studentsPerField', filter ],
-    queryFn: async () => api.studentsPerField(filter),
+    queryFn: async () => dashboardService.studentsPerField(filter),
   });
 
   const chartData = Object.entries(query.data ?? {}).map(([ name, value ]) => ({ name, value }));
@@ -61,7 +61,7 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
       {chartData.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-  
+
       {/* 👇 Scroll horizontal com largura dinâmica */}
       <ChartScrollWrapper
         minWidth={chartWidth}
@@ -122,5 +122,5 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
       </ChartScrollWrapper>
     </>
   );
-  
-} 
+
+}

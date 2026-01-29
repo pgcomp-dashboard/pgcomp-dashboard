@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, ReactNode } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import './chart.css';
 
 interface ChartScrollWrapperProps {
@@ -22,7 +22,7 @@ export default function ChartScrollWrapper({
   className = '',
 }: ChartScrollWrapperProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [scrollState, setScrollState] = useState({ start: true, end: false });
+  const [ scrollState, setScrollState ] = useState({ start: true, end: false });
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -41,7 +41,7 @@ export default function ChartScrollWrapper({
 
     // Listener para scroll
     container.addEventListener('scroll', updateScrollState);
-    
+
     // Listener para resize (caso o gráfico mude de tamanho)
     const resizeObserver = new ResizeObserver(updateScrollState);
     resizeObserver.observe(container);
@@ -50,7 +50,7 @@ export default function ChartScrollWrapper({
       container.removeEventListener('scroll', updateScrollState);
       resizeObserver.disconnect();
     };
-  }, [isScrollable]);
+  }, [ isScrollable ]);
 
   return (
     <div

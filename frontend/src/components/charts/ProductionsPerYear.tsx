@@ -1,15 +1,20 @@
-import {
-  BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell, ResponsiveContainer,
-  ReferenceLine,
-} from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
-import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
-import { colorFromName } from '@/utils/color';
-import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import { useExpandableChart } from '@/hooks/useExpandableChart';
+import { colorFromName } from '@/utils/color';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Bar,
+  BarChart, CartesianGrid,
+  Cell,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis, YAxis,
+} from 'recharts';
 import ChartScrollWrapper from './ChartScrollWrapper';
-import { useRef, useState, useEffect } from 'react';
+import { dashboardService } from '@/services/modules/dashboard.service';
 
 const MAX_VISIBLE_BARS = 15;
 
@@ -43,7 +48,7 @@ export default function AllProductionsPerYear() {
 
   const { data: productions, error, isLoading } = useQuery({
     queryKey: [ 'totalProductionsPerYear', publisherType ],
-    queryFn: () => api.totalProductionsPerYear(publisherType),
+    queryFn: () => dashboardService.totalProductionsPerYear(publisherType),
   });
 
   if (isLoading) return <>Carregando...</>;

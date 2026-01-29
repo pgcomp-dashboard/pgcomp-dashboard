@@ -1,23 +1,21 @@
-import api from '@/services/api';
+import { apiClient } from '@/services/http-client';
 import React, { createContext, useEffect, useState } from 'react';
 
 const AUTH_TOKEN_STORAGE_KEY = 'auth-token';
 const USER_INFO_STORAGE_KEY = 'user-info';
-const ACTIVE_PROFILE_STORAGE_KEY = 'current-profile'
 
 export interface User {
   name: string,
-  roles: string[]
+  role: string,
 }
 
 export interface AuthContextType {
   user: User | undefined,
-  activeProfile: string | undefined,
   isLoading: boolean,
   isAuthenticated: boolean,
+  isAdmin: boolean,
   login(token: string, userData: User): void,
   logout(): void,
-  changeProfile(role: string): void
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,16 +31,14 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 // });
 
 export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [token, setToken] = useState<string | undefined>(undefined);
-  const [user, setUser] = useState<User | undefined>(undefined);
-  const [activeProfile, setActiveProfile] = useState<string | undefined>(undefined)
+  const [ loading, setLoading ] = useState<boolean>(true);
+  const [ token, setToken ] = useState<string | undefined>(undefined);
+  const [ user, setUser ] = useState<User | undefined>(undefined);
 
   // Load the initial infos
   useEffect(() => {
     const storedToken = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
     const userInfo = localStorage.getItem(USER_INFO_STORAGE_KEY);
-    const profile = localStorage.getItem(ACTIVE_PROFILE_STORAGE_KEY)
 
     if (storedToken) {
       setToken(storedToken);
@@ -52,39 +48,22 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
       setUser(JSON.parse(userInfo));
     }
 
-    if (profile) {
-      setActiveProfile(profile)
-    }
-
     setLoading(false);
   }, []);
 
   // Run every time that the token updates
   useEffect(() => {
-    api.setAuthToken(token);
+    apiClient.setAuthToken(token);
     if (token) {
       localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
       if (user) {
         localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(user));
       }
-      if (activeProfile) {
-        localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, activeProfile);
-      }
     } else {
       localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
       localStorage.removeItem(USER_INFO_STORAGE_KEY);
-      localStorage.removeItem(ACTIVE_PROFILE_STORAGE_KEY);
-
     }
-  }, [token]);
-
-  //Run when profile change
-  useEffect(() => {
-    if (activeProfile) {
-      localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, activeProfile)
-    }
-
-  }, [activeProfile])
+  }, [ token ]);
 
   function login(token: string, userData: User) {
     setToken(token);
@@ -94,21 +73,15 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
   function logout() {
     setToken(undefined);
     setUser(undefined);
-    setActiveProfile("basic")
-  }
-
-  function changeProfile(role: string){
-    setActiveProfile(role)
   }
 
   const contextValue: AuthContextType = {
     user,
-    activeProfile,
     isLoading: loading,
     isAuthenticated: !!token,
+    isAdmin: user?.role === 'admin',
     login,
     logout,
-    changeProfile
   };
 
   return (

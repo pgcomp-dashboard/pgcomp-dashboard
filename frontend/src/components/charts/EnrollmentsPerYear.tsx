@@ -1,22 +1,22 @@
+import { ChartContainer } from '@/components/ui/chart';
+import { useExpandableChart } from '@/hooks/useExpandableChart';
+import { dashboardService } from '@/services/modules/dashboard.service';
+import { useQuery } from '@tanstack/react-query';
 import {
+  Bar,
   BarChart,
   CartesianGrid,
+  LabelList,
+  Legend,
+  ReferenceLine,
+  Tooltip,
+  TooltipProps,
   XAxis,
   YAxis,
-  Tooltip,
-  Bar,
-  TooltipProps,
-  Legend,
-  LabelList,
-  ReferenceLine,
 } from 'recharts';
-import { ChartContainer } from '@/components/ui/chart';
-import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
-import './chart.css';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { useExpandableChart } from '@/hooks/useExpandableChart';
 import ExpandChartButton from '../ui/ExpandChartButton';
+import './chart.css';
 import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 10;
@@ -44,8 +44,8 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
   const { data, isLoading, error } = useQuery({
     queryKey: [ 'enrollments_per_year' ],
     queryFn: async () => {
-      const res = await api.enrollmentsPerYear();
-      return Array.isArray(res) ? res : [ res ];
+      const response = await dashboardService.enrollmentsPerYear();
+      return Array.isArray(response) ? response : [ response ];
     },
   });
 
@@ -56,7 +56,7 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
     if (filter === 'doutorado') return sum + item.doutorado;
     return sum + item.mestrado + item.doutorado;
   }, 0);
-  
+
   const mediaPorAno = data?.length ? totalDefesas / data.length : 0;
 
   // Tamanhos de fonte responsivos
@@ -113,11 +113,11 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
                 />
               </Bar>
             )}
-            <Legend 
-              verticalAlign="top" 
-              height={48} 
-              formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} 
-              wrapperStyle={{ fontSize: `${legendFontSize}px` }} 
+            <Legend
+              verticalAlign="top"
+              height={48}
+              formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+              wrapperStyle={{ fontSize: `${legendFontSize}px` }}
             />
             <ReferenceLine
               y={mediaPorAno}
@@ -137,5 +137,3 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
     </>
   );
 }
-
-

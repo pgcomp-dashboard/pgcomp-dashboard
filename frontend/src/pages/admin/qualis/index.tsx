@@ -3,19 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import api, { ApiError } from '@/services/api';
+import { qualisService } from '@/services/modules/qualis.service';
+import { StratumQualis } from '@/types/academic';
+import { ApiError } from '@/types/common';
 import { Pencil, Plus, Search, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
-type Qualis = {
-  id: number;
-  type: string;
-  code: string;
-  score: number;
-  created_at: string;
-  updated_at: string;
-};
 
 interface RequestBodyType {
   type: string;
@@ -24,11 +17,11 @@ interface RequestBodyType {
 }
 
 export default function QualisPage() {
-  const [qualisList, setQualisList] = useState<Qualis[]>([]);
-  const [formData, setFormData] = useState<RequestBodyType>({ type: '', code: '', score: 0 });
-  const [editingItem, setEditingItem] = useState<Qualis | null>(null);
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [ qualisList, setQualisList ] = useState<StratumQualis[]>([]);
+  const [ formData, setFormData ] = useState<RequestBodyType>({ type: '', code: '', score: 0 });
+  const [ editingItem, setEditingItem ] = useState<StratumQualis | null>(null);
+  const [ isAddOpen, setIsAddOpen ] = useState(false);
+  const [ searchTerm, setSearchTerm ] = useState('');
 
   const filteredQualisCode = qualisList.filter((s) =>
     s.code.toLowerCase().startsWith(searchTerm.trim().toLowerCase()),
@@ -36,15 +29,15 @@ export default function QualisPage() {
 
   async function fetchQualisData() {
     try {
-      const data = await api.getAllQualis();
+      const data = await qualisService.getAllQualis();
       setQualisList(data);
-      console.log(qualisList)
+      console.log(qualisList);
     } catch (error) {
       console.error('Erro ao buscar os dados do Qualis:', error);
     }
   }
 
-  const handleEdit = (item: Qualis) => {
+  const handleEdit = (item: StratumQualis) => {
     setEditingItem(item);
     setFormData({
       type: item.type,
@@ -68,9 +61,9 @@ export default function QualisPage() {
       };
 
       if (editingItem) {
-        await api.updateQualis(editingItem.id, JSON.stringify(payload));
+        await qualisService.updateQualis(editingItem.id, JSON.stringify(payload));
       } else {
-        await api.createQualis(JSON.stringify(payload));
+        await qualisService.createQualis(JSON.stringify(payload));
       }
 
       await fetchQualisData();
@@ -108,7 +101,7 @@ export default function QualisPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await api.deleteQualis(id);
+      await qualisService.deleteQualis(id);
       await fetchQualisData();
 
       toast.success('Qualis deletado com sucesso!');
@@ -220,7 +213,7 @@ export default function QualisPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredQualisCode.filter((item) => item.type === "journal")
+                  {filteredQualisCode.filter((item) => item.type === 'journal')
                     .map((item) => (
                       <TableRow key={item.id}>
                         <TableCell>{item.code}</TableCell>
@@ -247,7 +240,7 @@ export default function QualisPage() {
                           </Button>
                         </TableCell>
                       </TableRow>
-                  ))}
+                    ))}
                 </TableBody>
               </Table>
             </div>
@@ -267,7 +260,7 @@ export default function QualisPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredQualisCode.filter((item) => item.type === "conference")
+                  {filteredQualisCode.filter((item) => item.type === 'conference')
                     .map((item) => (
                       <TableRow key={item.id}>
                         <TableCell>{item.code}</TableCell>
@@ -294,7 +287,7 @@ export default function QualisPage() {
                           </Button>
                         </TableCell>
                       </TableRow>
-                  ))}
+                    ))}
                 </TableBody>
               </Table>
             </div>

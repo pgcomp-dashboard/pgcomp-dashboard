@@ -9,34 +9,30 @@ import {
   Trophy,
   User,
   Users,
-} from "lucide-react";
-import type React from "react";
+} from 'lucide-react';
+import type React from 'react';
 
-import AppLogo from "@/components/AppLogo";
-import { Button } from "@/components/ui/button";
+import AppLogo from '@/components/AppLogo';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import useAuth from "@/hooks/auth";
-import { Link, useNavigate } from "react-router";
+} from '@/components/ui/sidebar';
+import useAuth from '@/hooks/auth';
+import { Link, useNavigate } from 'react-router';
 
 export default function AdminLayout({
   children,
@@ -45,18 +41,13 @@ export default function AdminLayout({
 }) {
   const auth = useAuth();
   const navigate = useNavigate();
-  const pathname = "/admin" as string; // TODO: get from react-router
-  const roles = auth?.user?.roles || ["basic"];
+  const pathname = '/admin' as string; // TODO: get from react-router
 
   function handleLogout() {
     if (!auth?.isLoading) {
-      navigate("/");
+      navigate('/');
       setTimeout(() => auth?.logout(), 100);
     }
-  }
-
-  function swichProfile(profile: string) {
-    auth?.changeProfile(profile);
   }
 
   return (
@@ -71,19 +62,35 @@ export default function AdminLayout({
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/welcome"}>
-                  <Link to="/welcome" data-cy="link-areas">
+                <SidebarMenuButton asChild isActive={pathname === '/'}>
+                  <Link to="/" data-cy="link-areas">
                     <Users className="h-4 w-4" />
-                    <span>Pagina Inicial</span>
+                    <span>Início</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {auth?.activeProfile === "admin" && (
+              {auth?.isAdmin && (
                 <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={pathname === '/admin/dashboard'}>
+                      <Link to="/admin/dashboard" data-cy="link-areas">
+                        <Users className="h-4 w-4" />
+                        <span>DashBoard PGCOMP</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={pathname === '/admin/team'}>
+                      <Link to="/admin/team" data-cy="link-areas">
+                        <Users className="h-4 w-4" />
+                        <span>Gestão de Acesso</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === "/admin/areas"}
+                      isActive={pathname === '/admin/areas'}
                     >
                       <Link to="/admin/areas" data-cy="link-areas">
                         <Users className="h-4 w-4" />
@@ -94,7 +101,7 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === "/admin/qualis"}
+                      isActive={pathname === '/admin/qualis'}
                     >
                       <Link to="/admin/qualis">
                         <BookOpen className="h-4 w-4" />
@@ -105,7 +112,7 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === "/admin/professors"}
+                      isActive={pathname === '/admin/professors'}
                     >
                       <Link to="/admin/professors">
                         <Folders className="h-4 w-4" />
@@ -116,7 +123,7 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === "/admin/students"}
+                      isActive={pathname === '/admin/students'}
                     >
                       <Link to="/admin/students" data-cy="link-discentes">
                         <GraduationCap className="h-4 w-4" />
@@ -129,7 +136,7 @@ export default function AdminLayout({
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === "/portal/ranking"}
+                  isActive={pathname === '/portal/ranking'}
                 >
                   <Link to="/portal/credenciamento">
                     <Trophy className="h-4 w-4" />
@@ -137,35 +144,19 @@ export default function AdminLayout({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {auth?.activeProfile !== "admin" && (
-                <div>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === "/portal/productions"}
-                    >
-                      <Link to="/portal/productions">
-                        <File className="h-4 w-4" />
-                        <span>Minhas Produções</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </div>
-              )}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter className="border-t">
-            <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">
-                    <LogOut className="h-4 w-4" />
-                    <span>Voltar para dashboard</span> {/* TODO */}
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === '/portal/productions'}
+                >
+                  <Link to="/portal/productions">
+                    <File className="h-4 w-4" />
+                    <span>Minhas Produções</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
-          </SidebarFooter>
+          </SidebarContent>
         </Sidebar>
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 sm:h-16 lg:h-18 border-b flex items-center px-3 sm:px-4 lg:px-6 gap-2 sm:gap-4">
@@ -176,14 +167,14 @@ export default function AdminLayout({
             <div className="ml-auto flex items-center gap-2 sm:gap-4">
               {/* Botão Voltar para Dashboard - Mobile e Tablet */}
               {/* Botão completo - Desktop */}
-              {auth?.activeProfile === "admin" && (
+              {auth?.isAdmin && (
                 <Button
                   variant="outline"
                   size="sm"
                   asChild
                   className="hidden lg:flex"
                 >
-                  <Link to="/">Dashboard PGCOMP</Link>
+                  <Link to="/admin/dashboard">Dashboard PGCOMP</Link>
                 </Button>
               )}
               <DropdownMenu>
@@ -204,37 +195,8 @@ export default function AdminLayout({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem asChild>
-                    {roles?.length > 1 && (
-                      <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-2 w-full justify-start p-0 h-auto"
-                          >
-                            <span className="text-sm">Selecionar Perfil</span>
-                          </Button>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent>
-                          {roles?.map((role, index) => (
-                            <DropdownMenuItem key={index} asChild>
-                              <Link
-                                onClick={() => swichProfile(role)}
-                                to="/admin/"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2"
-                              >
-                                <span className="text-sm">{role}</span>
-                              </Link>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuSubContent>
-                      </DropdownMenuSub>
-                    )}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
                     <Link
-                      to="/admin/user-config"
+                      to="/portal/user-config"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm"
                     >
@@ -242,7 +204,7 @@ export default function AdminLayout({
                       <span>Configurações da conta</span>
                     </Link>
                   </DropdownMenuItem>
-                  {auth?.activeProfile === "admin" && (
+                  {auth?.isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link
                         to="/admin/system-config"

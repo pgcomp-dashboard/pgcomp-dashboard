@@ -1,0 +1,116 @@
+import { ApiError, RequestBodyType } from '@/types/common';
+
+export function parseApiError(error: unknown): string {
+  if (typeof error === 'object' && error && 'errors' in error) {
+    return (error as ApiError).errors.map(e => e.description).join('\n');
+  }
+  return 'Erro desconhecido.';
+}
+
+export class HttpClient {
+  protected baseUrl: string;
+  protected authToken?: string;
+
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl;
+  }
+
+  setAuthToken(token?: string) {
+    this.authToken = token;
+  }
+
+  getAuthToken() {
+    return this.authToken;
+  }
+
+  getBaseUrl() {
+    return this.baseUrl;
+  }
+
+  protected async request<T>(
+    endpoint: string,
+    method: string,
+    body: RequestBodyType = undefined,
+    headers: Record<string, string> = {},
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    const finalHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...headers,
+    };
+
+    if (this.authToken) {
+      finalHeaders['Authorization'] = `Bearer ${this.authToken}`;
+    }
+
+    let requestBody: BodyInit | undefined = undefined;
+    if (body && typeof body === 'object' && finalHeaders['Content-Type'] === 'application/json') {
+      requestBody = JSON.stringify(body);
+    } else {
+      requestBody = body as BodyInit;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: finalHeaders,
+        body: requestBody,
+      });
+
+      if (!response.ok) {
+        const error: ApiError = {
+          code: response.status,
+          errors: [ { description: 'Erro ao se comunicar com a API.' } ],
+        };
+
+        try {
+          const json = await response.json();
+          error.errors = json.errors ?? [ { description: json.message ?? 'Erro desconhecido.' } ];
+        } catch (jsonError) {
+          console.error('Erro ao interpretar JSON de erro da API:', jsonError);
+        }
+
+        throw error;
+      }
+
+      if (response.status === 204) {
+        return {} as T;
+      }
+
+      return await response.json() as T;
+    } catch (e: unknown) {
+      if (Object.prototype.hasOwnProperty.call(e, 'code') && Object.prototype.hasOwnProperty.call(e, 'errors')) {
+        throw e;
+      } else {
+        console.error(`Erro na requisição para ${endpoint}:`, e);
+        throw {
+          code: 408,
+          errors: [ { description: 'Falha de conexão com o servidor.' } ],
+        } as ApiError;
+      }
+    }
+  }
+
+  async get<T>(endpoint: string, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'GET', undefined, headers);
+  }
+
+  async post<T>(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'POST', body, headers);
+  }
+
+  async put<T>(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'PUT', body, headers);
+  }
+
+  async delete<T>(endpoint: string, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'DELETE', undefined, headers);
+  }
+
+  async patch<T>(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'PATCH', body, headers);
+  }
+}
+
+export const apiClient = new HttpClient(import.meta.env.VITE_API_ENDPOINT ?? 'http://localhost:80');
