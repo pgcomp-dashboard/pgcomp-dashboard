@@ -613,11 +613,6 @@ export default function MyProductionsPage() {
                 <TableRow>
                   <TableHead className='text-center'>Título</TableHead>
                   <TableHead className='text-center'>Local</TableHead>
-                  <TableHead className='text-center'>Ano</TableHead>
-                  <TableHead className='text-center'>Tipo</TableHead>
-                  <TableHead className='text-center'>Origem</TableHead>
-                  <TableHead className='text-center'>Qualis</TableHead>
-                  <TableHead className='text-center'>Pontuação</TableHead>
                   <TableHead className='text-center'>
                     <Button
                       variant="ghost"
