@@ -54,7 +54,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Logged group routes
 Route::group(['middleware' => ['auth:sanctum']], function () {
     // Login general access routes
-    Route::group(['name' => 'portal', 'prefix' => 'portal'], function () {
+    Route::group(['as' => 'portal.', 'prefix' => 'portal'], function () {
         Route::get('journal', [PublisherController::class, 'journalByIssn']);
         Route::get('conference', [PublisherController::class, 'conferenceByInitials']);
         Route::apiResource('qualis', StratumQualisController::class)->only(['index']);
@@ -73,7 +73,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     // Admin group routes
-    Route::group(['name' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
+    Route::group(['as' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
         // Dashboard Routes
         Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
             // TODO: Dar nomes melhores e mais padrao
