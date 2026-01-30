@@ -40,7 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import UploadXMLForm from '@/components/UploadXMLForm';
+import { apiClient } from '@/services/http-client';
 import { productionService } from '@/services/modules/production.service';
 import { qualisService } from '@/services/modules/qualis.service';
 import { userService } from '@/services/modules/user.service';
@@ -48,8 +48,8 @@ import { Production, Publisher, StratumQualis } from '@/types/academic';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileText, Loader2, Plus, Trash } from 'lucide-react';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ArrowLeft, ArrowUpDown, ChevronDown, ChevronUp, FileText, Filter, Loader2, Plus, Trash, Upload, X } from 'lucide-react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -70,6 +70,7 @@ interface CreateRequestBodyType {
 }
 
 type FormType = 'none' | 'xml' | 'doi' | 'other';
+type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
 const updateProductionFormSchema = z.object({
   title: z.string().min(1, 'Campo obrigatório'),
@@ -93,6 +94,21 @@ export default function MyProductionsPage() {
   const [ selectedProduction, setSelectedProduction ] = useState<Production>();
   const [ chosenForm, setChosenForm ] = useState<FormType>('none');
   const [ totalScore, setTotalScore ] = useState(0);
+  const [ showFilters, setShowFilters ] = useState(false);
+
+  // Filtros
+  const [ filters, setFilters ] = useState({
+    ano: 'all',
+    tipo: 'all',
+    origem: 'all',
+    qualis: 'all',
+  });
+
+  // Ordenação
+  const [ sortConfig, setSortConfig ] = useState<{
+    key: 'year' | 'tipo' | 'origem' | 'pontuacao';
+    direction: 'asc' | 'desc';
+  }>({ key: 'year', direction: 'desc' });
 
   useEffect(() => {
     async function fetchQualis() {
@@ -145,6 +161,87 @@ export default function MyProductionsPage() {
       setTotalScore(score);
     }
   }, [ productionList, qualisList ]);
+
+  // Lógica de filtro e ordenação
+  const filteredAndSortedProductions = useMemo(() => {
+    let result = [ ...productionList ];
+
+    // Aplicar filtros
+    if (filters.ano && filters.ano !== 'all') {
+      result = result.filter((p) => p.year.toString() === filters.ano);
+    }
+    if (filters.tipo && filters.tipo !== 'all') {
+      result = result.filter((p) => p.publisher_type === filters.tipo);
+    }
+    if (filters.origem && filters.origem !== 'all') {
+      result = result.filter((p) => p.source === filters.origem);
+    }
+    if (filters.qualis && filters.qualis !== 'all') {
+      result = result.filter((p) => {
+        const qualis = qualisList.find((q) => q.id === p.stratum_qualis_id);
+        return qualis?.code === filters.qualis;
+      });
+    }
+
+    // Aplicar ordenação
+    result.sort((a, b) => {
+      let aValue: number | string = 0;
+      let bValue: number | string = 0;
+
+      switch (sortConfig.key) {
+        case 'year':
+          aValue = a.year;
+          bValue = b.year;
+          break;
+        case 'tipo':
+          aValue = a.publisher_type || '';
+          bValue = b.publisher_type || '';
+          break;
+        case 'origem':
+          aValue = a.source || '';
+          bValue = b.source || '';
+          break;
+        case 'pontuacao':
+          aValue = qualisList.find((q) => q.id === a.stratum_qualis_id)?.score || 0;
+          bValue = qualisList.find((q) => q.id === b.stratum_qualis_id)?.score || 0;
+          break;
+      }
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  }, [ productionList, qualisList, filters, sortConfig ]);
+
+  const hasActiveFilters = Object.values(filters).some((f) => f !== 'all');
+
+  const clearFilters = () => {
+    setFilters({ ano: 'all', tipo: 'all', origem: 'all', qualis: 'all' });
+  };
+
+  const handleSort = (key: typeof sortConfig.key) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
+    }));
+  };
+
+  const SortIcon = ({ column }: { column: typeof sortConfig.key }) => {
+    if (sortConfig.key !== column) {
+      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-50" />;
+    }
+    return sortConfig.direction === 'asc'
+      ? <ChevronUp className="h-4 w-4 ml-1" />
+      : <ChevronDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Anos únicos para o filtro
+  const uniqueYears = useMemo(() => {
+    const years = [ ...new Set(productionList.map((p) => p.year)) ];
+    return years.sort((a, b) => b - a);
+  }, [ productionList ]);
 
   async function onSubmit(values: z.infer<typeof updateProductionFormSchema>) {
     //console.log("Submiting")
@@ -249,78 +346,261 @@ export default function MyProductionsPage() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className='flex flex-col items-center gap-5 w-full' >
-        <div className='flex flex-col items-center gap-2'>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Minhas Produções</h1>
-          <p className="text-muted-foreground">
+    <div className="flex flex-col items-center gap-4 w-full px-2 sm:px-0">
+      {/* Header */}
+      <div className='flex flex-col items-center gap-4 w-full'>
+        <div className='flex flex-col items-center gap-1 text-center'>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Minhas Produções</h1>
+          <p className="text-sm text-muted-foreground">
             Visualize, crie e edite suas produções.
           </p>
         </div>
-        <div className='flex w-full justify-start'>
-          <div className='flex flex-col gap-4 md:justify-around'>
-            <div className='flex justify-between'>
-              <Label>Adicionar Produção</Label>
-              <Label>Pontuação total: {totalScore}</Label>
+
+        {/* Score e Ações */}
+        <div className='w-full space-y-3'>
+          {/* Pontuação */}
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
+              <span className="text-sm font-medium">Pontuação total:</span>
+              <span className="text-lg font-bold text-primary">{totalScore}</span>
             </div>
-            <div className='flex flex-row flex-wrap gap-2 w-full'>
-              {chosenForm != 'none' &&
-              <div>
-                <Button onClick={() => {
-                  setChosenForm('none');
-                }}><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Button>
-              </div>
-              }
-              <Button disabled={chosenForm == 'xml'} data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => {
-                setChosenForm('xml');
-              }}>
-                <Plus className="mr-2 h-4 w-4" />
-                XML
+          </div>
+
+          {/* Botões de Ação */}
+          <div className='flex flex-col gap-2'>
+            {chosenForm !== 'none' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setChosenForm('none')}
+                className="self-start text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="mr-1 h-4 w-4" />
+                Voltar para lista
               </Button>
-              <Button disabled={chosenForm == 'doi'} data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => {
-                setChosenForm('doi');
-              }}>
-                <Plus className="mr-2 h-4 w-4" />
-                DOI
-              </Button>
-              <Button disabled={chosenForm == 'other'} data-cy="add-area-button" className='w-[calc(50%-0.25rem)] sm:w-auto' onClick={() => {
-                setChosenForm('other');
-              }}>
-                <Plus className="mr-2 h-4 w-4" />
-                FORM
-              </Button>
-              {chosenForm == 'none' &&
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      data-cy="add-area-button"
-                      className='w-[calc(50%-0.25rem)] sm:w-auto bg-red-400 hover:bg-red-500'>
-                      Deletar Todas
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogPortal>
-                    <AlertDialogOverlay />
-                    <AlertDialogContent>
-                      <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Essa ação não pode ser desfeita. Isso vai permanentemente deletar todas as produções.
-                      </AlertDialogDescription>
-                      <div className="flex justify-end gap-4">
-                        <AlertDialogCancel asChild>
-                          <Button className="bg-white text-black">Cancelar</Button>
-                        </AlertDialogCancel>
-                        <AlertDialogAction asChild>
-                          <Button className="bg-red-400 hover:bg-red-500" onClick={() => fullDelete()}>Sim, deletar produção</Button>
-                        </AlertDialogAction>
-                      </div>
-                    </AlertDialogContent>
-                  </AlertDialogPortal>
-                </AlertDialog>
-              }
-            </div>
+            )}
+
+            {chosenForm === 'none' && (
+              <>
+                <Label className="text-sm font-medium">Adicionar Produção</Label>
+                <div className='grid grid-cols-2 sm:flex sm:flex-wrap gap-2'>
+                  <Button
+                    variant="outline"
+                    onClick={() => setChosenForm('xml')}
+                    className="h-10"
+                  >
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    XML
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setChosenForm('doi')}
+                    className="h-10"
+                  >
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    DOI
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setChosenForm('other')}
+                    className="h-10"
+                  >
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    Manual
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="h-10 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash className="mr-1.5 h-4 w-4" />
+                        Limpar
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogPortal>
+                      <AlertDialogOverlay />
+                      <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
+                        <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Essa ação não pode ser desfeita. Isso vai permanentemente deletar todas as produções.
+                        </AlertDialogDescription>
+                        <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 mt-4">
+                          <AlertDialogCancel asChild>
+                            <Button variant="outline">Cancelar</Button>
+                          </AlertDialogCancel>
+                          <AlertDialogAction asChild>
+                            <Button className="bg-red-500 hover:bg-red-600" onClick={() => fullDelete()}>
+                              Sim, deletar todas
+                            </Button>
+                          </AlertDialogAction>
+                        </div>
+                      </AlertDialogContent>
+                    </AlertDialogPortal>
+                  </AlertDialog>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Filtros */}
+      {chosenForm === 'none' && (
+        <div className="w-full">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className="mb-3 w-full sm:w-auto"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+            {hasActiveFilters && (
+              <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                {Object.values(filters).filter((f) => f !== 'all').length}
+              </span>
+            )}
+          </Button>
+
+          {showFilters && (
+            <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Ano */}
+                <div>
+                  <Label className="text-xs mb-1.5 block">Ano</Label>
+                  <Select
+                    value={filters.ano}
+                    onValueChange={(value) => setFilters({ ...filters, ano: value })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Todos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      {uniqueYears.map((year) => (
+                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Tipo */}
+                <div>
+                  <Label className="text-xs mb-1.5 block">Tipo</Label>
+                  <Select
+                    value={filters.tipo}
+                    onValueChange={(value) => setFilters({ ...filters, tipo: value })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Todos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="journal">Revista</SelectItem>
+                      <SelectItem value="conference">Conferência</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Origem */}
+                <div>
+                  <Label className="text-xs mb-1.5 block">Origem</Label>
+                  <Select
+                    value={filters.origem}
+                    onValueChange={(value) => setFilters({ ...filters, origem: value })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Todas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="lattes">Lattes</SelectItem>
+                      <SelectItem value="manual">Manual</SelectItem>
+                      <SelectItem value="doi">DOI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Qualis */}
+                <div>
+                  <Label className="text-xs mb-1.5 block">Qualis</Label>
+                  <Select
+                    value={filters.qualis}
+                    onValueChange={(value) => setFilters({ ...filters, qualis: value })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Todos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="A1">A1</SelectItem>
+                      <SelectItem value="A2">A2</SelectItem>
+                      <SelectItem value="A3">A3</SelectItem>
+                      <SelectItem value="A4">A4</SelectItem>
+                      <SelectItem value="B1">B1</SelectItem>
+                      <SelectItem value="B2">B2</SelectItem>
+                      <SelectItem value="B3">B3</SelectItem>
+                      <SelectItem value="B4">B4</SelectItem>
+                      <SelectItem value="C">C</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {hasActiveFilters && (
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2 border-t">
+                  <span className="text-sm text-muted-foreground">
+                    {filteredAndSortedProductions.length} resultado(s)
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="h-8"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Limpar filtros
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Ordenação Mobile */}
+          <div className="md:hidden mt-3">
+            <Label className="text-xs mb-1.5 block">Ordenar por</Label>
+            <div className="flex gap-2">
+              <Select
+                value={sortConfig.key}
+                onValueChange={(value) => setSortConfig((prev) => ({ ...prev, key: value as typeof sortConfig.key }))}
+              >
+                <SelectTrigger className="h-9 flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="year">Ano</SelectItem>
+                  <SelectItem value="tipo">Tipo</SelectItem>
+                  <SelectItem value="origem">Origem</SelectItem>
+                  <SelectItem value="pontuacao">Pontuação</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => setSortConfig((prev) => ({
+                  ...prev,
+                  direction: prev.direction === 'asc' ? 'desc' : 'asc',
+                }))}
+              >
+                {sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tabela */}
       {chosenForm === 'none' ?
         <>
@@ -331,23 +611,65 @@ export default function MyProductionsPage() {
                 <TableRow>
                   <TableHead className='text-center'>Título</TableHead>
                   <TableHead className='text-center'>Local</TableHead>
-                  <TableHead className='text-center'>Ano</TableHead>
-                  <TableHead className='text-center'>Tipo</TableHead>
-                  <TableHead className='text-center'>Origem</TableHead>
+                  <TableHead className='text-center'>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 font-medium"
+                      onClick={() => handleSort('year')}
+                    >
+                      Ano
+                      <SortIcon column="year" />
+                    </Button>
+                  </TableHead>
+                  <TableHead className='text-center'>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 font-medium"
+                      onClick={() => handleSort('tipo')}
+                    >
+                      Tipo
+                      <SortIcon column="tipo" />
+                    </Button>
+                  </TableHead>
+                  <TableHead className='text-center'>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 font-medium"
+                      onClick={() => handleSort('origem')}
+                    >
+                      Origem
+                      <SortIcon column="origem" />
+                    </Button>
+                  </TableHead>
                   <TableHead className='text-center'>Qualis</TableHead>
-                  <TableHead className='text-center'>Pontuação</TableHead>
+                  <TableHead className='text-center'>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 font-medium"
+                      onClick={() => handleSort('pontuacao')}
+                    >
+                      Pontuação
+                      <SortIcon column="pontuacao" />
+                    </Button>
+                  </TableHead>
                   <TableHead className='text-center'>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.length == 0 ?
+                {filteredAndSortedProductions.length === 0 ?
                   <TableRow>
-                    <TableCell className='flex items-center justify-center'>
-                      Não foram encontradas produções cadastradas para o usuário
+                    <TableCell colSpan={8} className='text-center py-8'>
+                      {hasActiveFilters
+                        ? 'Nenhuma produção encontrada com os filtros aplicados'
+                        : 'Não foram encontradas produções cadastradas para o usuário'}
                     </TableCell>
                   </TableRow>
                   :
-                  productionList.map((production) => (
+                  filteredAndSortedProductions.map((production) => (
                     <TableRow key={production.id}>
                       <TableCell className="text-left">{production.title}</TableCell>
                       <TableCell className='text-left'>Nome do journal ou conferencia</TableCell>
@@ -424,37 +746,54 @@ export default function MyProductionsPage() {
           </div>
 
           {/* Mobile: Cards */}
-          <div className="md:hidden flex flex-col gap-3">
-            {data?.length == 0 ?
-              <div className='p-4 text-center text-muted-foreground'>
-                Não foram encontradas produções cadastradas para o usuário
+          <div className="md:hidden flex flex-col gap-3 w-full">
+            {filteredAndSortedProductions.length === 0 ?
+              <div className='p-6 text-center text-muted-foreground bg-muted/30 rounded-lg'>
+                {hasActiveFilters
+                  ? 'Nenhuma produção encontrada com os filtros aplicados'
+                  : 'Não foram encontradas produções cadastradas para o usuário'}
               </div>
               :
-              productionList.map((production) => (
-                <div key={production.id} className="rounded-lg border p-4 bg-white">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-sm line-clamp-2 flex-1">{production.title}</h3>
-                      <span className="text-sm font-medium text-primary whitespace-nowrap">{production.year}</span>
+              filteredAndSortedProductions.map((production) => {
+                const qualis = qualisList.find((q) => q.id === production.stratum_qualis_id);
+                return (
+                  <div key={production.id} className="rounded-lg border bg-card shadow-sm overflow-hidden">
+                    {/* Header do Card */}
+                    <div className="p-3 bg-muted/30 border-b">
+                      <h3 className="font-medium text-sm leading-tight line-clamp-2">{production.title}</h3>
                     </div>
 
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted-foreground">Tipo</span>
-                        <span className="font-medium">{production.publisher_type ? production.publisher_type : 'NI'}</span>
-                      </div>
-                      <div className="flex flex-col gap-1 items-end">
-                        <span className="text-xs text-muted-foreground">Qualis</span>
-                        <span className="font-medium">
-                          {production.publisher?.stratum_qualis?.code} - {production.publisher?.stratum_qualis?.score}
-                        </span>
+                    {/* Conteúdo do Card */}
+                    <div className="p-3">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <div>
+                          <span className="text-xs text-muted-foreground block">Ano</span>
+                          <span className="font-medium">{production.year}</span>
+                        </div>
+                        <div>
+                          <span className="text-xs text-muted-foreground block">Tipo</span>
+                          <span className="font-medium">
+                            {production.publisher_type === 'journal' ? 'Revista' : production.publisher_type === 'conference' ? 'Conferência' : 'NI'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-xs text-muted-foreground block">Origem</span>
+                          <span className="font-medium capitalize">{production.source || 'NI'}</span>
+                        </div>
+                        <div>
+                          <span className="text-xs text-muted-foreground block">Qualis / Pontos</span>
+                          <span className="font-medium">
+                            {qualis ? `${qualis.code} / ${qualis.score}` : 'NI'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex gap-2 pt-2 border-t">
+                    {/* Ações do Card */}
+                    <div className="flex border-t">
                       <Button
-                        variant="outline"
-                        className="flex-1"
+                        variant="ghost"
+                        className="flex-1 rounded-none h-11 text-sm"
                         onClick={() => {
                           setSelectedProduction(production);
                           setIsEditOpen(true);
@@ -463,11 +802,12 @@ export default function MyProductionsPage() {
                         <FileText className="h-4 w-4 mr-2" />
                         Editar
                       </Button>
+                      <div className="w-px bg-border" />
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
-                            variant="outline"
-                            className="flex-1 text-red-500 hover:text-red-600"
+                            variant="ghost"
+                            className="flex-1 rounded-none h-11 text-sm text-red-500 hover:text-red-600 hover:bg-red-50"
                             onClick={() => {
                               setSelectedProduction(production);
                             }}
@@ -478,23 +818,29 @@ export default function MyProductionsPage() {
                         </AlertDialogTrigger>
                         <AlertDialogPortal>
                           <AlertDialogOverlay />
-                          <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
+                          <AlertDialogContent className="max-w-[90vw] sm:max-w-lg mx-auto">
                             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Essa ação não pode ser desfeita. Isso vai permanentemente deletar a produção {selectedProduction?.title}.
+                            <AlertDialogDescription className="text-sm">
+                              Essa ação não pode ser desfeita. Isso vai permanentemente deletar a produção.
                             </AlertDialogDescription>
-                            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
+                            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 mt-4">
                               <AlertDialogCancel asChild>
-                                <Button className="bg-white text-black"
-                                  onClick={() => {
-                                    setSelectedProduction(undefined);
-                                  }}>Cancelar
+                                <Button
+                                  variant="outline"
+                                  onClick={() => setSelectedProduction(undefined)}
+                                >
+                                  Cancelar
                                 </Button>
                               </AlertDialogCancel>
                               <AlertDialogAction asChild>
-                                <Button className="bg-red-400 hover:bg-red-500" onClick={() => {
-                                  if (selectedProduction) deleteProduction(selectedProduction.id);
-                                }}>Sim, deletar produção</Button>
+                                <Button
+                                  className="bg-red-500 hover:bg-red-600"
+                                  onClick={() => {
+                                    if (selectedProduction) deleteProduction(selectedProduction.id);
+                                  }}
+                                >
+                                  Deletar
+                                </Button>
                               </AlertDialogAction>
                             </div>
                           </AlertDialogContent>
@@ -502,12 +848,12 @@ export default function MyProductionsPage() {
                       </AlertDialog>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
           </div>
         </>
         : chosenForm === 'xml' ?
-          <UploadXMLForm />
+          <ProductionXMLForm />
           : chosenForm === 'doi' ?
             <ProductionDOIForm />
             :
@@ -638,9 +984,7 @@ function ProductionDOIForm() {
   const [ isLoading, setIsLoading ] = useState(false);
 
   function handleInput(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.value) {
-      setDoi(e.target.value);
-    }
+    setDoi(e.target.value);
   }
 
   function handleValueChange(value: string) {
@@ -656,12 +1000,12 @@ function ProductionDOIForm() {
       'doi': doi,
     };
 
-    //console.log("Enviando")
     try {
       const response = await productionService.createProductionDoi(request);
       console.log(response);
       if (response.status == 201) {
         toast.success('Criado com sucesso');
+        setDoi('');
       }
     } catch (err) {
       toast.error('Erro ao criar produção');
@@ -672,25 +1016,54 @@ function ProductionDOIForm() {
   }
 
   return (
-    <div className='flex flex-col w-full items-center align-middle px-4'>
-      <div className='flex flex-col w-full md:w-1/2 gap-4 items-center align-middle'>
-        <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com D.O.I</h1>
-        <h1 className="text-muted-foreground text-center">Adicione suas produções a partir do D.O.I.</h1>
-        <RadioGroup className='flex flex-row gap-6 md:gap-4' defaultValue='conference' onValueChange={handleValueChange}>
-          <div className="flex w-1/2 items-center space-x-2">
-            <RadioGroupItem value='conference' id='conference' />
-            <Label>Conferencia</Label>
+    <div className='flex flex-col w-full items-center'>
+      <div className='flex flex-col w-full max-w-md gap-4 items-center'>
+        <div className="text-center">
+          <h2 className="text-lg sm:text-xl font-semibold">Adicionar com DOI</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Importe a produção pelo identificador DOI
+          </p>
+        </div>
+
+        <div className="w-full space-y-4">
+          {/* Tipo de publicação */}
+          <div className="space-y-2">
+            <Label className="text-sm">Tipo de publicação</Label>
+            <RadioGroup
+              className='flex gap-4'
+              defaultValue='conference'
+              onValueChange={handleValueChange}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value='conference' id='doi-conference' />
+                <Label htmlFor="doi-conference" className="font-normal cursor-pointer">Conferência</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value='journal' id='doi-journal' />
+                <Label htmlFor="doi-journal" className="font-normal cursor-pointer">Revista</Label>
+              </div>
+            </RadioGroup>
           </div>
-          <div className="flex w-1/2 items-center space-x-2">
-            <RadioGroupItem value='journal' id='journal' />
-            <Label>Revista</Label>
+
+          {/* Input DOI */}
+          <div className="space-y-2">
+            <Label className="text-sm">DOI</Label>
+            <Input
+              placeholder='Ex: 10.1000/xyz123'
+              type="text"
+              value={doi}
+              onChange={handleInput}
+            />
           </div>
-        </RadioGroup>
-        <div className="flex flex-col rounded-md gap-4 w-full">
-          <Input placeholder='D.O.I' type="text" onChange={handleInput} />
-          <Button onClick={createProduction} disabled={isLoading}>
+
+          {/* Botão */}
+          <Button
+            onClick={createProduction}
+            disabled={!doi || isLoading}
+            className="w-full"
+          >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isLoading ? 'Importando...' : 'Importar produções'}
+            {isLoading ? 'Importando...' : 'Importar produção'}
           </Button>
         </div>
       </div>
@@ -781,121 +1154,136 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
   }
 
   return (
-    <div className="flex flex-col w-full items-center align-middle px-4">
-      <div className="flex flex-col rounded-md gap-4 w-full sm:w-11/12 md:w-4/5 lg:w-3/4">
-        <div className="flex flex-col items-center align-middle">
-          <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar manualmente</h1>
-          <h1 className="text-center">Adicione uma produção no sistema</h1>
+    <div className="flex flex-col w-full items-center">
+      <div className="flex flex-col gap-4 w-full max-w-lg">
+        <div className="text-center">
+          <h2 className="text-lg sm:text-xl font-semibold">Adicionar manualmente</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Preencha os dados da produção
+          </p>
         </div>
-        <div className="flex flex-col items-center align-middle">
-          <RadioGroup className='flex flex-col sm:flex-row gap-3' defaultValue='conference' onValueChange={handleValueChange}>
+
+        {/* Tipo de publicação */}
+        <div className="space-y-2">
+          <Label className="text-sm">Tipo de publicação</Label>
+          <RadioGroup
+            className='flex gap-4'
+            defaultValue='conference'
+            onValueChange={handleValueChange}
+          >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value='conference' id='conference' />
-              <Label>Conferencia</Label>
+              <RadioGroupItem value='conference' id='manual-conference' />
+              <Label htmlFor="manual-conference" className="font-normal cursor-pointer">Conferência</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value='journal' id='journal' />
-              <Label>Revista</Label>
+              <RadioGroupItem value='journal' id='manual-journal' />
+              <Label htmlFor="manual-journal" className="font-normal cursor-pointer">Revista</Label>
             </div>
           </RadioGroup>
         </div>
 
-        <div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Título da Produção:</FormLabel>
-                      <FormControl>
-                        <Input type="text" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Título da Produção</FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="Digite o título" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="year"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ano</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="2024" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Busca de Publisher */}
+            <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+              <Label className="text-sm">Buscar {publisherType === 'journal' ? 'Revista (ISSN)' : 'Conferência (Sigla)'}</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder={publisherType === 'journal' ? 'Ex: 1234-5678' : 'Ex: SBBD'}
+                  type="text"
+                  onChange={handleInput}
+                  className="flex-1"
                 />
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ano:</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="rounded-md border overflow-hidden">
-                  <Table>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="flex flex-col sm:flex-row gap-2 p-4">
-                          <Label className="min-w-fit self-center">Buscar Revista/Conferência: </Label>
-                          <Input placeholder="ISSN/Sigla" type="text" onChange={handleInput} />
-                          <Button type='button' className="w-full sm:w-auto" onClick={() => {
-                            publisherType === 'journal' ?
-                              getPublisherByIssn(publisherSearch)
-                              :
-                              getPublisherByInitials(publisherSearch);
-                          }}>Buscar</Button>
-                        </TableCell>
-                      </TableRow>
-                      {!publisherNotFound ?
-                        <TableRow>
-                          <TableCell>
-                            {publisher &&
-                              <div className="flex flex-col gap-1 text-sm">
-                                <div>
-                                  <b>NOME:</b> {publisher.name}
-                                </div>
-                                <div>
-                                  <b>CÓDIGO QUALIS:</b> {qualis.find((item) => item.id === publisher.stratum_qualis_id)?.code}
-                                </div>
-                              </div>
-                            }
-                          </TableCell>
-                        </TableRow>
-                        :
-                        <TableRow>
-                          <TableCell>
-                            <div>{publisherType === 'journal' ? 'Revista' : 'Conferencia'} não encontrada</div>
-                          </TableCell>
-                        </TableRow>
-                      }
-                    </TableBody>
-                  </Table>
-                </div>
+                <Button
+                  type='button'
+                  variant="secondary"
+                  onClick={() => {
+                    publisherType === 'journal'
+                      ? getPublisherByIssn(publisherSearch)
+                      : getPublisherByInitials(publisherSearch);
+                  }}
+                >
+                  Buscar
+                </Button>
               </div>
-              <Button type="submit" className="w-full sm:w-auto">Criar Produção</Button>
-            </form>
-          </Form >
-        </div>
+
+              {publisher && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-md text-sm">
+                  <p className="font-medium text-green-800">{publisher.name}</p>
+                  <p className="text-green-700">
+                    Qualis: {qualis.find((item) => item.id === publisher.stratum_qualis_id)?.code || 'N/A'}
+                  </p>
+                </div>
+              )}
+
+              {publisherNotFound && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-sm text-amber-800">
+                  {publisherType === 'journal' ? 'Revista' : 'Conferência'} não encontrada
+                </div>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full">
+              Criar Produção
+            </Button>
+          </form>
+        </Form>
       </div>
 
-      {/* Dialog - Confirmar exclusão de produção */}
+      {/* Dialog - Confirmação de criação */}
       <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
-        <DialogContent className="[&>button:last-child]:hidden">
+        <DialogContent className="max-w-[90vw] sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className='text-center'> Sua Produção foi cadastrada com Sucesso:</DialogTitle>
-            <DialogDescription />
+            <DialogTitle className='text-center'>Produção cadastrada!</DialogTitle>
+            <DialogDescription className="sr-only">Detalhes da produção criada</DialogDescription>
           </DialogHeader>
-          <div className='flex flex-col gap-2'>
-            <div><Label>Titulo: </Label>
-              {production?.title} </div>
-            <div><Label>Ano: </Label>
-              {production?.year} </div>
+          <div className='space-y-2 text-sm'>
+            <div>
+              <span className="text-muted-foreground">Título:</span>
+              <p className="font-medium">{production?.title}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Ano:</span>
+              <p className="font-medium">{production?.year}</p>
+            </div>
           </div>
-          <DialogFooter className='w-full items-center'>
-            <Button type="button" className='items-center bg-green-400 hover:bg-green-500' onClick={() => {
-              setIsConfirmationOpen(false);
-              form.resetField('title');
-              form.resetField('year');
-            }}>Confirmar</Button>
+          <DialogFooter>
+            <Button
+              className='w-full bg-green-600 hover:bg-green-700'
+              onClick={() => {
+                setIsConfirmationOpen(false);
+                form.reset();
+              }}
+            >
+              Confirmar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -903,82 +1291,120 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
   );
 }
 
-// function ProductionXMLForm() {
-//   const [file, setFile] = useState<File | null>(null);
-//   const [status, setStatus] = useState<UploadStatus>("idle");
+function ProductionXMLForm() {
+  const [ file, setFile ] = useState<File | null>(null);
+  const [ status, setStatus ] = useState<UploadStatus>('idle');
 
-//   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-//     if (e.target.files) {
-//       setFile(e.target.files[0])
-//     }
-//   }
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+      setStatus('idle');
+    }
+  }
 
-//   async function onSubmit() {
-//     if (!file) return;
-//     setStatus("uploading")
-//     const apiUrl = api.getBaseUrl() + '/api/portal/user/lattes-update';
+  async function onSubmit() {
+    if (!file) return;
+    setStatus('uploading');
+    const apiUrl = apiClient.getBaseUrl() + '/api/portal/user/lattes-update';
 
+    const formData = new FormData();
+    formData.append('file', file);
 
-//     const formData = new FormData()
-//     formData.append('file', file)
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + apiClient.getAuthToken(),
+        },
+        body: formData,
+      });
+      console.log(response);
+      if (response.status === 201) {
+        toast.success('Produções cadastradas com sucesso');
+        setStatus('success');
+      } else {
+        setStatus('error');
+        toast.error('Erro no cadastro das produções');
+      }
+    } catch (err) {
+      setStatus('error');
+      toast.error('Erro no cadastro das produções');
+      console.error('Erro ao criar produções:', err);
+    }
+  }
 
-//     try {
-//       const response = await fetch(apiUrl, {
-//         method: 'POST',
-//         headers: {
-//           'Authorization': 'Bearer ' + api.getAuthToken(),
-//         },
-//         body: formData
-//       });
-//       console.log(response)
-//       if (response.status === 201) {
-//         toast.success("Produções cadastradas com sucesso")
-//         setStatus("success")
-//       } else {
-//         setStatus("error")
-//         toast.error("Erro no cadastro das produções")
-//       }
-//     } catch (err) {
-//       setStatus("error")
-//       toast.error("Erro no cadastro das produções")
-//       console.error('Erro ao criar produções:', err);
-//     }
-//   }
+  return (
+    <div className='flex flex-col w-full items-center'>
+      <div className='flex flex-col w-full max-w-md gap-4 items-center'>
+        <div className="text-center">
+          <h2 className="text-lg sm:text-xl font-semibold">Adicionar com XML</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Envie o arquivo ZIP do Lattes
+          </p>
+        </div>
 
-//   return (
-//     <div className='flex flex-col w-full items-center align-middle px-4'>
-//       <div className='flex flex-col w-2/3 md:w-1/2 lg:w-1/3 gap-4 items-center align-middle'>
-//         <h1 className="text-2xl sm:text-3xl font-bold text-center">Adicionar com XML</h1>
-//         <p className="text-muted-foreground text-center">Adicione suas produções a partir do XML do lattes, coloque o arquivo zip disponibilizado ao baixar.</p>
-//         <div className="flex flex-col rounded-md gap-4 w-full">
-//           <Input type="file" onChange={handleFileChange} />
+        <div className="w-full space-y-3">
+          {/* Upload Area */}
+          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors">
+            <div className="flex flex-col items-center justify-center py-4">
+              <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-primary">Clique para selecionar</span>
+              </p>
+              <p className="text-xs text-muted-foreground">.ZIP ou .XML</p>
+            </div>
+            <Input
+              type="file"
+              onChange={handleFileChange}
+              accept=".zip,.xml"
+              className="hidden"
+            />
+          </label>
 
-//           <Button type="submit" disabled={!file || status === 'uploading'} onClick={onSubmit}>
-//             {status === 'uploading' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-//             {status === 'uploading' ? "Enviando..." : "Enviar"}
-//           </Button>
+          {/* File Info */}
+          {file && (
+            <div className='flex items-center justify-between p-3 bg-muted/50 rounded-lg'>
+              <div className="flex items-center gap-2 min-w-0">
+                <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 flex-shrink-0"
+                onClick={() => setFile(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
-//           <div>
-//             {file &&
-//               <div className='text-sm text-muted-foreground mb-2'>
-//                 <div>Arquivo: {file.name}</div>
-//                 <div>Tamanho: {(file.size / 1024).toFixed(2)} Kb</div>
-//               </div>}
-//             {status === 'success' && (
-//               <div className="p-3 bg-green-100 text-green-700 rounded-md text-sm border border-green-200">
-//                 Arquivo enviado com sucesso! As produções estão sendo processadas.
-//               </div>
-//             )
-//             }
-//             {status === 'error' && (
-//               <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm border border-red-200">
-//                 Falha no envio do arquivo. Tente novamente.
-//               </div>
-//             )
-//             }
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
+          {/* Submit Button */}
+          <Button
+            disabled={!file || status === 'uploading'}
+            onClick={onSubmit}
+            className="w-full"
+          >
+            {status === 'uploading' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {status === 'uploading' ? 'Enviando...' : 'Enviar arquivo'}
+          </Button>
+
+          {/* Status Messages */}
+          {status === 'success' && (
+            <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200 text-center">
+              Arquivo enviado com sucesso!
+            </div>
+          )}
+          {status === 'error' && (
+            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 text-center">
+              Falha no envio. Tente novamente.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
