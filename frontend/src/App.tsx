@@ -49,6 +49,7 @@ function App() {
                   <Route path='credenciamento' element={<CredenciamentoPage />} />
                   <Route path='productions' element={<MyProductionsPage />} />
                   <Route path='user-config' element={<UserConfigPage />} />
+                  <Route path='user-config' element={<UserConfigPage />} />
                 </Route>
 
                 {/* Rotas restritas apenas para ADMIN */}
@@ -60,6 +61,7 @@ function App() {
                   <Route path='professors' element={<ProfessorsPage />} />
                   <Route path='professors/:productionId' element={<ProfessorProductionsPage />} />
                   <Route path='qualis' element={<QualisPage />} />
+                  <Route path='system-config' element={<SystemConfigPage />} />
                   <Route path='system-config' element={<SystemConfigPage />} />
                   <Route path='productions' element={<MyProductionsPage />} />
                 </Route>
@@ -74,10 +76,11 @@ function App() {
                   }
                 />
               </Route>
-            </Route>
+             </Route>
             <Route path='*' element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
+        <Toaster richColors position="top-right" />
         <Toaster richColors position="top-right" />
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
