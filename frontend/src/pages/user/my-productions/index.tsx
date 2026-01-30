@@ -40,7 +40,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import UploadXMLForm from '@/components/UploadXMLForm';
 import { apiClient } from '@/services/http-client';
 import { productionService } from '@/services/modules/production.service';
 import { qualisService } from '@/services/modules/qualis.service';

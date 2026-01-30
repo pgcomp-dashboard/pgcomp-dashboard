@@ -1,10 +1,7 @@
 'use client'
 
-import { Production } from "@/types/academic";
-import { useParams } from "react-router";
-
 export default function ProfessorProductionsPage() {
-  const { productionId } = useParams();
+  //const { productionId } = useParams();
 
   // const {
   //   data,
