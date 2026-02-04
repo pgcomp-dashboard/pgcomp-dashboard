@@ -7,8 +7,8 @@ export const productionService = {
     return apiClient.post<{ status: string, message: string, data: Production }>('/api/portal/productions', body);
   },
 
-  async createProductionXML(body: FormData, headers: Record<string, string> = {}) {
-    return apiClient.post<{ status: string, message: string }>('/api/portal/lattes-update', body, headers);
+  async createProductionXML(body: RequestBodyType) {
+    return apiClient.post<{ data: string }>('/api/portal/lattes-update', body);
   },
 
   async createProductionDoi(body: RequestBodyType) {

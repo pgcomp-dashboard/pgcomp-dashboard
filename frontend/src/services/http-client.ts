@@ -40,6 +40,11 @@ export class HttpClient {
       ...headers,
     };
 
+    //Form Data is only used to send files, remove content-type so the type can be set automatically to multiform-data
+    if (body instanceof FormData) {
+      delete finalHeaders['Content-Type'];
+    }
+
     if (this.authToken) {
       finalHeaders['Authorization'] = `Bearer ${this.authToken}`;
     }
