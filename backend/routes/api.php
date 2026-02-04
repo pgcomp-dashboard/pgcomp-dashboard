@@ -62,7 +62,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('user', [UserController::class, 'userInfo']);
         Route::put('user', [UserController::class, 'updateUserInfo']);
         Route::put('user/password', [UserController::class, 'changePassword']);
-        Route::post('lattes-update', [UserController::class, 'importLattesFile']);
+        Route::post('lattes-update', [ProductionController::class, 'importLattesFile']);
         Route::get('productions', [ProductionController::class, 'userProductions']);
         Route::post('productions', [ProductionController::class, 'userCreateProduction']);
         Route::delete('productions/all', [ProductionController::class, 'deleteAll']);

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Domain\Lattes\LattesZipXml;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
@@ -83,24 +82,5 @@ class UserController extends Controller
         );
 
         return response()->noContent();
-    }
-    public function importLattesFile(Request $request)
-    {
-
-        $user = auth()->user();
-
-        $request->validate([
-            'file' => ['required', 'file', 'mimetypes:application/zip,application/x-zip-compressed,application/xml,text/xml', 'max:5120'],
-        ]);
-
-        $file = $request->file('file');
-
-        $path = $file->store('lattes-files');
-
-        $data = LattesZipXml::extractProductions($path);
-
-        $user->updateLattes($data);
-
-        return response()->json(['data' => $data], 201);
     }
 }
