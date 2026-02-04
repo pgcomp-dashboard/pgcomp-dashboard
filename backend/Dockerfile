@@ -17,13 +17,13 @@ RUN composer install --no-dev --ignore-platform-reqs --optimize-autoloader --no-
 FROM php:8.4-fpm-alpine
 
 # Install required packages: system libraries, Nginx, Supervisor, and build dependencies for PECL extensions
-RUN apk add --no-cache nginx supervisor
+RUN apk add --no-cache nginx supervisor libzip-dev
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN chmod 755 /usr/local/bin/install-php-extensions
 
-RUN install-php-extensions gd pdo pdo_mysql redis
+RUN install-php-extensions gd pdo pdo_mysql redis zip
 
 # Make PHP-FPM log all errors into stderr
 RUN printf "[global]\nerror_log = /proc/self/fd/2" > /usr/local/etc/php-fpm.d/logs.conf
