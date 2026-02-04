@@ -17,6 +17,7 @@ export default function UploadXMLForm() {
     if (e.target.files) {
       setFile(e.target.files[0]);
       setStatus('idle');
+      setStatus('idle');
     }
   }
 
@@ -28,6 +29,11 @@ export default function UploadXMLForm() {
     formData.append('file', file);
 
     try {
+      await productionService.createProductionXML(formData);
+      toast.success('Produções cadastradas com sucesso');
+      setStatus('success');
+      navigate('/portal/productions');
+      window.location.reload();
       await productionService.createProductionXML(formData);
       toast.success('Produções cadastradas com sucesso');
       setStatus('success');
@@ -97,8 +103,21 @@ export default function UploadXMLForm() {
           >
             {status === 'uploading' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {status === 'uploading' ? 'Enviando...' : 'Enviar arquivo'}
+            {status === 'uploading' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {status === 'uploading' ? 'Enviando...' : 'Enviar arquivo'}
           </Button>
 
+          {/* Status Messages */}
+          {status === 'success' && (
+            <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200 text-center">
+              Arquivo enviado com sucesso!
+            </div>
+          )}
+          {status === 'error' && (
+            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 text-center">
+              Falha no envio. Tente novamente.
+            </div>
+          )}
           {/* Status Messages */}
           {status === 'success' && (
             <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200 text-center">
