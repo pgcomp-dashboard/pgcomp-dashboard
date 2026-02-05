@@ -522,7 +522,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public function scopeAnyAdminRequest($query)
     {
-        return $query->whereNotNull('admin_status');
+        return $query->whereNotNull('admin_status')
+                ->where('admin_status', '<>', '');
     }
 
 }

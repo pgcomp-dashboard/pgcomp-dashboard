@@ -58,7 +58,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('journal', [PublisherController::class, 'journalByIssn']);
         Route::get('conference', [PublisherController::class, 'conferenceByInitials']);
         Route::apiResource('qualis', StratumQualisController::class)->only(['index']);
-        Route::apiResource('ranking', RankingController::class)->except(['destroy']);
         Route::get('user', [UserController::class, 'userInfo']);
         Route::put('user', [UserController::class, 'updateUserInfo']);
         Route::put('user/password', [UserController::class, 'changePassword']);
@@ -95,7 +94,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('conferences', PublisherController::class, ['as' => 'conferences']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
         Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
-        //Route::apiResource('qualis', StratumQualisController::class);
         Route::apiResource('areas', AreaController::class);
         Route::apiResource('students', StudentAdminController::class);
         Route::apiResource('students.productions', StudentProductionController::class)
@@ -103,9 +101,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
         Route::apiResource('professors.productions', ProfessorProductionController::class)
             ->except(['destroy']);
-        Route::get('/admin-request', [AdminApprovalController::class, 'index']);
-        Route::post('/admin-request/{user}/approve', [AdminApprovalController::class, 'approve']);
-        Route::post('/admin-request/{user}/reject', [AdminApprovalController::class, 'reject']);
+        Route::apiResource('ranking', RankingController::class)->except(['destroy']);
+        Route::get('admin-request', [AdminApprovalController::class, 'index']);
+        Route::post('admin-request/{user}', [AdminApprovalController::class, 'update']);
         Route::post('lattes-update/{user}', [UserAdminController::class, 'importLattesFileForUser']);
 
 

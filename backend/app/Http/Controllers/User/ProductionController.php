@@ -50,7 +50,6 @@ class ProductionController extends BaseApiResourceController
         $userId = auth()->user()->id;
 
         $production = Production::findOrFail($id);
-        $production->removeInterTable($userId);
 
         if ($production->delete()) {
             return response()->json(['message' => 'Produção deletada com sucesso'], 200);
@@ -98,7 +97,7 @@ class ProductionController extends BaseApiResourceController
     {
         $user = auth()->user();
 
-        $productions = $user->writerOf;
+        $productions = $user->writerOf()->with('publisher')->get();
 
         foreach ($productions as $production) {
             unset($production['pivot']);
@@ -122,7 +121,7 @@ class ProductionController extends BaseApiResourceController
 
     public function productionFromDoi(Request $request)
     {
-        $user = Auth::user();
+        $user = auth()->user();
         $userId = $user->id;
 
         $doi = $request['doi'];
@@ -226,14 +225,13 @@ class ProductionController extends BaseApiResourceController
     public function deleteAll()
     {
         if (Auth::check()) {
-            $user = Auth::user();
+            $user = auth()->user();
         }
 
         $userProductions = $user->writerOf;
 
         $count = 0;
         foreach ($userProductions as $production) {
-            $production->removeInterTable($user->id);
             $success = $production->delete();
             if ($success) {
                 $count++;

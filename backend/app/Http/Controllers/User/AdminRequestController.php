@@ -29,6 +29,7 @@ class AdminRequestController extends Controller
         $user->update([
             'admin_status' => 'pending',
             'admin_requested_at' => now(),
+            'approved_by_id' => null,
         ]);
 
         // Notificar Admins existentes

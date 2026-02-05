@@ -91,12 +91,13 @@ class Production extends BaseModel
         static::creating(function (self $production) {
             $production->setQualis();
         });
+
         static::updating(function (self $production) {
             $production->setQualis();
         });
 
         static::deleting(function (self $production) {
-
+            $production->isWroteBy()->detach();
         });
     }
 
@@ -144,11 +145,6 @@ class Production extends BaseModel
     public function saveInterTable($users_id): void
     {
         $this->isWroteBy()->attach($users_id);
-    }
-
-    public function removeInterTable($users_id): void
-    {
-        $this->isWroteBy()->detach($users_id);
     }
 
     /**

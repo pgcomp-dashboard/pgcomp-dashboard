@@ -5,50 +5,46 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AdminApprovalController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('approver')->anyAdminRequest();
+        $query = User::with('approver:id,name')->anyAdminRequest();
 
         if ($request->query('status') === 'pending') {
             $query->onlyPendingAdminRequest();
         }
 
         $results = $query->latest('admin_requested_at')->get();
-        //return response()->json(["data" => $results->approver], 200);
+
         return response()->json(["data" => $results], 200);
     }
 
-    public function approve(Request $request, User $user)
-    {
-        $this->authorize('approve', $user);
+    public function update(Request $request, User $user)
+{
+    $this->authorize('approve', $user);
 
-        $user->update([
-            'admin_status' => User::STATUS_APPROVED,
-            'approved_by_id' => auth()->id(),
-            'is_admin' => true,
-        ]);
+    // Validate that the status is either approved or rejected
+    $validated = $request->validate([
+        //'status' => 'required|in:' . User::STATUS_APPROVED . ',' . User::STATUS_REJECTED,
+        'status' => ['required', Rule::in([User::STATUS_APPROVED, User::STATUS_REJECTED ])]
+    ]);
 
-        return response()->json([
-            'message' => 'Usuário aprovado com sucesso!',
-            'data' => $user
-        ], 200);
-    }
+    $isAdmin = $validated['status'] === User::STATUS_APPROVED;
 
-    public function reject(Request $request, User $user)
-    {
-        $this->authorize('approve', $user);
+    $user->update([
+        'admin_status' => $validated['status'],
+        'approved_by_id' => auth()->id(),
+        'is_admin' => $isAdmin,
+    ]);
 
-        $user->update([
-            'admin_status' => User::STATUS_REJECTED,
-            'approved_by_id' => auth()->id(),
-        ]);
+    $message = $isAdmin ? 'Usuário aprovado!' : 'Usuário rejeitado!';
 
-        return response()->json([
-            'message' => 'Usuário rejeitado com sucesso!',
-            'data' => $user
-        ], 200);
-    }
+    return response()->json([
+        'message' => $message,
+        'data' => $user->load('approver:id,name')
+    ], 200);
+}
 }
