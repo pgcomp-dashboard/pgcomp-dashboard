@@ -22,6 +22,7 @@ import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionP
 import StudentCountCard from '@/components/StudentCountCard';
 import { adminService } from '@/services/modules/admin.service';
 import { useEffect, useState } from 'react';
+import { dashboardService } from '@/services/modules/dashboard.service';
 
 
 export default function Dashboard() {
@@ -36,7 +37,7 @@ export default function Dashboard() {
 
   async function fetchLastExecution() {
     try {
-      const response = await adminService.getScrapingExecutions();
+      const response = await dashboardService.getScrapingExecutions();
       if (response.length > 0 && response[0].executed_at) {
         setLastExecution(response[0].executed_at);
       }

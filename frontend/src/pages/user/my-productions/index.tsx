@@ -42,15 +42,16 @@ import {
 } from '@/components/ui/table';
 import UploadXMLForm from '@/components/UploadXMLForm';
 import { productionService } from '@/services/modules/production.service';
+import { publisherService } from '@/services/modules/publisher.service';
 import { qualisService } from '@/services/modules/qualis.service';
-import { userService } from '@/services/modules/user.service';
 import { Production, Publisher, StratumQualis } from '@/types/academic';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ArrowUpDown, ChevronDown, ChevronUp, FileText, Filter, Loader2, Plus, Trash, X } from 'lucide-react';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, ArrowUpDown, ChevronDown, ChevronUp, FileText, Filter, Loader2, Plus, SquarePenIcon, Trash, X } from 'lucide-react';
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -109,6 +110,24 @@ export default function MyProductionsPage() {
     direction: 'asc' | 'desc';
   }>({ key: 'year', direction: 'desc' });
 
+  // Refs para sincronização de scroll
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [tableWidth, setTableWidth] = useState(0);
+
+  // Sincronização de scroll
+  const handleTopScroll = () => {
+    if (topScrollRef.current && tableContainerRef.current) {
+      tableContainerRef.current.scrollLeft = topScrollRef.current.scrollLeft;
+    }
+  };
+
+  const handleTableScroll = () => {
+    if (topScrollRef.current && tableContainerRef.current) {
+      topScrollRef.current.scrollLeft = tableContainerRef.current.scrollLeft;
+    }
+  };
+
   useEffect(() => {
     async function fetchQualis() {
       try {
@@ -129,7 +148,7 @@ export default function MyProductionsPage() {
   } = useQuery<Production[], Error>({
     queryKey: [ 'productions' ],
     queryFn: () =>
-      userService.getProductionsOfUser(),
+      productionService.getProductions(),
     placeholderData: (prevData) => prevData,
   });
 
@@ -213,6 +232,24 @@ export default function MyProductionsPage() {
 
     return result;
   }, [ productionList, qualisList, filters, sortConfig ]);
+
+  // Atualiza a largura da barra de scroll superior quando a lista muda
+  useEffect(() => {
+    const updateWidth = () => {
+      if (tableContainerRef.current) {
+        setTableWidth(tableContainerRef.current.scrollWidth);
+      }
+    };
+
+    // Pequeno delay para garantir que o DOM foi renderizado
+    const timeoutId = setTimeout(updateWidth, 100);
+    window.addEventListener('resize', updateWidth);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, [filteredAndSortedProductions]);
 
   const hasActiveFilters = Object.values(filters).some((f) => f !== 'all');
 
@@ -304,7 +341,7 @@ export default function MyProductionsPage() {
 
   async function fullDelete() {
     try {
-      const response = await productionService.clearProduction();
+      const response = await productionService.clearProductions();
       console.log(response);
       if (response.status == '200') {
         setProductionList([]);
@@ -603,8 +640,19 @@ export default function MyProductionsPage() {
       {/* Tabela */}
       {chosenForm === 'none' ?
         <>
+          {/* Scroll Superior (Apenas Desktop) */}
+          <div className="hidden md:block w-full overflow-x-auto"
+            ref={topScrollRef}
+            onScroll={handleTopScroll}
+          >
+            <div style={{ width: tableWidth, height: '1px' }} />
+          </div>
+
           {/* Desktop: Tabela */}
-          <div className="hidden w-full md:block rounded-md border">
+          <div className="hidden w-full md:block rounded-md border overflow-x-auto"
+            ref={tableContainerRef}
+            onScroll={handleTableScroll}
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -670,8 +718,12 @@ export default function MyProductionsPage() {
                   :
                   filteredAndSortedProductions.map((production) => (
                     <TableRow key={production.id}>
-                      <TableCell className="text-left">{production.title}</TableCell>
-                      <TableCell className='text-left'>Nome do journal ou conferencia</TableCell>
+                      <TableCell className="text-left max-w-125 whitespace-normal">
+                        <Link to={production.doi ?? "#"} target="_blank">
+                        {production.title}
+                        </Link>
+                      </TableCell>
+                      {production.publisher?.name ? <TableCell className='text-left max-w-125 whitespace-normal'>{production.publisher.name}</TableCell> : <TableCell className='text-center max-w-125 whitespace-normal'>--</TableCell>}
                       <TableCell className="text-center">
                         {production.year}
                       </TableCell>
@@ -698,7 +750,7 @@ export default function MyProductionsPage() {
                           }
                           title="Editar"
                         >
-                          <FileText className="h-5 w-5" />
+                          <SquarePenIcon className="h-5 w-5" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -1000,7 +1052,7 @@ function ProductionDOIForm() {
     };
 
     try {
-      const response = await productionService.createProductionDoi(request);
+      const response = await productionService.createProductionFromDoi(request);
       console.log(response);
       if (response.status == 201) {
         toast.success('Criado com sucesso');
@@ -1106,7 +1158,7 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
     };
 
     try {
-      const response = await productionService.createUserProduction(JSON.stringify(payload));
+      const response = await productionService.createProduction(JSON.stringify(payload));
       setProduction(response.data);
       toast.success('Produção Criada com sucesso');
     } catch (err) {
@@ -1128,7 +1180,7 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
     if (!issn) return;
     setPublisherNotFound(false);
     try {
-      const response = await qualisService.getJournalByIssn(issn);
+      const response = await publisherService.getJournalByIssn(issn);
       if (response) {
         setPublisher(response);
       } else {
@@ -1144,7 +1196,7 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
     if (!initials) return;
     setPublisherNotFound(false);
     try {
-      const response = await qualisService.getConferenceByInitial(initials);
+      const response = await publisherService.getConferenceByInitial(initials);
       setPublisher(response);
       if (!response) setPublisherNotFound(true);
     } catch (err) {

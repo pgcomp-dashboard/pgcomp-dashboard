@@ -28,7 +28,7 @@ export default function UploadXMLForm() {
     formData.append('file', file);
 
     try {
-      await productionService.createProductionXML(formData);
+      await productionService.uploadLattes(formData);
       toast.success('Produções cadastradas com sucesso');
       setStatus('success');
       navigate('/portal/productions');

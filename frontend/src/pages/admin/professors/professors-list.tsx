@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,25 +19,25 @@ import {
 } from '@/components/ui/table';
 import { professorService } from '@/services/modules/professor.service';
 import { qualisService } from '@/services/modules/qualis.service';
-import { Production, StratumQualis } from '@/types/academic';
+import { StratumQualis } from '@/types/academic';
 import { PaginatedResponse } from '@/types/common';
 import { Professor } from '@/types/user';
 import { useQuery } from '@tanstack/react-query';
 import { Eye, FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useDebounce } from 'use-debounce';
 
 
 export default function ProfessorsPage() {
   const [ searchTerm, setSearchTerm ] = useState('');
-  const [ isDetailProfOpen, setIsDetailProfOpen ] = useState(false);
-  const [ isProductionsOpen, setIsProductionsOpen ] = useState(false);
-  const [ currentProfessor, setCurrentProfessor ] = useState<Professor | null>(null);
-  const [ selectedProductions, setSelectedProductions ] = useState<Production[]>([]);
+  const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
+  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(null);
   const [ , setQualisList ] = useState<StratumQualis[]>([]);
   const [ currentPage, setCurrentPage ] = useState(1);
   const [ itemsPerPage, setItemsPerPage ] = useState(10);
   const [ debouncedSearchTerm ] = useDebounce(searchTerm, 300);
+  const navigate = useNavigate();
 
   const {
     data,
@@ -69,18 +67,8 @@ export default function ProfessorsPage() {
     fetchQualis();
   }, []);
 
-  const verProducoes = async (professorId: number) => {
-    try {
-      const rawProducoes = await professorService.getProductionsByProfessor(professorId);
-      const entries = Object.entries(rawProducoes)
-        .filter(([ key ]) => !isNaN(Number(key)))
-        .map(([ , value ]) => value as unknown as Production);
-      setSelectedProductions(entries);
-      setIsProductionsOpen(true);
-    } catch (error) {
-      console.error(error);
-      alert('Erro ao carregar produções do professor.');
-    }
+  const handleNavigateToProductions = (professorId: number) => {
+    navigate(`/admin/professors/${professorId}/productions`);
   };
 
   if (isLoading) return <div>Carregando...</div>;
@@ -162,7 +150,7 @@ export default function ProfessorsPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => verProducoes(professor.id)}
+                    onClick={() => handleNavigateToProductions(professor.id)}
                     title="Produções"
                   >
                     <FileText className="h-5 w-5" />
@@ -238,7 +226,7 @@ export default function ProfessorsPage() {
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={() => verProducoes(professor.id)}
+                    onClick={() => handleNavigateToProductions(professor.id)}
                   >
                     <FileText className="h-4 w-4 mr-2" />
                     Produções
@@ -315,48 +303,6 @@ export default function ProfessorsPage() {
           )}
           <DialogFooter>
             <Button onClick={() => setIsDetailProfOpen(false)}>Fechar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog - Produções */}
-      <Dialog open={isProductionsOpen} onOpenChange={setIsProductionsOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Publicações do docente</DialogTitle>
-            <DialogDescription>Lista de produções cadastradas</DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
-            {selectedProductions.map((prod, idx) => (
-              <div
-                key={idx}
-                className="rounded border bg-gray-100 p-4 text-sm flex flex-col gap-1"
-              >
-                <p><strong>Título da Produção:</strong> {prod.title}</p>
-                <p><strong>D.O.I.:</strong> {prod.doi || 'erro'}</p>
-                <p><strong>Ano:</strong> {prod.year}</p>
-                {prod.publisher && (
-                  <>
-                    <p><strong>Local:</strong> {prod.publisher.name}</p>
-                    {prod.publisher.initials && (
-                      <p><strong>Sigla:</strong> {prod.publisher.initials}</p>
-                    )}
-                    <p><strong>Tipo:</strong> {prod.publisher.publisher_type}</p>
-                    {prod.publisher.issn && (
-                      <p><strong>ISSN:</strong> {prod.publisher.issn}</p>
-                    )}
-                  </>
-                )}
-                {prod.publisher?.stratum_qualis && (
-                  <p>
-                    <strong>Qualis:</strong> {prod.publisher.stratum_qualis.code} - { prod.publisher.stratum_qualis.score}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setIsProductionsOpen(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

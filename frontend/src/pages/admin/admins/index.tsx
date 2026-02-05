@@ -33,7 +33,7 @@ export default function AdminsPage() {
   });
 
   const approveMutation = useMutation({
-    mutationFn: (id: number) => adminService.approveAdmin(id),
+    mutationFn: (id: number) => adminService.avaliateAdminRequest(id, {status: "approved"}),
     onSuccess: (updatedUser) => {
       queryClient.setQueryData(queryKey, (oldData: Professor[]) => {
         if (!oldData) return [];
@@ -45,7 +45,7 @@ export default function AdminsPage() {
   })
 
   const rejectMutation = useMutation({
-    mutationFn: (id: number) => adminService.rejectAdmin(id),
+    mutationFn: (id: number) => adminService.avaliateAdminRequest(id, {status: "rejected"}),
     onSuccess: (updatedUser) => {
       queryClient.setQueryData(queryKey, (oldData: Professor[]) => {
         if (!oldData) return [];

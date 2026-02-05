@@ -17,6 +17,8 @@ import { userService } from '@/services/modules/user.service';
 import { RequestBodyType } from '@/types/common';
 import { Professor } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -253,59 +255,104 @@ function UpdatePasswordForm() {
 }
 
 function AskForAdminForm() {
-  const [ loading, setLoading ] = useState(false);
-  const [ status, setStatus ] = useState<'pending' | 'approved' | 'rejected' | null>(null);
+  const queryClient = useQueryClient();
+  const queryKey = ['admin-status'];
 
-  useEffect(() => {
-    async function fetchAdminStatus() {
-      try {
-        const response = await adminService.getAdminStatus();
-        setStatus(response.data as 'pending' | 'approved' | 'rejected' | null);
-        console.log(response.data);
-      } catch (err) {
-        console.error('Erro ao carregar Informações do Usuário:', err);
-      }
+  const {
+    data: status,
+    isLoading: isLoadingStatus,
+    error: errorStatus,
+  } = useQuery({
+    queryKey: queryKey,
+    queryFn: async () => {
+      const response = await adminService.getAdminStatus()
+      return response.data as 'pending' | 'approved' | 'rejected' | null;
+    },
+    meta: {
+      onError: (err: any) => console.error('Erro ao carregar status de solicitação:', err)
     }
-    fetchAdminStatus();
-  }, []);
+  });
 
-  async function onSubmit() {
-    setLoading(true);
-    try {
-      await adminService.requestAdmin();
+  const requestMutation = useMutation({
+    mutationFn: () => adminService.requestAdmin(),
+    onSuccess: () => {
+      //queryClient.invalidateQueries({ queryKey: ['admin-status'] })
+      queryClient.setQueryData(queryKey, (oldData: string) => {
+        //return "pending";
+      })
+      console.log("Cache atualizado para pending");
       toast.success('Solicitação enviada com sucesso! Aguarde, um administrador irá analisar o pedido.');
-      setStatus('pending');
-    } catch (err: any) {
+    },
+    onError: (err: any) => {
       console.error('Erro ao solicitar admin:', err);
       toast.error(parseApiError(err) || 'Erro ao solicitar admin.');
-    } finally {
-      setLoading(false);
-    }
-  }
+    },
 
-  if (status === 'pending') {
-    return (
-      <div className="flex flex-col gap-2 items-center">
-        <h4 className="font-semibold text-yellow-600">Solicitação Pendente</h4>
-        <p className="text-sm text-muted-foreground">
-          Você já solicitou acesso de administrador. Aguarde a aprovação de um administrador existente.
-        </p>
-        <Button disabled variant="outline">Aguardando Aprovação</Button>
-      </div>
-    );
-  }
+  })
+
+  if (isLoadingStatus) return (
+    <div className="flex items-center justify-center p-10">
+      <Loader2 className="animate-spin mr-2" /> Verificando solicitação...
+    </div>
+  );
+  if (errorStatus) return (
+    <div className="text-red-500 flex items-center p-10">
+      <AlertCircle className="mr-2" /> Erro ao carregar dados.
+    </div>
+  )
+
+  const statusConfig = {
+    pending: {
+      title: 'Solicitação Pendente',
+      titleColor: 'text-yellow-600',
+      description: 'Você já solicitou acesso de administrador. Aguarde a aprovação de um administrador existente.',
+      buttonText: 'Aguardando Aprovação',
+      buttonVariant: 'outline' as const,
+      disabled: true,
+      action: null,
+    },
+    rejected: {
+      title: 'Solicitação Rejeitada',
+      titleColor: 'text-red-600',
+      description: null,
+      buttonText: requestMutation.isPending ? 'Solicitando...' : 'Solicitar Novamente',
+      buttonVariant: 'default' as const,
+      disabled: requestMutation.isPending,
+      action: () => requestMutation.mutate(),
+    },
+    default: {
+      title: null,
+      description: 'Caso você precise de privilégios de administrador para gerenciar o sistema, clique no botão abaixo para solicitar a promoção.',
+      buttonText: requestMutation.isPending ? 'Solicitando...' : 'Solicitar promoção para admin',
+      buttonVariant: 'default' as const,
+      disabled: requestMutation.isPending,
+      action: () => requestMutation.mutate(),
+    }
+  };
+
+  const currentKey = (status === 'pending' || status === 'rejected') ? status : 'default';
+  const config = statusConfig[currentKey];
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-6 items-center">
-        <p className="text-sm text-muted-foreground">
-          Caso você precise de privilégios de administrador para gerenciar o sistema, clique no botão abaixo para solicitar a promoção.
-        </p>
-        <div className=''>
-          <Button onClick={onSubmit} disabled={loading}>
-            {loading ? 'Solicitando...' : 'Solicitar promoção para admin'}
-          </Button>
-        </div>
+        {config.title && (
+          <h4 className={`font-semibold ${config.titleColor || ''}`}>{config.title}</h4>
+        )}
+
+        {config.description && (
+          <p className="text-sm text-muted-foreground text-center">
+            {config.description}
+          </p>
+        )}
+
+        <Button
+          onClick={config.action || undefined}
+          disabled={config.disabled}
+          variant={config.buttonVariant}
+        >
+          {config.buttonText}
+        </Button>
       </div>
     </div>
   );

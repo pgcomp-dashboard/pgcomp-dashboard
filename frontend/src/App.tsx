@@ -22,7 +22,7 @@ import { lazy, Suspense } from 'react';
 import { Toaster } from 'sonner';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import AdminsPage from './pages/admin/admins';
-import ProfessorProductionsPage from './pages/admin/professors/professor-production';
+import ProfessorProductionsPage from './pages/admin/professors/production';
 import WelcomePage from './pages/user/welcome';
 
 
@@ -59,7 +59,7 @@ function App() {
                   <Route path='areas' element={<AreasPage />} />
                   <Route path='students' element={<StudentsPage />} />
                   <Route path='professors' element={<ProfessorsPage />} />
-                  <Route path='professors/:productionId' element={<ProfessorProductionsPage />} />
+                  <Route path='professors/:professorId/productions' element={<ProfessorProductionsPage />} />
                   <Route path='qualis' element={<QualisPage />} />
                   <Route path='system-config' element={<SystemConfigPage />} />
                   <Route path='system-config' element={<SystemConfigPage />} />

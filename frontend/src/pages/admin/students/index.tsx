@@ -32,8 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { adminService } from '@/services/modules/admin.service';
 import { areaService } from '@/services/modules/area.service';
+import { dashboardService } from '@/services/modules/dashboard.service';
 import { studentService } from '@/services/modules/student.service';
 import { PaginatedResponse } from '@/types/common';
 import { Pencil, Trash } from 'lucide-react';
@@ -75,7 +75,7 @@ export default function StudentsPage() {
     const [ studentsRes, areasData, coursesData ] = await Promise.all([
       studentService.fetchStudents(page, perPage, filters),
       areaService.fetchAreas(),
-      adminService.fetchCourses(),
+      dashboardService.fetchCourses(),
     ]);
 
     setStudents(studentsRes.data);

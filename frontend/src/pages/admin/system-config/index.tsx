@@ -13,13 +13,14 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { parseApiError } from '@/services/http-client';
-import { adminService } from '@/services/modules/admin.service';
-import { qualisService } from '@/services/modules/qualis.service';
+import { dashboardService } from '@/services/modules/dashboard.service';
+import { publisherService } from '@/services/modules/publisher.service';
 import { formatDateTime } from '@/utils/dates';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const systemConfigFormSchema = z.object({
@@ -44,18 +45,18 @@ export default function SystemConfigPage() {
 
   const { data: scrapingInterval } = useQuery({
     queryKey: [ 'scraping_interval' ],
-    queryFn: () => adminService.getScrapingInterval(),
+    queryFn: () => dashboardService.getScrapingInterval(),
   });
 
   const { data: scrapingHistory, error: scrapingHistoryError } = useQuery({
     queryKey: [ 'scraping_execution' ],
-    queryFn: () => adminService.getScrapingExecutions(),
+    queryFn: () => dashboardService.getScrapingExecutions(),
   });
 
   async function executeScrapping() {
     console.log('Scrap execute form');
     try {
-      await adminService.executeScraping();
+      await dashboardService.executeScraping();
       queryClient.invalidateQueries({ queryKey: [ 'scraping_execution' ] });
     } catch (error) {
       alert('Erro ao executar o scraping: ' + parseApiError(error));
@@ -72,7 +73,7 @@ export default function SystemConfigPage() {
   function onSubmit(values: z.infer<typeof systemConfigFormSchema>) {
     console.log('Scrap submit form');
 
-    adminService.setScrapingInterval(values.scrapingIntervalDays);
+    dashboardService.setScrapingInterval(values.scrapingIntervalDays);
   }
 
   const lattesIdForm = useForm<z.infer<typeof lattesIdFormSchema>>({
@@ -90,7 +91,7 @@ export default function SystemConfigPage() {
     };
 
     try {
-      await adminService.executeScrapingForAProfessor(request);
+      await dashboardService.executeScrapingForAProfessor(request);
       queryClient.invalidateQueries({ queryKey: [ 'scraping_execution' ] });
     } catch (error) {
       alert('Erro ao executar o scraping: ' + parseApiError(error));
@@ -107,14 +108,10 @@ export default function SystemConfigPage() {
       const formData = new FormData();
       formData.append('file', values.file);
 
-      const response = await qualisService.createQualisBySpreadSheet(formData, spreadSheetType);
+      const response = await publisherService.createPublishersFromSpreadsheet(formData, spreadSheetType);
+      console.log('Sucesso no upload da planilha', response);
+      toast.success("Upload da planilha realizado com sucesso")
 
-      if (response?.status === 200) {
-        const result = await response.json();
-        console.log('Sucesso:', result);
-      } else {
-        console.error('Erro no upload');
-      }
     } catch (err) {
       console.error('Erro ao conectar com o servidor:', err);
     }

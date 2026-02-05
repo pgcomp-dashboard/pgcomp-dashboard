@@ -5,6 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Table,
   TableBody,
   TableCell,
@@ -12,11 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { dashboardService } from '@/services/modules/dashboard.service';
+import { userService } from '@/services/modules/user.service';
 import { Ranking, RankingProduction } from '@/types/academic';
 import Switch from '@mui/material/Switch';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpenTextIcon } from 'lucide-react';
+import { BookOpenTextIcon, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
@@ -27,39 +34,29 @@ type RankingProps = {
 export default function CredenciamentoPage() {
   const date = new Date();
 
-  const [ isToggled, setIsToggled ] = useState(false);
-  //const [selectedRanker, setSelectedRanker] = useState<Ranking | undefined>(undefined);
-  //const [showingProductions, setShowingProductions] = useState<Production[] | undefined>(undefined)
+  const [isToggled, setIsToggled] = useState(false);
+  const [startYear, setStartYear] = useState(date.getFullYear() - 5)
+  const [endYear, setEndYear] = useState(date.getFullYear())
 
   const handleToggle = () => {
     setIsToggled(!isToggled);
   };
 
+  const years = Array.from({ length: date.getFullYear() - 2000 + 1 }, (_, i) => 2000 + i).reverse();
+
   const {
     data,
     isLoading,
+    isFetching,
     error,
   } = useQuery<Ranking[] , Error>({
-    queryKey: [ 'ranking' ],
+    queryKey: ['ranking', startYear, endYear],
     queryFn: () =>
-      dashboardService.getRankingProductionsOfUser(date.getFullYear() - 4, date.getFullYear() - 1),
+      userService.getRankingWithProductions(startYear, endYear),
     placeholderData: (prevData) => prevData,
   });
 
   const ranking = data ?? [];
-
-  // async function fetchRanking() {
-  //   try {
-  //     const response = await api.getRanking();
-  //     setRanking(response);
-  //   } catch (err) {
-  //     console.error('Erro ao carregar Ranking:', err);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   fetchRanking();
-  // }, []);
 
   if (isLoading) return <div>Carregando...</div>;
   if (error) {
@@ -78,11 +75,64 @@ export default function CredenciamentoPage() {
           <Switch checked={isToggled} onChange={handleToggle} size="medium" color="primary" />
         </div>
       </div>
+      <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-lg border">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="start-year">Ano Início</Label>
+          <Select
+            value={startYear.toString()}
+            onValueChange={(value) => {
+              const newStart = parseInt(value);
+              setStartYear(newStart);
+              if (newStart > endYear) {
+                setEndYear(newStart);
+              }
+            }}
+          >
+            <SelectTrigger id="start-year" className="w-[120px]">
+              <SelectValue placeholder="Ano" />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="end-year">Ano Fim</Label>
+          <Select
+            value={endYear.toString()}
+            onValueChange={(value) => {
+              const newEnd = parseInt(value);
+              setEndYear(newEnd);
+              if (newEnd < startYear) {
+                setStartYear(newEnd);
+              }
+            }}
+          >
+            <SelectTrigger id="end-year" className="w-[120px]">
+              <SelectValue placeholder="Ano" />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {isFetching && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      </div>
+
       <p className="text-sm sm:text-base text-muted-foreground">
         Visualize o ranking dos docentes com publicações cadastrados no sistema.
         Pela <Link to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf" target='_blank' className="underline"> Resolução</Link> são considerados os ultimos 4 anos completos.
-        Para o calculo estão sendo considerados as produções de {date.getFullYear() - 4} até {date.getFullYear() - 1}
       </p>
+      <p className="text-sm sm:text-base text-muted-foreground">Para o calculo estão sendo considerados as produções de {startYear} até {endYear}</p>
 
       {/* Tabela - Desktop */}
       <div className="hidden md:block rounded-md border w-full">
@@ -141,7 +191,7 @@ function ShowRanking({ rankerList }: RankingProps) {
                   setIsProductionsOpen(true);
                 }}> <BookOpenTextIcon className="size-6" /></Button>
               </TableCell>
-              <TableCell className="font-medium     text-center">{rank.total_score.toFixed(1)}</TableCell>
+              <TableCell className="font-medium text-center">{rank.total_score.toFixed(1)}</TableCell>
               <TableCell className="font-medium text-center">
                 <Link to={rank.lattes_url} target="_blank" className='flex justify-center'>
                   <LattesIcon />
