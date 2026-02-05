@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Lattes\LattesZipXml;
 use App\Enums\ProductionSource;
 use App\Enums\UserType;
 use App\Http\Controllers\BaseApiResourceController;
@@ -24,5 +25,24 @@ class ProductionController extends BaseApiResourceController
     protected function modelClass(): string|BaseModel
     {
         return Production::class;
+    }
+
+    public function importLattesFile(Request $request, User $user)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimetypes:application/zip,application/x-zip-compressed,application/xml,text/xml', 'max:5120'],
+        ]);
+
+        $file = $request->file('file');
+
+        $path = $file->store('lattes-files');
+
+        $data = LattesZipXml::extractProductions($path);
+
+        $user->updateLattes($data);
+
+        return response()->json(['data' => $data], 201);
     }
 }
