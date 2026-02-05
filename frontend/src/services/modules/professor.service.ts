@@ -48,9 +48,4 @@ export const professorService = {
 
     return allProfessors.sort((a, b) => a.name.localeCompare(b.name));
   },
-
-  async getProductionsByProfessor(professorId: number) {
-    const response = await apiClient.get<{ data: Production[] }>(`/api/admin/professors/${professorId}/productions/`);
-    return response.data;
-  },
 };

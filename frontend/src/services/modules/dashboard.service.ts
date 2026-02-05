@@ -1,8 +1,48 @@
-import { Ranking } from '@/types/academic';
+import { Course, Ranking } from '@/types/academic';
+import { RequestBodyType } from '@/types/common';
 import { Advisor } from '@/types/user';
 import { apiClient } from '../http-client';
 
 export const dashboardService = {
+  // Courses
+  async fetchCourses() {
+    const response = await apiClient.get<{ data: Course[] }>('/api/admin/courses');
+    return response.data;
+  },
+
+  // Scraping
+  async executeScraping() {
+    return apiClient.post('/api/admin/execute_scraping', {});
+  },
+
+  async executeScrapingForAProfessor(body: RequestBodyType) {
+    return apiClient.post('/api/admin/execute_professor_scraping', body);
+  },
+
+  async getScrapingExecutions() {
+    const response = await apiClient.get('/api/admin/scraping_execution') as {
+      status: string,
+      message: string,
+      data: {
+        id: number,
+        command: string,
+        executed_at: string,
+      }[],
+    };
+
+    return response.data;
+  },
+  async getScrapingInterval() {
+    const response = await apiClient.get('/api/admin/scraping_execution_interval');
+    return response as {
+      intervalDays: number,
+    };
+  },
+
+  async setScrapingInterval(intervalDays: number) {
+    return apiClient.post('/api/admin/scraping_execution_interval', { days: intervalDays });
+  },
+
   async totalStudentsPerAdvisor(filter?: 'mestrando' | 'doutorando' | 'completed') {
     const query = filter ? `?user_type=${filter}` : '';
     return apiClient.get<{ [key: string]: Advisor }>(`/api/admin/dashboard/total_students_per_advisor${query}`);
@@ -65,15 +105,5 @@ export const dashboardService = {
       { category: `${course} - Alunos atuais`, amount: students.in_progress },
       { category: `${course} - Alunos concluídos`, amount: students.completed },
     ]).flat();
-  },
-
-  async getRankingProductionsOfUser(year1?: number, year2?: number) {
-    let response;
-    if (year1 && year2) {
-      response = await apiClient.get<{ data: Ranking[] }>(`/api/portal/ranking?year1=${year1}&year2=${year2}`);
-    } else {
-      response = await apiClient.get<{ data: Ranking[] }>('/api/portal/ranking');
-    }
-    return response.data;
   },
 };
