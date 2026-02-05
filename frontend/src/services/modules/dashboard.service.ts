@@ -1,4 +1,4 @@
-import { Course, Ranking } from '@/types/academic';
+import { Course } from '@/types/academic';
 import { RequestBodyType } from '@/types/common';
 import { Advisor } from '@/types/user';
 import { apiClient } from '../http-client';

@@ -290,7 +290,7 @@ export default function ProfessorsPage() {
                   href={currentProfessor.lattes_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 underline text-sm break-words"
+                  className="text-blue-600 underline text-sm wrap-break-word"
                 >
                   {currentProfessor.lattes_url}
                 </a>

@@ -277,8 +277,8 @@ function AskForAdminForm() {
     mutationFn: () => adminService.requestAdmin(),
     onSuccess: () => {
       //queryClient.invalidateQueries({ queryKey: ['admin-status'] })
-      queryClient.setQueryData(queryKey, (oldData: string) => {
-        //return "pending";
+      queryClient.setQueryData(queryKey, () => {
+        return "pending";
       })
       console.log("Cache atualizado para pending");
       toast.success('Solicitação enviada com sucesso! Aguarde, um administrador irá analisar o pedido.');

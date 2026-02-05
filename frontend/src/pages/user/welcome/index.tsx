@@ -9,7 +9,7 @@ export default function WelcomePage() {
             PGCOMP é CAPES 6!
           </h1>
           <p className="text-muted-foreground">
-            Bem vindo(a) ao portal do pgcomp dashboard
+            Bem vindo(a) ao portal do PGCOMP dashboard
           </p>
         </div>
         <div className="flex flex-wrap">

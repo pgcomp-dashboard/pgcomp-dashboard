@@ -126,7 +126,7 @@ export default function QualisPage() {
               <Plus className="mr-2 h-4 w-4" /> Adicionar Qualis
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-106.25">
             <div className="space-y-4">
               <div>
                 <label htmlFor="code" className="block">Código</label>
@@ -200,7 +200,7 @@ export default function QualisPage() {
         type="multiple"
       >
         <AccordionItem value="journal">
-          <AccordionTrigger>Qualis das produçoes de Revistas</AccordionTrigger>
+          <AccordionTrigger>Qualis das produções de revistas</AccordionTrigger>
           <AccordionContent>
             <div className="rounded-md border">
               <Table>
@@ -247,7 +247,7 @@ export default function QualisPage() {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="conference">
-          <AccordionTrigger>Qualis das produçoes de Conferencias</AccordionTrigger>
+          <AccordionTrigger>Qualis das produções de conferências</AccordionTrigger>
           <AccordionContent>
             <div className="rounded-md border">
               <Table>

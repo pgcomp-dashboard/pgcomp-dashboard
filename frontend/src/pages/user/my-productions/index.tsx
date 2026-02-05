@@ -280,7 +280,7 @@ export default function MyProductionsPage() {
   }, [ productionList ]);
 
   async function onSubmit(values: z.infer<typeof updateProductionFormSchema>) {
-    //console.log("Submiting")
+    //console.log("Submitting")
     //console.log(JSON.stringify(values))
     console.log(productionList);
     const parsedYear = parseFloat(values.year.toString());
@@ -911,14 +911,14 @@ export default function MyProductionsPage() {
             <ProductionCreateForm qualis={qualisList} />
       }
 
-      {/* Dialog - Formulario de edição da produção */}
+      {/* Dialog - Formulário de edição da produção */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edite as informações da sua publicação</DialogTitle>
             <DialogDescription />
           </DialogHeader>
-          {/* Formulario aqui */}
+          {/* Formulário aqui */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-8">
@@ -1240,7 +1240,7 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Título da Produção</FormLabel>
+                  <FormLabel>Título da produção</FormLabel>
                   <FormControl>
                     <Input type="text" placeholder="Digite o título" {...field} />
                   </FormControl>

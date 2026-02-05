@@ -3,7 +3,7 @@ export interface ApiError {
   errors: { description: string }[];
 }
 
- 
+
 export interface PaginatedResponse<T> {
   current_page: number;
   data: T[];

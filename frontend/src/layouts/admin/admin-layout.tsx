@@ -162,7 +162,7 @@ export default function AdminLayout({
           <header className="h-14 sm:h-16 lg:h-18 border-b flex items-center px-3 sm:px-4 lg:px-6 gap-2 sm:gap-4">
             <SidebarTrigger />
             <div className="text-sm sm:text-base font-medium truncate">
-              Painel de administração
+              Menu Lateral
             </div>
             <div className="ml-auto flex items-center gap-2 sm:gap-4">
               {/* Botão Voltar para Dashboard - Mobile e Tablet */}
@@ -187,7 +187,7 @@ export default function AdminLayout({
                     <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground shrink-0 text-xs sm:text-sm">
                       {auth?.user?.name[0]}
                     </div>
-                    <span className="text-xs sm:text-sm font-medium hidden md:inline truncate max-w-[120px] lg:max-w-none">
+                    <span className="text-xs sm:text-sm font-medium hidden md:inline truncate max-w-30 lg:max-w-none">
                       {auth?.user?.name}
                     </span>
                     <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 opacity-50 shrink-0" />

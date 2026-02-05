@@ -88,7 +88,7 @@ export default function CredenciamentoPage() {
               }
             }}
           >
-            <SelectTrigger id="start-year" className="w-[120px]">
+            <SelectTrigger id="start-year" className="w-30">
               <SelectValue placeholder="Ano" />
             </SelectTrigger>
             <SelectContent>
@@ -113,7 +113,7 @@ export default function CredenciamentoPage() {
               }
             }}
           >
-            <SelectTrigger id="end-year" className="w-[120px]">
+            <SelectTrigger id="end-year" className="w-30">
               <SelectValue placeholder="Ano" />
             </SelectTrigger>
             <SelectContent>
@@ -130,7 +130,7 @@ export default function CredenciamentoPage() {
 
       <p className="text-sm sm:text-base text-muted-foreground">
         Visualize o ranking dos docentes com publicações cadastrados no sistema.
-        Pela <Link to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf" target='_blank' className="underline"> Resolução</Link> são considerados os ultimos 4 anos completos.
+        Pela <Link to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf" target='_blank' className="underline"> Resolução</Link> são considerados os últimos 4 anos completos.
       </p>
       <p className="text-sm sm:text-base text-muted-foreground">Para o calculo estão sendo considerados as produções de {startYear} até {endYear}</p>
 
@@ -205,7 +205,7 @@ function ShowRanking({ rankerList }: RankingProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Produções Consideradas</DialogTitle>
-            <DialogDescription>Visualizar produçoes consideradas na pontuação. Caso queira mais detalhes sobre suas produções vá a aba Minhas Produções</DialogDescription>
+            <DialogDescription>Visualizar produções consideradas na pontuação. Caso queira mais detalhes sobre suas produções vá a aba Minhas Produções</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
             {currentProductionList ? (
@@ -290,7 +290,7 @@ function ShowRankingCards({ rankerList }: RankingProps) {
         <DialogContent className="max-w-[95vw] sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Produções Consideradas</DialogTitle>
-            <DialogDescription>Visualizar produçoes consideradas na pontuação. Caso queira mais detalhes sobre suas produções vá a aba Minhas Produções</DialogDescription>
+            <DialogDescription>Visualizar produções consideradas na pontuação. Caso queira mais detalhes sobre suas produções vá a aba Minhas Produções</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
             {currentProductionList ? (

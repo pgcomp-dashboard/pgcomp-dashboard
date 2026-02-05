@@ -46,7 +46,7 @@ export default function UploadXMLForm() {
         <div className="text-center">
           <h2 className="text-lg sm:text-xl font-semibold">Adicionar com XML</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Envie o arquivo ZIP do Lattes
+            Envie o arquivo ZIP ou XML do Lattes
           </p>
         </div>
 

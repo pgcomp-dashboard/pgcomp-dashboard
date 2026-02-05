@@ -20,9 +20,8 @@ import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
 import ProductionsPerYearChart from '@/components/charts/ProductionsPerYear.tsx';
 import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
 import StudentCountCard from '@/components/StudentCountCard';
-import { adminService } from '@/services/modules/admin.service';
-import { useEffect, useState } from 'react';
 import { dashboardService } from '@/services/modules/dashboard.service';
+import { useEffect, useState } from 'react';
 
 
 export default function Dashboard() {
@@ -65,7 +64,7 @@ export default function Dashboard() {
                     <span className="sr-only">Mostrar menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[85vw] sm:w-[350px]">
+                <SheetContent side="left" className="w-[85vw] sm:w-87.5">
                   <nav className="flex flex-col gap-6 py-6">
                     <div className="flex flex-col gap-4">
                       {/*
@@ -116,7 +115,7 @@ export default function Dashboard() {
                     </div>
                     <Button asChild className="w-full mt-4">
                       <NavLink to={'/'} rel="noopener noreferrer">
-                        <p>Voltar para o Portal</p>
+                        <p>Credenciamento</p>
                       </NavLink>
                     </Button>
                   </nav>
@@ -174,7 +173,7 @@ export default function Dashboard() {
             </NavLink>
             <Button asChild size="sm" className="ml-2">
               <NavLink to={'/'} rel="noopener noreferrer">
-                <p>Voltar para o Portal</p>
+                <p>Credenciamento</p>
               </NavLink>
             </Button>
           </nav>
@@ -250,7 +249,7 @@ export default function Dashboard() {
         </section>
 
 
-        <section id="publications" className="space-y-4 sm:space-y-6 min-h-[400px] sm:min-h-[500px]">
+        <section id="publications" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <CardTitle className="text-base sm:text-lg lg:text-xl">Produções científicas por ano</CardTitle>
@@ -270,7 +269,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="quality" className="space-y-4 sm:space-y-6 min-h-[400px] sm:min-h-[500px]">
+        <section id="quality" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <CardTitle className="text-base sm:text-lg lg:text-xl">Produções por qualis</CardTitle>
@@ -290,11 +289,11 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="professorProduction" className="space-y-4 sm:space-y-6 min-h-[400px] sm:min-h-[500px]">
+        <section id="professorProduction" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <ProfessorProductionPerYear />
         </section>
 
-        <section id="faculty" className="space-y-4 sm:space-y-6 min-h-[400px] sm:min-h-[500px]">
+        <section id="faculty" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <StudentsPerAdvisorChart />
         </section>
 
@@ -320,7 +319,7 @@ export default function Dashboard() {
           </Card>
         </section> */}
 
-        <section id="defenses" className="space-y-4 sm:space-y-6 min-h-[400px] sm:min-h-[500px]">
+        <section id="defenses" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
@@ -340,7 +339,7 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        <section id="enrollments" className="space-y-4 sm:space-y-6 min-h-[400px] sm:min-h-[500px]">
+        <section id="enrollments" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">

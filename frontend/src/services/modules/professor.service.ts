@@ -1,4 +1,3 @@
-import { Production } from '@/types/academic';
 import { PaginatedResponse } from '@/types/common';
 import { Professor } from '@/types/user';
 import { apiClient } from '../http-client';

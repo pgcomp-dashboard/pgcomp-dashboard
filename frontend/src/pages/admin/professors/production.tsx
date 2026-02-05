@@ -239,7 +239,7 @@ export default function ProfessorProductionsPage() {
       } else if (selectedProduction) {
         response = await productionService.updateUserProduction(selectedProduction.id, payload);
       }
-
+      console.log(response)
       toast.success(isCreationMode ? 'Produção criada com sucesso' : 'Produção atualizada com sucesso');
       setIsEditOpen(false);
       setIsCreationMode(false);
@@ -258,6 +258,7 @@ export default function ProfessorProductionsPage() {
 
       try {
         const response = await productionService.uploadUserLattes(Number(professorId), formData);
+        console.log(response.data)
         toast.success('Lattes importado com sucesso');
         setIsXmlOpen(false);
         setXmlFile(null);
@@ -340,7 +341,7 @@ export default function ProfessorProductionsPage() {
                     value={sortConfig.key}
                     onValueChange={(val) => setSortConfig(prev => ({ ...prev, key: val as any }))}
                   >
-                    <SelectTrigger className="w-[130px] h-9">
+                    <SelectTrigger className="w-32.5 h-9">
                       <SelectValue placeholder="Ordenar" />
                     </SelectTrigger>
                     <SelectContent>
@@ -450,7 +451,7 @@ export default function ProfessorProductionsPage() {
             </div>
         )}
 
-        <div className="rounded-md border p-6 bg-white min-h-[300px]">
+        <div className="rounded-md border p-6 bg-white min-h-75">
           {filteredAndSortedProductions.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
                <p>{hasActiveFilters ? 'Nenhuma produção encontrada com os filtros selecionados.' : 'Nenhuma produção encontrada.'}</p>
