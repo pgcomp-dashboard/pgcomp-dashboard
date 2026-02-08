@@ -99,7 +99,8 @@ export default function MyProductionsPage() {
   const [ filters, setFilters ] = useState({
     titulo: '',
     local: '',
-    ano: 'all',
+    anoInicio: 'all',
+    anoFim: 'all',
     tipo: 'all',
     origem: 'all',
     qualis: 'all',
@@ -179,8 +180,11 @@ export default function MyProductionsPage() {
         return publisherName.toLowerCase().includes(searchTerm);
       });
     }
-    if (filters.ano && filters.ano !== 'all') {
-      result = result.filter((p) => p.year.toString() === filters.ano);
+    if (filters.anoInicio && filters.anoInicio !== 'all') {
+      result = result.filter((p) => p.year >= parseInt(filters.anoInicio));
+    }
+    if (filters.anoFim && filters.anoFim !== 'all') {
+      result = result.filter((p) => p.year <= parseInt(filters.anoFim));
     }
     if (filters.tipo && filters.tipo !== 'all') {
       result = result.filter((p) => p.publisher_type === filters.tipo);
@@ -235,10 +239,15 @@ export default function MyProductionsPage() {
     return result;
   }, [ productionList, qualisList, filters, sortConfig ]);
 
-  const hasActiveFilters = Object.values(filters).some((f) => f !== 'all');
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
+    if (key === 'titulo' || key === 'local') {
+      return value.trim() !== '';
+    }
+    return value !== 'all';
+  });
 
   const clearFilters = () => {
-    setFilters({ titulo: '', local: '', ano: 'all', tipo: 'all', origem: 'all', qualis: 'all' });
+    setFilters({ titulo: '', local: '', anoInicio: 'all', anoFim: 'all', tipo: 'all', origem: 'all', qualis: 'all' });
   };
 
   const handleSort = (key: typeof sortConfig.key) => {
@@ -510,23 +519,40 @@ export default function MyProductionsPage() {
                   />
                 </div>
 
-                {/* Ano */}
-                <div>
-                  <Label className="text-xs mb-1.5 block">Ano</Label>
-                  <Select
-                    value={filters.ano}
-                    onValueChange={(value) => setFilters({ ...filters, ano: value })}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Todos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      {uniqueYears.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                {/* Ano - Intervalo */}
+                <div className="lg:col-span-2">
+                  <Label className="text-xs mb-1.5 block">Período (Ano)</Label>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={filters.anoInicio}
+                      onValueChange={(value) => setFilters({ ...filters, anoInicio: value })}
+                    >
+                      <SelectTrigger className="h-9 flex-1">
+                        <SelectValue placeholder="De" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        {uniqueYears.map((year) => (
+                          <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <span className="text-xs text-muted-foreground">até</span>
+                    <Select
+                      value={filters.anoFim}
+                      onValueChange={(value) => setFilters({ ...filters, anoFim: value })}
+                    >
+                      <SelectTrigger className="h-9 flex-1">
+                        <SelectValue placeholder="Até" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        {uniqueYears.map((year) => (
+                          <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {/* Tipo */}
@@ -666,6 +692,40 @@ export default function MyProductionsPage() {
                 onChange={(e) => setFilters({ ...filters, local: e.target.value })}
                 className="h-9"
               />
+            </div>
+            <div>
+              <Label className="text-xs mb-1 block">Período (Ano)</Label>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={filters.anoInicio}
+                  onValueChange={(value) => setFilters({ ...filters, anoInicio: value })}
+                >
+                  <SelectTrigger className="h-9 flex-1">
+                    <SelectValue placeholder="De" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {uniqueYears.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-xs text-muted-foreground">até</span>
+                <Select
+                  value={filters.anoFim}
+                  onValueChange={(value) => setFilters({ ...filters, anoFim: value })}
+                >
+                  <SelectTrigger className="h-9 flex-1">
+                    <SelectValue placeholder="Até" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {uniqueYears.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
