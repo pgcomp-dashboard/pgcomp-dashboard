@@ -839,10 +839,10 @@ export default function MyProductionsPage() {
                         {production.year}
                       </TableCell>
                       <TableCell className="text-center px-1 py-2 text-sm">
-                        {production.publisher_type === 'journal' ? 'Rev' : production.publisher_type === 'conference' ? 'Conf' : 'NI'}
+                        {production.publisher_type === 'journal' ? 'Revista' : production.publisher_type === 'conference' ? 'Conferência' : 'NI'}
                       </TableCell>
                       <TableCell className="text-center px-1 py-2 text-sm capitalize">
-                        {production.source === 'lattes' ? 'Lat' : production.source === 'manual' ? 'Man' : production.source === 'doi' ? 'DOI' : 'NI'}
+                        {production.source === 'xml' || production.source === 'lattes' ? 'Lattes' : production.source === 'manual' ? 'Manual' : production.source === 'doi' ? 'DOI' : 'NI'}
                       </TableCell>
                       <TableCell className="text-center px-1 py-2 text-sm">
                         {production.stratum_qualis_id && qualisList.find((qualis) => qualis.id == production.stratum_qualis_id)?.code}
