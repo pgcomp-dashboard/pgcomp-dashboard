@@ -750,11 +750,11 @@ export default function MyProductionsPage() {
                       <SortIcon column="titulo" />
                     </Button>
                   </TableHead>
-                  <TableHead className='w-[20%] text-left px-2 py-2'>
+                  <TableHead className='w-[20%] text-center px-2 py-2'>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 px-1 text-xs font-semibold"
+                      className="h-6 px-1 text-xs font-semibold justify-center"
                       onClick={() => handleSort('local')}
                     >
                       Local
@@ -826,11 +826,11 @@ export default function MyProductionsPage() {
                   filteredAndSortedProductions.map((production) => (
                     <TableRow key={production.id}>
                       <TableCell className="text-left px-2 py-2 align-top">
-                        <div className="text-sm leading-snug whitespace-normal break-words" title={production.title}>
+                        <div className="text-sm leading-snug whitespace-normal break-words text-justify" title={production.title}>
                           {production.title}
                         </div>
                       </TableCell>
-                      <TableCell className='text-left px-2 py-2 align-top'>
+                      <TableCell className='text-center px-2 py-2 align-top'>
                         <div className="text-sm leading-snug whitespace-normal break-words" title={production.publisher?.name || 'N/A'}>
                           {production.publisher?.name || 'N/A'}
                         </div>
