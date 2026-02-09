@@ -36,12 +36,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { productionService } from '@/services/modules/production.service';
+import { professorService } from '@/services/modules/professor.service';
 import { qualisService } from '@/services/modules/qualis.service';
 import { Production, StratumQualis } from '@/types/academic';
 import { RequestBodyType } from '@/types/common';
+import { Professor } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ChevronDown, ChevronUp, Edit, Filter, Plus, Trash, Upload, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ChevronDown, ChevronUp, Edit, Filter, Loader2, Plus, Trash, Upload, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
@@ -98,18 +100,33 @@ export default function ProfessorProductionsPage() {
 
   const {
     data: productions,
-    isLoading,
-    error,
+    isLoading: isProductionsLoading,
+    error: productionsError,
     refetch,
   } = useQuery<Production[], Error>({
     queryKey: ['professor-productions', professorId],
     queryFn: async () => {
       if (!professorId) throw new Error('Professor ID is required');
       const rawData = await productionService.getUserProductions(Number(professorId));
+      console.log(rawData)
       const entries = Object.entries(rawData)
         .filter(([key]) => !isNaN(Number(key)))
         .map(([, value]) => value as unknown as Production);
+      console.log(entries)
       return entries;
+    },
+    enabled: !!professorId,
+  });
+
+  const {
+    data: professor,
+    isLoading: isProfessorLoading,
+    error: professorError
+  } = useQuery<Professor, Error>({
+    queryKey: ['professor-details', professorId],
+    queryFn: async () => {
+      if (!professorId) throw new Error('Professor ID is required');
+      return await professorService.getProfessorById(Number(professorId));
     },
     enabled: !!professorId,
   });
@@ -287,8 +304,18 @@ export default function ProfessorProductionsPage() {
     }
   }
 
-  if (isLoading) return <div>Carregando produções...</div>;
-  if (error) return <div>Erro ao carregar produções: {error.message}</div>;
+
+  if (isProductionsLoading || isProfessorLoading) return (
+    <div className="flex items-center justify-center p-10">
+      <Loader2 className="animate-spin mr-2" />
+      {isProfessorLoading ? 'Carregando dados do professor...' : `Carregando produções de ${professor?.name}...`}
+    </div>
+  );
+  if (productionsError) return (
+    <div className="text-red-500 flex items-center p-10">
+      <AlertCircle className="mr-2" /> Erro ao carregar produções. {productionsError.message}
+    </div>
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -298,9 +325,11 @@ export default function ProfessorProductionsPage() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Produções do Professor</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Produções de {professor?.name}
+            </h1>
             <p className="text-muted-foreground">
-              Lista de produções vinculadas a este docente.
+              Lista de {productions?.length} produções vinculadas ao docente {professor?.name}.
             </p>
           </div>
         </div>

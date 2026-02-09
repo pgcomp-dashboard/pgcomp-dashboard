@@ -19,14 +19,28 @@ class ProfessorProductionController extends Controller
         $this->productionController = $this->newInstance();
         $this->productionController->professorQuery($professors);
         $typeCounts = $this->productionController->getTypeCounts($professors);
-        $response = $this->productionController->index($request);
 
-         $response['type_counts'] = [
+        $query = $this->productionController->getQuery();
+        $model = new Production;
+
+        $orderBy = $request->input('order_by');
+        if ($orderBy && $model->canSortBy($orderBy)) {
+            $query->orderBy($orderBy, $request->input('dir', 'asc'));
+        }
+
+        (new \App\Http\Filters($query))->applyFilters($request->input('filters', []));
+
+        $response = $query->get()->toArray();
+
+        return response()->json([
+            'data' => $response
+        ]);
+
+        $response['type_counts'] = [
             'journal' => $typeCounts->journal_count ?? 0,
             'conference' => $typeCounts->conference_count ?? 0,
             'total' => $typeCounts->total_count ?? 0
         ];
-        return $response;
     }
 
     public function show($professors, $productions)

@@ -95,4 +95,12 @@ abstract class BaseApiResourceController extends Controller
      * Return class name.
      */
     abstract protected function modelClass(): string|BaseModel;
+
+    /**
+     * Get the query builder instance.
+     */
+    public function getQuery(): Builder
+    {
+        return $this->query;
+    }
 }

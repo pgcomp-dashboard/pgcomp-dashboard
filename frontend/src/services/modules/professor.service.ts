@@ -47,4 +47,9 @@ export const professorService = {
 
     return allProfessors.sort((a, b) => a.name.localeCompare(b.name));
   },
+
+  async getProfessorById(id: number): Promise<Professor> {
+    const response = await apiClient.get<Professor>(`/api/admin/professors/${id}`);
+    return response;
+  },
 };

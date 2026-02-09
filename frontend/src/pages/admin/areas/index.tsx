@@ -1,4 +1,4 @@
-import { Plus, Search } from 'lucide-react';
+import { AlertCircle, Loader2, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ import { Pencil, Trash } from 'lucide-react';
 export default function AreasPage() {
   const queryClient = useQueryClient();
 
-  const { data: areas = [], isLoading } = useQuery({
+  const { data: areas = [], isLoading, error } = useQuery({
     queryKey: [ 'areas' ],
     queryFn: () => areaService.fetchAreas(),
   });
@@ -104,6 +104,16 @@ export default function AreasPage() {
   if (isLoading) {
     return <div>Carregando áreas...</div>;
   }
+  if (isLoading) return (
+    <div className="flex items-center justify-center p-10">
+      <Loader2 className="animate-spin mr-2" /> Carregando áreas...
+    </div>
+  );
+  if (error) return (
+  <div className="text-red-500 flex items-center p-10">
+      <AlertCircle className="mr-2" /> Erro ao carregar áreas.
+    </div>
+  )
 
   return (
     <div className="space-y-6">

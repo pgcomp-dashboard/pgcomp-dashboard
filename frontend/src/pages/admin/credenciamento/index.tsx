@@ -23,7 +23,7 @@ import { userService } from '@/services/modules/user.service';
 import { Ranking, RankingProduction } from '@/types/academic';
 import Switch from '@mui/material/Switch';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpenTextIcon, Loader2 } from 'lucide-react';
+import { AlertCircle, BookOpenTextIcon, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
@@ -63,6 +63,16 @@ export default function CredenciamentoPage() {
     console.error(error);
     return <div>Erro ao carregar ranking!</div>;
   }
+  if (isLoading) return (
+    <div className="flex items-center justify-center p-10">
+      <Loader2 className="animate-spin mr-2" /> Carregando ranking de credenciamento...
+    </div>
+  );
+  if (error) return (
+  <div className="text-red-500 flex items-center p-10">
+      <AlertCircle className="mr-2" /> Erro ao carregar ranking.
+    </div>
+  )
 
   //console.log(data)
 
