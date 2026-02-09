@@ -77,7 +77,7 @@ class ConferenceQualisXLSX
         }
         $zip->extractTo($dir);
         $strings = simplexml_load_file($dir . '/xl/sharedStrings.xml');
-        $sheet   = simplexml_load_file($dir . '/xl/worksheets/sheet2.xml');
+        $sheet   = simplexml_load_file($dir . '/xl/worksheets/sheet1.xml');
 
         $rows = $sheet->sheetData->row;
 
@@ -108,10 +108,7 @@ class ConferenceQualisXLSX
             array_push($data,$arr);
             //error_log(implode($arr));
         }
-        if ($data[1][0] === "Sigla") {
-            array_splice($data, 0, 2);
-            //error_log($data[0][0]);
-            return $data;
-        }
+        array_splice($data, 0, 1);
+        return $data;
     }
 }

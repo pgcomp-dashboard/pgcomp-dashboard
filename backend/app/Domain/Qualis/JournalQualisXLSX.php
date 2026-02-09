@@ -109,11 +109,7 @@ class JournalQualisXLSX
             }
             array_push($data,$arr);
         }
-
-        if ($data[0][0] === "ISSN") {
-            array_splice($data, 0, 1);
-            //error_log($data[0][0]);
-            return $data;
-        }
+        array_splice($data, 0, 1);
+        return $data;
     }
 }

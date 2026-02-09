@@ -831,8 +831,8 @@ export default function MyProductionsPage() {
                         </div>
                       </TableCell>
                       <TableCell className='text-center px-2 py-2 align-top'>
-                        <div className="text-sm leading-snug whitespace-normal wrap-break-word" title={production.publisher?.name || 'N/A'}>
-                          {production.publisher?.name || 'N/A'}
+                        <div className="text-sm leading-snug whitespace-normal wrap-break-word capitalize" title={production.publisher?.name || '--'}>
+                          {production.publisher?.name.toLowerCase() || 'N/A'}
                         </div>
                       </TableCell>
                       <TableCell className="text-center px-1 py-2 text-sm">
@@ -929,7 +929,7 @@ export default function MyProductionsPage() {
                     <div className="p-3">
                       <div className="mb-2">
                         <span className="text-xs text-muted-foreground block">Local</span>
-                        <span className="font-medium text-sm">{production.publisher?.name || 'N/A'}</span>
+                        <span className="font-medium text-sm capitalize">{production.publisher?.name.toLowerCase() || 'N/A'}</span>
                       </div>
                       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         <div>

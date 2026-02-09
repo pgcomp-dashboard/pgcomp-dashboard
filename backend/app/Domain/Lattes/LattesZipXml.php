@@ -61,6 +61,7 @@ class LattesZipXml
             $title = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['ANO-DO-ARTIGO'];
             $issn = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['ISSN'];
+            $publisher_name = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['TITULO-DO-PERIODICO-OU-REVISTA'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
             $publisher_type = PublisherType::JOURNAL->value;
@@ -68,7 +69,8 @@ class LattesZipXml
 
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
-                $publisher_id = Publishers::where('issn', $issn)->first()?->id;
+                $publisher_id = Publishers::firstOrCreate(['issn' => $issn], ['issn' => $issn, 'name' => $publisher_name])?->id;
+                error_log($publisher_name . " " .  $issn . " " . $publisher_id);
             }
 
             $production = compact('source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');
@@ -94,7 +96,7 @@ class LattesZipXml
             $source = ProductionSource::XML->value;
 
             if ($conferenceName) {
-                $publisher_id = Publishers::where('name', $conferenceName)->first()?->id;
+                $publisher_id = Publishers::firstOrCreate(['name' => $conferenceName], ['name' => $conferenceName])?->id;
             }
 
             $production = compact('source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number', 'issn', 'isbn');
