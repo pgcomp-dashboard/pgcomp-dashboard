@@ -52,7 +52,7 @@ class StratumQualis extends BaseModel
     }
 
     /**
-     * finds a certain stratuns qualis from a code
+     * finds a certain stratum qualis from a code
      *
      * @param string code
      * @param array columns
