@@ -98,7 +98,10 @@ export default function MyProductionsPage() {
 
   // Filtros
   const [ filters, setFilters ] = useState({
-    ano: 'all',
+    titulo: '',
+    local: '',
+    anoInicio: 'all',
+    anoFim: 'all',
     tipo: 'all',
     origem: 'all',
     qualis: 'all',
@@ -106,7 +109,7 @@ export default function MyProductionsPage() {
 
   // Ordenação
   const [ sortConfig, setSortConfig ] = useState<{
-    key: 'year' | 'tipo' | 'origem' | 'pontuacao';
+    key: 'titulo' | 'local' | 'year' | 'tipo' | 'origem' | 'pontuacao';
     direction: 'asc' | 'desc';
   }>({ key: 'year', direction: 'desc' });
 
@@ -185,8 +188,22 @@ export default function MyProductionsPage() {
     let result = [ ...productionList ];
 
     // Aplicar filtros
-    if (filters.ano && filters.ano !== 'all') {
-      result = result.filter((p) => p.year.toString() === filters.ano);
+    if (filters.titulo && filters.titulo.trim() !== '') {
+      const searchTerm = filters.titulo.toLowerCase();
+      result = result.filter((p) => p.title.toLowerCase().includes(searchTerm));
+    }
+    if (filters.local && filters.local.trim() !== '') {
+      const searchTerm = filters.local.toLowerCase();
+      result = result.filter((p) => {
+        const publisherName = p.publisher?.name || '';
+        return publisherName.toLowerCase().includes(searchTerm);
+      });
+    }
+    if (filters.anoInicio && filters.anoInicio !== 'all') {
+      result = result.filter((p) => p.year >= parseInt(filters.anoInicio));
+    }
+    if (filters.anoFim && filters.anoFim !== 'all') {
+      result = result.filter((p) => p.year <= parseInt(filters.anoFim));
     }
     if (filters.tipo && filters.tipo !== 'all') {
       result = result.filter((p) => p.publisher_type === filters.tipo);
@@ -207,6 +224,14 @@ export default function MyProductionsPage() {
       let bValue: number | string = 0;
 
       switch (sortConfig.key) {
+        case 'titulo':
+          aValue = a.title.toLowerCase();
+          bValue = b.title.toLowerCase();
+          break;
+        case 'local':
+          aValue = (a.publisher?.name || '').toLowerCase();
+          bValue = (b.publisher?.name || '').toLowerCase();
+          break;
         case 'year':
           aValue = a.year;
           bValue = b.year;
@@ -233,28 +258,15 @@ export default function MyProductionsPage() {
     return result;
   }, [ productionList, qualisList, filters, sortConfig ]);
 
-  // Atualiza a largura da barra de scroll superior quando a lista muda
-  useEffect(() => {
-    const updateWidth = () => {
-      if (tableContainerRef.current) {
-        setTableWidth(tableContainerRef.current.scrollWidth);
-      }
-    };
-
-    // Pequeno delay para garantir que o DOM foi renderizado
-    const timeoutId = setTimeout(updateWidth, 100);
-    window.addEventListener('resize', updateWidth);
-
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener('resize', updateWidth);
-    };
-  }, [filteredAndSortedProductions]);
-
-  const hasActiveFilters = Object.values(filters).some((f) => f !== 'all');
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
+    if (key === 'titulo' || key === 'local') {
+      return value.trim() !== '';
+    }
+    return value !== 'all';
+  });
 
   const clearFilters = () => {
-    setFilters({ ano: 'all', tipo: 'all', origem: 'all', qualis: 'all' });
+    setFilters({ titulo: '', local: '', anoInicio: 'all', anoFim: 'all', tipo: 'all', origem: 'all', qualis: 'all' });
   };
 
   const handleSort = (key: typeof sortConfig.key) => {
@@ -501,24 +513,65 @@ export default function MyProductionsPage() {
 
           {showFilters && (
             <div className="bg-muted/50 rounded-lg p-4 space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {/* Ano */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+                {/* Título */}
                 <div>
-                  <Label className="text-xs mb-1.5 block">Ano</Label>
-                  <Select
-                    value={filters.ano}
-                    onValueChange={(value) => setFilters({ ...filters, ano: value })}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Todos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      {uniqueYears.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-xs mb-1.5 block">Título</Label>
+                  <Input
+                    type="text"
+                    placeholder="Filtrar título..."
+                    value={filters.titulo}
+                    onChange={(e) => setFilters({ ...filters, titulo: e.target.value })}
+                    className="h-9"
+                  />
+                </div>
+
+                {/* Local */}
+                <div>
+                  <Label className="text-xs mb-1.5 block">Local</Label>
+                  <Input
+                    type="text"
+                    placeholder="Filtrar local..."
+                    value={filters.local}
+                    onChange={(e) => setFilters({ ...filters, local: e.target.value })}
+                    className="h-9"
+                  />
+                </div>
+
+                {/* Ano - Intervalo */}
+                <div className="lg:col-span-2">
+                  <Label className="text-xs mb-1.5 block">Período (Ano)</Label>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={filters.anoInicio}
+                      onValueChange={(value) => setFilters({ ...filters, anoInicio: value })}
+                    >
+                      <SelectTrigger className="h-9 flex-1">
+                        <SelectValue placeholder="De" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        {uniqueYears.map((year) => (
+                          <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <span className="text-xs text-muted-foreground">até</span>
+                    <Select
+                      value={filters.anoFim}
+                      onValueChange={(value) => setFilters({ ...filters, anoFim: value })}
+                    >
+                      <SelectTrigger className="h-9 flex-1">
+                        <SelectValue placeholder="Até" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        {uniqueYears.map((year) => (
+                          <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {/* Tipo */}
@@ -615,6 +668,8 @@ export default function MyProductionsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="titulo">Título</SelectItem>
+                  <SelectItem value="local">Local</SelectItem>
                   <SelectItem value="year">Ano</SelectItem>
                   <SelectItem value="tipo">Tipo</SelectItem>
                   <SelectItem value="origem">Origem</SelectItem>
@@ -634,6 +689,64 @@ export default function MyProductionsPage() {
               </Button>
             </div>
           </div>
+
+          {/* Filtros de texto mobile */}
+          <div className="md:hidden mt-3 space-y-2">
+            <div>
+              <Label className="text-xs mb-1 block">Título</Label>
+              <Input
+                type="text"
+                placeholder="Filtrar por título..."
+                value={filters.titulo}
+                onChange={(e) => setFilters({ ...filters, titulo: e.target.value })}
+                className="h-9"
+              />
+            </div>
+            <div>
+              <Label className="text-xs mb-1 block">Local</Label>
+              <Input
+                type="text"
+                placeholder="Filtrar por local..."
+                value={filters.local}
+                onChange={(e) => setFilters({ ...filters, local: e.target.value })}
+                className="h-9"
+              />
+            </div>
+            <div>
+              <Label className="text-xs mb-1 block">Período (Ano)</Label>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={filters.anoInicio}
+                  onValueChange={(value) => setFilters({ ...filters, anoInicio: value })}
+                >
+                  <SelectTrigger className="h-9 flex-1">
+                    <SelectValue placeholder="De" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {uniqueYears.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-xs text-muted-foreground">até</span>
+                <Select
+                  value={filters.anoFim}
+                  onValueChange={(value) => setFilters({ ...filters, anoFim: value })}
+                >
+                  <SelectTrigger className="h-9 flex-1">
+                    <SelectValue placeholder="Até" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {uniqueYears.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -649,61 +762,82 @@ export default function MyProductionsPage() {
           </div>
 
           {/* Desktop: Tabela */}
-          <div className="hidden w-full md:block rounded-md border overflow-x-auto"
-            ref={tableContainerRef}
-            onScroll={handleTableScroll}
-          >
-            <Table>
-              <TableHeader>
+          <div className="hidden w-full md:block rounded-md border max-h-[calc(100vh-350px)] overflow-y-auto">
+            <Table className="table-fixed w-full">
+              <TableHeader className="sticky top-0 bg-background z-10">
                 <TableRow>
-                  <TableHead className='text-center'>Título</TableHead>
-                  <TableHead className='text-center'>Local</TableHead>
-                  <TableHead className='text-center'>
+                  <TableHead className='w-[25%] text-left px-2 py-2'>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-2 font-medium"
+                      className="h-6 px-1 text-xs font-semibold"
+                      onClick={() => handleSort('titulo')}
+                    >
+                      Título
+                      <SortIcon column="titulo" />
+                    </Button>
+                  </TableHead>
+                  <TableHead className='w-[20%] text-center px-2 py-2'>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-1 text-xs font-semibold justify-center"
+                      onClick={() => handleSort('local')}
+                    >
+                      Local
+                      <SortIcon column="local" />
+                    </Button>
+                  </TableHead>
+                  <TableHead className='w-[8%] text-center px-1 py-2'>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-1 text-xs font-semibold"
                       onClick={() => handleSort('year')}
                     >
                       Ano
                       <SortIcon column="year" />
                     </Button>
                   </TableHead>
-                  <TableHead className='text-center'>
+                  <TableHead className='w-[10%] text-center px-1 py-2'>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-2 font-medium"
+                      className="h-6 px-1 text-xs font-semibold"
                       onClick={() => handleSort('tipo')}
                     >
                       Tipo
                       <SortIcon column="tipo" />
                     </Button>
                   </TableHead>
-                  <TableHead className='text-center'>
+                  <TableHead className='w-[10%] text-center px-1 py-2'>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-2 font-medium"
+                      className="h-6 px-1 text-xs font-semibold"
                       onClick={() => handleSort('origem')}
                     >
                       Origem
                       <SortIcon column="origem" />
                     </Button>
                   </TableHead>
-                  <TableHead className='text-center'>Qualis</TableHead>
-                  <TableHead className='text-center'>
+                  <TableHead className='w-[8%] text-center px-1 py-2'>
+                    <span className="text-xs font-semibold">Qualis</span>
+                  </TableHead>
+                  <TableHead className='w-[8%] text-center px-1 py-2'>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-2 font-medium"
+                      className="h-6 px-1 text-xs font-semibold"
                       onClick={() => handleSort('pontuacao')}
                     >
-                      Pontuação
+                      Pts
                       <SortIcon column="pontuacao" />
                     </Button>
                   </TableHead>
-                  <TableHead className='text-center'>Ações</TableHead>
+                  <TableHead className='w-[11%] text-center px-1 py-2'>
+                    <span className="text-xs font-semibold">Ações</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -718,28 +852,32 @@ export default function MyProductionsPage() {
                   :
                   filteredAndSortedProductions.map((production) => (
                     <TableRow key={production.id}>
-                      <TableCell className="text-left max-w-125 whitespace-normal">
-                        <Link to={production.doi ?? "#"} target="_blank">
-                        {production.title}
-                        </Link>
+                      <TableCell className="text-left px-2 py-2 align-top">
+                        <div className="text-sm leading-snug whitespace-normal break-words text-justify" title={production.title}>
+                          {production.title}
+                        </div>
                       </TableCell>
-                      {production.publisher?.name ? <TableCell className='text-left max-w-125 whitespace-normal'>{production.publisher.name}</TableCell> : <TableCell className='text-center max-w-125 whitespace-normal'>--</TableCell>}
-                      <TableCell className="text-center">
+                      <TableCell className='text-center px-2 py-2 align-top'>
+                        <div className="text-sm leading-snug whitespace-normal break-words" title={production.publisher?.name || 'N/A'}>
+                          {production.publisher?.name || 'N/A'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center px-1 py-2 text-sm">
                         {production.year}
                       </TableCell>
-                      <TableCell className="text-center">
-                        {production.publisher_type ? production.publisher_type : 'NI'}
+                      <TableCell className="text-center px-1 py-2 text-sm">
+                        {production.publisher_type === 'journal' ? 'Revista' : production.publisher_type === 'conference' ? 'Conferência' : 'NI'}
                       </TableCell>
-                      <TableCell className="text-center">
-                        {production.publisher_type ? production.source : 'NI'}
+                      <TableCell className="text-center px-1 py-2 text-sm capitalize">
+                        {production.source === 'xml' || production.source === 'lattes' ? 'Lattes' : production.source === 'manual' ? 'Manual' : production.source === 'doi' ? 'DOI' : 'NI'}
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="text-center px-1 py-2 text-sm">
                         {production.stratum_qualis_id && qualisList.find((qualis) => qualis.id == production.stratum_qualis_id)?.code}
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="text-center px-1 py-2 text-sm">
                         {production.stratum_qualis_id && qualisList.find((qualis) => qualis.id == production.stratum_qualis_id)?.score}
                       </TableCell>
-                      <TableCell className="text-right flex justify-end gap-2">
+                      <TableCell className="text-center px-1 py-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -816,6 +954,10 @@ export default function MyProductionsPage() {
 
                     {/* Conteúdo do Card */}
                     <div className="p-3">
+                      <div className="mb-2">
+                        <span className="text-xs text-muted-foreground block">Local</span>
+                        <span className="font-medium text-sm">{production.publisher?.name || 'N/A'}</span>
+                      </div>
                       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         <div>
                           <span className="text-xs text-muted-foreground block">Ano</span>
