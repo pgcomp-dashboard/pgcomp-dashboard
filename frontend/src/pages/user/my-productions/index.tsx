@@ -49,9 +49,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, ArrowUpDown, ChevronDown, ChevronUp, FileText, Filter, Loader2, Plus, SquarePenIcon, Trash, X } from 'lucide-react';
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -112,24 +111,6 @@ export default function MyProductionsPage() {
     key: 'titulo' | 'local' | 'year' | 'tipo' | 'origem' | 'pontuacao';
     direction: 'asc' | 'desc';
   }>({ key: 'year', direction: 'desc' });
-
-  // Refs para sincronização de scroll
-  const topScrollRef = useRef<HTMLDivElement>(null);
-  const tableContainerRef = useRef<HTMLDivElement>(null);
-  const [tableWidth, setTableWidth] = useState(0);
-
-  // Sincronização de scroll
-  const handleTopScroll = () => {
-    if (topScrollRef.current && tableContainerRef.current) {
-      tableContainerRef.current.scrollLeft = topScrollRef.current.scrollLeft;
-    }
-  };
-
-  const handleTableScroll = () => {
-    if (topScrollRef.current && tableContainerRef.current) {
-      topScrollRef.current.scrollLeft = tableContainerRef.current.scrollLeft;
-    }
-  };
 
   useEffect(() => {
     async function fetchQualis() {
@@ -753,14 +734,6 @@ export default function MyProductionsPage() {
       {/* Tabela */}
       {chosenForm === 'none' ?
         <>
-          {/* Scroll Superior (Apenas Desktop) */}
-          <div className="hidden md:block w-full overflow-x-auto"
-            ref={topScrollRef}
-            onScroll={handleTopScroll}
-          >
-            <div style={{ width: tableWidth, height: '1px' }} />
-          </div>
-
           {/* Desktop: Tabela */}
           <div className="hidden w-full md:block rounded-md border max-h-[calc(100vh-350px)] overflow-y-auto">
             <Table className="table-fixed w-full">
@@ -853,12 +826,12 @@ export default function MyProductionsPage() {
                   filteredAndSortedProductions.map((production) => (
                     <TableRow key={production.id}>
                       <TableCell className="text-left px-2 py-2 align-top">
-                        <div className="text-sm leading-snug whitespace-normal break-words text-justify" title={production.title}>
+                        <div className="text-sm leading-snug whitespace-normal wrap-break-word text-justify" title={production.title}>
                           {production.title}
                         </div>
                       </TableCell>
                       <TableCell className='text-center px-2 py-2 align-top'>
-                        <div className="text-sm leading-snug whitespace-normal break-words" title={production.publisher?.name || 'N/A'}>
+                        <div className="text-sm leading-snug whitespace-normal wrap-break-word" title={production.publisher?.name || 'N/A'}>
                           {production.publisher?.name || 'N/A'}
                         </div>
                       </TableCell>

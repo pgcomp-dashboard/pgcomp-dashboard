@@ -121,7 +121,6 @@ export default function ProfessorProductionsPage() {
   const {
     data: professor,
     isLoading: isProfessorLoading,
-    error: professorError
   } = useQuery<Professor, Error>({
     queryKey: ['professor-details', professorId],
     queryFn: async () => {
