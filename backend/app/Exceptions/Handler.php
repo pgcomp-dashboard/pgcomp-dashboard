@@ -52,7 +52,7 @@ class Handler extends ExceptionHandler
         $this->renderable(function (ValidationException $e) {
             return response()->json(
                 ['errors' => array_map(fn ($e) => ['description' => $e], $e->validator->errors()->all())],
-                400,
+                422,
             );
         });
 
