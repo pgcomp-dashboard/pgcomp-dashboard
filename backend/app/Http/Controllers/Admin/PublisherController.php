@@ -30,46 +30,17 @@ class PublisherController extends Controller
 
     public function update(UpdatePublisherRequest $request, int $id)
     {
-        $model = $this->findOrFail($id);
+        $model = Publishers::findOrFail($id);
 
         $model->update($request->all());
 
-        if ($resourceClass = $this->resourceClass()) {
-            return new $resourceClass($model);
-        }
-
-        return $model;
+        return new PublisherResource($model);
     }
 
     public function index(Request $request)
     {
-        // Determine if we're on journals or conferences route
-        $routeName = $request->route()->getName();
-
-        if (str_contains($routeName, 'journals')) {
-            $results = Publishers::onlyJournals()->paginate(15);
-            return JournalResource::collection($results);
-        }
-
-        if (str_contains($routeName, 'conferences')){
-            $results = Publishers::onlyConferences()->paginate(15);
-            return ConferenceResource::collection($results);
-        }
-
         $results = Publishers::query()->paginate(15);
         return PublisherResource::collection($results);
-    }
-
-    public function journalQuery()
-    {
-        return Publishers::onlyJournals('publisher_type', '=', 'journal');
-    }
-
-    public function conferenceQuery()
-    {
-        $this->query = $this->newBaseQuery()
-            ->select($this->selectColumns)
-            ->where('publishers.publisher_type', '=', 'conference');
     }
 
     public function conferenceByInitials(Request $request){
