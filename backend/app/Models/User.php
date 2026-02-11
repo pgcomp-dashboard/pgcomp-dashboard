@@ -421,11 +421,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public function scopeProfessors($query)
     {
-        return $query->where('users.type', UserType::PROFESSOR);
+        return $query->where('type', UserType::PROFESSOR);
     }
 
     public function scopeStudents($query)
     {
-        return $query->where('users.type', UserType::STUDENT);
+        return $query->where('type', UserType::STUDENT);
     }
 }

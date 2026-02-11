@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Models\User;
-use App\Enums\UserType;
+use App\Enums\UserCategory;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateProfessorRequest extends FormRequest
 {
@@ -15,11 +16,24 @@ class UpdateProfessorRequest extends FormRequest
 
     public function rules(): array
     {
-         $rules = User::updateRules();
+         $userId = $this->route('professor');
 
-         // Specific overrides for professor update if needed
-         $rules['siape'] = 'nullable|int';
-
-         return $rules;
+         return [
+            'name'  => 'sometimes|string|max:255',
+            'email' => [
+                'sometimes',
+                'email',
+                Rule::unique('users', 'email')->ignore($userId),
+            ],
+            'siape' => [
+                'sometimes',
+                'integer',
+                Rule::unique('users', 'siape')->ignore($userId),
+            ],
+            'category' => [
+                'sometimes',
+                new Enum(UserCategory::class),
+            ],
+        ];
     }
 }

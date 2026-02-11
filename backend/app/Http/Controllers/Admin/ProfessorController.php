@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserType;
 use App\Http\Controllers\BaseApiResourceController;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Resources\UserResource;
 use App\Models\BaseModel;
@@ -13,42 +14,33 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Admin\StoreProfessorRequest;
 use App\Http\Requests\Admin\UpdateProfessorRequest;
 
-class ProfessorController extends BaseApiResourceController
+class ProfessorController extends Controller
 {
     public function index(BaseResourceIndexRequest $request)
     {
-        $professors = parent::index($request);
+        $professors = User::professors();
         return UserResource::collection($professors);
     }
 
     public function show(int $id)
     {
-        $professor = $this->findOrFail($id);
+        $professor = User::findOrFail($id);
         return new UserResource($professor);
     }
 
     public function store(StoreProfessorRequest $request)
     {
-        // Type is already merged in prepareForValidation of the request
-        $professor = parent::store($request);
+        $professor = User::create($request->all());
 
         return new UserResource($professor);
     }
 
-    public function update(UpdateProfessorRequest $request, int $id)
+     public function update(UpdateProfessorRequest $request, int $id)
     {
-        $professor = parent::update($request, $id);
+        $model = User::findOrFail($id);
 
-        return new UserResource($professor);
-    }
+        $model->update($request->all());
 
-    protected function newBaseQuery(): Builder
-    {
-        return parent::newBaseQuery()->professors();
-    }
-
-    protected function modelClass(): string|BaseModel
-    {
-        return User::class;
+        return new UserResource($model);
     }
 }

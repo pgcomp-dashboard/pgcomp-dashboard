@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\UserCategory;
 use App\Models\User;
 use App\Enums\UserType;
 use Illuminate\Foundation\Http\FormRequest;
@@ -24,14 +25,22 @@ class StoreProfessorRequest extends FormRequest
 
     public function rules(): array
     {
-        // Get base rules
-        $rules = User::creationRules();
-
-        // Enforce Professor specifics locally to be sure
-        $rules['type'] = ['required', new Enum(UserType::class)];
-        $rules['siape'] = 'required|int';
-        // Note: The model says 'required_if:type,probessor', but since we force type=professor, it is effectively required.
-
-        return $rules;
+        return [
+            'name'  => 'sometimes|string|max:255',
+            'email' => [
+                'sometimes',
+                'email',
+                Rule::unique('users', 'email'),
+            ],
+            'siape' => [
+                'sometimes',
+                'integer',
+                Rule::unique('users', 'siape'),
+            ],
+            'category' => [
+                'sometimes',
+                new Enum(UserCategory::class),
+            ],
+        ];
     }
 }
