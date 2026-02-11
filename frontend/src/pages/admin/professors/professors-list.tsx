@@ -129,6 +129,13 @@ export default function ProfessorsPage() {
     navigate(`/admin/professors/${professorId}/productions`);
   };
 
+  const handleDialogChange = (open: boolean) => {
+    setIsDetailProfOpen(open);
+    if (!open) {
+      setIsEditing(false);
+    }
+  };
+
   if (isLoading) return <div>Carregando...</div>;
   if (error) {
     console.error(error);
@@ -334,11 +341,13 @@ export default function ProfessorsPage() {
       </div>
 
       {/* Dialog - Detalhes do Professor */}
-      <Dialog open={isDetailProfOpen} onOpenChange={setIsDetailProfOpen}>
+      <Dialog open={isDetailProfOpen} onOpenChange={handleDialogChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Detalhes - Docente</DialogTitle>
-            <DialogDescription>Visualizar Detalhes</DialogDescription>
+            <DialogTitle>{isEditing ? "Editar" : "Detalhes"} - Docente</DialogTitle>
+            <DialogDescription>
+              {isEditing ?  'Editar Informações do Docente': 'Visualizar Detalhes'}
+            </DialogDescription>
           </DialogHeader>
           {currentProfessor &&
             (isEditing ? (
