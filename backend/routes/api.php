@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\Admin\AdminApprovalController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\CourseController;
@@ -7,10 +8,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProfessorController;
 use App\Http\Controllers\Admin\ProfessorProductionController;
 use App\Http\Controllers\Admin\PublisherController;
-use App\Http\Controllers\Admin\RankingController;
 use App\Http\Controllers\Admin\ScrapingExecutionController;
 use App\Http\Controllers\Admin\StratumQualisController;
-use App\Http\Controllers\Admin\StudentController as StudentAdminController;
+use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\StudentProductionController;
 use App\Http\Controllers\Admin\UserController as UserAdminController;
 use App\Http\Controllers\Auth\AuthController;
@@ -57,7 +57,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::group(['as' => 'portal.', 'prefix' => 'portal'], function () {
         Route::get('journal', [PublisherController::class, 'journalByIssn']);
         Route::get('conference', [PublisherController::class, 'conferenceByInitials']);
-        Route::apiResource('qualis', StratumQualisController::class)->only(['index']);
+        Route::apiResource('stratum_qualis', StratumQualisController::class)->only(['index']);
         Route::get('user', [UserController::class, 'userInfo']);
         Route::put('user', [UserController::class, 'updateUserInfo']);
         Route::put('user/password', [UserController::class, 'changePassword']);
@@ -92,24 +92,24 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('users', UserAdminController::class);
         Route::apiResource('journals', PublisherController::class, ['as' => 'journals']);
         Route::apiResource('conferences', PublisherController::class, ['as' => 'conferences']);
+        Route::apiResource('stratum_qualis', StratumQualisController::class)->parameters(['stratum_qualis' => 'qualis']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
         Route::apiResource('productions', ProductionAdminController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
-        Route::apiResource('students', StudentAdminController::class);
+        Route::apiResource('students', StudentController::class);
         Route::apiResource('students.productions', StudentProductionController::class)
             ->except(['destroy']);
         Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
         Route::apiResource('professors.productions', ProfessorProductionController::class)
             ->except(['destroy']);
-        Route::apiResource('ranking', RankingController::class)->except(['destroy']);
+        Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
         Route::get('admin-request', [AdminApprovalController::class, 'index']);
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update']);
-        Route::post('lattes-update/{user}', [UserAdminController::class, 'importLattesFileForUser']);
+        Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
 
 
         //Update Qualis By SpreadSheets
-        Route::post('conference-qualis-spreadsheet', [StratumQualisController::class, 'importConferenceFile']);
-        Route::post('journal-qualis-spreadsheet', [StratumQualisController::class, 'importJournalFile']);
+        Route::post('publishers/import', [PublisherController::class, 'import']);
 
         // Scraping routes
         Route::get('scraping_execution', [ScrapingExecutionController::class, 'listExecutions']);

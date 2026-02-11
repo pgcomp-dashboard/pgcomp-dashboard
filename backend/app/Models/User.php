@@ -191,56 +191,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     }
 
     /**
-     * Create or update a user of type student
-     *
-     * @param array array with user data
-     * @return User instance of user model
-     */
-    public static function createOrUpdateStudent(array $data): User
-    {
-        $data['type'] = UserType::STUDENT->value;
-        $password = Hash::make(Str::random(12));
-        // TODO: Will this override the password????
-        $data['password'] = $password;
-        $data['password_confirmation'] = $password;
-
-        return User::updateOrCreate(
-            Arr::only($data, ['registration']),
-            $data
-        );
-    }
-
-    /**
-     * Create or update a user of type professor
-     *
-     * @param array array with user data
-     * @return User instance of user model
-     */
-    public static function createOrUpdateTeacherByScraping(array $data): User
-    {
-        $data['type'] = UserType::PROFESSOR->value;
-        $password = Hash::make(Str::random(12));
-        // TODO: Will this override the password? Reuse?
-        $userIsProtected = isset($data['siape']) ?
-            User::where('siape', $data['siape'])
-                ->where('is_protected', true)
-                ->exists()
-            : null;
-
-        if ($userIsProtected) {
-            throw new IsProtectedException('Ação não permitida em usuarios protegidos');
-        }
-        $data['password'] = $password;
-        $data['password_confirmation'] = $password;
-        $data['is_protected'] = false;
-
-        return User::updateOrCreate(
-            Arr::only($data, ['siape']),
-            $data
-        );
-    }
-
-    /**
      * Establishes a relationship of belongsToMany with the production model
      *
      * @return BelongsToMany Relation of belongsToMany user -> production
@@ -258,39 +208,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by_id');
-    }
-
-    /**
-     * Find a user based on a given name
-     *
-     * @param  string  $UserName,  a string of user`name
-     * @return User instance of user model.
-     */
-    public function findUserByName($UserName): User
-    {
-        return User::where('name', $UserName)->firstOrFail();
-    }
-
-    /**
-     * Find a user with type professor based on your siape
-     *
-     * @param  int  $siape  teacher's siape
-     * @return User instance of user model.
-     */
-    public function findProfessorBySiape(int $siape): User
-    {
-        return User::where('siape', $siape)->firstOrFail();
-    }
-
-    /**
-     * Find a user with type student  based on your registration
-     *
-     * @param  int  $registration  of user
-     * @return User instance of user model.
-     */
-    public function findStudentByRegistration($registration): User
-    {
-        return User::where('registration', $registration)->firstOrFail();
     }
 
     /**
@@ -491,30 +408,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         //    ->where('courses.name', 'Doutorado');
     }
 
-    public static function createOrUpdateStudentByScraping(array $data): User
-    {
-        $data['type'] = UserType::STUDENT->value;
-        $password = Hash::make(Str::random(12));
-        // TODO: Will this override the password????
-        $data['password'] = $password;
-        $data['password_confirmation'] = $password;
-        $userIsProtected = isset($data['registration']) ?
-            User::where('registration', $data['registration'])
-                ->where('is_protected', true)
-                ->first()
-            : null;
-
-        if ($userIsProtected) {
-            throw new IsProtectedException('Ação não permitida em usuarios protegidos');
-        }
-        $data['is_protected'] = false;
-
-        return User::updateOrCreate(
-            Arr::only($data, ['registration']),
-            $data
-        );
-    }
-
     public function scopeOnlyPendingAdminRequest($query)
     {
         return $query->where('admin_status', 'pending');
@@ -526,4 +419,13 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
                 ->where('admin_status', '<>', '');
     }
 
+    public function scopeProfessors($query)
+    {
+        return $query->where('users.type', UserType::PROFESSOR);
+    }
+
+    public function scopeStudents($query)
+    {
+        return $query->where('users.type', UserType::STUDENT);
+    }
 }

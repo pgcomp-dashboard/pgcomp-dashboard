@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Eloquent;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +27,7 @@ use Illuminate\Validation\Rule;
  * @property int|null $stratum_qualis_id
  * @property int|null $sequence_number
  * @property string|null $doi
+ * @property string|null $source
  * @property-read Collection|User[] $isWroteBy
  * @property-read int|null $is_wrote_by_count
  * @property-read Model|Eloquent $publisher
@@ -122,6 +123,34 @@ class Production extends BaseModel
     }
 
     /**
+     * Scope a query to include only productions of a specific user.
+     */
+    public function scopeOfUser($query, $userId)
+    {
+        return $query->whereHas('isWroteBy', function ($q) use ($userId) {
+            $q->where('users.id', $userId);
+        });
+    }
+
+    /**
+     * Scope a query to include only productions written by users of a specific type.
+     */
+    public function scopeOfUserType($query, $type)
+    {
+        return $query->whereHas('isWroteBy', function ($q) use ($type) {
+            $q->where('users.type', $type);
+        });
+    }
+
+    /**
+     * Scope a query to eager load publisher and its stratum qualis.
+     */
+    public function scopeWithPublisherAndQualis($query)
+    {
+        return $query->with(['publisher', 'publisher.stratumQualis']);
+    }
+
+    /**
      * @return array update rules to validate attributes.
      */
     public function updateRules(): array
@@ -145,146 +174,6 @@ class Production extends BaseModel
     public function saveInterTable($users_id): void
     {
         $this->isWroteBy()->attach($users_id);
-    }
-
-    /**
-     * @param  ?string  $user_type  the type of the user, if he is a student or a teacher
-     * @param  ?string  $course_id  course_id
-     * @param  ?string  $publisher_type  type of publisher
-     * @return array returns an array containing the amount by total production separated by year
-     */
-    public static function totalProductionsPerYear(?string $user_type, ?string $course_id, ?string $publisher_type): array
-    {
-        $years = range(2014, Carbon::now()->year);
-        $data = [];
-        foreach ($years as $year) {
-            $data[] = Production::where('year', $year)
-                ->when($publisher_type, function (Builder $builder, $publisherType) {
-                    $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
-                        $q->where('publisher_type', $publisherType);
-                    });
-                })
-                ->when($user_type, function (Builder $builder, $userType) {
-                    $builder->whereHas('isWroteBy', function (Builder $builder) use ($userType) {
-                        $builder->where('type', $userType);
-                    });
-                })
-                ->when($course_id, function (Builder $builder, $courseId) {
-                    $builder->whereHas('isWroteBy', function (Builder $builder) use ($courseId) {
-                        $builder->where('course_id', $courseId);
-                    });
-                })
-                ->distinct()
-                ->count();
-        }
-
-        return compact('years', 'data');
-    }
-
-    /**
-     * @param string the type and publication (journal or conference)
-     * @return array returns an array containing publications of the desired type separated by course
-     */
-    public function totalProductionsPerCourse($publisherType): array
-    {
-        $years = range(2014, Carbon::now()->year);
-        $courses = Course::all();
-        $data = [];
-        /** @var Course $course */
-        foreach ($courses as $course) {
-            $courseData = ['label' => $course->name, 'data' => []];
-            foreach ($years as $year) {
-                $courseData['data'][] = Production::where('year', $year)
-                    ->when($publisherType, function (Builder $builder, $publisherType) {
-                        $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
-                            $q->where('publisher_type', $publisherType);
-                        });
-                    })
-                    ->whereHas('isWroteBy', function (Builder $builder) use ($course) {
-                        $builder->where('course_id', $course->id);
-                    })
-                    ->distinct()
-                    ->count();
-            }
-            $data[] = $courseData;
-        }
-
-        return compact('years', 'data');
-    }
-
-    /**
-     * @param int id of user
-     * @param int id of production
-     * @return Builder production of a given user
-     */
-    public function findAllUserProductions($user, $production)
-    {
-        $data = DB::table('productions')
-            ->select('productions.id')
-            ->join('users_productions', 'productions.id',
-                '=', 'users_productions.productions_id')
-            ->join('users', 'users.id', '=', 'users_productions.users_id')
-            ->where('users.id', '-', $user)
-            ->where('productions.id', '=', $production);
-
-        return $data;
-    }
-
-    /**
-     * @param int year to start count
-     * @return Collection of each user and their total score
-     */
-    public function findAllProfessorQualisSumByYear($year1, $year2)
-    {
-        $data = DB::table('productions')
-            ->select('users.id', 'users.name', 'users.category', 'users.lattes_url', DB::raw('SUM(stratum_qualis.score) as score'))
-        ->join(
-                'users_productions',
-                'productions.id',
-                '=',
-                'users_productions.productions_id'
-        )
-        ->join('users', 'users.id', '=', 'users_productions.users_id')
-        ->join('stratum_qualis', 'productions.stratum_qualis_id', '=', 'stratum_qualis.id')
-            ->where('users.type', '=', 'professor')
-            ->whereBetween('productions.year', [$year1, $year2])
-            ->groupBy('users.id', 'users.name', 'users.category', 'users.lattes_url')
-        ->orderBy('score', 'desc')
-        ->get();
-
-        return $data;
-    }
-
-    public function findProductionsUsedInRankingByYear($year1, $year2)
-    {
-        $data = DB::table('productions')
-            ->select('users.id as user_id', 'users.name as user_name', 'users.category', 'users.lattes_url', 'productions.id as productions_id', 'productions.title', 'productions.year', 'productions.publisher_type', 'stratum_qualis.code', 'stratum_qualis.score')
-            ->leftJoin('users_productions', 'productions.id', '=', 'users_productions.productions_id')
-            ->leftJoin('users', 'users.id', '=', 'users_productions.users_id')
-            ->leftJoin('stratum_qualis', 'productions.stratum_qualis_id', '=', 'stratum_qualis.id')
-            ->where('users.type', '=', 'professor')
-            //->where('users.id', '=', $id)
-            ->whereBetween('productions.year', [$year1, $year2])
-            ->get()
-            ->groupBy('user_id');
-
-        $result = $data->map(function ($productions, $user) {
-            return [
-                'user_id' => $user,
-                'name' => $productions->first()->user_name,
-                'category' => $productions->first()->category,
-                'lattes_url' => $productions->first()->lattes_url,
-                'total_score' => $productions->sum('score'),
-                'productions' => $productions->map(function ($production) {
-                    unset($production->user_id);
-                    unset($production->user_name);
-                    unset($production->category);
-                    unset($production->lattes_url);
-                    return $production;
-                })
-            ];
-        })->sortByDesc('total_score')->values();
-        return ($result);
     }
 
     /**

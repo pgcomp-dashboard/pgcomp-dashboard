@@ -7,8 +7,11 @@ use App\Models\Area;
 use App\Models\BaseModel;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
 use Illuminate\Http\Request;
+use App\Http\Resources\AreaResource;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use App\Http\Requests\Admin\Area\StoreAreaRequest;
+use App\Http\Requests\Admin\Area\UpdateAreaRequest;
 
 class AreaController extends BaseApiResourceController
 {
@@ -17,96 +20,44 @@ class AreaController extends BaseApiResourceController
         return Area::class;
     }
 
+    protected function resourceClass(): string
+    {
+        return AreaResource::class;
+    }
+
+    public function store(StoreAreaRequest $request)
+    {
+        $model = $this->modelClass()::create($request->all());
+
+        if ($resourceClass = $this->resourceClass()) {
+            return new $resourceClass($model);
+        }
+
+        return $model;
+    }
+
+    public function update(UpdateAreaRequest $request, int $id)
+    {
+        $model = $this->findOrFail($id);
+
+        $model->update($request->all());
+
+        if ($resourceClass = $this->resourceClass()) {
+            return new $resourceClass($model);
+        }
+
+        return $model;
+    }
+
     public function index(BaseResourceIndexRequest $request)
     {
-        $areas = Area::withCount(['users' => function($query) {
-            $query->where('type', 'student');
-        }])->get();
+        $areas = Area::withCount('students')->get();
 
         if ($areas->isEmpty()) {
             throw new NotFoundHttpException('Nenhuma área encontrada');
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Áreas encontradas com sucesso',
-            'data' => $areas
-        ], 200);
-    }
-
-    public function show(int $id)
-    {
-        $area = Area::find($id);
-
-        if (! $area) {
-            throw new NotFoundHttpException('Área não encontrada');
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Área encontrada com sucesso',
-            'data' => $area,
-        ], 200);
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'area' => 'required|string|max:255',
-        ]);
-
-        if (Area::where('area', $validated['area'])->exists()) {
-            throw new ConflictHttpException('Erro: Área já cadastrada');
-        }
-
-        $area = Area::create($validated);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Área cadastrada com sucesso',
-            'data' => $area,
-        ], 201);
-    }
-
-    public function update(Request $request, int $id)
-    {
-        $area = Area::find($id);
-
-        if (! $area) {
-            throw new NotFoundHttpException('Área não encontrada');
-        }
-
-        $validated = $request->validate([
-            'area' => 'sometimes|required|string|max:255',
-        ]);
-
-        $newArea = $validated['area'] ?? $area->area;
-
-        $areaExists = Area::where('area', $newArea)
-            ->where('id', '!=', $id)
-            ->exists();
-
-        if ($areaExists) {
-            throw new ConflictHttpException('Erro: Área já cadastrada com esse nome');
-        }
-
-        $combinationExists = Area::where('area', $newArea)
-            ->where('id', '!=', $id)
-            ->exists();
-
-        if ($combinationExists) {
-            throw new ConflictHttpException('Erro: Já existe uma área que contém essa combinação com subarea');
-        }
-
-        $area->update([
-            'area' => $newArea,
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Área atualizada com sucesso',
-            'data' => $area,
-        ], 200);
+        return AreaResource::collection($areas);
     }
 
     public function destroy(int $id)
@@ -123,9 +74,6 @@ class AreaController extends BaseApiResourceController
 
         $area->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Área excluída com sucesso',
-        ], 200);
+        return response()->json(['message' => 'Area excluida com sucesso'], 200);
     }
 }

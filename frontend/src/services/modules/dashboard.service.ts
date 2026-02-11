@@ -44,23 +44,19 @@ export const dashboardService = {
   },
 
   async totalStudentsPerAdvisor(filter?: 'mestrando' | 'doutorando' | 'completed') {
-    const query = filter ? `?user_type=${filter}` : '';
-    return apiClient.get<{ [key: string]: Advisor }>(`/api/admin/dashboard/total_students_per_advisor${query}`);
+    return apiClient.get<{ [key: string]: Advisor }>('/api/admin/dashboard/total_students_per_advisor', { user_type: filter });
   },
 
   async totalProductionsPerYear(filter?: 'journal' | 'conference') {
-    const query = filter ? `?publisher_type=${filter}` : '';
-    return apiClient.get<{ [key: string]: number }>(`/api/admin/dashboard/all_production${query}`);
+    return apiClient.get<{ [key: string]: number }>('/api/admin/dashboard/all_production', { publisher_type: filter });
   },
 
   async studentsPerField(filter?: 'mestrando' | 'doutorando' | 'completed') {
-    const query = filter ? `?selectedFilter=${filter}` : '';
-    return apiClient.get<{ [key: string]: number }>(`/api/admin/dashboard/fields${query}`);
+    return apiClient.get<{ [key: string]: number }>('/api/admin/dashboard/fields', { selectedFilter: filter });
   },
 
   async studentsPerSubfield(filter?: 'mestrando' | 'doutorando' | 'completed') {
-    const query = filter ? `?selectedFilter=${filter}` : '';
-    return apiClient.get<{ [key: string]: number }>(`/api/admin/dashboard/subfields${query}`);
+    return apiClient.get<{ [key: string]: number }>('/api/admin/dashboard/subfields', { selectedFilter: filter });
   },
 
   async productionPerQualis() {
@@ -68,13 +64,11 @@ export const dashboardService = {
   },
 
   async defensesPerYear(filter?: 'mestrado' | 'doutorado') {
-    const query = filter ? `?filter=${filter}` : '';
-    return apiClient.get<{ [key: string]: number }>(`/api/admin/dashboard/defenses_per_year${query}`);
+    return apiClient.get<{ [key: string]: number }>('/api/admin/dashboard/defenses_per_year', { filter });
   },
 
   async enrollmentsPerYear(filter?: 'mestrado' | 'doutorado') {
-    const query = filter ? `?filter=${filter}` : '';
-    return apiClient.get<{ [key: string]: number }>(`/api/admin/dashboard/enrollments_per_year${query}`);
+    return apiClient.get<{ [key: string]: number }>('/api/admin/dashboard/enrollments_per_year', { filter });
   },
 
   async professors() {
@@ -87,7 +81,8 @@ export const dashboardService = {
     const from = startYear ?? year - 2;
     const to = endYear ?? year;
     const response = await apiClient.get<{ productions: { [key: string]: number } }>(
-      `/api/admin/dashboard/professor/${professorId}/productions?anoInicial=${from}&anoFinal=${to}`,
+      `/api/admin/dashboard/professor/${professorId}/productions`,
+      { anoInicial: from, anoFinal: to },
     );
     return response.productions;
   },

@@ -1,7 +1,7 @@
 export interface Area {
   id: number;
   name: string;
-  students: number;
+  students_count: number;
 }
 
 export interface Course {

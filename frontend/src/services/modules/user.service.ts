@@ -12,13 +12,13 @@ export const userService = {
     return await apiClient.put<{ status: number, data: Professor }>('/api/portal/user', body);
   },
 
-  async getRankingWithProductions(year1?: number, year2?: number) {
-    let response;
-    if (year1 && year2) {
-      response = await apiClient.get<{ data: Ranking[] }>(`/api/admin/ranking?year1=${year1}&year2=${year2}`);
-    } else {
-      response = await apiClient.get<{ data: Ranking[] }>('/api/admin/ranking');
-    }
+  async getAccreditationRanking(year1?: number, year2?: number) {
+    const response = await apiClient.get<{ data: Ranking[] }>('/api/admin/accreditation', { year1, year2 });
+    return response.data;
+  },
+
+  async getAccreditationProductions(userId: number, year1?: number, year2?: number) {
+    const response = await apiClient.get<{ data: Ranking }>(`/api/admin/accreditation/${userId}`, { year1, year2 });
     return response.data;
   },
 };

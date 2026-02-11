@@ -4,6 +4,8 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ProductionService;
+use App\Http\Requests\Admin\ImportLattesRequest;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +14,13 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    protected ProductionService $productionService;
+
+    public function __construct(ProductionService $productionService)
+    {
+        $this->productionService = $productionService;
+    }
+
     public function userInfo(Request $request)
     {
         $user = auth()->user();
@@ -83,4 +92,6 @@ class UserController extends Controller
 
         return response()->noContent();
     }
+
+
 }

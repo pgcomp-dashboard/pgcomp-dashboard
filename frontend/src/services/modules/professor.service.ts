@@ -10,42 +10,15 @@ export const professorService = {
     orderBy: string = 'name',
     direction: 'asc' | 'desc' = 'asc',
   ) {
-    const params = new URLSearchParams({
-      page: String(page),
-      per_page: String(perPage),
+    const params = {
+      page,
+      per_page: perPage,
       order_by: orderBy,
       dir: direction,
-    });
+      ...filters,
+    };
 
-    if (filters) {
-      for (const [ key, value ] of Object.entries(filters)) {
-        if (value !== undefined && value !== null) {
-          params.append(key, String(value));
-        }
-      }
-    }
-
-    const url = `/api/admin/professors?${params.toString()}`;
-    const response = await apiClient.get<PaginatedResponse<Professor>>(url);
-    return response;
-  },
-
-  async getAllProfessors(searchTerm = ''): Promise<Professor[]> {
-    const allProfessors: Professor[] = [];
-    let currentPage = 1;
-    let lastPage: number;
-
-    do {
-      const { data, last_page } = await apiClient.get(
-        `/api/admin/professors?page=${currentPage}&search=${encodeURIComponent(searchTerm)}`,
-      ) as any;
-
-      allProfessors.push(...data);
-      lastPage = last_page;
-      currentPage++;
-    } while (currentPage <= lastPage);
-
-    return allProfessors.sort((a, b) => a.name.localeCompare(b.name));
+    return await apiClient.get<PaginatedResponse<Professor>>('/api/admin/professors', params);
   },
 
   async getProfessorById(id: number): Promise<Professor> {

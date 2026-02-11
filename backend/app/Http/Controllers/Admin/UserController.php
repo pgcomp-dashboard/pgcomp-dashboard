@@ -3,52 +3,60 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Domain\Lattes\LattesZipXml;
-use App\Http\Controllers\BaseApiResourceController;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreUserRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
+use App\Http\Resources\UserResource;
 use App\Models\BaseModel;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use App\Services\UserService;
+use App\Services\ProductionService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Auth\Events\PasswordReset;
+use App\Http\Requests\Admin\ImportLattesRequest;
 
-class UserController extends BaseApiResourceController
+class UserController extends Controller
 {
+    protected UserService $userService;
+    protected ProductionService $productionService;
+
+    public function __construct(UserService $userService, ProductionService $productionService)
+    {
+        $this->userService = $userService;
+        $this->productionService = $productionService;
+    }
+
     protected function modelClass(): string|BaseModel
     {
         return User::class;
     }
 
-    public function store(Request $request)
+    public function index(BaseResourceIndexRequest $request)
     {
-        $user = parent::store($request);
-
-        return $user;
+        $users = parent::index($request);
+        return UserResource::collection($users);
     }
 
-    public function update(Request $request, int $id)
+    public function show(int $id)
     {
-        $user = parent::update($request, $id);
-
-        return $user;
+        $user = $this->findOrFail($id);
+        return new UserResource($user);
     }
 
-    public function importLattesFileForUser(Request $request, User $user)
+    public function store(StoreUserRequest $request)
     {
-        $request->validate([
-            'file' => ['required', 'file', 'mimetypes:application/zip,application/x-zip-compressed,application/xml,text/xml', 'max:5120'],
-        ]);
+        $user = $this->userService->store($request->validated());
 
-        $file = $request->file('file');
-
-        $path = $file->store('lattes-files');
-
-        $data = LattesZipXml::extractProductions($path);
-
-        $user->updateLattes($data);
-
-        return response()->json(['data' => $data], 201);
+        return new UserResource($user);
     }
+
+    public function update(UpdateUserRequest $request, int $id)
+    {
+        $user = $this->findOrFail($id);
+        $user = $this->userService->update($user, $request->validated());
+
+        return new UserResource($user);
+    }
+
+
 }

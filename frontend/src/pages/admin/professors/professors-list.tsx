@@ -53,7 +53,7 @@ export default function ProfessorsPage() {
   });
 
   const professors = data?.data ?? [];
-  const totalPages = Math.ceil((data?.total ?? 0) / itemsPerPage);
+  const totalPages = Math.max(1, data?.meta.last_page ?? 1);
 
   useEffect(() => {
     async function fetchQualis() {

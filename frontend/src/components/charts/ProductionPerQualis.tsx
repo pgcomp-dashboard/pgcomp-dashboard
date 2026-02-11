@@ -1,6 +1,6 @@
-import { colorFromName } from '@/utils/color.ts';
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { colorFromName } from "@/utils/color.ts";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -11,19 +11,19 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
+} from "recharts";
 
 // 👇 Importando suporte à expansão com scroll
-import ExpandChartButton from '@/components/ui/ExpandChartButton';
-import { useExpandableChart } from '@/hooks/useExpandableChart';
-import { dashboardService } from '@/services/modules/dashboard.service';
-import ChartScrollWrapper from './ChartScrollWrapper';
+import ExpandChartButton from "@/components/ui/ExpandChartButton";
+import { useExpandableChart } from "@/hooks/useExpandableChart";
+import { dashboardService } from "@/services/modules/dashboard.service";
+import ChartScrollWrapper from "./ChartScrollWrapper";
 
 const MAX_VISIBLE_BARS = 15;
 
 export default function ProductionPerQualisChart() {
   const chartRef = useRef<HTMLDivElement>(null);
-  const [ , setChartHeight ] = useState<number>(0);
+  const [, setChartHeight] = useState<number>(0);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -31,19 +31,26 @@ export default function ProductionPerQualisChart() {
     }
   }, []);
 
-  const { data: response, isLoading, error } = useQuery({
-    queryKey: [ 'productionPerQualis' ],
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["productionPerQualis"],
     queryFn: () => dashboardService.productionPerQualis(),
   });
 
   const years: number[] = Array.isArray(response?.years) ? response.years : [];
-  const data: { label: string; data: number[] }[] = Array.isArray(response?.data)
+  const data: { label: string; data: number[] }[] = Array.isArray(
+    response?.data,
+  )
     ? response.data
     : [];
 
   // Hook de controle de expansão (antes do return)
-  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(years.length, MAX_VISIBLE_BARS);
-  const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } =
+    useExpandableChart(years.length, MAX_VISIBLE_BARS);
+  const marginBottom = isScrollable ? "mb-24" : "mb-16";
 
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
@@ -62,7 +69,18 @@ export default function ProductionPerQualisChart() {
     return entry;
   });
 
-  const qualisOrder = [ 'A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C', '-' ];
+  const qualisOrder = [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "C",
+    "NI",
+  ];
   const allQualis = qualisOrder.filter((q) => data.some((d) => d.label === q));
 
   return (
@@ -89,9 +107,9 @@ export default function ProductionPerQualisChart() {
               <YAxis tick={{ fontSize }} />
               <Legend
                 wrapperStyle={{ fontSize: legendFontSize }}
-                payload={[ ...allQualis ].map((qualis) => ({
+                payload={[...allQualis].map((qualis) => ({
                   value: qualis,
-                  type: 'square',
+                  type: "square",
                   color: colorFromName(qualis),
                   id: qualis,
                 }))}
@@ -132,7 +150,6 @@ export default function ProductionPerQualisChart() {
                   />
                 </Bar>
               ))}
-
             </BarChart>
           </ResponsiveContainer>
         </div>

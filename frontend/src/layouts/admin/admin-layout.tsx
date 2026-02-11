@@ -83,7 +83,7 @@ export default function AdminLayout({
                     <SidebarMenuButton asChild isActive={pathname === '/admin/team'}>
                       <Link to="/admin/team" data-cy="link-areas">
                         <Users className="h-4 w-4" />
-                        <span>Gestão de Acesso</span>
+                        <span>Usuários</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

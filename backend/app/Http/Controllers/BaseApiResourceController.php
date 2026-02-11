@@ -33,35 +33,28 @@ abstract class BaseApiResourceController extends Controller
 
         (new Filters($this->query))->applyFilters($request->input('filters', []));
 
-        return $this->query->paginate($request->input('per_page'));
+        $results = $this->query->paginate($request->input('per_page'));
+
+        if ($resourceClass = $this->resourceClass()) {
+            return $resourceClass::collection($results);
+        }
+
+        return $results;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return Response
-     */
-    public function store(Request $request)
-    {
-        return $this->modelClass()::create($request->all());
-    }
+
+
 
     /**
      * Display the specified resource.
      */
     public function show(int $id)
     {
-        return $this->findOrFail($id);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, int $id)
-    {
         $model = $this->findOrFail($id);
 
-        $model->update($request->all());
+        if ($resourceClass = $this->resourceClass()) {
+            return new $resourceClass($model);
+        }
 
         return $model;
     }
@@ -95,6 +88,14 @@ abstract class BaseApiResourceController extends Controller
      * Return class name.
      */
     abstract protected function modelClass(): string|BaseModel;
+
+    /**
+     * Return resource class name.
+     */
+    protected function resourceClass(): ?string
+    {
+        return null;
+    }
 
     /**
      * Get the query builder instance.

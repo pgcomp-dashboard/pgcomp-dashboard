@@ -4,9 +4,8 @@ import { apiClient } from "../http-client";
 export const publisherService = {
 
   async createPublishersFromSpreadsheet(body: FormData, type: 'journal' | 'conference') {
-    const url = type === 'journal'
-      ? '/api/admin/journal-qualis-spreadsheet'
-      : '/api/admin/conference-qualis-spreadsheet';
+    body.append('type', type);
+    const url = '/api/admin/publishers/import';
 
     const response = await apiClient.post<{ data: string }>(url, body);
     return response.data;

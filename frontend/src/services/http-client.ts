@@ -31,9 +31,18 @@ export class HttpClient {
     endpoint: string,
     method: string,
     body: RequestBodyType = undefined,
+    params: Record<string, string | number | undefined> = {},
     headers: Record<string, string> = {},
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = queryParams.toString();
+    const url = `${this.baseUrl}${endpoint}${queryString ? `?${queryString}` : ''}`;
 
     const finalHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -97,24 +106,24 @@ export class HttpClient {
     }
   }
 
-  async get<T>(endpoint: string, headers: Record<string, string> = {}) {
-    return this.request<T>(endpoint, 'GET', undefined, headers);
+  async get<T>(endpoint: string, params: Record<string, string | number | undefined> = {}, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'GET', undefined, params, headers);
   }
 
-  async post<T>(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}) {
-    return this.request<T>(endpoint, 'POST', body, headers);
+  async post<T>(endpoint: string, body: RequestBodyType, params: Record<string, string | number | undefined> = {}, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'POST', body, params, headers);
   }
 
-  async put<T>(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}) {
-    return this.request<T>(endpoint, 'PUT', body, headers);
+  async put<T>(endpoint: string, body: RequestBodyType, params: Record<string, string | number | undefined> = {}, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'PUT', body, params, headers);
   }
 
-  async delete<T>(endpoint: string, headers: Record<string, string> = {}) {
-    return this.request<T>(endpoint, 'DELETE', undefined, headers);
+  async delete<T>(endpoint: string, params: Record<string, string | number | undefined> = {}, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'DELETE', undefined, params, headers);
   }
 
-  async patch<T>(endpoint: string, body: RequestBodyType, headers: Record<string, string> = {}) {
-    return this.request<T>(endpoint, 'PATCH', body, headers);
+  async patch<T>(endpoint: string, body: RequestBodyType, params: Record<string, string | number | undefined> = {}, headers: Record<string, string> = {}) {
+    return this.request<T>(endpoint, 'PATCH', body, params, headers);
   }
 }
 

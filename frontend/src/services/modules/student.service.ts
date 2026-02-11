@@ -10,24 +10,15 @@ export const studentService = {
     orderBy: string = 'name',
     direction: 'asc' | 'desc' = 'asc',
   ) {
-    const params = new URLSearchParams({
-      page: String(page),
-      per_page: String(perPage),
+    const params = {
+      page,
+      per_page: perPage,
       order_by: orderBy,
       dir: direction,
-    });
+      ...filters,
+    };
 
-    if (filters) {
-      for (const [ key, value ] of Object.entries(filters)) {
-        if (value !== undefined && value !== null) {
-          params.append(key, String(value));
-        }
-      }
-    }
-
-    const url = `/api/admin/students?${params.toString()}`;
-    const response = await apiClient.get<PaginatedResponse<Student>>(url);
-    return response;
+    return await apiClient.get<PaginatedResponse<Student>>('/api/admin/students', params);
   },
 
   async createStudent(student: Omit<Student, 'id'>) {

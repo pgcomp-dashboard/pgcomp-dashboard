@@ -3,8 +3,8 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 
 import useAuth from '@/hooks/auth';
 import AdminLayout from '@/layouts/admin/admin-layout';
+import CredenciamentoPage from '@/pages/admin/accreditation';
 import AreasPage from '@/pages/admin/areas';
-import CredenciamentoPage from '@/pages/admin/credenciamento';
 import ProfessorsPage from '@/pages/admin/professors/professors-list';
 import QualisPage from '@/pages/admin/qualis/index';
 import StudentsPage from '@/pages/admin/students';
@@ -49,7 +49,6 @@ function App() {
                   <Route path='credenciamento' element={<CredenciamentoPage />} />
                   <Route path='productions' element={<MyProductionsPage />} />
                   <Route path='user-config' element={<UserConfigPage />} />
-                  <Route path='user-config' element={<UserConfigPage />} />
                 </Route>
 
                 {/* Rotas restritas apenas para ADMIN */}
@@ -62,8 +61,6 @@ function App() {
                   <Route path='professors/:professorId/productions' element={<ProfessorProductionsPage />} />
                   <Route path='qualis' element={<QualisPage />} />
                   <Route path='system-config' element={<SystemConfigPage />} />
-                  <Route path='system-config' element={<SystemConfigPage />} />
-                  <Route path='productions' element={<MyProductionsPage />} />
                 </Route>
               </Route>
               <Route path='admin' element={<EnsureAdmin />}>
@@ -80,7 +77,6 @@ function App() {
             <Route path='*' element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
-        <Toaster richColors position="top-right" />
         <Toaster richColors position="top-right" />
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />

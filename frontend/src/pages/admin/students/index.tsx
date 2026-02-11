@@ -80,13 +80,12 @@ export default function StudentsPage() {
 
     setStudents(studentsRes.data);
     setPagination({
-      current_page: studentsRes.current_page,
-      last_page: studentsRes.last_page,
-      per_page: studentsRes.per_page,
-      total: studentsRes.total,
-      from: studentsRes.from,
-      to: studentsRes.to,
-    } as PaginatedResponse<Student>);
+      ...studentsRes,
+      meta: {
+        ...studentsRes.meta,
+        last_page: Math.max(1, studentsRes.meta.last_page),
+      },
+    });
     setAreas(areasData);
     setCourses(coursesData);
   }
@@ -487,7 +486,7 @@ export default function StudentsPage() {
         {pagination && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t">
             <span className="text-sm text-muted-foreground">
-              Página {pagination.current_page} de {pagination.last_page}
+              Página {pagination.meta.current_page} de {pagination.meta.last_page}
             </span>
 
             <div className="flex gap-2 w-full sm:w-auto">
@@ -496,7 +495,7 @@ export default function StudentsPage() {
                 variant="outline"
                 size="sm"
                 className="hidden sm:flex"
-                disabled={pagination.current_page === 1}
+                disabled={pagination.meta.current_page === 1}
                 onClick={() => {
                   setPage(1);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -510,7 +509,7 @@ export default function StudentsPage() {
                 variant="outline"
                 size="sm"
                 className="flex-1 sm:flex-none"
-                disabled={pagination.current_page === 1}
+                disabled={pagination.meta.current_page === 1}
                 onClick={() => {
                   setPage((prev) => Math.max(prev - 1, 1));
                   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -524,9 +523,9 @@ export default function StudentsPage() {
                 variant="outline"
                 size="sm"
                 className="flex-1 sm:flex-none"
-                disabled={pagination.current_page === pagination.last_page}
+                disabled={pagination.meta.current_page === pagination.meta.last_page}
                 onClick={() => {
-                  setPage((prev) => Math.min(prev + 1, pagination.last_page));
+                  setPage((prev) => Math.min(prev + 1, pagination.meta.last_page));
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               >
@@ -538,9 +537,9 @@ export default function StudentsPage() {
                 variant="outline"
                 size="sm"
                 className="hidden sm:flex"
-                disabled={pagination.current_page === pagination.last_page}
+                disabled={pagination.meta.current_page === pagination.meta.last_page}
                 onClick={() => {
-                  setPage(pagination.last_page);
+                  setPage(pagination.meta.last_page);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               >
