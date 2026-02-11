@@ -1,7 +1,7 @@
-import { AlertCircle, Loader2, Plus, Search } from 'lucide-react';
-import { useState } from 'react';
+import { AlertCircle, Loader2, Plus, Search } from "lucide-react";
+import { useState } from "react";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,75 +10,85 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { areaService } from '@/services/modules/area.service';
-import { dashboardService } from '@/services/modules/dashboard.service';
-import { Area } from '@/types/academic';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Trash } from 'lucide-react';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { areaService } from "@/services/modules/area.service";
+import { dashboardService } from "@/services/modules/dashboard.service";
+import { Area } from "@/types/academic";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Pencil, Trash } from "lucide-react";
 
 // Sample area data
 export default function AreasPage() {
   const queryClient = useQueryClient();
 
-  const { data: areas = [], isLoading, error } = useQuery({
-    queryKey: [ 'areas' ],
+  const {
+    data: areas = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["areas"],
     queryFn: () => areaService.fetchAreas(),
   });
 
   // Students by area
   const { data: studentsPerField = {} } = useQuery({
-    queryKey: [ 'studentsPerField' ],
+    queryKey: ["studentsPerField"],
     queryFn: () => dashboardService.studentsPerField(),
   });
 
   const addAreaMutation = useMutation({
-    mutationFn: (area: { name: string; students: number }) => areaService.createArea(area),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+    mutationFn: (area: { name: string; students: number }) =>
+      areaService.createArea(area),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["areas"] }),
   });
 
   const editAreaMutation = useMutation({
-    mutationFn: (area: { id: number; name: string; students: number }) => areaService.updateArea(area),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+    mutationFn: (area: { id: number; name: string; students_count: number }) =>
+      areaService.updateArea(area),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["areas"] }),
   });
 
   const deleteAreaMutation = useMutation({
     mutationFn: (id: number) => areaService.deleteArea(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ 'areas' ] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["areas"] }),
   });
 
-  const [ searchTerm, setSearchTerm ] = useState('');
-  const [ isAddAreaOpen, setIsAddAreaOpen ] = useState(false);
-  const [ isEditAreaOpen, setIsEditAreaOpen ] = useState(false);
-  const [ isDeleteAreaOpen, setIsDeleteAreaOpen ] = useState(false);
-  const [ currentArea, setCurrentArea ] = useState<Area | null>(null);
-  const [ newArea, setNewArea ] = useState({
-    name: '',
-    description: '',
-    students: 0,
-    subareas: 0,
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isAddAreaOpen, setIsAddAreaOpen] = useState(false);
+  const [isEditAreaOpen, setIsEditAreaOpen] = useState(false);
+  const [isDeleteAreaOpen, setIsDeleteAreaOpen] = useState(false);
+  const [currentArea, setCurrentArea] = useState<Area | null>(null);
+  const [newArea, setNewArea] = useState<Area>({
+    id: 0,
+    name: "",
+    students_count: 0,
   });
 
   // Filter areas based on search term
-  const filteredAreas = areas.filter(
-    (area) =>
-      area.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredAreas = areas.filter((area) =>
+    area.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Add new area
   const handleAddArea = () => {
     addAreaMutation.mutate({
       name: newArea.name,
-      students: newArea.students,
+      students: newArea.students_count,
     });
     setNewArea({
-      name: '',
-      description: '',
-      students: 0,
-      subareas: 0,
+      id: 0,
+      name: "",
+      students_count: 0,
     });
     setIsAddAreaOpen(false);
   };
@@ -89,7 +99,7 @@ export default function AreasPage() {
     editAreaMutation.mutate({
       id: currentArea.id,
       name: currentArea.name,
-      students: currentArea.students,
+      students_count: currentArea.students_count,
     });
     setIsEditAreaOpen(false);
   };
@@ -104,23 +114,29 @@ export default function AreasPage() {
   if (isLoading) {
     return <div>Carregando áreas...</div>;
   }
-  if (isLoading) return (
-    <div className="flex items-center justify-center p-10">
-      <Loader2 className="animate-spin mr-2" /> Carregando áreas...
-    </div>
-  );
-  if (error) return (
-  <div className="text-red-500 flex items-center p-10">
-      <AlertCircle className="mr-2" /> Erro ao carregar áreas.
-    </div>
-  )
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center p-10">
+        <Loader2 className="animate-spin mr-2" /> Carregando áreas...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="text-red-500 flex items-center p-10">
+        <AlertCircle className="mr-2" /> Erro ao carregar áreas.
+      </div>
+    );
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Áreas acadêmicas</h1>
-          <p className="text-muted-foreground">Gerencie as áreas cadastradas no sistema.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Áreas acadêmicas
+          </h1>
+          <p className="text-muted-foreground">
+            Gerencie as áreas cadastradas no sistema.
+          </p>
         </div>
         <Dialog open={isAddAreaOpen} onOpenChange={setIsAddAreaOpen}>
           <DialogTrigger asChild>
@@ -131,7 +147,9 @@ export default function AreasPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Adicionar nova área</DialogTitle>
-              <DialogDescription>Cadastrar uma nova área no sistema</DialogDescription>
+              <DialogDescription>
+                Cadastrar uma nova área no sistema
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -140,7 +158,9 @@ export default function AreasPage() {
                   id="name"
                   value={newArea.name}
                   data-cy="add-area-form-input-name"
-                  onChange={(e) => setNewArea({ ...newArea, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewArea({ ...newArea, name: e.target.value })
+                  }
                 />
               </div>
               {/* <div className="grid grid-cols-2 gap-4">
@@ -160,7 +180,9 @@ export default function AreasPage() {
               <Button variant="outline" onClick={() => setIsAddAreaOpen(false)}>
                 Cancelar
               </Button>
-              <Button data-cy="add-area-form-submit" onClick={handleAddArea}>Adicionar nova área</Button>
+              <Button data-cy="add-area-form-submit" onClick={handleAddArea}>
+                Adicionar nova área
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -237,7 +259,8 @@ export default function AreasPage() {
                 <div className="flex-1">
                   <h3 className="font-semibold text-base">{area.name}</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {studentsPerField[area.name] || 0} estudante{(studentsPerField[area.name] || 0) !== 1 ? 's' : ''}
+                    {studentsPerField[area.name] || 0} estudante
+                    {(studentsPerField[area.name] || 0) !== 1 ? "s" : ""}
                   </p>
                 </div>
               </div>
@@ -275,7 +298,9 @@ export default function AreasPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar área</DialogTitle>
-            <DialogDescription>Alterar parâmetros da área acadêmica.</DialogDescription>
+            <DialogDescription>
+              Alterar parâmetros da área acadêmica.
+            </DialogDescription>
           </DialogHeader>
           {currentArea && (
             <div className="grid gap-4 py-4">
@@ -284,7 +309,9 @@ export default function AreasPage() {
                 <Input
                   id="edit-name"
                   value={currentArea.name}
-                  onChange={(e) => setCurrentArea({ ...currentArea, name: e.target.value })}
+                  onChange={(e) =>
+                    setCurrentArea({ ...currentArea, name: e.target.value })
+                  }
                 />
               </div>
               {/* <div className="grid grid-cols-2 gap-4">
@@ -306,7 +333,9 @@ export default function AreasPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditAreaOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setIsEditAreaOpen(false)}>
+              Cancelar
+            </Button>
             <Button onClick={handleEditArea}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
@@ -317,7 +346,8 @@ export default function AreasPage() {
           <DialogHeader>
             <DialogTitle>Deletar Área Acadêmica</DialogTitle>
             <DialogDescription>
-              Você tem certeza que deseja deletar essa área acadêmica? Essa ação não pode ser desfeita.
+              Você tem certeza que deseja deletar essa área acadêmica? Essa ação
+              não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           {currentArea && (
@@ -331,10 +361,17 @@ export default function AreasPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteAreaOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteAreaOpen(false)}
+            >
               Cancelar
             </Button>
-            <Button data-cy="area-list-dropdown-delete-modal-confirm-button" variant="destructive" onClick={handleDeleteArea}>
+            <Button
+              data-cy="area-list-dropdown-delete-modal-confirm-button"
+              variant="destructive"
+              onClick={handleDeleteArea}
+            >
               Apagar
             </Button>
           </DialogFooter>

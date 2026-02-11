@@ -112,6 +112,17 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
+                      isActive={pathname === '/admin/publishers'}
+                    >
+                      <Link to="/admin/publishers">
+                        <BookOpen className="h-4 w-4" />
+                        <span>Revistas/Conferencias</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
                       isActive={pathname === '/admin/professors'}
                     >
                       <Link to="/admin/professors">

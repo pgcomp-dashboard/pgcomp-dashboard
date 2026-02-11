@@ -1,7 +1,14 @@
 import { Publisher } from "@/types/academic";
 import { apiClient } from "../http-client";
+import { PaginatedResponse } from "@/types/common";
 
 export const publisherService = {
+  async getAllPublishers(page: number = 1) {
+    const params = {
+      page,
+    };
+    return await apiClient.get<PaginatedResponse<Publisher>>('/api/admin/publishers', params);
+  },
 
   async createPublishersFromSpreadsheet(body: FormData, type: 'journal' | 'conference') {
     body.append('type', type);
