@@ -17,7 +17,7 @@ class AuthControllerTest extends TestCase
         $user = User::factory()->create([
             'email' => 'test+'.uniqid().'@example.com',
             'password' => Hash::make($password),
-            'type' => 'guest',
+            'type' => 'manager',
         ]);
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
@@ -34,7 +34,7 @@ class AuthControllerTest extends TestCase
     {
         $user = User::factory()->create([
             'password' => Hash::make('right_password'),
-            'type' => 'guest',
+            'type' => 'manager',
         ]);
 
         $response = $this->postJson('/api/login', [

@@ -9,18 +9,18 @@ import {
   Trophy,
   User,
   Users,
-} from 'lucide-react';
-import type React from 'react';
+} from "lucide-react";
+import type React from "react";
 
-import AppLogo from '@/components/AppLogo';
-import { Button } from '@/components/ui/button';
+import AppLogo from "@/components/AppLogo";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -30,9 +30,9 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from '@/components/ui/sidebar';
-import useAuth from '@/hooks/auth';
-import { Link, useNavigate } from 'react-router';
+} from "@/components/ui/sidebar";
+import useAuth from "@/hooks/auth";
+import { Link, useNavigate } from "react-router";
 
 export default function AdminLayout({
   children,
@@ -41,11 +41,11 @@ export default function AdminLayout({
 }) {
   const auth = useAuth();
   const navigate = useNavigate();
-  const pathname = '/admin' as string; // TODO: get from react-router
+  const pathname = "/admin" as string; // TODO: get from react-router
 
   function handleLogout() {
     if (!auth?.isLoading) {
-      navigate('/');
+      navigate("/");
       setTimeout(() => auth?.logout(), 100);
     }
   }
@@ -62,7 +62,7 @@ export default function AdminLayout({
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/'}>
+                <SidebarMenuButton asChild isActive={pathname === "/"}>
                   <Link to="/" data-cy="link-areas">
                     <Users className="h-4 w-4" />
                     <span>Início</span>
@@ -72,7 +72,10 @@ export default function AdminLayout({
               {auth?.isAdmin && (
                 <>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname === '/admin/dashboard'}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/admin/dashboard"}
+                    >
                       <Link to="/admin/dashboard" data-cy="link-areas">
                         <Users className="h-4 w-4" />
                         <span>DashBoard PGCOMP</span>
@@ -80,7 +83,10 @@ export default function AdminLayout({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname === '/admin/team'}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/admin/team"}
+                    >
                       <Link to="/admin/team" data-cy="link-areas">
                         <Users className="h-4 w-4" />
                         <span>Usuários</span>
@@ -90,7 +96,7 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === '/admin/areas'}
+                      isActive={pathname === "/admin/areas"}
                     >
                       <Link to="/admin/areas" data-cy="link-areas">
                         <Users className="h-4 w-4" />
@@ -101,7 +107,7 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === '/admin/qualis'}
+                      isActive={pathname === "/admin/qualis"}
                     >
                       <Link to="/admin/qualis">
                         <BookOpen className="h-4 w-4" />
@@ -112,7 +118,7 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === '/admin/publishers'}
+                      isActive={pathname === "/admin/publishers"}
                     >
                       <Link to="/admin/publishers">
                         <BookOpen className="h-4 w-4" />
@@ -123,7 +129,7 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === '/admin/professors'}
+                      isActive={pathname === "/admin/professors"}
                     >
                       <Link to="/admin/professors">
                         <Folders className="h-4 w-4" />
@@ -134,7 +140,7 @@ export default function AdminLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === '/admin/students'}
+                      isActive={pathname === "/admin/students"}
                     >
                       <Link to="/admin/students" data-cy="link-discentes">
                         <GraduationCap className="h-4 w-4" />
@@ -142,23 +148,24 @@ export default function AdminLayout({
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/portal/ranking"}
+                    >
+                      <Link to="/portal/credenciamento">
+                        <Trophy className="h-4 w-4" />
+                        <span>Credenciamento</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 </>
               )}
+
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === '/portal/ranking'}
-                >
-                  <Link to="/portal/credenciamento">
-                    <Trophy className="h-4 w-4" />
-                    <span>Credenciamento</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === '/portal/productions'}
+                  isActive={pathname === "/portal/productions"}
                 >
                   <Link to="/portal/productions">
                     <File className="h-4 w-4" />

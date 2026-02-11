@@ -17,7 +17,7 @@ enum UserCategory: string
         return match ($this) {
             self::PERMANENTE => 'permanente',
             self::COLABORADOR => 'colaborador',
-            self::VISITANTE => 'guest',
+            self::VISITANTE => 'visitante',
         };
     }
 }

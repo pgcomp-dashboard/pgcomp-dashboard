@@ -46,7 +46,7 @@ class CreateAdminUser extends Command
         try {
             $user = User::create([
                 'name' => $name,
-                'type' => UserType::GUEST,
+                'type' => UserType::MANAGER,
                 'email' => $email,
                 'password' => $hash,
                 'password_confirmation' => $hash,
