@@ -18,7 +18,7 @@ class ProfessorController extends Controller
 {
     public function index(BaseResourceIndexRequest $request)
     {
-        $professors = User::professors();
+        $professors = User::professors()->get();
         return UserResource::collection($professors);
     }
 
