@@ -66,4 +66,12 @@ class Publishers extends BaseModel
     {
         return $this->belongsTo(StratumQualis::class, 'stratum_qualis_id');
     }
+
+    public function scopeOnlyJournals($query){
+        return $query->where('publisher_type', 'journal');
+    }
+
+    public function scopeOnlyConferences($query){
+        return $query->where('publisher_type', 'conference');
+    }
 }

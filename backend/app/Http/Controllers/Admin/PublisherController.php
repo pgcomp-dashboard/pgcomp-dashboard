@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\BaseApiResourceController;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ConferenceResource;
+use App\Http\Resources\JournalResource;
 use App\Http\Resources\PublisherResource;
 use App\Models\BaseModel;
 use App\Models\Publishers;
@@ -16,42 +19,13 @@ use App\Enums\PublisherType;
 use Illuminate\Support\Str;
 use App\Models\StratumQualis;
 
-class PublisherController extends BaseApiResourceController
+class PublisherController extends Controller
 {
-    protected $selectColumns = [
-        'publishers.id',
-        'publishers.initials',
-        'publishers.name',
-        'publishers.publisher_type',
-        'publishers.issn',
-        'publishers.percentile',
-        'publishers.update_date',
-        'publishers.tentative_date',
-        'publishers.logs',
-        'publishers.stratum_qualis_id',
-        'publishers.created_at',
-        'publishers.updated_at',
-    ];
-
-    protected function modelClass(): string|BaseModel
-    {
-        return Publishers::class;
-    }
-
-    protected function resourceClass(): string
-    {
-        return PublisherResource::class;
-    }
-
     public function store(StorePublisherRequest $request)
     {
-        $model = $this->modelClass()::create($request->all());
+        $model = Publishers::create($request->all());
 
-        if ($resourceClass = $this->resourceClass()) {
-            return new $resourceClass($model);
-        }
-
-        return $model;
+        return new PublisherResource($model);
     }
 
     public function update(UpdatePublisherRequest $request, int $id)
@@ -73,21 +47,22 @@ class PublisherController extends BaseApiResourceController
         $routeName = $request->route()->getName();
 
         if (str_contains($routeName, 'journals')) {
-            $this->journalQuery();
-        } else {
-            $this->conferenceQuery();
+            $results = Publishers::onlyJournals()->paginate(15);
+            return JournalResource::collection($results);
         }
 
-        $results = $this->query->paginate();
+        if (str_contains($routeName, 'conferences')){
+            $results = Publishers::onlyConferences()->paginate(15);
+            return ConferenceResource::collection($results);
+        }
 
+        $results = Publishers::query()->paginate(15);
         return PublisherResource::collection($results);
     }
 
     public function journalQuery()
     {
-        $this->query = $this->newBaseQuery()
-            ->select($this->selectColumns)
-            ->where('publishers.publisher_type', '=', 'journal');
+        return Publishers::onlyJournals('publisher_type', '=', 'journal');
     }
 
     public function conferenceQuery()

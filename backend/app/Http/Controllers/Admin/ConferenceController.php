@@ -3,44 +3,39 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\BaseApiResourceController;
+use App\Http\Resources\ConferenceResource;
 use App\Models\BaseModel;
 use App\Models\Conference;
 use App\Http\Requests\Admin\Conference\StoreConferenceRequest;
 use App\Http\Requests\Admin\Conference\UpdateConferenceRequest;
+use App\Models\Publishers;
 
-class ConferenceController extends BaseApiResourceController
+class ConferenceController extends Controller
 {
-    protected function modelClass(): string|BaseModel
+    public function index()
     {
-        return Conference::class;
+        $results = Publishers::onlyJournals()->paginate(15);
+
+        return ConferenceResource::collection($results);
     }
 
-    protected function resourceClass(): string
-    {
-        return ConferenceResource::class;
+    public function show(int $id){
+        return new ConferenceResource(Publishers::onlyJournals()->findOrFail($id));
     }
 
     public function store(StoreConferenceRequest $request)
     {
-        $model = $this->modelClass()::create($request->all());
+        $model = Publishers::create($request->all());
 
-        if ($resourceClass = $this->resourceClass()) {
-            return new $resourceClass($model);
-        }
-
-        return $model;
+        return new ConferenceResource($model);
     }
 
     public function update(UpdateConferenceRequest $request, int $id)
     {
-        $model = $this->findOrFail($id);
+        $model = Publishers::findOrFail($id);
 
         $model->update($request->all());
 
-        if ($resourceClass = $this->resourceClass()) {
-            return new $resourceClass($model);
-        }
-
-        return $model;
+        return new ConferenceResource($model);
     }
 }
