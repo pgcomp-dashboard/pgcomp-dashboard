@@ -58,9 +58,26 @@ class LattesZipXml
             if (!trim($doi)) {
                 continue;
             }
-            $doi = "http://dx.doi.org/" . $doi;
+            $doi = "http://dx.doi.org/$doi";
             $title = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['ANO-DO-ARTIGO'];
+            $rawHomePageData = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['HOME-PAGE-DO-TRABALHO'];
+            $home_page = "";
+            $rawHomePageData = trim($rawHomePageData);
+            if (!empty($rawHomePageData)){
+                // Strips [] from "[data]" and "[data1][data2]"
+                $cleanContent = trim($rawHomePageData, '[]');
+                if (strpos($cleanContent, '][') !== false) {
+                    //If it contains multiple parts "[url][doi]", split and take the first
+                    $parts = explode('][', $cleanContent);
+                    $result = $parts[0];
+                } else {
+                    $result = $cleanContent;
+                }
+                $home_page = str_ireplace(['http://https://','http://http://'], 'https://', $result);
+                $home_page = str_ireplace('doi:', 'http://dx.doi.org/', $home_page);
+                error_log("Journal - $rawHomePageData - $home_page");
+            }
             $issn = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['ISSN'];
             $publisher_name = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['TITULO-DO-PERIODICO-OU-REVISTA'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
@@ -73,22 +90,39 @@ class LattesZipXml
                 $publisher_id = Publishers::firstOrCreate(['issn' => $issn], ['issn' => $issn, 'name' => $publisher_name, 'stratum_qualis_id' => StratumQualis::findByCode('NI', PublisherType::JOURNAL->value)->id])?->id;
             }
 
-            $production = compact('source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');
+            $production = compact('home_page', 'source', 'title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');
             $data['productions'][] = $production;
         }
 
         $productions = $xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'TRABALHOS-EM-EVENTOS'}->{'TRABALHO-EM-EVENTOS'} ?? [];
         /** @var SimpleXMLElement $item */
         foreach ($productions as $item) {
+            error_log("Conferences");
             $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
             if (!trim($doi)) {
                 continue;
             }
-            $doi = "http://dx.doi.org/" . $doi;
+            $doi = "http://dx.doi.org/$doi";
             $title = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['TITULO-DO-TRABALHO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ANO-DO-TRABALHO'];
             $issn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISSN'];
             $isbn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISBN'];
+            $rawHomePageData = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['HOME-PAGE-DO-TRABALHO'];
+            $home_page = "";
+            $rawHomePageData = trim($rawHomePageData);
+            if (!empty($rawHomePageData)){
+                // Strips [] from "[data]" and "[data1][data2]"
+                $cleanContent = trim($rawHomePageData, '[]');
+                if (strpos($cleanContent, '][') !== false) {
+                    //If it contains multiple parts "[url][doi]", split and take the first
+                    $parts = explode('][', $cleanContent);
+                    $result = $parts[0];
+                } else {
+                    $result = $cleanContent;
+                }
+                $home_page = str_ireplace(['http://https://','http://http://'], 'https://', $result);
+                $home_page = str_ireplace('doi:', 'http://dx.doi.org/', $home_page);
+            }
             $conferenceName = (string)$item->{'DETALHAMENTO-DO-TRABALHO'}->attributes()['NOME-DO-EVENTO'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
@@ -99,7 +133,7 @@ class LattesZipXml
                 $publisher_id = Publishers::firstOrCreate(['name' => $conferenceName], ['name' => $conferenceName, 'stratum_qualis_id' => StratumQualis::findByCode('NI', PublisherType::CONFERENCE->value)->id])?->id;
             }
 
-            $production = compact('source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number', 'issn', 'isbn');
+            $production = compact('home_page', 'source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number', 'issn', 'isbn');
             $data['productions'][] = $production;
         }
 
