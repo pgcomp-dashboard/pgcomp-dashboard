@@ -19,10 +19,28 @@ import {
 } from "@/components/ui/table";
 import { professorService } from "@/services/modules/professor.service";
 import { Professor } from "@/types/user";
-import { useQuery } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, FileText } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
+import z from "zod";
+
+const updateProfessorSchema = z.object({
+  name: z
+    .string()
+    .min(3, "O nome deve conter pelo menos 3 caracteres")
+    .optional(),
+  siape: z.string().optional(),
+  email: z.string().email("Email inválido").optional(),
+  orcid: z.string().optional(),
+  lattes_url: z.string().url("URL do Lattes inválida").optional(),
+});
+
+type UpdateProfessorForm = z.infer<typeof updateProfessorSchema>;
+
 
 export default function ProfessorsPage() {
   const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
@@ -30,8 +48,19 @@ export default function ProfessorsPage() {
     null,
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<UpdateProfessorForm>({
+    resolver: zodResolver(updateProfessorSchema),
+  });
 
   const { data, isLoading, error } = useQuery<Professor[], Error>({
     queryKey: ["professors"],
@@ -39,8 +68,45 @@ export default function ProfessorsPage() {
     placeholderData: (prevData) => prevData,
   });
 
+  useEffect(() => {
+    if (currentProfessor) {
+      reset({
+        name: currentProfessor?.name,
+        siape: currentProfessor?.siape?.toString(),
+        email: currentProfessor?.email,
+        lattes_url: currentProfessor?.lattes_url,
+        orcid: "0000-0000-0000-0000",
+      });
+    }
+  }, [currentProfessor, reset]);
+
+  const onUpdateSubmit = async (data: UpdateProfessorForm) => {
+    if (!currentProfessor) return;
+
+    try {
+      const { siape, ...rest } = data;
+      await professorService.updateProfessor(currentProfessor.id, {
+        siape: siape ? parseInt(siape) : undefined,
+        ...rest,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["professors"] });
+      setIsEditing(false);
+      setCurrentProfessor({ ...currentProfessor, ...data } as Professor);
+      toast.success("Docente atualizado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao atualizar docente. Por favor, tente novamente.");
+    }
+  };
+
   const handleNavigateToProductions = (professorId: number) => {
     navigate(`/portal/productions?professorId=${professorId}`);
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setIsDetailProfOpen(open);
+    if (!open) {
+      setIsEditing(false);
+    }
   };
 
   const countPermanente =
@@ -180,46 +246,125 @@ export default function ProfessorsPage() {
       </div>
 
       {/* Dialog - Detalhes do Professor */}
-      <Dialog open={isDetailProfOpen} onOpenChange={setIsDetailProfOpen}>
+      <Dialog open={isDetailProfOpen} onOpenChange={handleDialogChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Detalhes - Docente</DialogTitle>
-            <DialogDescription>Visualizar Detalhes</DialogDescription>
+            <DialogTitle>{isEditing ? "Editar" : "Detalhes"} - Docente</DialogTitle>
+            <DialogDescription>
+              {isEditing ?  'Editar Informações do Docente': 'Visualizar Detalhes'}
+            </DialogDescription>
           </DialogHeader>
-          {currentProfessor && (
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-1">
-                <Label>Nome</Label>
-                <span className="text-sm">{currentProfessor.name}</span>
+          {currentProfessor &&
+            (isEditing ? (
+              <form
+                id="edit-professor-form"
+                onSubmit={handleSubmit(onUpdateSubmit)}
+                className="grid gap-4 py-4"
+              >
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Nome</Label>
+                  <Input id="name" {...register("name")} />
+                  {errors.name && (
+                    <span className="text-xs text-red-500">
+                      {errors.name.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="siape">SIAPE</Label>
+                  <Input id="siape" {...register("siape")} />
+                  {errors.siape && (
+                    <span className="text-xs text-red-500">
+                      {errors.siape.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" {...register("email")} />
+                  {errors.email && (
+                    <span className="text-xs text-red-500">
+                      {errors.email.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="lattes_url">Lattes URL</Label>
+                  <Input id="lattes_url" {...register("lattes_url")} />
+                  {errors.lattes_url && (
+                    <span className="text-xs text-red-500">
+                      {errors.lattes_url.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="orcid">ORCID (Opcional)</Label>
+                  <Input
+                    id="orcid"
+                    {...register("orcid")}
+                    placeholder="0000-0000-0000-0000"
+                  />
+                  {errors.orcid && (
+                    <span className="text-xs text-red-500">
+                      {errors.orcid.message}
+                    </span>
+                  )}
+                </div>
+                <DialogFooter>
+                  <>
+                    <Button
+                      onClick={() => setIsEditing(false)}
+                      variant={"ghost"}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button type="submit">Salvar Alterações</Button>
+                  </>
+                </DialogFooter>
+              </form>
+            ) : (
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-1">
+                  <Label>Nome</Label>
+                  <span className="text-sm">{currentProfessor.name}</span>
+                </div>
+                <div className="grid gap-1">
+                  <Label>SIAPE</Label>
+                  <span className="text-sm">{currentProfessor.siape}</span>
+                </div>
+                <div className="grid gap-1">
+                  <Label>Email</Label>
+                  <span className="text-sm">{currentProfessor.email}</span>
+                </div>
+                <div className="grid gap-1">
+                  <Label>Lattes</Label>
+                  <a
+                    href={currentProfessor.lattes_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline text-sm wrap-break-word"
+                  >
+                    {currentProfessor.lattes_url}
+                  </a>
+                </div>
+                <div className="grid gap-1">
+                  <Label>ORCID</Label>
+                  <span className="text-sm">0000-0000-0000-0000</span>
+                </div>
+                <DialogFooter>
+                  <Button onClick={() => setIsEditing(true)} variant={"ghost"}>
+                    Editar
+                  </Button>
+                  <Button onClick={() => setIsDetailProfOpen(false)}>
+                    Fechar
+                  </Button>
+                </DialogFooter>
               </div>
-              <div className="grid gap-1">
-                <Label>SIAPE</Label>
-                <span className="text-sm">{currentProfessor.siape}</span>
-              </div>
-              <div className="grid gap-1">
-                <Label>Email</Label>
-                <span className="text-sm">{currentProfessor.email}</span>
-              </div>
-              <div className="grid gap-1">
-                <Label>Lattes</Label>
-                <a
-                  href={currentProfessor.lattes_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline text-sm wrap-break-word"
-                >
-                  {currentProfessor.lattes_url}
-                </a>
-              </div>
-              <div className="grid gap-1">
-                <Label>ORCID</Label>
-                <span className="text-sm">0000-0000-0000-0000</span>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button onClick={() => setIsDetailProfOpen(false)}>Fechar</Button>
-          </DialogFooter>
+            ))}
         </DialogContent>
       </Dialog>
     </div>

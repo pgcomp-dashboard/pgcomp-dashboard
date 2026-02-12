@@ -15,4 +15,8 @@ export const professorService = {
     );
     return response;
   },
+
+  async updateProfessor(id: number, data: Partial<Professor>){
+    return await apiClient.put<Professor>(`/api/admin/professors/${id}`, data);
+  }
 };
