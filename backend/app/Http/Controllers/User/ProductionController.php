@@ -130,11 +130,5 @@ class ProductionController extends Controller
         } catch (Exception $e) {
             return response()->json(['message' => 'Erro ao importar arquivo', 'error' => $e->getMessage()], 500);
         }
-        $data = $this->productionService->importFromLattes(
-            auth()->user(),
-            $request->file('file')->store('lattes-files')
-        );
-
-        return response()->json(['data' => $data], 201);
     }
 }

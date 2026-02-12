@@ -10,6 +10,7 @@ use App\Models\Publishers;
 use App\Models\User;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductionService
@@ -95,9 +96,13 @@ class ProductionService
      */
     public function importFromLattes(User $user, $filePath)
     {
-        $data = LattesZipXml::extractProductions($filePath);
-        $user->updateLattes($data);
-        return $data;
+        try {
+            $data = LattesZipXml::extractProductions($filePath);
+            $user->updateLattes($data);
+            return $data;
+        } finally {
+            Storage::delete($filePath);
+        }
     }
 
     /**
