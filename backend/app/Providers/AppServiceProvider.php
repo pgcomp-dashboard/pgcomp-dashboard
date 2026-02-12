@@ -27,9 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Relation::morphMap([
-            'journal' => \App\Models\Journal::class,
-            'conference' => \App\Models\Conference::class,
-        ]);
+        // No morphMap needed for Journal/Conference as they are consolidated into Publishers
     }
 }

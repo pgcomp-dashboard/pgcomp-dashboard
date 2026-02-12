@@ -8,35 +8,52 @@ import { Input } from '../ui/input';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
-export default function UploadXMLForm() {
+export default function UploadXMLForm({
+  professorId,
+  onSuccess,
+}: {
+  professorId?: string;
+  onSuccess?: () => void;
+}) {
   const navigate = useNavigate();
-  const [ file, setFile ] = useState<File | null>(null);
-  const [ status, setStatus ] = useState<UploadStatus>('idle');
+  const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<UploadStatus>("idle");
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
       setFile(e.target.files[0]);
-      setStatus('idle');
+      setStatus("idle");
     }
   }
 
   async function onSubmit() {
     if (!file) return;
-    setStatus('uploading');
+    setStatus("uploading");
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
-      await productionService.uploadLattes(formData);
-      toast.success('Produções cadastradas com sucesso');
-      setStatus('success');
-      navigate('/portal/productions');
-      window.location.reload();
+      if (professorId) {
+        await productionService.uploadUserLattes(Number(professorId), formData);
+      } else {
+        await productionService.uploadLattes(formData);
+      }
+      toast.success("Produções cadastradas com sucesso");
+      setStatus("success");
+
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        const redirectPath = professorId
+          ? `/portal/productions?professorId=${professorId}`
+          : "/portal/productions";
+        navigate(redirectPath);
+      }
     } catch (err) {
-      setStatus('error');
-      toast.error('Erro no cadastro das produções');
-      console.error('Erro ao criar produções:', err);
+      setStatus("error");
+      toast.error("Erro no cadastro das produções");
+      console.error("Erro ao criar produções:", err);
     }
   }
 

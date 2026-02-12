@@ -169,7 +169,7 @@ export default function AdminLayout({
                 >
                   <Link to="/portal/productions">
                     <File className="h-4 w-4" />
-                    <span>Minhas Produções</span>
+                    <span>Produções</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

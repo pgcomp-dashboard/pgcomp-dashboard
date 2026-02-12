@@ -49,7 +49,12 @@ class ProductionController extends Controller
     {
         $user = auth()->user();
 
-        $productions = $user->writerOf()->with('publisher')->get();
+        $productions = $user->writerOf()
+            ->with([
+                'publisher:id,name,publisher_type,stratum_qualis_id',
+                'publisher.stratumQualis:id,code,score'
+            ])
+            ->get();
 
         return ProductionResource::collection($productions);
     }
@@ -115,6 +120,16 @@ class ProductionController extends Controller
 
     public function importLattesFile(ImportLattesRequest $request)
     {
+        $file = $request->file('file');
+        $path = $file->store('lattes-files');
+        $user = auth()->user();
+
+        try {
+             $data = $this->productionService->importFromLattes($user, $path);
+             return response()->json(['data' => $data], 201);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Erro ao importar arquivo', 'error' => $e->getMessage()], 500);
+        }
         $data = $this->productionService->importFromLattes(
             auth()->user(),
             $request->file('file')->store('lattes-files')

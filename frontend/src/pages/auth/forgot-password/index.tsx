@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
       email: values.email,
     };
     try {
-      const response = await authService.forgotPassword(JSON.stringify(payload));
+      const response = await authService.forgotPassword(payload);
       console.log(response.status);
       toast.success('Email de recuperação enviado com sucesso!');
     } catch (err) {

@@ -145,6 +145,20 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'admin_requested_at' => 'datetime'
     ];
 
+    /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = ['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'];
+
+    /**
+     * The attributes that are used to sort.
+     *
+     * @var string[]
+     */
+    protected array $sortable = ['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'];
+
     protected $attributes = [
         'is_admin' => false,
         'is_protected' => true,
@@ -186,7 +200,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ],
             'lattes_url' => 'nullable|string|max:255',
             'is_admin' => 'nullable|bool',
-            'is_protected' => 'nullable|bool',
+            'is_protected' => 'nullable|bool'
         ];
     }
 
@@ -245,7 +259,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             'is_admin' => 'nullable|bool',
             'admin_status' => ['nullable', Rule::in(['approved', 'rejected', 'pending'])],
             'admin_requested_at' => 'nullable|date',
-            'approved_by_id' =>['nullable', 'int', Rule::exists(User::class, 'id')]
+            'approved_by_id' =>['nullable', 'int', Rule::exists(User::class, 'id')],
         ];
     }
 
@@ -353,7 +367,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     {
         error_log("entered the update function");
         foreach ($data['productions'] as $production) {
-            if (! $production['doi']) {
+            if (!$production['doi']) {
                 continue;
             }
             $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
@@ -421,11 +435,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public function scopeProfessors($query)
     {
-        return $query->where('type', UserType::PROFESSOR);
+        return $query->where('users.type', UserType::PROFESSOR);
     }
 
     public function scopeStudents($query)
     {
-        return $query->where('type', UserType::STUDENT);
+        return $query->where('users.type', UserType::STUDENT);
     }
 }

@@ -87,10 +87,10 @@ export default function QualisPage() {
       if (editingItem) {
         await qualisService.updateQualis(
           editingItem.id,
-          JSON.stringify(payload),
+          payload,
         );
       } else {
-        await qualisService.createQualis(JSON.stringify(payload));
+        await qualisService.createQualis(payload);
       }
 
       await fetchQualisData();

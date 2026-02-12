@@ -56,7 +56,7 @@ export default function ResetPasswordPage() {
       password_confirmation: values.confirmPassword,
     };
     try {
-      await authService.resetUserPassword(JSON.stringify(payload));
+      await authService.resetUserPassword(payload);
       toast.success('Senha alterada com sucesso!');
       navigate('/login');
     } catch (err) {

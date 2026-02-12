@@ -13,14 +13,14 @@ abstract class BaseModel extends Model
      *
      * @var string[]
      */
-    protected array $sortable = ['*'];
+    protected array $sortable = [];
 
     /**
      * The attributes that are used to filter.
      *
      * @var string[]
      */
-    protected array $filterable = ['*'];
+    protected array $filterable = [];
 
     /**
      * @return array creation rules to validate attributes.

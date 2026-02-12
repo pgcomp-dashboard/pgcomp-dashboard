@@ -24,6 +24,20 @@ class Publishers extends BaseModel
         'stratum_qualis_id',
     ];
 
+    /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = ['name', 'initials', 'issn', 'publisher_type', 'stratum_qualis_id', 'qualis_code'];
+
+    /**
+     * The attributes that are used to sort.
+     *
+     * @var string[]
+     */
+    protected array $sortable = ['name', 'initials', 'issn', 'publisher_type', 'stratum_qualis_id', 'qualis_code'];
+
     public static function creationRules(): array
     {
         return [

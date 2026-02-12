@@ -6,6 +6,7 @@ use App\Domain\Lattes\LattesZipXml;
 use App\Enums\ProductionSource;
 use App\Enums\UserType;
 use App\Http\Controllers\BaseApiResourceController;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductionResource;
 use App\Models\BaseModel;
 use App\Models\Production;
@@ -25,60 +26,26 @@ use App\Http\Requests\Admin\Production\StoreProductionRequest;
 use App\Http\Requests\Admin\Production\UpdateProductionRequest;
 use App\Services\ProductionService;
 
-class ProductionController extends BaseApiResourceController
+class ProductionController extends Controller
 {
-    private ProductionService $service;
+    private ProductionService $productionService;
 
     public function __construct(ProductionService $service)
     {
-        $this->service = $service;
-        parent::__construct();
+        $this->productionService = $service;
     }
 
-    protected function modelClass(): string|BaseModel
-    {
-        return Production::class;
-    }
-
-    protected function resourceClass(): string
-    {
-        return ProductionResource::class;
-    }
-
-    public function store(StoreProductionRequest $request)
-    {
-        $model = $this->modelClass()::create($request->all());
-
-        if ($resourceClass = $this->resourceClass()) {
-            return new $resourceClass($model);
-        }
-
-        return $model;
-    }
-
-    public function update(UpdateProductionRequest $request, int $id)
-    {
-        $model = $this->findOrFail($id);
-
-        $model->update($request->all());
-
-        if ($resourceClass = $this->resourceClass()) {
-            return new $resourceClass($model);
-        }
-
-        return $model;
-    }
-
-    public function importLattesFile(ImportLattesRequest $request, User $user)
+     public function importLattesFile(ImportLattesRequest $request, User $user)
     {
         $file = $request->file('file');
         $path = $file->store('lattes-files');
 
         try {
-             $data = $this->service->importFromLattes($user, $path);
+             $data = $this->productionService->importFromLattes($user, $path);
              return response()->json(['data' => $data], 201);
         } catch (Exception $e) {
             return response()->json(['message' => 'Erro ao importar arquivo', 'error' => $e->getMessage()], 500);
         }
     }
+
 }

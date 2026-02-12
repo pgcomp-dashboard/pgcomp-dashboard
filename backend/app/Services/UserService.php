@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\UserType;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Http\Filters;
 
 class UserService
 {
@@ -55,9 +57,13 @@ class UserService
         if ($user) {
             $user->update($data);
         } else {
-            $data['type'] = \App\Enums\UserType::STUDENT;
+            $data['type'] = UserType::STUDENT;
             $data['password'] = Hash::make(Str::random(12));
             $user = User::create($data);
+        }
+
+        if (isset($data['advisor_id'])) {
+            $user->advisors()->sync($data['advisor_id']);
         }
 
         return $user;
@@ -73,11 +79,53 @@ class UserService
         if ($user) {
             $user->update($data);
         } else {
-            $data['type'] = \App\Enums\UserType::PROFESSOR;
+            $data['type'] = UserType::PROFESSOR;
             $data['password'] = Hash::make(Str::random(12));
             $user = User::create($data);
         }
 
         return $user;
+    }
+
+    /**
+     * List all professors.
+     */
+    public function listProfessors()
+    {
+        return User::professors()->get();
+    }
+
+    /**
+     * Find a professor by ID.
+     */
+    public function findProfessor(int $id): User
+    {
+        return User::professors()->findOrFail($id);
+    }
+
+    /**
+     * List all students.
+     */
+    public function listStudents(array $params = [])
+    {
+        $query = User::students();
+
+        if (isset($params['order_by']) && $params['order_by']) {
+            $query->orderBy($params['order_by'], $params['dir'] ?? 'asc');
+        }
+
+        if (isset($params['filters'])) {
+            (new Filters($query))->applyFilters($params['filters']);
+        }
+
+        return $query->paginate($params['per_page'] ?? 15);
+    }
+
+    /**
+     * Find a student by ID.
+     */
+    public function findStudent(int $id): User
+    {
+        return User::students()->findOrFail($id);
     }
 }

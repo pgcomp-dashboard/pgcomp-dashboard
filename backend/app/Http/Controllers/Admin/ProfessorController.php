@@ -9,6 +9,7 @@ use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Resources\UserResource;
 use App\Models\BaseModel;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Http\Requests\Admin\StoreProfessorRequest;
@@ -16,31 +17,37 @@ use App\Http\Requests\Admin\UpdateProfessorRequest;
 
 class ProfessorController extends Controller
 {
-    public function index(BaseResourceIndexRequest $request)
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
     {
-        $professors = User::professors()->get();
-        return UserResource::collection($professors);
+        $this->userService = $userService;
+    }
+
+    public function index()
+    {
+        return UserResource::collection($this->userService->listProfessors());
     }
 
     public function show(int $id)
     {
-        $professor = User::findOrFail($id);
+        $professor = $this->userService->findProfessor($id);
+
         return new UserResource($professor);
     }
 
     public function store(StoreProfessorRequest $request)
     {
-        $professor = User::create($request->all());
+        $professor = $this->userService->store($request->all());
 
         return new UserResource($professor);
     }
 
      public function update(UpdateProfessorRequest $request, int $id)
     {
-        $model = User::findOrFail($id);
+        $professor = $this->userService->findProfessor($id);
+        $updated = $this->userService->update($professor, $request->all());
 
-        $model->update($request->all());
-
-        return new UserResource($model);
+        return new UserResource($updated);
     }
 }

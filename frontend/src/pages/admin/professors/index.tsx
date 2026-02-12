@@ -18,9 +18,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { professorService } from "@/services/modules/professor.service";
-import { qualisService } from "@/services/modules/qualis.service";
-import { StratumQualis } from "@/types/academic";
-import { PaginatedResponse } from "@/types/common";
 import { Professor } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -29,7 +26,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { useDebounce } from "use-debounce";
 import z from "zod";
 
 const updateProfessorSchema = z.object({
@@ -45,20 +41,17 @@ const updateProfessorSchema = z.object({
 
 type UpdateProfessorForm = z.infer<typeof updateProfessorSchema>;
 
+
 export default function ProfessorsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
   const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(
     null,
   );
-  const [, setQualisList] = useState<StratumQualis[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
 
   const {
     register,
@@ -69,15 +62,9 @@ export default function ProfessorsPage() {
     resolver: zodResolver(updateProfessorSchema),
   });
 
-  const { data, isLoading, error } = useQuery<
-    PaginatedResponse<Professor>,
-    Error
-  >({
-    queryKey: ["professors", currentPage, itemsPerPage, debouncedSearchTerm],
-    queryFn: () =>
-      professorService.fetchProfessors(currentPage, itemsPerPage, {
-        name: debouncedSearchTerm || undefined,
-      }),
+  const { data, isLoading, error } = useQuery<Professor[], Error>({
+    queryKey: ["professors"],
+    queryFn: () => professorService.fetchProfessors(),
     placeholderData: (prevData) => prevData,
   });
 
@@ -105,28 +92,14 @@ export default function ProfessorsPage() {
       await queryClient.invalidateQueries({ queryKey: ["professors"] });
       setIsEditing(false);
       setCurrentProfessor({ ...currentProfessor, ...data } as Professor);
+      toast.success("Docente atualizado com sucesso!");
     } catch (error) {
       toast.error("Erro ao atualizar docente. Por favor, tente novamente.");
     }
   };
 
-  const professors = data?.data ?? [];
-  const totalPages = Math.max(1, data?.meta?.last_page || 1);
-
-  useEffect(() => {
-    async function fetchQualis() {
-      try {
-        const qualis = await qualisService.getAllQualis();
-        setQualisList(qualis);
-      } catch (err) {
-        console.error("Erro ao carregar Qualis:", err);
-      }
-    }
-    fetchQualis();
-  }, []);
-
   const handleNavigateToProductions = (professorId: number) => {
-    navigate(`/admin/professors/${professorId}/productions`);
+    navigate(`/portal/productions?professorId=${professorId}`);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -135,6 +108,16 @@ export default function ProfessorsPage() {
       setIsEditing(false);
     }
   };
+
+  const countPermanente =
+    data?.filter((p) => p.category?.toLowerCase() === "permanente").length || 0;
+  const countColaboradores =
+    data?.filter((p) => p.category?.toLowerCase() === "colaborador").length ||
+    0;
+  const countVisitantes =
+    data?.filter((p) => p.category?.toLowerCase() === "visitante").length || 0;
+
+  console.log();
 
   if (isLoading) return <div>Carregando...</div>;
   if (error) {
@@ -145,15 +128,21 @@ export default function ProfessorsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Docentes
-        </h1>
+        <div className="flex items-center">
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">
+            Docentes
+          </h1>
+          <p className="ml-4 text-muted-foreground text-sm">
+            ({countPermanente} Permanentes, {countColaboradores} Colaboradores,{" "}
+            {countVisitantes} Visitantes)
+          </p>
+        </div>
         <p className="text-muted-foreground">
           Visualize e gerencie os docentes cadastrados no sistema.
         </p>
       </div>
 
-      {/* Filtros e paginação */}
+      {/* Filtros */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex-1">
           <Input
@@ -163,29 +152,8 @@ export default function ProfessorsPage() {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setCurrentPage(1);
             }}
           />
-        </div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <Label htmlFor="itemsPerPage" className="whitespace-nowrap">
-            Itens por página:
-          </Label>
-          <select
-            id="itemsPerPage"
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="border rounded-md px-2 py-1 text-sm w-full sm:w-auto"
-          >
-            {[5, 10, 20, 50, 100].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
 
@@ -200,143 +168,80 @@ export default function ProfessorsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {professors.map((professor) => (
-              <TableRow key={professor.id}>
-                <TableCell className="font-medium text-center">
-                  {professor.name}
-                </TableCell>
-                <TableCell className="font-medium text-center">
-                  {professor.category?.replace(/^./, (match) =>
-                    match.toUpperCase(),
-                  ) || "Não Encontrado"}
-                </TableCell>
-                <TableCell className="flex justify-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setCurrentProfessor(professor);
-                      setIsDetailProfOpen(true);
-                    }}
-                    title="Detalhes"
-                  >
-                    <Eye className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleNavigateToProductions(professor.id)}
-                    title="Produções"
-                  >
-                    <FileText className="h-5 w-5" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {data &&
+              data.map((professor) => (
+                <TableRow key={professor.id}>
+                  <TableCell className="text-center">
+                    {professor.name}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {professor.category?.replace(/^./, (match) =>
+                      match.toUpperCase(),
+                    ) || "Não Encontrado"}
+                  </TableCell>
+                  <TableCell className="flex justify-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setCurrentProfessor(professor);
+                        setIsDetailProfOpen(true);
+                      }}
+                      title="Detalhes"
+                    >
+                      <Eye className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleNavigateToProductions(professor.id)}
+                      title="Produções"
+                    >
+                      <FileText className="h-5 w-5" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
-
-        {/* Paginação Desktop */}
-        <div className="flex items-center justify-between p-4">
-          <span className="text-sm text-muted-foreground">
-            Página {currentPage} de {totalPages}
-          </span>
-          <div className="flex gap-2 items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(1)}
-              disabled={currentPage === 1}
-            >
-              {"<<"}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              ‹ Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Próxima ›
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(totalPages)}
-              disabled={currentPage === totalPages}
-            >
-              {">>"}
-            </Button>
-          </div>
-        </div>
       </div>
 
       {/* Mobile: Cards */}
       <div className="md:hidden">
         <div className="flex flex-col gap-3">
-          {professors.map((professor) => (
-            <div key={professor.id} className="rounded-lg border p-4 bg-white">
-              <div className="flex flex-col gap-3">
-                <h3 className="font-semibold text-base">{professor.name}</h3>
-                <div className="flex gap-2 pt-2 border-t">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => {
-                      setCurrentProfessor(professor);
-                      setIsDetailProfOpen(true);
-                    }}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Detalhes
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handleNavigateToProductions(professor.id)}
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Produções
-                  </Button>
+          {data &&
+            data.map((professor) => (
+              <div
+                key={professor.id}
+                className="rounded-lg border p-4 bg-white"
+              >
+                <div className="flex flex-col gap-3">
+                  <h3 className="font-semibold text-base">{professor.name}</h3>
+
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        setCurrentProfessor(professor);
+                        setIsDetailProfOpen(true);
+                      }}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Detalhes
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleNavigateToProductions(professor.id)}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Produções
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        {/* Paginação Mobile */}
-        <div className="flex flex-col gap-3 mt-4">
-          <span className="text-sm text-muted-foreground text-center">
-            Página {currentPage} de {totalPages}
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              ‹ Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Próxima ›
-            </Button>
-          </div>
+            ))}
         </div>
       </div>
 

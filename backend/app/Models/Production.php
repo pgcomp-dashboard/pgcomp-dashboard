@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PublisherType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 /**
@@ -28,6 +28,7 @@ use Illuminate\Validation\Rule;
  * @property int|null $sequence_number
  * @property string|null $doi
  * @property string|null $source
+ * @property string|null $home_page
  * @property-read Collection|User[] $isWroteBy
  * @property-read int|null $is_wrote_by_count
  * @property-read Model|Eloquent $publisher
@@ -62,7 +63,42 @@ class Production extends BaseModel
         'publisher_id',
         'doi',
         'source',
+        'stratum_qualis_id',
+        'home_page'
+    ];
+
+    /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = [
+        'title',
+        'year',
+        'publisher_type',
+        'source',
+        'publisher_id',
+        'stratum_qualis_id',
+        'doi'
+    ];
+
+    /**
+     * The attributes that are used to sort.
+     *
+     * @var string[]
+     */
+    protected array $sortable = [
+        'title',
+        'year',
+        'publisher_type',
+        'source',
+        'doi',
+        'publisher_id',
         'stratum_qualis_id'
+    ];
+
+    protected $casts = [
+        'publisher_type' => PublisherType::class
     ];
 
     /**
@@ -78,7 +114,8 @@ class Production extends BaseModel
             'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
             'sequence_number' => 'nullable|int',
             'source' => 'nullable|string|max:255',
-            'stratum_qualis_id' => 'nullable|int'
+            'stratum_qualis_id' => 'nullable|int',
+            'home_page' => 'nullable|string|max:255'
         ];
     }
 
@@ -162,7 +199,8 @@ class Production extends BaseModel
             'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
             'sequence_number' => 'nullable|int',
             'source' => 'nullable|string|max:255',
-            'stratum_qualis_id' => 'nullable|int'
+            'stratum_qualis_id' => 'nullable|int',
+            'home_page' => 'nullable|string|max:255'
         ];
     }
 

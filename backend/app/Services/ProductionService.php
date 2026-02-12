@@ -4,14 +4,13 @@ namespace App\Services;
 
 use App\Domain\Lattes\LattesZipXml;
 use App\Enums\ProductionSource;
+use App\Http\Filters;
 use App\Models\Production;
 use App\Models\Publishers;
 use App\Models\User;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use App\Enums\UserType;
 
 class ProductionService
 {
@@ -106,14 +105,10 @@ class ProductionService
      */
     public function getTypeCounts(int $userId)
     {
-        return Production::query()
-            ->select([
-                DB::raw("SUM(CASE WHEN publisher_type = 'journal' THEN 1 ELSE 0 END) as journal_count"),
-                DB::raw("SUM(CASE WHEN publisher_type = 'conference' THEN 1 ELSE 0 END) as conference_count"),
-                DB::raw("COUNT(*) as total_count")
-            ])
-            ->join('users_productions', 'productions.id', '=', 'users_productions.productions_id')
-            ->where('users_productions.users_id', $userId)
+        return Production::ofUser($userId)
+            ->selectRaw("SUM(CASE WHEN publisher_type = 'journal' THEN 1 ELSE 0 END) as journal_count")
+            ->selectRaw("SUM(CASE WHEN publisher_type = 'conference' THEN 1 ELSE 0 END) as conference_count")
+            ->selectRaw("COUNT(*) as total_count")
             ->first();
     }
 
@@ -157,9 +152,60 @@ class ProductionService
      */
     public function checkOwnership(int $userId, int $productionId): bool
     {
-        return DB::table('users_productions')
-            ->where('users_id', $userId)
-            ->where('productions_id', $productionId)
+        return Production::where('id', $productionId)
+            ->whereHas('isWroteBy', function ($query) use ($userId) {
+                $query->where('users.id', $userId);
+            })
             ->exists();
+    }
+
+    /**
+     * Get productions for a specific user with filters and ordering.
+     */
+    public function getProductionsForUser(int $userId, ?string $orderBy = null, ?string $direction = 'asc', array $filters = [])
+    {
+        $query = Production::ofUser($userId)
+            ->withPublisherAndQualis();
+
+        if ($orderBy) {
+            $model = new Production;
+            if ($model->canSortBy($orderBy)) {
+                $query->orderBy($orderBy, $direction);
+            }
+        }
+
+        if (!empty($filters)) {
+            (new Filters($query))->applyFilters($filters);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Find a production by ID for a specific user.
+     */
+    public function findForUser(int $userId, int $productionId): Production
+    {
+        return Production::ofUser($userId)
+            ->where('id', $productionId)
+            ->firstOrFail();
+    }
+
+    /**
+     * Update a production for a specific user.
+     */
+    public function updateForUser(int $userId, int $productionId, array $data): Production
+    {
+        $production = $this->findForUser($userId, $productionId);
+        return $this->update($production, $data);
+    }
+
+    /**
+     * Delete a production for a specific user.
+     */
+    public function deleteForUser(int $userId, int $productionId): bool
+    {
+        $production = $this->findForUser($userId, $productionId);
+        return $production->delete();
     }
 }

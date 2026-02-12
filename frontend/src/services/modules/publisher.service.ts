@@ -1,11 +1,13 @@
 import { Publisher } from "@/types/academic";
-import { apiClient } from "../http-client";
 import { PaginatedResponse } from "@/types/common";
+import { apiClient } from "../http-client";
 
 export const publisherService = {
-  async getAllPublishers(page: number = 1) {
+  async getAllPublishers(page: number = 1, perPage: number = 10, filters: Record<string, any> = {}) {
     const params = {
       page,
+      per_page: perPage,
+      ...filters,
     };
     return await apiClient.get<PaginatedResponse<Publisher>>('/api/admin/publishers', params);
   },
@@ -18,15 +20,6 @@ export const publisherService = {
     return response.data;
   },
 
-  async getJournals() {
-    const response = await apiClient.get<{ data: Publisher[] }>('/api/portal/journals');
-    return response.data;
-  },
-
-  async getConferences() {
-    return (await apiClient.get<{ data: Publisher[] }>('/api/portal/conferences')).data;
-  },
-
   async getConferenceByInitial(initial: string) {
     const response = await apiClient.get<{ data: Publisher }>(`/api/portal/conference?initial=${initial}`);
     return response.data;
@@ -35,5 +28,19 @@ export const publisherService = {
   async getJournalByIssn(issn: string) {
     const response = await apiClient.get<{ data: Publisher }>(`/api/portal/journal?issn=${issn}`);
     return response.data;
+  },
+
+  async createPublisher(data: Partial<Publisher>) {
+    const response = await apiClient.post<{ data: Publisher }>('/api/admin/publishers', data);
+    return response.data;
+  },
+
+  async updatePublisher(id: number, data: Partial<Publisher>) {
+    const response = await apiClient.put<{ data: Publisher }>(`/api/admin/publishers/${id}`, data);
+    return response.data;
+  },
+
+  async deletePublisher(id: number) {
+    return await apiClient.delete<{ message: string }>(`/api/admin/publishers/${id}`);
   },
 }
