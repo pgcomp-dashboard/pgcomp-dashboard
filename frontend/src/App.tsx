@@ -6,7 +6,7 @@ import AdminLayout from "@/layouts/admin/admin-layout";
 import { queryClient } from "@/lib/query-client";
 import CredenciamentoPage from "@/pages/admin/accreditation";
 import AreasPage from "@/pages/admin/areas";
-import ProfessorsPage from "@/pages/admin/professors/professors-list";
+import ProfessorsPage from "@/pages/admin/professors";
 import QualisPage from "@/pages/admin/qualis/index";
 import StudentsPage from "@/pages/admin/students";
 import SystemConfigPage from "@/pages/admin/system-config";
