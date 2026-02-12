@@ -99,6 +99,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             ->except(['destroy']);
         Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
         Route::apiResource('professors.productions', ProfessorProductionController::class);
+        Route::post('professors/{professors}/productions/doi', [ProfessorProductionController::class, 'storeFromDoi']);
         Route::delete('professors/{professors}/productions-all', [ProfessorProductionController::class, 'destroyAll']);
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
         Route::get('admin-request', [AdminApprovalController::class, 'index']);

@@ -78,5 +78,26 @@ class ProfessorProductionController extends Controller
             'message' => "Deleted $count productions successfully"
         ]);
     }
+    public function storeFromDoi(Request $request, $professors)
+    {
+        try {
+            $result = $this->productionService->createFromDoi(
+                (int)$professors,
+                $request->input('doi'),
+                $request->input('type')
+            );
 
+            return response()->json([
+                'status' => 201,
+                'message' => 'Criado com sucesso',
+                'data' => $result['production'],
+                'publisher_not_found' => $result['publisher_not_found']
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 400,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
 }
