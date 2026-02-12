@@ -641,7 +641,7 @@ export default function ProfessorProductionsPage() {
                         <p className="flex gap-1">
                           <span className="font-medium">Origem:</span>
                           <span className="capitalize">
-                            {prod.source.toLowerCase() || "N/A"}
+                            {prod.source?.toLowerCase() || "N/A"}
                           </span>
                         </p>
                         {prod.publisher && (
