@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
         // $this->call(AreaTableSeeder::class);
         // $this->call(SubareaTableSeeder::class);
         // $this->call(UserTableSeeder::class);
-        // $this->call(JournalTableSeeder::class);
         // $this->call(ProductionTableSeeder::class);
         // $this->call(UserProductionTableSeeder::class);
     }

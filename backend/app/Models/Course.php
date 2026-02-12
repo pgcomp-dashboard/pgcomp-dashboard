@@ -37,6 +37,13 @@ class Course extends BaseModel
     ];
 
     /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = ['name'];
+
+    /**
      * @return array creation rules to validate attributes.
      */
     public static function creationRules(): array

@@ -145,6 +145,20 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'admin_requested_at' => 'datetime'
     ];
 
+    /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = ['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'];
+
+    /**
+     * The attributes that are used to sort.
+     *
+     * @var string[]
+     */
+    protected array $sortable = ['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'];
+
     protected $attributes = [
         'is_admin' => false,
         'is_protected' => true,

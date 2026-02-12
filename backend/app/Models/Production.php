@@ -67,6 +67,36 @@ class Production extends BaseModel
         'home_page'
     ];
 
+    /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = [
+        'title',
+        'year',
+        'publisher_type',
+        'source',
+        'publisher_id',
+        'stratum_qualis_id',
+        'doi'
+    ];
+
+    /**
+     * The attributes that are used to sort.
+     *
+     * @var string[]
+     */
+    protected array $sortable = [
+        'title',
+        'year',
+        'publisher_type',
+        'source',
+        'doi',
+        'publisher_id',
+        'stratum_qualis_id'
+    ];
+
     protected $casts = [
         'publisher_type' => PublisherType::class
     ];

@@ -38,6 +38,20 @@ class Area extends BaseModel
     ];
 
     /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = ['area'];
+
+    /**
+     * The attributes that are used to sort.
+     *
+     * @var string[]
+     */
+    protected array $sortable = ['area'];
+
+    /**
      * @return array creation rules to validate attributes.
      */
     public static function creationRules(): array

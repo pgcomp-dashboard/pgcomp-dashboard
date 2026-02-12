@@ -2,8 +2,7 @@
 
 namespace App\Console\Commands\Scraping;
 
-use App\Models\Conference;
-use App\Models\Journal;
+use App\Models\Publishers;
 use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
@@ -221,7 +220,9 @@ class ScholarScrapingCommand extends Command
 
                         if (isset($article['Journal']) || isset($article['Source']) || isset($article['Publisher'])) {
                             $param = isset($article['Journal']) ? 'Journal' : (isset($article['Source']) ? 'Source' : 'Publisher');
-                            $journal_query = Journal::where('name', 'LIKE', '%'.$article[$param])->first();
+                            $journal_query = Publishers::where('name', 'LIKE', '%'.$article[$param])
+                                ->where('publisher_type', 'journal')
+                                ->first();
                             if ($journal_query) {
                                 $production_found += 1;
                                 print_r("\n\n{$param} encontrado: ".$journal_query->name."\n\n");
@@ -230,13 +231,15 @@ class ScholarScrapingCommand extends Command
                                 print_r("\n\n{$param}  não encontrado: ".$article[$param]."\n\n");
                             }
                         } elseif (isset($article['Conference'])) {
-                            $journal_query = Conference::where('name', 'LIKE', '%'.$article['Conference'])->first();
+                            $journal_query = Publishers::where('name', 'LIKE', '%'.$article['Conference'])
+                                ->where('publisher_type', 'conference')
+                                ->first();
                             if ($journal_query) {
                                 $production_found += 1;
-                                print_r("\n\Conference encontrado: ".$journal_query->name."\n\n");
+                                print_r("\n\nConference encontrado: ".$journal_query->name."\n\n");
                             } else {
                                 $production_not_found += 1;
-                                print_r("\n\Conference não encontrado: ".$article['Conference']."\n\n");
+                                print_r("\n\nConference não encontrado: ".$article['Conference']."\n\n");
                             }
                         } else {
                             $production_not_found += 1;

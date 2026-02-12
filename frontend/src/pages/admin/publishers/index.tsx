@@ -278,7 +278,7 @@ export default function PublishersPage() {
                 Importar
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-106.25">
               <DialogHeader>
                 <DialogTitle>Importar Planilha Qualis</DialogTitle>
                 <DialogDescription>
@@ -439,7 +439,7 @@ export default function PublishersPage() {
                 />
               </div>
 
-              <div className="w-[140px]">
+              <div className="w-35">
                 <Select
                   value={qualisFilter}
                   onValueChange={(val) => {
@@ -493,7 +493,7 @@ export default function PublishersPage() {
               <TableRow>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Qualis</TableHead>
-                <TableHead className="w-[100px] text-right">Ações</TableHead>
+                <TableHead className="w-25 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -617,7 +617,7 @@ export default function PublishersPage() {
 
       {/* Publisher Dialog (Create/Edit) */}
       <Dialog open={isPublisherDialogOpen} onOpenChange={setIsPublisherDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-125">
           <DialogHeader>
             <DialogTitle>{editingPublisher ? 'Editar Veículo' : 'Novo Veículo'}</DialogTitle>
             <DialogDescription>
