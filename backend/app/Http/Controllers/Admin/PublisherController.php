@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\BaseApiResourceController;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ConferenceResource;
-use App\Http\Resources\JournalResource;
 use App\Http\Resources\PublisherResource;
 use App\Models\BaseModel;
 use App\Models\Publishers;

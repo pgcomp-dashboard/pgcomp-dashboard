@@ -41,6 +41,13 @@ class StratumQualis extends BaseModel
     ];
 
     /**
+     * The attributes that are used to filter.
+     *
+     * @var string[]
+     */
+    protected array $filterable = ['type', 'code', 'score'];
+
+    /**
      * @return array creation rules to validate attributes.
      */
     public static function creationRules(): array
