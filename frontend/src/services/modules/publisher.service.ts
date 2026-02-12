@@ -1,11 +1,13 @@
 import { Publisher } from "@/types/academic";
-import { apiClient } from "../http-client";
 import { PaginatedResponse } from "@/types/common";
+import { apiClient } from "../http-client";
 
 export const publisherService = {
-  async getAllPublishers(page: number = 1) {
+  async getAllPublishers(page: number = 1, perPage: number = 10, filters: Record<string, any> = {}) {
     const params = {
       page,
+      per_page: perPage,
+      ...filters,
     };
     return await apiClient.get<PaginatedResponse<Publisher>>('/api/admin/publishers', params);
   },
@@ -16,15 +18,6 @@ export const publisherService = {
 
     const response = await apiClient.post<{ data: string }>(url, body);
     return response.data;
-  },
-
-  async getJournals() {
-    const response = await apiClient.get<{ data: Publisher[] }>('/api/portal/journals');
-    return response.data;
-  },
-
-  async getConferences() {
-    return (await apiClient.get<{ data: Publisher[] }>('/api/portal/conferences')).data;
   },
 
   async getConferenceByInitial(initial: string) {

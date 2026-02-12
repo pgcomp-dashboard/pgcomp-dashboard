@@ -10,6 +10,7 @@ use App\Http\Resources\PublisherResource;
 use App\Models\BaseModel;
 use App\Models\Publishers;
 use Illuminate\Http\Request;
+use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Requests\Admin\Publisher\StorePublisherRequest;
 use App\Http\Requests\Admin\Publisher\UpdatePublisherRequest;
 use App\Http\Requests\Admin\ImportQualisRequest;
@@ -43,9 +44,9 @@ class PublisherController extends Controller
         return new PublisherResource($model);
     }
 
-    public function index(Request $request)
+    public function index(BaseResourceIndexRequest $request)
     {
-        $results = $this->publisherService->listAll();
+        $results = $this->publisherService->listAll($request->validated());
         return PublisherResource::collection($results);
     }
 

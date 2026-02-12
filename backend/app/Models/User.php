@@ -126,7 +126,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'approved_by_id',
         'is_protected',
         'defended_at',
-        'home_page',
     ];
 
     protected $hidden = [
@@ -187,8 +186,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ],
             'lattes_url' => 'nullable|string|max:255',
             'is_admin' => 'nullable|bool',
-            'is_protected' => 'nullable|bool',
-            'home_page' => 'nullable|string|max:255'
+            'is_protected' => 'nullable|bool'
         ];
     }
 
@@ -248,7 +246,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             'admin_status' => ['nullable', Rule::in(['approved', 'rejected', 'pending'])],
             'admin_requested_at' => 'nullable|date',
             'approved_by_id' =>['nullable', 'int', Rule::exists(User::class, 'id')],
-            'home_page' => 'nullable|string|max:255'
         ];
     }
 

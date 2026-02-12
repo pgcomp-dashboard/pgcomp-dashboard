@@ -46,18 +46,22 @@ export interface Production {
   stratum_qualis_id: number | null;
   sequence_number: number | null;
   doi: string | null;
+  home_page: string | null;
   publisher: Publisher | null;
-  source: string
+  source: string;
 }
 
-export type RankingProduction = Pick<Production, 'title' | 'year' | 'publisher_type'> & {
+export type RankingProduction = Pick<
+  Production,
+  "title" | "year" | "publisher_type"
+> & {
   productions_id: number;
   code: string;
   score: number;
 };
 
 export type Ranking = {
-  user_id: number,
+  user_id: number;
   name: string;
   category: string;
   total_score: number;

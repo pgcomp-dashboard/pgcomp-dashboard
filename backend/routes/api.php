@@ -3,10 +3,8 @@
 use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\Admin\AdminApprovalController;
 use App\Http\Controllers\Admin\AreaController;
-use App\Http\Controllers\Admin\ConferenceController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\JournalController;
 use App\Http\Controllers\Admin\ProfessorController;
 use App\Http\Controllers\Admin\ProfessorProductionController;
 use App\Http\Controllers\Admin\PublisherController;
@@ -93,8 +91,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
         Route::apiResource('users', UserAdminController::class);
         Route::apiResource('publishers', PublisherController::class);
-        Route::apiResource('journals', JournalController::class)->except('destroy');
-        Route::apiResource('conferences', ConferenceController::class)->except('destroy');
         Route::apiResource('stratum_qualis', StratumQualisController::class)->parameters(['stratum_qualis' => 'qualis']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);

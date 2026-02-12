@@ -28,6 +28,7 @@ use Illuminate\Validation\Rule;
  * @property int|null $sequence_number
  * @property string|null $doi
  * @property string|null $source
+ * @property string|null $home_page
  * @property-read Collection|User[] $isWroteBy
  * @property-read int|null $is_wrote_by_count
  * @property-read Model|Eloquent $publisher
@@ -62,7 +63,8 @@ class Production extends BaseModel
         'publisher_id',
         'doi',
         'source',
-        'stratum_qualis_id'
+        'stratum_qualis_id',
+        'home_page'
     ];
 
     protected $casts = [
@@ -82,7 +84,8 @@ class Production extends BaseModel
             'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
             'sequence_number' => 'nullable|int',
             'source' => 'nullable|string|max:255',
-            'stratum_qualis_id' => 'nullable|int'
+            'stratum_qualis_id' => 'nullable|int',
+            'home_page' => 'nullable|string|max:255'
         ];
     }
 
@@ -166,7 +169,8 @@ class Production extends BaseModel
             'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
             'sequence_number' => 'nullable|int',
             'source' => 'nullable|string|max:255',
-            'stratum_qualis_id' => 'nullable|int'
+            'stratum_qualis_id' => 'nullable|int',
+            'home_page' => 'nullable|string|max:255'
         ];
     }
 

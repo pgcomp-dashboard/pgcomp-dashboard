@@ -7,33 +7,13 @@ use App\Domain\Qualis\JournalQualisXLSX;
 use App\Enums\PublisherType;
 use App\Models\Publishers;
 use App\Models\StratumQualis;
-use Illuminate\Database\Eloquent\Collection;
+
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
 class PublisherService
 {
-    /**
-     * List all journals with pagination.
-     *
-     * @param int $perPage
-     * @return LengthAwarePaginator
-     */
-    public function listJournals(int $perPage = 15): LengthAwarePaginator
-    {
-        return Publishers::onlyJournals()->paginate($perPage);
-    }
 
-    /**
-     * List all conferences with pagination.
-     *
-     * @param int $perPage
-     * @return LengthAwarePaginator
-     */
-    public function listConferences(int $perPage = 15): LengthAwarePaginator
-    {
-        return Publishers::onlyConferences()->paginate($perPage);
-    }
 
     /**
      * Create a new publisher.
@@ -57,27 +37,7 @@ class PublisherService
         return Publishers::findOrFail($id);
     }
 
-    /**
-     * Find a journal by ID.
-     *
-     * @param int $id
-     * @return Publishers
-     */
-    public function findJournal(int $id): Publishers
-    {
-        return Publishers::onlyJournals()->findOrFail($id);
-    }
 
-    /**
-     * Find a conference by ID.
-     *
-     * @param int $id
-     * @return Publishers
-     */
-    public function findConference(int $id): Publishers
-    {
-        return Publishers::onlyConferences()->findOrFail($id);
-    }
 
 
     /**
@@ -117,9 +77,15 @@ class PublisherService
         return Publishers::where('issn', '=', Str::of($issn)->trim()->remove('-')->value())->first();
     }
 
-    public function listAll(int $perPage = 15): LengthAwarePaginator
+    public function listAll(array $params = []): LengthAwarePaginator
     {
-        return Publishers::query()->paginate($perPage);
+        $query = Publishers::query();
+
+        if (isset($params['filters'])) {
+            (new \App\Http\Filters($query))->applyFilters($params['filters']);
+        }
+
+        return $query->paginate($params['per_page'] ?? 15);
     }
 
     public function importQualis(string $type, string $filePath): array

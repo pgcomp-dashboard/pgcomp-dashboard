@@ -23,6 +23,7 @@ class ProductionResource extends JsonResource
             'last_qualis' => $this->last_qualis,
             'doi' => $this->doi,
             'source' => $this->source,
+            'home_page' =>$this->home_page,
             'publisher' => $this->whenLoaded('publisher'),
         ];
     }

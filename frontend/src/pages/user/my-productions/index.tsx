@@ -69,6 +69,7 @@ import {
 } from "lucide-react";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -914,12 +915,26 @@ export default function MyProductionsPage() {
                   filteredAndSortedProductions.map((production) => (
                     <TableRow key={production.id}>
                       <TableCell className="text-left px-2 py-2 align-top">
-                        <div
-                          className="text-sm leading-snug whitespace-normal wrap-break-word text-justify"
-                          title={production.title}
+                        <Link
+                          to={production.doi || production.home_page || "#"}
+                          target={
+                            production.doi || production.home_page
+                              ? "_blank"
+                              : ""
+                          }
+                          rel={
+                            production.doi || production.home_page
+                              ? "noopener noreferrer"
+                              : undefined
+                          }
                         >
-                          {production.title}
-                        </div>
+                          <div
+                            className="text-sm leading-snug whitespace-normal wrap-break-word text-justify"
+                            title={production.title}
+                          >
+                            {production.title}
+                          </div>
+                        </Link>
                       </TableCell>
                       <TableCell className="text-center px-2 py-2 align-top">
                         <div
