@@ -62,7 +62,21 @@ class ProfessorProductionController extends Controller
     {
         $this->productionService->deleteForUser($professors, $productions);
 
-        return response()->json(['message' => 'Deleted successfully']);
+        return response()->json([
+            'status' => '200',
+            'message' => 'Deleted successfully'
+        ]);
+    }
+
+    public function destroyAll($professors)
+    {
+        $user = \App\Models\User::findOrFail($professors);
+        $count = $this->productionService->deleteAllUserProductions($user);
+
+        return response()->json([
+            'status' => '200',
+            'message' => "Deleted $count productions successfully"
+        ]);
     }
 
 }

@@ -1,8 +1,9 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 
 import useAuth from "@/hooks/auth";
 import AdminLayout from "@/layouts/admin/admin-layout";
+import { queryClient } from "@/lib/query-client";
 import CredenciamentoPage from "@/pages/admin/accreditation";
 import AreasPage from "@/pages/admin/areas";
 import ProfessorsPage from "@/pages/admin/professors/professors-list";
@@ -13,7 +14,7 @@ import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import LoginPage from "@/pages/auth/login";
 import ResetPasswordPage from "@/pages/auth/reset-password";
 import NotFoundPage from "@/pages/not-found";
-import MyProductionsPage from "@/pages/user/productions";
+import ProductionsPage from "@/pages/user/productions";
 import UserConfigPage from "@/pages/user/user-config";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -22,11 +23,9 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "sonner";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import AdminsPage from "./pages/admin/admins";
-import ProfessorProductionsPage from "./pages/admin/professors/production";
 import PublishersPage from "./pages/admin/publishers";
 import WelcomePage from "./pages/user/welcome";
 
-const queryClient = new QueryClient();
 const DashboardPage = lazy(() => import("./pages/admin/dashboard"));
 
 function App() {
@@ -56,7 +55,7 @@ function App() {
                     path="credenciamento"
                     element={<CredenciamentoPage />}
                   />
-                  <Route path="productions" element={<MyProductionsPage />} />
+                  <Route path="productions" element={<ProductionsPage />} />
                   <Route path="user-config" element={<UserConfigPage />} />
                 </Route>
 
@@ -67,10 +66,6 @@ function App() {
                   <Route path="areas" element={<AreasPage />} />
                   <Route path="students" element={<StudentsPage />} />
                   <Route path="professors" element={<ProfessorsPage />} />
-                  <Route
-                    path="professors/:professorId/productions"
-                    element={<ProfessorProductionsPage />}
-                  />
                   <Route path="publishers" element={<PublishersPage />} />
                   <Route path="qualis" element={<QualisPage />} />
                   <Route path="system-config" element={<SystemConfigPage />} />

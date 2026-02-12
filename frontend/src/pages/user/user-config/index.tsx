@@ -267,7 +267,7 @@ function UpdatePasswordForm() {
     };
     try {
       const response = await authService.updateUserPassword(
-        JSON.stringify(payload),
+        payload,
       );
       console.log(response.status);
     } catch (err) {

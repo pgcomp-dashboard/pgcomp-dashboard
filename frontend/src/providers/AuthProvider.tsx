@@ -1,4 +1,5 @@
 import { useUser } from "@/hooks/use-user";
+import { queryClient } from "@/lib/query-client";
 import { apiClient } from "@/services/http-client";
 import { normalizeUser } from "@/utils/auth-utils";
 import React, { createContext, useEffect, useState } from "react";
@@ -61,7 +62,7 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
 
   function logout() {
     setToken(undefined);
-    //queryClient.clear() //will it clear all the cache?
+    queryClient.clear();
   }
 
   const contextValue: AuthContextType = {

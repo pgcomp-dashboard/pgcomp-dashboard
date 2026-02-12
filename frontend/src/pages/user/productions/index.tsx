@@ -15,9 +15,8 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -38,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -47,13 +47,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import UploadXMLForm from "@/components/UploadXMLForm";
+import useAuth from "@/hooks/auth";
+import { transformFilters } from "@/lib/utils";
 import { productionService } from "@/services/modules/production.service";
+import { professorService } from "@/services/modules/professor.service";
 import { publisherService } from "@/services/modules/publisher.service";
 import { qualisService } from "@/services/modules/qualis.service";
 import { Production, Publisher, StratumQualis } from "@/types/academic";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   ArrowUpDown,
@@ -63,13 +66,14 @@ import {
   Filter,
   Loader2,
   Plus,
+  Search,
   SquarePenIcon,
   Trash,
-  X,
+  X
 } from "lucide-react";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -103,23 +107,25 @@ const createProductionFormSchema = z.object({
   year: z.coerce.number(),
 });
 
-export default function MyProductionsPage() {
+export default function ProductionsPage() {
+  const queryClient = useQueryClient();
   const date = new Date();
+  const auth = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paramProfessorId = searchParams.get("professorId");
 
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [qualisList, setQualisList] = useState<StratumQualis[]>([]);
-  const [productionList, setProductionList] = useState<Production[]>([]);
   const [selectedProduction, setSelectedProduction] = useState<Production>();
   const [chosenForm, setChosenForm] = useState<FormType>("none");
-  const [totalScore, setTotalScore] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   // Filtros
   const [filters, setFilters] = useState({
     titulo: "",
     local: "",
-    anoInicio: "all",
-    anoFim: "all",
+    anoInicio: (date.getFullYear() - 4).toString(),
+    anoFim: (date.getFullYear() - 1).toString(),
     tipo: "all",
     origem: "all",
     qualis: "all",
@@ -131,61 +137,82 @@ export default function MyProductionsPage() {
     direction: "asc" | "desc";
   }>({ key: "year", direction: "desc" });
 
-  useEffect(() => {
-    async function fetchQualis() {
-      try {
-        const qualis = await qualisService.getAllQualis();
-        setQualisList(qualis);
-        console.log(qualis);
-      } catch (err) {
-        console.error("Erro ao carregar Qualis:", err);
-      }
-    }
-    fetchQualis();
-  }, []);
+  // Admin states
+  const [selectedProfessorId, setSelectedProfessorId] = useState<string>(
+    paramProfessorId || "own",
+  );
 
-  const { data, isLoading, error } = useQuery<Production[], Error>({
-    queryKey: ["productions"],
-    queryFn: () => productionService.getProductions(),
-    placeholderData: (prevData) => prevData,
+  const { data: qualisData } = useQuery({
+    queryKey: ["qualis"],
+    queryFn: () => qualisService.getAllQualis(),
   });
 
-  let entries: Production[] = [];
+  const qualisList = useMemo(() => qualisData || [], [qualisData]);
 
-  useEffect(() => {
-    if (data) {
-      entries = Object.entries(data)
-        .filter(([key]) => !isNaN(Number(key)))
-        .map(([, value]) => value as unknown as Production);
+  const { data: professorsData } = useQuery({
+    queryKey: ["professors"],
+    queryFn: () => professorService.fetchProfessors(),
+    enabled: !!auth?.isAdmin,
+  });
 
-      entries.sort((a, b) => b.year - a.year);
-      if (productionList.length == 0) setProductionList(entries);
-    }
+  const professorsList = useMemo(() => professorsData || [], [professorsData]);
+
+  const { data, isLoading, error } = useQuery<Production[], Error>({
+    queryKey: ["productions", selectedProfessorId],
+    queryFn: () => {
+      if (
+        auth?.isAdmin &&
+        selectedProfessorId &&
+        selectedProfessorId !== "own"
+      ) {
+        return productionService.getUserProductions(
+          Number(selectedProfessorId),
+        );
+      }
+      return productionService.getProductions();
+    },
+  });
+
+  const qualisMap = useMemo(() => {
+    const map = new Map<number, StratumQualis>();
+    qualisList.forEach((q) => map.set(q.id, q));
+    return map;
+  }, [qualisList]);
+
+  // Transform raw query data into sorted list
+  const baseProductions = useMemo(() => {
+    if (!data) return [];
+    const entries = Object.entries(data)
+      .filter(([key]) => !isNaN(Number(key)))
+      .map(([, value]) => value as unknown as Production);
+
+    return [...entries].sort((a, b) => b.year - a.year);
   }, [data]);
 
-  useEffect(() => {
-    if (qualisList.length > 0) {
-      const validList = productionList.filter((item) => {
-        return (
-          item.year >= date.getFullYear() - 4 &&
-          item.year <= date.getFullYear() - 1
-        );
-      });
-      const score = validList.reduce((accumulator, production) => {
-        if (production.publisher?.stratum_qualis?.id) {
-          const qualis = qualisList.find(
-            (q) => q.id === production.publisher?.stratum_qualis?.id,
-          );
-          return accumulator + (qualis ? qualis.score : 0);
-        } else return accumulator;
-      }, 0);
-      setTotalScore(score);
-    }
-  }, [productionList, qualisList]);
+  // Standard score calculation (last 4 years rule)
+  const totalScore = useMemo(() => {
+    if (qualisList.length === 0) return 0;
+    const currentYear = date.getFullYear();
+    const validList = baseProductions.filter((item) => {
+      return (
+        item.year >= currentYear - 4 &&
+        item.year <= currentYear - 1
+      );
+    });
+
+    return validList.reduce((accumulator, production) => {
+      const qId = production.publisher?.stratum_qualis?.id;
+      if (qId) {
+        const qualis = qualisMap.get(qId);
+        return accumulator + (qualis ? qualis.score : 0);
+      }
+      return accumulator;
+    }, 0);
+  }, [baseProductions, qualisMap, date]);
 
   // Lógica de filtro e ordenação
   const filteredAndSortedProductions = useMemo(() => {
-    let result = [...productionList];
+    let result = [...baseProductions];
 
     // Aplicar filtros
     if (filters.titulo && filters.titulo.trim() !== "") {
@@ -262,7 +289,7 @@ export default function MyProductionsPage() {
     });
 
     return result;
-  }, [productionList, qualisList, filters, sortConfig]);
+  }, [baseProductions, qualisList, filters, sortConfig]);
 
   const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
     if (key === "titulo" || key === "local") {
@@ -303,49 +330,71 @@ export default function MyProductionsPage() {
 
   // Anos únicos para o filtro
   const uniqueYears = useMemo(() => {
-    const years = [...new Set(productionList.map((p) => p.year))];
-    return years.sort((a, b) => b - a);
-  }, [productionList]);
+    const years = new Set(baseProductions.map((p) => p.year));
+    // Ensure the default range years are available in the dropdown
+    const currentYear = date.getFullYear();
+    for (let y = currentYear - 10; y <= currentYear; y++) {
+      years.add(y);
+    }
+    return Array.from(years).sort((a, b) => b - a);
+  }, [baseProductions, date]);
+
+  // Filtered score calculation
+  const filteredScore = useMemo(() => {
+    return filteredAndSortedProductions.reduce((accumulator, production) => {
+      const qId = production.publisher?.stratum_qualis?.id;
+      if (qId) {
+        const qualis = qualisMap.get(qId);
+        return accumulator + (qualis ? qualis.score : 0);
+      }
+      return accumulator;
+    }, 0);
+  }, [filteredAndSortedProductions, qualisMap]);
 
   async function onSubmit(values: z.infer<typeof updateProductionFormSchema>) {
     //console.log("Submitting")
     //console.log(JSON.stringify(values))
-    console.log(productionList);
     const parsedYear = parseFloat(values.year.toString());
     if (isNaN(parsedYear)) {
       console.error("Ano Inválido");
       return;
     }
 
-    const qualis = qualisList
+    const selectedQualis = Array.from(qualisMap.values())
       .filter((item) => item.type === values.type)
       .find((item) => item.code === values.qualis_code);
-    //console.log("Qualis :" + qualis);
+
     const payload: RequestBodyType = {
       title: values.title,
       year: parsedYear,
       publisher_type: values.type,
-      stratum_qualis_id: qualis ? qualis.id : null,
+      stratum_qualis_id: selectedQualis ? selectedQualis.id : null,
       doi: values.doi,
     };
     //console.log(payload)
     try {
       if (selectedProduction) {
-        const response = await productionService.updateProduction(
-          selectedProduction.id,
-          JSON.stringify(payload),
-        );
+        const response =
+          selectedProfessorId && selectedProfessorId !== "own"
+            ? await productionService.updateUserProduction(
+              selectedProduction.id,
+              payload,
+            )
+            : await productionService.updateProduction(
+              selectedProduction.id,
+              JSON.stringify(payload),
+            );
 
-        if (response.status == "200") {
-          const updatedList = productionList.map((entry) => {
-            if (entry.id === selectedProduction.id) {
-              return { ...entry, ...payload, source: "manual" };
-            }
-            return entry;
-          });
-          setProductionList(updatedList);
+        if (
+          (response as any).status == "200" ||
+          (response as any).status == 200 ||
+          (response as any).data
+        ) {
           toast.success("Atualizado com sucesso");
           setIsEditOpen(false);
+          queryClient.invalidateQueries({
+            queryKey: ["productions", selectedProfessorId],
+          });
         }
       }
     } catch (err) {
@@ -354,30 +403,39 @@ export default function MyProductionsPage() {
   }
 
   async function deleteProduction(id: number) {
-    console.log("Deletar :", selectedProduction?.title);
+    if (!selectedProduction) return;
     try {
-      if (!selectedProduction) return;
-      const response = await productionService.deleteProduction(id);
-      if (response.status == "200") {
-        const list = productionList.filter((entry) => {
-          return entry.id !== selectedProduction.id;
-        });
-        setProductionList(list);
+      const response =
+        selectedProfessorId && selectedProfessorId !== "own"
+          ? await productionService.deleteUserProduction(
+            Number(selectedProfessorId),
+            id,
+          )
+          : await productionService.deleteProduction(id);
+
+      if (response.status == "200" || (response as any).status == 200) {
         toast.success("Produção deletada com sucesso.");
+        queryClient.invalidateQueries({ queryKey: ["productions", selectedProfessorId] });
       }
-      console.log(response.message);
     } catch (err) {
       console.error("Erro ao deletar a produção:", err);
+      toast.error("Erro ao deletar a produção.");
     }
   }
 
   async function fullDelete() {
     try {
-      const response = await productionService.clearProductions();
+      const response =
+        selectedProfessorId && selectedProfessorId !== "own"
+          ? await productionService.clearUserProductions(
+            Number(selectedProfessorId),
+          )
+          : await productionService.clearProductions();
+
       console.log(response);
-      if (response.status == "200") {
-        setProductionList([]);
+      if (response.status == "200" || (response as any).status == 200) {
         toast.success("Produções deletadas com sucesso.");
+        queryClient.invalidateQueries({ queryKey: ["productions", selectedProfessorId] });
       }
     } catch (err) {
       toast.error("Erro ao deletar produções.");
@@ -406,11 +464,49 @@ export default function MyProductionsPage() {
     }
   }, [selectedProduction, isEditOpen, form]);
 
-  if (isLoading) return <div>Carregando...</div>;
   if (error) {
     console.error(error);
-    return <div>Erro ao carregar suas produções!</div>;
+    return <div>Erro ao carregar produções!</div>;
   }
+
+  const TableSkeleton = () => (
+    <>
+      {[...Array(5)].map((_, i) => (
+        <TableRow key={i}>
+          <TableCell className="px-2 py-3"><Skeleton className="h-4 w-[90%]" /></TableCell>
+          <TableCell className="px-2 py-3"><Skeleton className="h-4 w-[70%] mx-auto" /></TableCell>
+          <TableCell className="px-1 py-3"><Skeleton className="h-4 w-10 mx-auto" /></TableCell>
+          <TableCell className="px-1 py-3"><Skeleton className="h-4 w-20 mx-auto" /></TableCell>
+          <TableCell className="px-1 py-3"><Skeleton className="h-4 w-16 mx-auto" /></TableCell>
+          <TableCell className="px-1 py-3"><Skeleton className="h-4 w-8 mx-auto" /></TableCell>
+          <TableCell className="px-1 py-3"><Skeleton className="h-4 w-6 mx-auto" /></TableCell>
+          <TableCell className="px-1 py-3"><Skeleton className="h-8 w-16 mx-auto" /></TableCell>
+        </TableRow>
+      ))}
+    </>
+  );
+
+  const CardSkeleton = () => (
+    <div className="rounded-lg border bg-card shadow-sm overflow-hidden mb-3">
+      <div className="p-3 bg-muted/30 border-b">
+        <Skeleton className="h-4 w-[80%]" />
+      </div>
+      <div className="p-3 space-y-4">
+        <div>
+          <Skeleton className="h-3 w-10 mb-1" />
+          <Skeleton className="h-4 w-[60%]" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i}>
+              <Skeleton className="h-3 w-8 mb-1" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col items-center gap-4 w-full px-2 sm:px-0">
@@ -418,23 +514,69 @@ export default function MyProductionsPage() {
       <div className="flex flex-col items-center gap-4 w-full">
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-            Minhas Produções
+            Produções
           </h1>
           <p className="text-sm text-muted-foreground">
-            Visualize, crie e edite suas produções.
+            Visualize, crie e edite produções.
           </p>
         </div>
+
+        {/* Admin Professor Selection */}
+        {auth?.isAdmin && (
+          <div className="w-full max-w-md mx-auto mb-4">
+            <Label className="text-sm font-medium mb-1.5 block">
+              Visualizar produções de:
+            </Label>
+            <Select
+              value={selectedProfessorId}
+              onValueChange={(value) => {
+                startTransition(() => {
+                  setSelectedProfessorId(value);
+                  if (value === "own") {
+                    searchParams.delete("professorId");
+                    setSearchParams(searchParams);
+                  } else {
+                    setSearchParams({ professorId: value });
+                  }
+                });
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione um docente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="own">Minhas Produções</SelectItem>
+                {professorsList.map((prof) => (
+                  <SelectItem key={prof.id} value={prof.id.toString()}>
+                    {prof.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Score e Ações */}
         <div className="w-full space-y-3">
           {/* Pontuação */}
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-2">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
               <span className="text-sm font-medium">Pontuação total:</span>
-              <span className="text-lg font-bold text-primary">
-                {totalScore}
-              </span>
+              {(isLoading || isPending) ? (
+                <Skeleton className="h-6 w-12 bg-primary/20" />
+              ) : (
+                  <span className="text-lg font-bold text-primary">
+                    {totalScore}
+                  </span>
+              )}
             </div>
+
+            {hasActiveFilters && !isLoading && !isPending && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-600 rounded-full text-xs font-medium border border-amber-500/20">
+                <Filter className="h-3 w-3" />
+                <span>Pontuação filtrada: <strong>{filteredScore}</strong></span>
+              </div>
+            )}
           </div>
 
           {/* Botões de Ação */}
@@ -903,7 +1045,9 @@ export default function MyProductionsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndSortedProductions.length === 0 ? (
+                {isLoading ? (
+                  <TableSkeleton />
+                ) : filteredAndSortedProductions.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8">
                       {hasActiveFilters
@@ -1052,7 +1196,13 @@ export default function MyProductionsPage() {
 
           {/* Mobile: Cards */}
           <div className="md:hidden flex flex-col gap-3 w-full">
-            {filteredAndSortedProductions.length === 0 ? (
+            {isLoading ? (
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+              </>
+            ) : filteredAndSortedProductions.length === 0 ? (
               <div className="p-6 text-center text-muted-foreground bg-muted/30 rounded-lg">
                 {hasActiveFilters
                   ? "Nenhuma produção encontrada com os filtros aplicados"
@@ -1194,11 +1344,32 @@ export default function MyProductionsPage() {
           </div>
         </>
       ) : chosenForm === "xml" ? (
-        <UploadXMLForm />
+          <UploadXMLForm
+            professorId={
+              selectedProfessorId === "own" ? undefined : selectedProfessorId
+            }
+            onSuccess={() => {
+              setChosenForm("none");
+              queryClient.invalidateQueries({
+                queryKey: ["productions", selectedProfessorId],
+              });
+            }}
+          />
       ) : chosenForm === "doi" ? (
-        <ProductionDOIForm />
+            <ProductionDOIForm
+              professorId={
+                selectedProfessorId === "own" ? undefined : selectedProfessorId
+              }
+              onSuccess={() => setChosenForm("none")}
+            />
       ) : (
-        <ProductionCreateForm qualis={qualisList} />
+              <ProductionCreateForm
+                qualis={qualisList}
+                professorId={
+                  selectedProfessorId === "own" ? undefined : selectedProfessorId
+                }
+                onSuccess={() => setChosenForm("none")}
+              />
       )}
 
       {/* Dialog - Formulário de edição da produção */}
@@ -1342,7 +1513,14 @@ export default function MyProductionsPage() {
   );
 }
 
-function ProductionDOIForm() {
+function ProductionDOIForm({
+  professorId,
+  onSuccess,
+}: {
+  professorId?: string;
+  onSuccess?: () => void;
+}) {
+  const queryClient = useQueryClient();
   const [doi, setDoi] = useState<string>("");
   const [publisherType, setPublisherType] = useState("conference");
   const [isLoading, setIsLoading] = useState(false);
@@ -1365,11 +1543,26 @@ function ProductionDOIForm() {
     };
 
     try {
-      const response = await productionService.createProductionFromDoi(request);
+      const response = professorId
+        ? await productionService.createUserProduction(
+          Number(professorId),
+          request,
+        )
+        : await productionService.createProductionFromDoi(request);
+
       console.log(response);
-      if (response.status == 201) {
+      if (
+        response.status == 201 ||
+        response.status == "201" ||
+        response.status == 200 ||
+        response.status == "200"
+      ) {
         toast.success("Criado com sucesso");
         setDoi("");
+        queryClient.invalidateQueries({
+          queryKey: ["productions", professorId || "own"],
+        });
+        if (onSuccess) onSuccess();
       }
     } catch (err) {
       toast.error("Erro ao criar produção");
@@ -1447,13 +1640,62 @@ function ProductionDOIForm() {
   );
 }
 
-function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
-  const [production, setProduction] = useState<Production>();
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+function ProductionCreateForm({
+  qualis,
+  professorId,
+  onSuccess,
+}: {
+  qualis: StratumQualis[];
+  professorId?: string;
+  onSuccess?: () => void;
+}) {
+  const queryClient = useQueryClient();
   const [publisher, setPublisher] = useState<Publisher | null>(null);
   const [publisherType, setPublisherType] = useState("conference");
-  const [publisherNotFound, setPublisherNotFound] = useState(false);
   const [publisherSearch, setPublisherSearch] = useState<string>("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<Publisher[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const isSelectedRef = useRef(false);
+
+  // Debounced search logic
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (publisherSearch.length >= 2 && !isSelectedRef.current) {
+        setIsSearching(true);
+        try {
+          const filters = transformFilters([
+            { field: "name", value: publisherSearch, operator: "like" },
+            { field: "publisher_type", value: publisherType, operator: "=" },
+          ]);
+
+          // Also try to search by ISSN or Initials if it looks like one
+          if (publisherType === "journal") {
+            // No OR support easily visible, so we primarily use name
+            // but the backend might search multiple fields if we use a 'search' param instead?
+            // Let's stick to name for now as it's the most common
+          }
+
+          const response = await publisherService.getAllPublishers(
+            1,
+            20,
+            filters,
+          );
+          setSearchResults(response.data);
+          setShowResults(true);
+        } catch (err) {
+          console.error("Erro ao buscar veículos:", err);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+        setShowResults(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [publisherSearch, publisherType]);
 
   const form = useForm<z.infer<typeof createProductionFormSchema>>({
     resolver: zodResolver(createProductionFormSchema),
@@ -1481,11 +1723,19 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
     };
 
     try {
-      const response = await productionService.createProduction(
-        JSON.stringify(payload),
-      );
-      setProduction(response.data);
+      if (professorId) {
+        await productionService.createUserProduction(
+          Number(professorId),
+          payload,
+        );
+      } else {
+        await productionService.createProduction(payload);
+      }
       toast.success("Produção Criada com sucesso");
+      queryClient.invalidateQueries({
+        queryKey: ["productions", professorId || "own"],
+      });
+      if (onSuccess) onSuccess();
     } catch (err) {
       toast.error("Erro ao criar Produção");
       console.error("Erro ao criar produção:", err);
@@ -1493,38 +1743,16 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
   }
 
   function handleInput(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.value) setPublisherSearch(e.target.value);
+    isSelectedRef.current = false;
+    setPublisherSearch(e.target.value);
+    setPublisher(null); // Clear selected publisher when searching
   }
 
   function handleValueChange(value: string) {
     setPublisherType(value);
-  }
-
-  async function getPublisherByIssn(issn: string) {
-    if (!issn) return;
-    setPublisherNotFound(false);
-    try {
-      const response = await publisherService.getJournalByIssn(issn);
-      if (response) {
-        setPublisher(response);
-      } else {
-        setPublisherNotFound(true);
-      }
-    } catch (err) {
-      console.log("Erro ao buscar revista", err);
-    }
-  }
-
-  async function getPublisherByInitials(initials: string) {
-    if (!initials) return;
-    setPublisherNotFound(false);
-    try {
-      const response = await publisherService.getConferenceByInitial(initials);
-      setPublisher(response);
-      if (!response) setPublisherNotFound(true);
-    } catch (err) {
-      console.log("Erro ao buscar conferencia", err);
-    }
+    setPublisher(null);
+    setSearchResults([]);
+    setPublisherSearch("");
   }
 
   return (
@@ -1602,51 +1830,89 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
             />
 
             {/* Busca de Publisher */}
-            <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+            <div className="space-y-3 p-4 bg-muted/30 rounded-lg relative">
               <Label className="text-sm">
                 Buscar{" "}
-                {publisherType === "journal"
-                  ? "Revista (ISSN)"
-                  : "Conferência (Sigla)"}
+                {publisherType === "journal" ? "Periódico" : "Conferência"}
               </Label>
-              <div className="flex gap-2">
+              <div className="relative">
+                <div className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground">
+                  {isSearching ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                </div>
                 <Input
                   placeholder={
-                    publisherType === "journal" ? "Ex: 1234-5678" : "Ex: SBBD"
+                    publisherType === "journal"
+                      ? "Buscar pelo nome ou ISSN..."
+                      : "Buscar pelo nome ou sigla (ex: SBBD)..."
                   }
                   type="text"
+                  value={publisherSearch}
                   onChange={handleInput}
-                  className="flex-1"
+                  className="pl-9 h-10"
                 />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    publisherType === "journal"
-                      ? getPublisherByIssn(publisherSearch)
-                      : getPublisherByInitials(publisherSearch);
-                  }}
-                >
-                  Buscar
-                </Button>
+
+                {/* Resultados da busca */}
+                {showResults && searchResults.length > 0 && (
+                  <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
+                    {searchResults.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className="w-full text-left px-4 py-2 hover:bg-muted text-sm border-b last:border-0 transition-colors"
+                        onClick={() => {
+                          setPublisher(p);
+                          isSelectedRef.current = true;
+                          setPublisherSearch(p.name);
+                          setShowResults(false);
+                        }}
+                      >
+                        <div className="font-medium truncate">{p.name}</div>
+                        <div className="text-xs text-muted-foreground flex justify-between">
+                          <span>
+                            {p.publisher_type === "journal"
+                              ? `ISSN: ${p.issn || "N/A"}`
+                              : `Sigla: ${p.initials || "N/A"}`}
+                          </span>
+                          <span className="font-semibold text-primary">
+                            Qualis: {p.stratum_qualis?.code || "N/A"}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {showResults &&
+                  searchResults.length === 0 &&
+                  publisherSearch.length >= 2 &&
+                  !isSearching && (
+                    <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg p-4 text-center text-sm text-muted-foreground">
+                      Nenhum veículo encontrado para "{publisherSearch}"
+                    </div>
+                  )}
               </div>
 
               {publisher && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-md text-sm">
-                  <p className="font-medium text-green-800">{publisher.name}</p>
-                  <p className="text-green-700">
-                    Qualis:{" "}
-                    {qualis.find(
-                      (item) => item.id === publisher.stratum_qualis?.id,
-                    )?.code || "N/A"}
-                  </p>
-                </div>
-              )}
-
-              {publisherNotFound && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-sm text-amber-800">
-                  {publisherType === "journal" ? "Revista" : "Conferência"} não
-                  encontrada
+                <div className="p-3 bg-green-50 border border-green-200 rounded-md text-sm animate-in fade-in slide-in-from-top-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-green-800">
+                        {publisher.name}
+                      </p>
+                      <p className="text-xs text-green-700">
+                        {publisher.publisher_type === "journal"
+                          ? `ISSN: ${publisher.issn || "N/A"}`
+                          : `Sigla: ${publisher.initials || "N/A"}`}
+                      </p>
+                    </div>
+                    <div className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-bold whitespace-nowrap">
+                      Qualis: {publisher.stratum_qualis?.code || "N/A"}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -1657,41 +1923,6 @@ function ProductionCreateForm({ qualis }: { qualis: StratumQualis[] }) {
           </form>
         </Form>
       </div>
-
-      {/* Dialog - Confirmação de criação */}
-      <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
-        <DialogContent className="max-w-[90vw] sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              Produção cadastrada!
-            </DialogTitle>
-            <DialogDescription className="sr-only">
-              Detalhes da produção criada
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 text-sm">
-            <div>
-              <span className="text-muted-foreground">Título:</span>
-              <p className="font-medium">{production?.title}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Ano:</span>
-              <p className="font-medium">{production?.year}</p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              className="w-full bg-green-600 hover:bg-green-700"
-              onClick={() => {
-                setIsConfirmationOpen(false);
-                form.reset();
-              }}
-            >
-              Confirmar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

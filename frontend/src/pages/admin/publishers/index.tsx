@@ -49,6 +49,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { FilterItem, transformFilters } from "@/lib/utils";
 import { publisherService } from "@/services/modules/publisher.service";
 import { qualisService } from "@/services/modules/qualis.service";
 import { Publisher, StratumQualis } from "@/types/academic";
@@ -194,29 +195,21 @@ export default function PublishersPage() {
   async function fetchData() {
     setIsLoading(true);
     try {
-      const filters: Record<string, any> = {};
-      let filterIndex = 0;
+      const filterList: FilterItem[] = [];
 
       if (search.trim()) {
-        filters[`filters[${filterIndex}][field]`] = 'name';
-        filters[`filters[${filterIndex}][value]`] = search.trim();
-        filters[`filters[${filterIndex}][operator]`] = 'like';
-        filterIndex++;
+        filterList.push({ field: 'name', value: search.trim(), operator: 'like' });
       }
 
       if (typeFilter !== 'all') {
-        filters[`filters[${filterIndex}][field]`] = 'publisher_type';
-        filters[`filters[${filterIndex}][value]`] = typeFilter;
-        filters[`filters[${filterIndex}][operator]`] = '=';
-        filterIndex++;
+        filterList.push({ field: 'publisher_type', value: typeFilter, operator: '=' });
       }
 
       if (qualisFilter !== 'all') {
-        filters[`filters[${filterIndex}][field]`] = 'qualis_code';
-        filters[`filters[${filterIndex}][value]`] = qualisFilter;
-        filters[`filters[${filterIndex}][operator]`] = '=';
-        filterIndex++;
+        filterList.push({ field: 'qualis_code', value: qualisFilter, operator: '=' });
       }
+
+      const filters = transformFilters(filterList);
 
       const response = await publisherService.getAllPublishers(page, perPage, filters);
       setPublishers(response.data);

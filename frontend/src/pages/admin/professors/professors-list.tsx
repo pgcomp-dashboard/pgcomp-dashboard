@@ -40,7 +40,7 @@ export default function ProfessorsPage() {
   });
 
   const handleNavigateToProductions = (professorId: number) => {
-    navigate(`/admin/professors/${professorId}/productions`);
+    navigate(`/portal/productions?professorId=${professorId}`);
   };
 
   const countPermanente =
