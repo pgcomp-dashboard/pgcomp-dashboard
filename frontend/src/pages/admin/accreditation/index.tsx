@@ -296,7 +296,7 @@ function ShowRanking({ rankerList, onShowDetails }: RankingTableProps) {
                 key={index}
               >
                 <TableCell className="font-medium text-center">
-                  {index + 1}º
+                  {rank.total_score > 0 ? `${index + 1}º` : "--"}
                 </TableCell>
                 <TableCell className="font-medium text-center">
                   <Button
@@ -310,7 +310,7 @@ function ShowRanking({ rankerList, onShowDetails }: RankingTableProps) {
 
                 </TableCell>
                 <TableCell className="font-medium text-center">
-                  {rank.category.replace(/^./, (match) => match.toUpperCase())}
+                  {rank.category ? rank.category.replace(/^./, (match) => match.toUpperCase()) : "Não encontrado"}
                 </TableCell>
                 <TableCell className="font-medium text-center">
                   <Button
