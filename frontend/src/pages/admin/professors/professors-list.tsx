@@ -91,10 +91,10 @@ export default function ProfessorsPage() {
             {data &&
               data.map((professor) => (
                 <TableRow key={professor.id}>
-                  <TableCell className="font-medium text-center">
+                  <TableCell className="text-center">
                     {professor.name}
                   </TableCell>
-                  <TableCell className="font-medium text-center">
+                  <TableCell className="text-center">
                     {professor.category?.replace(/^./, (match) =>
                       match.toUpperCase(),
                     ) || "Não Encontrado"}
