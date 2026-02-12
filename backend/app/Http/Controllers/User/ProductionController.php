@@ -49,7 +49,12 @@ class ProductionController extends Controller
     {
         $user = auth()->user();
 
-        $productions = $user->writerOf()->with('publisher')->get();
+        $productions = $user->writerOf()
+            ->with([
+                'publisher:id,name,publisher_type,stratum_qualis_id',
+                'publisher.stratumQualis:id,code,score'
+            ])
+            ->get();
 
         return ProductionResource::collection($productions);
     }
