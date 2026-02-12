@@ -11,6 +11,7 @@ use App\Models\Publishers;
 use DOMDocument;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use SimpleXMLElement;
@@ -70,45 +71,58 @@ class ConferenceQualisXLSX
      */
     private function extractXmlFromZip()
     {
-        $dir = app_path('Domain/Qualis/Extracted');
+        $uniqueId = Str::random(10);
+        $dir = storage_path('app/qualis_extracted/' . $uniqueId);
+
+        if (!File::exists($dir)) {
+            File::makeDirectory($dir, 0755, true);
+        }
+
         $zip = new ZipArchive();
         if (!$zip->open(Storage::path($this->storagePath))) {
+            File::deleteDirectory($dir);
             throw new Exception('Invalid Zip file.');
         }
-        $zip->extractTo($dir);
-        $strings = simplexml_load_file($dir . '/xl/sharedStrings.xml');
-        $sheet   = simplexml_load_file($dir . '/xl/worksheets/sheet1.xml');
 
-        $rows = $sheet->sheetData->row;
+        try {
+            $zip->extractTo($dir);
+            $zip->close();
 
-        $data = array();
+            $strings = simplexml_load_file($dir . '/xl/sharedStrings.xml');
+            $sheet   = simplexml_load_file($dir . '/xl/worksheets/sheet1.xml');
 
-        foreach ($rows as $row) {
-            $arr = array();
+            $rows = $sheet->sheetData->row;
 
-            foreach ($row->c as $cell) {
-                $v = (string) $cell->v;
+            $data = array();
 
-                if (isset($cell['t']) && $cell['t'] == 's') {
-                    $s = array();
-                    $si = $strings->si[(int) $v];
+            foreach ($rows as $row) {
+                $arr = array();
 
-                    // Register & alias the default namespace or you'll get empty results in the xpath query
-                    $si->registerXPathNamespace('n', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+                foreach ($row->c as $cell) {
+                    $v = (string) $cell->v;
 
-                    // Cat together all of the 't' (text?) node values
-                    foreach ($si->xpath('.//n:t') as $t) {
-                        $s[] = (string) $t;
+                    if (isset($cell['t']) && $cell['t'] == 's') {
+                        $s = array();
+                        $si = $strings->si[(int) $v];
+
+                        // Register & alias the default namespace or you'll get empty results in the xpath query
+                        $si->registerXPathNamespace('n', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+
+                        // Cat together all of the 't' (text?) node values
+                        foreach ($si->xpath('.//n:t') as $t) {
+                            $s[] = (string) $t;
+                        }
+
+                        $v = implode($s);
                     }
-
-                    $v = implode($s);
+                    $arr[] = $v;
                 }
-                $arr[] = $v;
+                array_push($data,$arr);
             }
-            array_push($data,$arr);
-            //error_log(implode($arr));
+            array_splice($data, 0, 1);
+            return $data;
+        } finally {
+            File::deleteDirectory($dir);
         }
-        array_splice($data, 0, 1);
-        return $data;
     }
 }
