@@ -65,7 +65,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -577,7 +577,19 @@ export default function ProfessorProductionsPage() {
                 >
                   <Card className="bg-gray-50 flex flex-col w-full">
                     <CardHeader>
-                      <CardTitle>{prod.title}</CardTitle>
+                      <CardTitle>
+                        <Link
+                          to={prod.doi || prod.home_page || "#"}
+                          target={prod.doi || prod.home_page ? "_blank" : ""}
+                          rel={
+                            prod.doi || prod.home_page
+                              ? "noopener noreferrer"
+                              : undefined
+                          }
+                        >
+                          {prod.title}
+                        </Link>
+                      </CardTitle>
                       <CardAction className="flex items-start gap-2">
                         <Button
                           variant="outline"
