@@ -43,6 +43,14 @@ export default function ProfessorsPage() {
     navigate(`/admin/professors/${professorId}/productions`);
   };
 
+  const countPermanente =
+    data?.filter((p) => p.category?.toLowerCase() === "permanente").length || 0;
+  const countColaboradores =
+    data?.filter((p) => p.category?.toLowerCase() === "colaborador").length ||
+    0;
+  const countVisitantes =
+    data?.filter((p) => p.category?.toLowerCase() === "visitante").length || 0;
+
   console.log();
 
   if (isLoading) return <div>Carregando...</div>;
@@ -54,9 +62,15 @@ export default function ProfessorsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Docentes
-        </h1>
+        <div className="flex items-center">
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">
+            Docentes
+          </h1>
+          <p className="ml-4 text-muted-foreground text-sm">
+            ({countPermanente} Permanentes, {countColaboradores} Colaboradores,{" "}
+            {countVisitantes} Visitantes)
+          </p>
+        </div>
         <p className="text-muted-foreground">
           Visualize e gerencie os docentes cadastrados no sistema.
         </p>
