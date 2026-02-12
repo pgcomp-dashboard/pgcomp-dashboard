@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Domain\Qualis\ConferenceQualisXLSX;
 use App\Domain\Qualis\JournalQualisXLSX;
 use App\Enums\PublisherType;
+use App\Http\Filters;
 use App\Models\Publishers;
 use App\Models\StratumQualis;
 
@@ -79,10 +80,22 @@ class PublisherService
 
     public function listAll(array $params = []): LengthAwarePaginator
     {
-        $query = Publishers::query();
+        $query = Publishers::with('stratumQualis');
 
         if (isset($params['filters'])) {
-            (new \App\Http\Filters($query))->applyFilters($params['filters']);
+            $filters = $params['filters'];
+
+            // Handle custom qualis_code filter
+            foreach ($filters as $key => $filter) {
+                if ($filter['field'] === 'qualis_code' && !empty($filter['value'])) {
+                    $query->whereHas('stratumQualis', function($q) use ($filter) {
+                        $q->where('code', $filter['value']);
+                    });
+                    unset($filters[$key]);
+                }
+            }
+
+            (new Filters($query))->applyFilters($filters);
         }
 
         return $query->paginate($params['per_page'] ?? 15);

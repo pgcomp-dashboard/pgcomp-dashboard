@@ -66,6 +66,13 @@ class PublisherController extends Controller
             ]);
     }
 
+    public function destroy(int $id)
+    {
+        $this->publisherService->delete($id);
+
+        return response()->json(['message' => 'Publisher deleted successfully']);
+    }
+
     public function import(ImportQualisRequest $request)
     {
         $file = $request->file('file');
@@ -78,6 +85,6 @@ class PublisherController extends Controller
             return response()->json($result);
         }
 
-        return response()->json($result); // Or handle error accordingly
+        return response()->json($result);
     }
 }

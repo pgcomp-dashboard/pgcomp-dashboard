@@ -13,7 +13,7 @@ import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import LoginPage from "@/pages/auth/login";
 import ResetPasswordPage from "@/pages/auth/reset-password";
 import NotFoundPage from "@/pages/not-found";
-import MyProductionsPage from "@/pages/user/my-productions";
+import MyProductionsPage from "@/pages/user/productions";
 import UserConfigPage from "@/pages/user/user-config";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
