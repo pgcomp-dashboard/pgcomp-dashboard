@@ -15,6 +15,7 @@ class CourseController extends BaseApiResourceController
 
     public function __construct(CourseService $courseService)
     {
+        parent::__construct();
         $this->courseService = $courseService;
     }
 

@@ -20,6 +20,7 @@ class AreaController extends BaseApiResourceController
 
     public function __construct(AreaService $areaService)
     {
+        parent::__construct();
         $this->areaService = $areaService;
     }
 
