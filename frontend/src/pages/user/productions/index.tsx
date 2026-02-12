@@ -54,6 +54,7 @@ import { professorService } from "@/services/modules/professor.service";
 import { publisherService } from "@/services/modules/publisher.service";
 import { qualisService } from "@/services/modules/qualis.service";
 import { Production, Publisher, StratumQualis } from "@/types/academic";
+import { extractDoiCode, normalizeDoi } from "@/utils/doi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -80,7 +81,8 @@ import { z } from "zod";
 interface RequestBodyType {
   title: string;
   year: number;
-  publisher_type: string;
+  publisher_type: string | null;
+  publisher_id: number | null;
   stratum_qualis_id: number | null;
   doi: string | null;
 }
@@ -90,6 +92,7 @@ interface CreateRequestBodyType {
   year: number;
   publisher_type: string | null;
   publisher_id: number | null;
+  doi: string | null;
 }
 
 type FormType = "none" | "xml" | "doi" | "other";
@@ -97,14 +100,13 @@ type FormType = "none" | "xml" | "doi" | "other";
 const updateProductionFormSchema = z.object({
   title: z.string().min(1, "Campo obrigatório"),
   year: z.coerce.number().min(1900, "Ano inválido"),
-  type: z.string().min(1, "Campo obrigatório"),
-  qualis_code: z.string().min(1, "Campo obrigatório"),
-  doi: z.string().min(1, "Campo obrigatório"),
+  doi: z.string().optional(),
 });
 
 const createProductionFormSchema = z.object({
-  title: z.string(),
-  year: z.coerce.number(),
+  title: z.string().min(1, "Campo obrigatório"),
+  year: z.coerce.number().min(1900, "Ano inválido"),
+  doi: z.string().optional(),
 });
 
 export default function ProductionsPage() {
@@ -119,6 +121,15 @@ export default function ProductionsPage() {
   const [chosenForm, setChosenForm] = useState<FormType>("none");
   const [showFilters, setShowFilters] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  // Edit Publisher States
+  const [editPublisher, setEditPublisher] = useState<Publisher | null>(null);
+  const [editPublisherType, setEditPublisherType] = useState("conference");
+  const [editPublisherSearch, setEditPublisherSearch] = useState("");
+  const [isEditSearching, setIsEditSearching] = useState(false);
+  const [editSearchResults, setEditSearchResults] = useState<Publisher[]>([]);
+  const [showEditResults, setShowEditResults] = useState(false);
+  const isEditSelectedRef = useRef(false);
 
   // Filtros
   const [filters, setFilters] = useState({
@@ -136,6 +147,38 @@ export default function ProductionsPage() {
     key: "titulo" | "local" | "year" | "tipo" | "origem" | "pontuacao";
     direction: "asc" | "desc";
   }>({ key: "year", direction: "desc" });
+
+  // Debounced search logic for Edit
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (editPublisherSearch.length >= 2 && !isEditSelectedRef.current) {
+        setIsEditSearching(true);
+        try {
+          const filters = transformFilters([
+            { field: "name", value: editPublisherSearch, operator: "like" },
+            { field: "publisher_type", value: editPublisherType, operator: "=" },
+          ]);
+
+          const response = await publisherService.getAllPublishers(
+            1,
+            20,
+            filters,
+          );
+          setEditSearchResults(response.data);
+          setShowEditResults(true);
+        } catch (err) {
+          console.error("Erro ao buscar veículos:", err);
+        } finally {
+          setIsEditSearching(false);
+        }
+      } else {
+        setEditSearchResults([]);
+        setShowEditResults(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [editPublisherSearch, editPublisherType]);
 
   // Admin states
   const [selectedProfessorId, setSelectedProfessorId] = useState<string>(
@@ -360,42 +403,38 @@ export default function ProductionsPage() {
       return;
     }
 
-    const selectedQualis = Array.from(qualisMap.values())
-      .filter((item) => item.type === values.type)
-      .find((item) => item.code === values.qualis_code);
-
     const payload: RequestBodyType = {
       title: values.title,
       year: parsedYear,
-      publisher_type: values.type,
-      stratum_qualis_id: selectedQualis ? selectedQualis.id : null,
-      doi: values.doi,
+      publisher_type: editPublisher?.publisher_type || null,
+      publisher_id: editPublisher?.id || null,
+      stratum_qualis_id: editPublisher?.stratum_qualis_id || null,
+      doi: values.doi ?? null,
     };
     //console.log(payload)
     try {
       if (selectedProduction) {
-        const response =
-          selectedProfessorId && selectedProfessorId !== "own"
-            ? await productionService.updateUserProduction(
-              selectedProduction.id,
-              payload,
-            )
-            : await productionService.updateProduction(
-              selectedProduction.id,
-              JSON.stringify(payload),
-            );
+        // Normalize DOI if present
+        payload.doi = normalizeDoi(values.doi);
 
-        if (
-          (response as any).status == "200" ||
-          (response as any).status == 200 ||
-          (response as any).data
-        ) {
-          toast.success("Atualizado com sucesso");
-          setIsEditOpen(false);
-          queryClient.invalidateQueries({
-            queryKey: ["productions", selectedProfessorId],
-          });
+        if (selectedProfessorId && selectedProfessorId !== "own") {
+          await productionService.updateUserProduction(
+            Number(selectedProfessorId),
+            selectedProduction.id,
+            payload,
+          );
+        } else {
+          await productionService.updateProduction(
+            selectedProduction.id,
+            payload,
+          );
         }
+
+        toast.success("Atualizado com sucesso");
+        setIsEditOpen(false);
+        queryClient.invalidateQueries({
+          queryKey: ["productions", selectedProfessorId],
+        });
       }
     } catch (err) {
       console.error("Erro ao editar publicação:", err);
@@ -447,7 +486,6 @@ export default function ProductionsPage() {
     defaultValues: {
       title: selectedProduction?.title,
       year: selectedProduction?.year,
-      qualis_code: selectedProduction?.last_qualis ?? undefined,
       doi: selectedProduction?.doi || undefined,
     },
   });
@@ -457,10 +495,12 @@ export default function ProductionsPage() {
       form.reset({
         title: selectedProduction.title,
         year: selectedProduction.year,
-        type: selectedProduction.publisher_type ?? undefined,
-        qualis_code: selectedProduction.last_qualis || "",
         doi: selectedProduction.doi || "",
       });
+      setEditPublisher(selectedProduction.publisher || null);
+      setEditPublisherType(selectedProduction.publisher_type || "conference");
+      setEditPublisherSearch(selectedProduction.publisher?.name || "");
+      isEditSelectedRef.current = !!selectedProduction.publisher;
     }
   }, [selectedProduction, isEditOpen, form]);
 
@@ -1364,7 +1404,6 @@ export default function ProductionsPage() {
             />
       ) : (
               <ProductionCreateForm
-                qualis={qualisList}
                 professorId={
                   selectedProfessorId === "own" ? undefined : selectedProfessorId
                 }
@@ -1417,66 +1456,10 @@ export default function ProductionsPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tipo</FormLabel>
-                      <FormDescription>
-                        {/*{selectedProduction?.publisher_type || "N/A"}*/}
-                      </FormDescription>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o tipo de produção" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="journal">Revista</SelectItem>
-                            <SelectItem value="conference">
-                              Conferência
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="qualis_code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Qualis:</FormLabel>
-                      <FormDescription>
-                        {(selectedProduction?.publisher?.stratum_qualis?.id &&
-                          qualisList.find(
-                            (qualis) =>
-                              qualis.id ==
-                              selectedProduction.publisher?.stratum_qualis?.id,
-                          )?.code) ||
-                          "N/A"}
-                      </FormDescription>
-                      <FormControl>
-                        <Input type="text" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="doi"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>D.O.I:</FormLabel>
-                      <FormDescription>
-                        {selectedProduction?.doi || "N/A"}
-                      </FormDescription>
                       <FormControl>
                         <Input type="text" {...field} />
                       </FormControl>
@@ -1484,6 +1467,108 @@ export default function ProductionsPage() {
                     </FormItem>
                   )}
                 />
+
+                {/* Busca de Publisher para Edição */}
+                <div className="space-y-3 p-4 bg-muted/30 rounded-lg relative">
+                  <Label className="text-sm">Tipo de Veículo</Label>
+                  <RadioGroup
+                    className="flex gap-4 mb-2"
+                    value={editPublisherType}
+                    onValueChange={(value) => {
+                      setEditPublisherType(value);
+                      setEditPublisher(null);
+                      setEditSearchResults([]);
+                      setEditPublisherSearch("");
+                      isEditSelectedRef.current = false;
+                    }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="conference" id="edit-conference" />
+                      <Label htmlFor="edit-conference" className="font-normal cursor-pointer">Conferência</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="journal" id="edit-journal" />
+                      <Label htmlFor="edit-journal" className="font-normal cursor-pointer">Revista</Label>
+                    </div>
+                  </RadioGroup>
+
+                  <Label className="text-sm">
+                    Buscar{" "}
+                    {editPublisherType === "journal" ? "Periódico" : "Conferência"}
+                  </Label>
+                  <div className="relative">
+                    <div className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground">
+                      {isEditSearching ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Search className="h-4 w-4" />
+                      )}
+                    </div>
+                    <Input
+                      placeholder={
+                        editPublisherType === "journal"
+                          ? "Buscar por nome ou ISSN..."
+                          : "Buscar por nome ou sigla..."
+                      }
+                      type="text"
+                      value={editPublisherSearch}
+                      onChange={(e) => {
+                        isEditSelectedRef.current = false;
+                        setEditPublisherSearch(e.target.value);
+                        setEditPublisher(null);
+                      }}
+                      className="pl-9 h-10"
+                    />
+
+                    {showEditResults && editSearchResults.length > 0 && (
+                      <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg max-h-48 overflow-auto">
+                        {editSearchResults.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            className="w-full text-left px-4 py-2 hover:bg-muted text-sm border-b last:border-0 transition-colors"
+                            onClick={() => {
+                              setEditPublisher(p);
+                              isEditSelectedRef.current = true;
+                              setEditPublisherSearch(p.name);
+                              setShowEditResults(false);
+                            }}
+                          >
+                            <div className="font-medium truncate">{p.name}</div>
+                            <div className="text-xs text-muted-foreground flex justify-between">
+                              <span>
+                                {p.publisher_type === "journal"
+                                  ? `ISSN: ${p.issn || "N/A"}`
+                                  : `Sigla: ${p.initials || "N/A"}`}
+                              </span>
+                              <span className="font-semibold text-primary">
+                                Qualis: {p.stratum_qualis?.code || "N/A"}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {editPublisher && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-md text-sm">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium text-green-800">{editPublisher.name}</p>
+                          <p className="text-xs text-green-700">
+                            {editPublisher.publisher_type === "journal"
+                              ? `ISSN: ${editPublisher.issn || "N/A"}`
+                              : `Sigla: ${editPublisher.initials || "N/A"}`}
+                          </p>
+                        </div>
+                        <div className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-bold">
+                          Qualis: {editPublisher.stratum_qualis?.code || "N/A"}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button
@@ -1539,31 +1624,25 @@ function ProductionDOIForm({
     setIsLoading(true);
     const request = {
       type: publisherType,
-      doi: doi,
+      doi: extractDoiCode(doi),
     };
 
     try {
-      const response = professorId
-        ? await productionService.createUserProduction(
+      if (professorId) {
+        await productionService.createProfessorProductionFromDoi(
           Number(professorId),
           request,
-        )
-        : await productionService.createProductionFromDoi(request);
-
-      console.log(response);
-      if (
-        response.status == 201 ||
-        response.status == "201" ||
-        response.status == 200 ||
-        response.status == "200"
-      ) {
-        toast.success("Criado com sucesso");
-        setDoi("");
-        queryClient.invalidateQueries({
-          queryKey: ["productions", professorId || "own"],
-        });
-        if (onSuccess) onSuccess();
+        );
+      } else {
+        await productionService.createProductionFromDoi(request);
       }
+
+      toast.success("Criado com sucesso");
+      setDoi("");
+      queryClient.invalidateQueries({
+        queryKey: ["productions", professorId || "own"],
+      });
+      if (onSuccess) onSuccess();
     } catch (err) {
       toast.error("Erro ao criar produção");
       console.error("Erro ao criar produção:", err);
@@ -1585,7 +1664,6 @@ function ProductionDOIForm({
         </div>
 
         <div className="w-full space-y-4">
-          {/* Tipo de publicação */}
           <div className="space-y-2">
             <Label className="text-sm">Tipo de publicação</Label>
             <RadioGroup
@@ -1614,7 +1692,6 @@ function ProductionDOIForm({
             </RadioGroup>
           </div>
 
-          {/* Input DOI */}
           <div className="space-y-2">
             <Label className="text-sm">DOI</Label>
             <Input
@@ -1625,7 +1702,6 @@ function ProductionDOIForm({
             />
           </div>
 
-          {/* Botão */}
           <Button
             onClick={createProduction}
             disabled={!doi || isLoading}
@@ -1641,11 +1717,9 @@ function ProductionDOIForm({
 }
 
 function ProductionCreateForm({
-  qualis,
   professorId,
   onSuccess,
 }: {
-  qualis: StratumQualis[];
   professorId?: string;
   onSuccess?: () => void;
 }) {
@@ -1658,7 +1732,6 @@ function ProductionCreateForm({
   const [showResults, setShowResults] = useState(false);
   const isSelectedRef = useRef(false);
 
-  // Debounced search logic
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (publisherSearch.length >= 2 && !isSelectedRef.current) {
@@ -1668,13 +1741,6 @@ function ProductionCreateForm({
             { field: "name", value: publisherSearch, operator: "like" },
             { field: "publisher_type", value: publisherType, operator: "=" },
           ]);
-
-          // Also try to search by ISSN or Initials if it looks like one
-          if (publisherType === "journal") {
-            // No OR support easily visible, so we primarily use name
-            // but the backend might search multiple fields if we use a 'search' param instead?
-            // Let's stick to name for now as it's the most common
-          }
 
           const response = await publisherService.getAllPublishers(
             1,
@@ -1706,9 +1772,6 @@ function ProductionCreateForm({
   });
 
   async function onSubmit(values: z.infer<typeof createProductionFormSchema>) {
-    console.log("Chamou o submit");
-    console.log(JSON.stringify(values));
-
     const parsedYear = parseFloat(values.year.toString());
     if (isNaN(parsedYear)) {
       console.error("Ano Inválido");
@@ -1720,6 +1783,7 @@ function ProductionCreateForm({
       year: parsedYear,
       publisher_type: publisher?.publisher_type || null,
       publisher_id: publisher?.id || null,
+      doi: normalizeDoi(values.doi),
     };
 
     try {
@@ -1745,7 +1809,7 @@ function ProductionCreateForm({
   function handleInput(e: ChangeEvent<HTMLInputElement>) {
     isSelectedRef.current = false;
     setPublisherSearch(e.target.value);
-    setPublisher(null); // Clear selected publisher when searching
+    setPublisher(null);
   }
 
   function handleValueChange(value: string) {
@@ -1757,7 +1821,7 @@ function ProductionCreateForm({
 
   return (
     <div className="flex flex-col w-full items-center">
-      <div className="flex flex-col gap-4 w-full max-w-lg">
+      <div className="flex flex-col gap-4 w-full max-lg:max-w-lg">
         <div className="text-center">
           <h2 className="text-lg sm:text-xl font-semibold">
             Adicionar manualmente
@@ -1767,7 +1831,6 @@ function ProductionCreateForm({
           </p>
         </div>
 
-        {/* Tipo de publicação */}
         <div className="space-y-2">
           <Label className="text-sm">Tipo de publicação</Label>
           <RadioGroup
@@ -1828,8 +1891,24 @@ function ProductionCreateForm({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="doi"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>DOI (Opcional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Ex: 10.1590/xyz or http://dx.doi.org/..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            {/* Busca de Publisher */}
             <div className="space-y-3 p-4 bg-muted/30 rounded-lg relative">
               <Label className="text-sm">
                 Buscar{" "}
@@ -1855,7 +1934,6 @@ function ProductionCreateForm({
                   className="pl-9 h-10"
                 />
 
-                {/* Resultados da busca */}
                 {showResults && searchResults.length > 0 && (
                   <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
                     {searchResults.map((p) => (
@@ -1885,15 +1963,6 @@ function ProductionCreateForm({
                     ))}
                   </div>
                 )}
-
-                {showResults &&
-                  searchResults.length === 0 &&
-                  publisherSearch.length >= 2 &&
-                  !isSearching && (
-                    <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg p-4 text-center text-sm text-muted-foreground">
-                      Nenhum veículo encontrado para "{publisherSearch}"
-                    </div>
-                  )}
               </div>
 
               {publisher && (

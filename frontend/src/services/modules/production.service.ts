@@ -64,8 +64,8 @@ export const productionService = {
     return response.data;
   },
 
-  async updateUserProduction(productionId: number, body: RequestBodyType) {
-    const response = await apiClient.put<{ data: Production }>(`/api/admin/production/${productionId}`, body);
+  async updateUserProduction(professorId: number, productionId: number, body: RequestBodyType) {
+    const response = await apiClient.put<{ data: Production }>(`/api/admin/professors/${professorId}/productions/${productionId}`, body);
     return response.data;
   },
 
@@ -75,5 +75,9 @@ export const productionService = {
 
   async deleteUserProduction(professorId: number, productionId: number) {
     return apiClient.delete<{ status: string, message: string }>(`/api/admin/professors/${professorId}/productions/${productionId}`);
+  },
+
+  async createProfessorProductionFromDoi(professorId: number, body: RequestBodyType) {
+    return apiClient.post<{ status: number, message: string, data: Production }>(`/api/admin/professors/${professorId}/productions/doi`, body);
   }
 };
