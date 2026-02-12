@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
+use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Requests\Admin\StoreStudentRequest;
 use App\Http\Requests\Admin\UpdateStudentRequest;
 
@@ -17,9 +18,9 @@ class StudentController extends Controller
         $this->userService = $userService;
     }
 
-    public function index()
+    public function index(BaseResourceIndexRequest $request)
     {
-        return UserResource::collection($this->userService->listStudents());
+        return UserResource::collection($this->userService->listStudents($request->validated()));
     }
 
     public function show(int $id)

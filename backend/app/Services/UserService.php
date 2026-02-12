@@ -6,6 +6,7 @@ use App\Enums\UserType;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Http\Filters;
 
 class UserService
 {
@@ -105,9 +106,19 @@ class UserService
     /**
      * List all students.
      */
-    public function listStudents()
+    public function listStudents(array $params = [])
     {
-        return User::students()->get();
+        $query = User::students();
+
+        if (isset($params['order_by']) && $params['order_by']) {
+            $query->orderBy($params['order_by'], $params['dir'] ?? 'asc');
+        }
+
+        if (isset($params['filters'])) {
+            (new Filters($query))->applyFilters($params['filters']);
+        }
+
+        return $query->paginate($params['per_page'] ?? 15);
     }
 
     /**
