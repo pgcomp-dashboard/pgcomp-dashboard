@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PublisherType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 /**
@@ -63,6 +63,10 @@ class Production extends BaseModel
         'doi',
         'source',
         'stratum_qualis_id'
+    ];
+
+    protected $casts = [
+        'publisher_type' => PublisherType::class
     ];
 
     /**

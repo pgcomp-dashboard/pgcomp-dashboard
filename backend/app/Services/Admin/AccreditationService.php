@@ -15,14 +15,21 @@ class AccreditationService
     public function getAccreditationRanking($year1, $year2)
     {
         return User::professors()
-            ->join('users_productions', 'users.id', '=', 'users_productions.users_id')
-            ->join('productions', 'users_productions.productions_id', '=', 'productions.id')
-            ->join('publishers', 'productions.publisher_id', '=', 'publishers.id')
-            ->join('stratum_qualis', 'publishers.stratum_qualis_id', '=', 'stratum_qualis.id')
-            ->whereBetween('productions.year', [$year1, $year2])
+            ->select([
+                'users.id as user_id',
+                'users.name',
+                'users.category',
+                'users.lattes_url',
+                DB::raw('SUM(COALESCE(stratum_qualis.score, 0)) as total_score')
+                ])
+            ->leftJoin('users_productions', 'users.id', '=', 'users_productions.users_id')
+            ->leftJoin('productions', function($join) use ($year1, $year2) {
+                $join->on('users_productions.productions_id', '=', 'productions.id')
+                    ->whereBetween('productions.year', [$year1, $year2]); // Filtro no ON para manter nulos
+            })
+            ->leftJoin('publishers', 'productions.publisher_id', '=', 'publishers.id')
+            ->leftJoin('stratum_qualis', 'publishers.stratum_qualis_id', '=', 'stratum_qualis.id')
             ->groupBy('users.id', 'users.name', 'users.category', 'users.lattes_url')
-            ->select('users.id as user_id', 'users.name', 'users.category', 'users.lattes_url')
-            ->selectRaw('SUM(stratum_qualis.score) as total_score')
             ->orderBy('total_score', 'desc')
             ->get();
     }

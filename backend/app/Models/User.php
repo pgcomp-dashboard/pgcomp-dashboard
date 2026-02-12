@@ -126,6 +126,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'approved_by_id',
         'is_protected',
         'defended_at',
+        'home_page',
     ];
 
     protected $hidden = [
@@ -187,6 +188,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             'lattes_url' => 'nullable|string|max:255',
             'is_admin' => 'nullable|bool',
             'is_protected' => 'nullable|bool',
+            'home_page' => 'nullable|string|max:255'
         ];
     }
 
@@ -245,7 +247,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             'is_admin' => 'nullable|bool',
             'admin_status' => ['nullable', Rule::in(['approved', 'rejected', 'pending'])],
             'admin_requested_at' => 'nullable|date',
-            'approved_by_id' =>['nullable', 'int', Rule::exists(User::class, 'id')]
+            'approved_by_id' =>['nullable', 'int', Rule::exists(User::class, 'id')],
+            'home_page' => 'nullable|string|max:255'
         ];
     }
 
@@ -353,7 +356,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     {
         error_log("entered the update function");
         foreach ($data['productions'] as $production) {
-            if (! $production['doi']) {
+            if (!$production['doi']) {
                 continue;
             }
             $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
@@ -421,11 +424,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public function scopeProfessors($query)
     {
-        return $query->where('type', UserType::PROFESSOR);
+        return $query->where('users.type', UserType::PROFESSOR);
     }
 
     public function scopeStudents($query)
     {
-        return $query->where('type', UserType::STUDENT);
+        return $query->where('users.type', UserType::STUDENT);
     }
 }

@@ -115,6 +115,16 @@ class ProductionController extends Controller
 
     public function importLattesFile(ImportLattesRequest $request)
     {
+        $file = $request->file('file');
+        $path = $file->store('lattes-files');
+        $user = auth()->user();
+
+        try {
+             $data = $this->productionService->importFromLattes($user, $path);
+             return response()->json(['data' => $data], 201);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Erro ao importar arquivo', 'error' => $e->getMessage()], 500);
+        }
         $data = $this->productionService->importFromLattes(
             auth()->user(),
             $request->file('file')->store('lattes-files')

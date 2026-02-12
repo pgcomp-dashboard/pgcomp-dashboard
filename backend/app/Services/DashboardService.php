@@ -7,6 +7,7 @@ use App\Models\Production;
 use App\Models\StratumQualis;
 use App\Models\User;
 use App\Enums\UserType;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -195,29 +196,6 @@ class DashboardService
         }
 
         return compact('years', 'data');
-    }
-
-    /**
-     * @param int year to start count
-     * @return \Illuminate\Support\Collection of each user and their total score
-     */
-    public function findAllProfessorQualisSumByYear($year1, $year2)
-    {
-        return DB::table('productions')
-            ->select('users.id', 'users.name', 'users.category', 'users.lattes_url', DB::raw('SUM(stratum_qualis.score) as score'))
-            ->join(
-                'users_productions',
-                'productions.id',
-                '=',
-                'users_productions.productions_id'
-            )
-            ->join('users', 'users.id', '=', 'users_productions.users_id')
-            ->join('stratum_qualis', 'productions.stratum_qualis_id', '=', 'stratum_qualis.id')
-            ->where('users.type', '=', 'professor')
-            ->whereBetween('productions.year', [$year1, $year2])
-            ->groupBy('users.id', 'users.name', 'users.category', 'users.lattes_url')
-            ->orderBy('score', 'desc')
-            ->get();
     }
 
 }

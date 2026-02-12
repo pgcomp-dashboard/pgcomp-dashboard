@@ -8,29 +8,37 @@ use App\Http\Resources\JournalResource;
 use App\Models\BaseModel;
 use App\Models\Journal;
 use App\Models\Publishers;
+use App\Services\PublisherService;
 use Illuminate\Http\Request;
 
 class JournalController extends Controller
 {
+    protected PublisherService $service;
+
+    public function __construct(PublisherService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $results = Publishers::onlyJournals()->paginate(15);
+        $results = $this->service->listJournals(15);
 
         return JournalResource::collection($results);
     }
 
     public function show(int $id){
-        return new JournalResource(Publishers::onlyJournals()->findOrFail($id));
+        return new JournalResource($this->service->findJournal($id));
     }
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $model = Publishers::create($request->all());
+        $model = $this->service->create($request->all());
 
         return new JournalResource($model);
     }
@@ -40,9 +48,7 @@ class JournalController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        $model = Publishers::findOrFail($id);
-
-        $model->update($request->all());
+        $model = $this->service->update($id, $request->all());
 
         return new JournalResource($model);
     }

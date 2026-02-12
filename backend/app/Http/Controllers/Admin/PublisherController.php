@@ -18,34 +18,40 @@ use App\Domain\Qualis\JournalQualisXLSX;
 use App\Enums\PublisherType;
 use Illuminate\Support\Str;
 use App\Models\StratumQualis;
+use App\Services\PublisherService;
 
 class PublisherController extends Controller
 {
+    private PublisherService $publisherService;
+
+    public function __construct(PublisherService $publisherService)
+    {
+        $this->publisherService = $publisherService;
+    }
+
     public function store(StorePublisherRequest $request)
     {
-        $model = Publishers::create($request->all());
+        $model = $this->publisherService->create($request->all());
 
         return new PublisherResource($model);
     }
 
     public function update(UpdatePublisherRequest $request, int $id)
     {
-        $model = Publishers::findOrFail($id);
-
-        $model->update($request->all());
+        $model = $this->publisherService->update($id, $request->all());
 
         return new PublisherResource($model);
     }
 
     public function index(Request $request)
     {
-        $results = Publishers::query()->paginate(15);
+        $results = $this->publisherService->listAll();
         return PublisherResource::collection($results);
     }
 
     public function conferenceByInitials(Request $request){
         $initial = $request->query('initial');
-        $publisher = Publishers::where('initials', '=',$initial)->first();
+        $publisher = $this->publisherService->findByInitials($initial);
         return response()->json([
                 'data' => $publisher,
             ]);
@@ -53,7 +59,7 @@ class PublisherController extends Controller
 
     public function journalByIssn(Request $request){
         $issn = $request->query('issn');
-        $publisher = Publishers::where('issn', '=', Str::of($issn)->trim()->remove('-')->value())->first();
+        $publisher = $this->publisherService->findByIssn($issn);
         return response()->json([
                 'data' => $publisher,
             ]);
@@ -65,62 +71,12 @@ class PublisherController extends Controller
         $type = $request->input('type');
         $path = $file->store('publisher-qualis-files');
 
-        $data = match ($type) {
-            'conference' => ConferenceQualisXLSX::extractConferenceQualis($path),
-            'journal' => JournalQualisXLSX::extractJournalQualis($path),
-        };
+        $result = $this->publisherService->importQualis($type, $path);
 
-        $publisherType = match ($type) {
-            'conference' => PublisherType::CONFERENCE,
-            'journal' => PublisherType::JOURNAL,
-        };
-
-        if (count($data) > 1) {
-            foreach ($data as $row) {
-                $qualisId = StratumQualis::where('type', $publisherType->value)
-                    ->where('code', $row[2])
-                    ->first()->id ?? null;
-
-                if ($type === 'conference') {
-                    Publishers::updateOrCreate(
-                        [
-                            'initials' => $row[0],
-                            'name' => $row[1]
-                        ],
-                        [
-                            'initials' => $row[0],
-                            'name' => $row[1],
-                            'stratum_qualis_id' => $qualisId,
-                            'publisher_type' => $publisherType->value
-                        ]
-                    );
-                } else {
-                    $issn = Str::of($row[0])->trim()->remove('-')->value();
-                    Publishers::updateOrCreate(
-                        [
-                            'issn' => $issn,
-                            'name' => $row[1]
-                        ],
-                        [
-                            'issn' => $issn,
-                            'name' => $row[1],
-                            'stratum_qualis_id' => $qualisId,
-                            'publisher_type' => $publisherType->value
-                        ]
-                    );
-                }
-            }
-
-            $typeLabel = $type === 'conference' ? 'Conferências' : 'Revistas';
-            return response()->json([
-                "status" => 200,
-                "message" => "Planilha de {$typeLabel} importada com sucesso"
-            ]);
+        if ($result['status'] === 200) {
+            return response()->json($result);
         }
 
-        return response()->json([
-            "status" => 404,
-            "message" => "Erro ao processar a planilha"
-        ]);
+        return response()->json($result); // Or handle error accordingly
     }
 }

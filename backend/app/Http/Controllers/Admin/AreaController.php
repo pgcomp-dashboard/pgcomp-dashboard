@@ -12,9 +12,17 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Http\Requests\Admin\Area\StoreAreaRequest;
 use App\Http\Requests\Admin\Area\UpdateAreaRequest;
+use App\Services\AreaService;
 
 class AreaController extends BaseApiResourceController
 {
+    private AreaService $areaService;
+
+    public function __construct(AreaService $areaService)
+    {
+        $this->areaService = $areaService;
+    }
+
     protected function modelClass(): string|BaseModel
     {
         return Area::class;
@@ -27,7 +35,7 @@ class AreaController extends BaseApiResourceController
 
     public function store(StoreAreaRequest $request)
     {
-        $model = $this->modelClass()::create($request->all());
+        $model = $this->areaService->create($request->all());
 
         if ($resourceClass = $this->resourceClass()) {
             return new $resourceClass($model);
@@ -38,9 +46,7 @@ class AreaController extends BaseApiResourceController
 
     public function update(UpdateAreaRequest $request, int $id)
     {
-        $model = $this->findOrFail($id);
-
-        $model->update($request->all());
+        $model = $this->areaService->update($id, $request->all());
 
         if ($resourceClass = $this->resourceClass()) {
             return new $resourceClass($model);
@@ -51,7 +57,7 @@ class AreaController extends BaseApiResourceController
 
     public function index(BaseResourceIndexRequest $request)
     {
-        $areas = Area::withCount('students')->get();
+        $areas = $this->areaService->list();
 
         if ($areas->isEmpty()) {
             throw new NotFoundHttpException('Nenhuma área encontrada');
@@ -62,17 +68,13 @@ class AreaController extends BaseApiResourceController
 
     public function destroy(int $id)
     {
-        $area = Area::find($id);
+        $area = $this->areaService->find($id);
 
-        if (! $area) {
-            throw new NotFoundHttpException('Área não cadastrada');
-        }
-
-        if ($area->users()->exists()) {
+        if ($this->areaService->hasUsers($id)) {
             throw new ConflictHttpException('Erro: Usuários cadastrados nessa área');
         }
 
-        $area->delete();
+        $this->areaService->delete($id);
 
         return response()->json(['message' => 'Area excluida com sucesso'], 200);
     }

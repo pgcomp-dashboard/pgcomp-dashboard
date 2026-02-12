@@ -7,50 +7,54 @@ use App\Http\Resources\StratumQualisResource;
 use App\Models\StratumQualis;
 use App\Http\Requests\Admin\StratumQualis\StoreStratumQualisRequest;
 use App\Http\Requests\Admin\StratumQualis\UpdateStratumQualisRequest;
+use App\Services\StratumQualisService;
 
 class StratumQualisController extends Controller
 {
+    private StratumQualisService $stratumQualisService;
+
+    public function __construct(StratumQualisService $stratumQualisService)
+    {
+        $this->stratumQualisService = $stratumQualisService;
+    }
+
     public function index()
     {
-        $qualis = StratumQualis::all();
+        $qualis = $this->stratumQualisService->list();
 
         return StratumQualisResource::collection($qualis);
     }
 
     public function show(int $id)
     {
-        $qualis = StratumQualis::findOrFail($id);
+        $qualis = $this->stratumQualisService->find($id);
 
         return new StratumQualisResource($qualis);
     }
 
     public function store(StoreStratumQualisRequest $request)
     {
-        $model = StratumQualis::create($request->all());
+        $model = $this->stratumQualisService->create($request->all());
 
         return new StratumQualisResource($model);
     }
 
     public function update(UpdateStratumQualisRequest $request, int $id)
     {
-        $model = StratumQualis::findOrFail($id);
-
-        $model->update($request->all());
+        $model = $this->stratumQualisService->update($id, $request->all());
 
         return new StratumQualisResource($model);
     }
 
     public function destroy(int $id)
     {
-        $stratumQualis = StratumQualis::findOrFail($id);
+        $error = $this->stratumQualisService->delete($id);
 
-        if ($stratumQualis->productions()->exists()) {
+        if ($error) {
             return response()->json([
-                'message' => 'Não é possível deletar este Qualis pois existem produções vinculadas a ele. Por favor remova essas produções antes.'
+                'message' => $error
             ], 409);
         }
-
-        $stratumQualis->delete();
 
         return response()->json(['message' => 'Qualis deletado com sucesso']);
     }
