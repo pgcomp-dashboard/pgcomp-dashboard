@@ -1,29 +1,28 @@
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Area } from "@/types/academic";
@@ -45,6 +44,7 @@ interface AreaDialogsProps {
   onDeleteOpenChange: (open: boolean) => void;
   editingArea: Area | null;
   areaToDelete: Area | null;
+  isDeleting: boolean;
   onSave: (name: string) => Promise<void>;
   onConfirmDelete: () => Promise<void>;
 }
@@ -56,6 +56,7 @@ export function AreaDialogs({
   onDeleteOpenChange,
   editingArea,
   areaToDelete,
+  isDeleting,
   onSave,
   onConfirmDelete,
 }: AreaDialogsProps) {
@@ -107,7 +108,7 @@ export function AreaDialogs({
                 )}
               />
               <DialogFooter className="pt-4">
-                <Button variant="outline" type="button" onClick={() => onAddEditOpenChange(false)}>
+                <Button variant="outline" type="button" onClick={() => onAddEditOpenChange(false)} disabled={form.formState.isSubmitting}>
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
@@ -129,13 +130,14 @@ export function AreaDialogs({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <Button
+              variant="destructive"
               onClick={onConfirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeleting}
             >
-              Excluir
-            </AlertDialogAction>
+              {isDeleting ? "Excluindo..." : "Excluir"}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

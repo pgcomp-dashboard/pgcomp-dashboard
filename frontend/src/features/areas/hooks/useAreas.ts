@@ -1,11 +1,11 @@
+import { queryClient } from "@/lib/query-client";
 import { areaService } from "@/services/modules/area.service";
 import { Area } from "@/types/academic";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 export function useAreas() {
-  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: areas = [], isLoading, error } = useQuery<Area[], Error>({

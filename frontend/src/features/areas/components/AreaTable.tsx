@@ -1,15 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 import { Area } from "@/types/academic";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { Pencil, Search, Trash2 } from "lucide-react";
+import { useMemo } from "react";
 
 interface AreaTableProps {
   areas: Area[];
@@ -20,6 +15,8 @@ interface AreaTableProps {
   onDelete: (area: Area) => void;
 }
 
+const columnHelper = createColumnHelper<Area>();
+
 export function AreaTable({
   areas,
   isLoading,
@@ -28,6 +25,44 @@ export function AreaTable({
   onEdit,
   onDelete,
 }: AreaTableProps) {
+  const columns = useMemo<ColumnDef<Area, any>[]>(
+    () => [
+      columnHelper.accessor("name", {
+        header: "Nome da Área",
+        cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+      }),
+      columnHelper.accessor("students_count", {
+        header: () => <div className="text-center">Alunos por Área</div>,
+        cell: (info) => <div className="text-center">{info.getValue()}</div>,
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: () => <div className="text-right">Ações</div>,
+        cell: (info) => (
+          <div className="flex justify-end gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onEdit(info.row.original)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-destructive hover:text-destructive"
+              onClick={() => onDelete(info.row.original)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      }),
+    ],
+    [onEdit, onDelete]
+  );
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -41,59 +76,12 @@ export function AreaTable({
         />
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome da Área</TableHead>
-              <TableHead className="text-center">Alunos por Área</TableHead>
-              <TableHead className="w-25 text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center">
-                  Carregando...
-                </TableCell>
-              </TableRow>
-            ) : areas.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center">
-                  Nenhuma área encontrada.
-                </TableCell>
-              </TableRow>
-            ) : (
-              areas.map((area) => (
-                <TableRow key={area.id}>
-                  <TableCell className="font-medium">{area.name}</TableCell>
-                  <TableCell className="text-center">{area.students_count}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => onEdit(area)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => onDelete(area)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={areas}
+        isLoading={isLoading}
+        emptyMessage="Nenhuma área encontrada."
+      />
     </div>
   );
 }

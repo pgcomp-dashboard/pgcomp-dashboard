@@ -84,6 +84,7 @@ export default function AreasPage() {
         onDeleteOpenChange={setIsDeleteOpen}
         editingArea={editingArea}
         areaToDelete={areaToDelete}
+        isDeleting={deleteAreaMutation.isPending}
         onSave={handleSave}
         onConfirmDelete={handleConfirmDelete}
       />
