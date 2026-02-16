@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Professor } from "@/types/user";
 import { Eye, FileText, SquarePenIcon } from "lucide-react";
@@ -48,6 +48,7 @@ export function ProfessorTable({
             <TableRow>
               <TableHead className="text-center">Nome</TableHead>
               <TableHead className="text-center">Categoria</TableHead>
+              <TableHead className="text-center">Administrador</TableHead>
               <TableHead className="text-center">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -59,6 +60,9 @@ export function ProfessorTable({
                   {professor.category?.replace(/^./, (match) =>
                     match.toUpperCase()
                   ) || "Não Encontrado"}
+                </TableCell>
+                <TableCell className="text-center">
+                  {professor.is_admin ? "Sim" : "Não"}
                 </TableCell>
                 <TableCell className="flex justify-center gap-2">
                   <Button

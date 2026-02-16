@@ -2,8 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\UserType;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin \App\Models\User
+ */
 class UserResource extends JsonResource
 {
     /**
@@ -16,19 +20,27 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'registration' => $this->registration,
-            'siape' => $this->siape,
             'name' => $this->name,
             'type' => $this->type,
             'category' => $this->category,
             'email' => $this->email,
             'lattes_url' => $this->lattes_url,
-            'defended_at' => $this->defended_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            // Relationships can be added here using $this->whenLoaded()
-            'course' => $this->whenLoaded('course'),
-            'area' => $this->whenLoaded('area'),
+
+            // Student specific fields
+            $this->mergeWhen($this->type === UserType::STUDENT, [
+                'registration' => $this->registration,
+                'defended_at' => $this->defended_at,
+                'course' => $this->whenLoaded('course'),
+                'area' => $this->whenLoaded('area'),
+            ]),
+
+            // Professor/Manager specific fields
+            $this->mergeWhen($this->type !== UserType::STUDENT, [
+                'siape' => $this->siape,
+                'is_admin' => $this->is_admin,
+            ]),
         ];
     }
 }
