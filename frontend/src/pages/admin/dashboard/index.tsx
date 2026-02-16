@@ -6,21 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import StudentsPerAdvisorChart from '@/components/charts/StudentsPerAdvisor.tsx';
+import StudentsPerAdvisorChart from '@/features/dashboard/components/charts/StudentsPerAdvisor';
 // import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
-import ProductionPerQualisChart from '@/components/charts/ProductionPerQualis';
+import ProductionPerQualisChart from '@/features/dashboard/components/charts/ProductionPerQualis';
 // import QualityMetricsChart from '@/components/quality-metrics-chart';
 // import StudentsByFacultyChart from '@/components/students-by-faculty-chart';
 // import StudentsByAreaChart from '@/components/students-by-area-chart';
 // import StudentsBySubareaChart from '@/components/students-by-subarea-chart';
 
 import logoImage from '@/assets/logo.png';
-import DefensesPerYearChart from '@/components/charts/DefensesPerYear';
-import EnrollmentsPerYearChart from '@/components/charts/EnrollmentsPerYear';
-import ProductionsPerYearChart from '@/components/charts/ProductionsPerYear.tsx';
-import ProfessorProductionPerYear from '@/components/charts/ProfessorProductionPerYear';
-import StudentCountCard from '@/components/StudentCountCard';
-import { dashboardService } from '@/services/modules/dashboard.service';
+import DefensesPerYearChart from '@/features/dashboard/components/charts/DefensesPerYear';
+import EnrollmentsPerYearChart from '@/features/dashboard/components/charts/EnrollmentsPerYear';
+import ProductionsPerYearChart from '@/features/dashboard/components/charts/ProductionsPerYear';
+import ProfessorProductionPerYear from '@/features/dashboard/components/charts/ProfessorProductionPerYear';
+import StudentCountCard from '@/features/dashboard/components/StudentCountCard';
+import { scrapingService } from '@/services/modules/scraping.service';
 import { useEffect, useState } from 'react';
 
 
@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   async function fetchLastExecution() {
     try {
-      const response = await dashboardService.getScrapingExecutions();
+      const response = await scrapingService.getScrapingExecutions();
       if (response.length > 0 && response[0].executed_at) {
         setLastExecution(response[0].executed_at);
       }

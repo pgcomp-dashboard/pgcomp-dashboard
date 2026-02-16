@@ -1,4 +1,4 @@
-import UploadXMLForm from '@/components/UploadXMLForm';
+import UploadXMLForm from '@/features/productions/components/UploadXMLForm';
 
 export default function WelcomePage() {
   return (

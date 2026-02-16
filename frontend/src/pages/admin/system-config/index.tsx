@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { parseApiError } from "@/services/http-client";
-import { dashboardService } from "@/services/modules/dashboard.service";
+import { scrapingService } from '@/services/modules/scraping.service';
 import { formatDateTime } from "@/utils/dates";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,18 +43,18 @@ export default function SystemConfigPage() {
 
   const { data: scrapingInterval } = useQuery({
     queryKey: ["scraping_interval"],
-    queryFn: () => dashboardService.getScrapingInterval(),
+    queryFn: () => scrapingService.getScrapingInterval(),
   });
 
   const { data: scrapingHistory, error: scrapingHistoryError } = useQuery({
     queryKey: ["scraping_execution"],
-    queryFn: () => dashboardService.getScrapingExecutions(),
+    queryFn: () => scrapingService.getScrapingExecutions(),
   });
 
   async function executeScrapping() {
     console.log("Scrap execute form");
     try {
-      await dashboardService.executeScraping();
+      await scrapingService.executeScraping();
       queryClient.invalidateQueries({ queryKey: ["scraping_execution"] });
     } catch (error) {
       alert("Erro ao executar o scraping: " + parseApiError(error));
@@ -71,7 +71,7 @@ export default function SystemConfigPage() {
   function onSubmit(values: z.infer<typeof systemConfigFormSchema>) {
     console.log("Scrap submit form");
 
-    dashboardService.setScrapingInterval(values.scrapingIntervalDays);
+    scrapingService.setScrapingInterval(values.scrapingIntervalDays);
   }
 
   const lattesIdForm = useForm<z.infer<typeof lattesIdFormSchema>>({
@@ -89,7 +89,7 @@ export default function SystemConfigPage() {
     };
 
     try {
-      await dashboardService.executeScrapingForAProfessor(request);
+      await scrapingService.executeScrapingForAProfessor(request);
       queryClient.invalidateQueries({ queryKey: ["scraping_execution"] });
     } catch (error) {
       alert("Erro ao executar o scraping: " + parseApiError(error));

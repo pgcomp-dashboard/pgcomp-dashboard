@@ -1,10 +1,9 @@
 import {
     BookOpen,
-    File,
-    Folders,
+  File,
     GraduationCap,
     Trophy,
-    Users,
+  Users
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
@@ -56,17 +55,6 @@ export function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === "/admin/team"}
-                >
-                  <Link to="/admin/team" data-cy="link-areas">
-                    <Users className="h-4 w-4" />
-                    <span>Usuários</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
                   isActive={pathname === "/admin/areas"}
                 >
                   <Link to="/admin/areas" data-cy="link-areas">
@@ -103,7 +91,7 @@ export function AdminSidebar() {
                   isActive={pathname === "/admin/professors"}
                 >
                   <Link to="/admin/professors">
-                    <Folders className="h-4 w-4" />
+                    <Users className="h-4 w-4" />
                     <span>Docentes</span>
                   </Link>
                 </SidebarMenuButton>
