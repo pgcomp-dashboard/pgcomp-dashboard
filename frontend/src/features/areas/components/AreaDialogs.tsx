@@ -5,7 +5,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,29 +37,19 @@ const areaFormSchema = z.object({
 
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 
-interface AreaDialogsProps {
-  isAddEditOpen: boolean;
-  onAddEditOpenChange: (open: boolean) => void;
-  isDeleteOpen: boolean;
-  onDeleteOpenChange: (open: boolean) => void;
+interface AreaFormDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   editingArea: Area | null;
-  areaToDelete: Area | null;
-  isDeleting: boolean;
   onSave: (name: string) => Promise<void>;
-  onConfirmDelete: () => Promise<void>;
 }
 
-export function AreaDialogs({
-  isAddEditOpen,
-  onAddEditOpenChange,
-  isDeleteOpen,
-  onDeleteOpenChange,
+export function AreaFormDialog({
+  open,
+  onOpenChange,
   editingArea,
-  areaToDelete,
-  isDeleting,
   onSave,
-  onConfirmDelete,
-}: AreaDialogsProps) {
+}: AreaFormDialogProps) {
   const form = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -68,79 +58,100 @@ export function AreaDialogs({
   });
 
   useEffect(() => {
-    if (isAddEditOpen) {
+    if (open) {
       form.reset({
         name: editingArea ? editingArea.name : "",
       });
     }
-  }, [editingArea, isAddEditOpen, form]);
+  }, [editingArea, open, form]);
 
   const handleSubmit = async (values: AreaFormValues) => {
     await onSave(values.name);
-    onAddEditOpenChange(false);
+    onOpenChange(false);
   };
 
   return (
-    <>
-      <Dialog open={isAddEditOpen} onOpenChange={onAddEditOpenChange}>
-        <DialogContent className="sm:max-w-106">
-          <DialogHeader>
-            <DialogTitle>{editingArea ? "Editar Área" : "Adicionar Área"}</DialogTitle>
-            <DialogDescription>
-              {editingArea
-                ? "Atualize o nome desta área de pesquisa."
-                : "Insira o nome da nova área de pesquisa."}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 pt-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome da Área</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Engenharia de Software" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter className="pt-4">
-                <Button variant="outline" type="button" onClick={() => onAddEditOpenChange(false)} disabled={form.formState.isSubmitting}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-106">
+        <DialogHeader>
+          <DialogTitle>{editingArea ? "Editar Área" : "Adicionar Área"}</DialogTitle>
+          <DialogDescription>
+            {editingArea
+              ? "Atualize o nome desta área de pesquisa."
+              : "Insira o nome da nova área de pesquisa."}
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 pt-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome da Área</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Engenharia de Software" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="pt-4">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => onOpenChange(false)}
+                disabled={form.formState.isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-      <AlertDialog open={isDeleteOpen} onOpenChange={onDeleteOpenChange}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Área</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir a área <strong>{areaToDelete?.name}</strong>?
-              Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onConfirmDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? "Excluindo..." : "Excluir"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+interface AreaDeleteDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  areaToDelete: Area | null;
+  isDeleting: boolean;
+  onConfirm: () => Promise<void>;
+}
+
+export function AreaDeleteDialog({
+  open,
+  onOpenChange,
+  areaToDelete,
+  isDeleting,
+  onConfirm,
+}: AreaDeleteDialogProps) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Excluir Área</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tem certeza que deseja excluir a área <strong>{areaToDelete?.name}</strong>?
+            Esta ação não pode ser desfeita.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Excluindo..." : "Excluir"}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

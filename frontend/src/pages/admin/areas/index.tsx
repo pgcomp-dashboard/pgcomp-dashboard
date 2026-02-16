@@ -1,11 +1,10 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { AreaDialogs } from "@/features/areas/components/AreaDialogs";
+import { AreaDeleteDialog, AreaFormDialog } from "@/features/areas/components/AreaDialogs";
+import { AreaHeader } from "@/features/areas/components/AreaHeader";
 import { AreaTable } from "@/features/areas/components/AreaTable";
 import { useAreas } from "@/features/areas/hooks/useAreas";
 import { Area } from "@/types/academic";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function AreasPage() {
@@ -14,60 +13,55 @@ export default function AreasPage() {
     isLoading,
     searchTerm,
     setSearchTerm,
-    addAreaMutation,
-    updateAreaMutation,
-    deleteAreaMutation,
+    actions,
   } = useAreas();
 
-  const [isAddEditOpen, setIsAddEditOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [areaToDelete, setAreaToDelete] = useState<Area | null>(null);
 
+  // Função para adicionar área
   const handleAdd = () => {
     setEditingArea(null);
-    setIsAddEditOpen(true);
+    setIsFormOpen(true);
   };
 
+  // Função para editar área
   const handleEdit = (area: Area) => {
     setEditingArea(area);
-    setIsAddEditOpen(true);
+    setIsFormOpen(true);
   };
 
+  // Função para deletar área
   const handleDelete = (area: Area) => {
     setAreaToDelete(area);
     setIsDeleteOpen(true);
   };
 
+  // Função para salvar área
   const handleSave = async (name: string) => {
     if (editingArea) {
-      await updateAreaMutation.mutateAsync({ id: editingArea.id, name });
+      await actions.update.mutateAsync({ id: editingArea.id, name });
     } else {
-      await addAreaMutation.mutateAsync({ name });
+      await actions.add.mutateAsync({ name });
     }
   };
 
+  // Função para confirmar exclusão de área
   const handleConfirmDelete = async () => {
     if (areaToDelete) {
-      await deleteAreaMutation.mutateAsync(areaToDelete.id);
+      await actions.remove.mutateAsync(areaToDelete.id);
       setIsDeleteOpen(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Áreas de Pesquisa</h1>
-          <p className="text-muted-foreground">Gerencie as áreas acadêmicas do programa.</p>
-        </div>
+      {/* Header com botão de adicionar área */}
+      <AreaHeader onAddClick={handleAdd} />
 
-        <Button className="flex gap-2" onClick={handleAdd}>
-          <Plus className="h-4 w-4" />
-          Adicionar Área
-        </Button>
-      </header>
-
+      {/* Tabela de áreas */}
       <AreaTable
         areas={areas}
         isLoading={isLoading}
@@ -77,16 +71,21 @@ export default function AreasPage() {
         onDelete={handleDelete}
       />
 
-      <AreaDialogs
-        isAddEditOpen={isAddEditOpen}
-        onAddEditOpenChange={setIsAddEditOpen}
-        isDeleteOpen={isDeleteOpen}
-        onDeleteOpenChange={setIsDeleteOpen}
+      {/* Dialog para adicionar e editar áreas */}
+      <AreaFormDialog
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
         editingArea={editingArea}
-        areaToDelete={areaToDelete}
-        isDeleting={deleteAreaMutation.isPending}
         onSave={handleSave}
-        onConfirmDelete={handleConfirmDelete}
+      />
+
+      {/* Dialog para deletar áreas */}
+      <AreaDeleteDialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        areaToDelete={areaToDelete}
+        isDeleting={actions.remove.isPending}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

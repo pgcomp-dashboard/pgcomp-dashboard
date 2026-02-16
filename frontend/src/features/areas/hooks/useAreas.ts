@@ -14,36 +14,33 @@ export function useAreas() {
   });
 
   const filteredAreas = useMemo(() => {
-    if (!searchTerm.trim()) return areas;
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return areas;
     return areas.filter((area) =>
-      area.name.toLowerCase().includes(searchTerm.toLowerCase())
+      area.name.toLowerCase().includes(term)
     );
   }, [areas, searchTerm]);
 
+  const handleSuccess = (message: string) => {
+    queryClient.invalidateQueries({ queryKey: ["areas"] });
+    toast.success(message);
+  };
+
   const addAreaMutation = useMutation({
-    mutationFn: (area: { name: string }) => areaService.createArea(area),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["areas"] });
-      toast.success("Área adicionada com sucesso!");
-    },
+    mutationFn: areaService.createArea,
+    onSuccess: () => handleSuccess("Área adicionada com sucesso!"),
     onError: () => toast.error("Erro ao adicionar área."),
   });
 
   const updateAreaMutation = useMutation({
-    mutationFn: (area: { id: number; name: string }) => areaService.updateArea(area),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["areas"] });
-      toast.success("Área atualizada com sucesso!");
-    },
+    mutationFn: areaService.updateArea,
+    onSuccess: () => handleSuccess("Área atualizada com sucesso!"),
     onError: () => toast.error("Erro ao atualizar área."),
   });
 
   const deleteAreaMutation = useMutation({
-    mutationFn: (id: number) => areaService.deleteArea(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["areas"] });
-      toast.success("Área excluída com sucesso!");
-    },
+    mutationFn: areaService.deleteArea,
+    onSuccess: () => handleSuccess("Área excluída com sucesso!"),
     onError: () => toast.error("Erro ao excluir área."),
   });
 
@@ -53,8 +50,10 @@ export function useAreas() {
     error,
     searchTerm,
     setSearchTerm,
-    addAreaMutation,
-    updateAreaMutation,
-    deleteAreaMutation,
+    actions: {
+      add: addAreaMutation,
+      update: updateAreaMutation,
+      remove: deleteAreaMutation,
+    },
   };
 }
