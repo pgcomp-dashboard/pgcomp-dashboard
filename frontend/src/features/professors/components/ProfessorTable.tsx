@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Professor } from "@/types/user";
 import { Eye, FileText, SquarePenIcon } from "lucide-react";
+import { Link } from "react-router";
 
 interface ProfessorTableProps {
   professors: Professor[];
@@ -55,7 +56,16 @@ export function ProfessorTable({
           <TableBody>
             {professors.map((professor) => (
               <TableRow key={professor.id}>
-                <TableCell className="text-center">{professor.name}</TableCell>
+                <TableCell className="text-center">
+                  <Link
+                    to={professor.lattes_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
+                  >
+                    {professor.name}
+                  </Link>
+                </TableCell>
                 <TableCell className="text-center">
                   {professor.category?.replace(/^./, (match) =>
                     match.toUpperCase()
@@ -94,7 +104,16 @@ export function ProfessorTable({
           {professors.map((professor) => (
             <div key={professor.id} className="rounded-lg border p-4 bg-white">
               <div className="flex flex-col gap-3">
-                <h3 className="font-semibold text-base">{professor.name}</h3>
+                <h3 className="font-semibold text-base">
+                  <Link
+                    to={professor.lattes_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
+                  >
+                    {professor.name}
+                  </Link>
+                </h3>
                 <div className="flex gap-2 pt-2 border-t">
                   <Button
                     variant="outline"
