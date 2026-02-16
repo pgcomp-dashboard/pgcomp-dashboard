@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Publisher } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
@@ -33,11 +33,11 @@ export function PublisherTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Identificador</TableHead>
-            <TableHead>Nome</TableHead>
-            <TableHead>Tipo</TableHead>
-            <TableHead>Qualis</TableHead>
-            <TableHead className="w-25 text-right">Ações</TableHead>
+            <TableHead className="text-center">ISSN/Sigla</TableHead>
+            <TableHead className="text-center">Nome</TableHead>
+            <TableHead className="text-center">Veículo</TableHead>
+            <TableHead className="text-center">Qualis</TableHead>
+            <TableHead className="text-center w-25">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,22 +56,24 @@ export function PublisherTable({
           ) : (
             publishers.map((publisher) => (
               <TableRow key={publisher.id}>
-                <TableCell>
+                <TableCell className="text-center">
                   {publisher.publisher_type === 'journal'
                     ? (publisher.issn || '—')
                     : (publisher.initials || '—')}
                 </TableCell>
-                <TableCell className="capitalize">{publisher.name.toLowerCase()}</TableCell>
-                <TableCell>
+                <TableCell className="capitalize text-justify max-w-[500px] min-w-[200px] whitespace-normal break-words mx-auto">
+                  {publisher.name.toLowerCase()}
+                </TableCell>
+                <TableCell className="text-center">
                   {publisher.publisher_type === 'journal' ? 'Periódico' :
                     publisher.publisher_type === 'conference' ? 'Conferência' :
                       publisher.publisher_type}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-center">
                   {publisher.stratum_qualis?.code || '—'}
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
+                <TableCell className="text-center">
+                  <div className="flex justify-center gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
