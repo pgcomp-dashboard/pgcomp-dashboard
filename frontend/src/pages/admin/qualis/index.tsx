@@ -1,10 +1,10 @@
 'use client';
 
 import { Input } from "@/components/ui/input";
-import { QualisAccordion } from "@/features/qualis/components/QualisAccordion";
 import { QualisDeleteDialog } from "@/features/qualis/components/QualisDeleteDialog";
 import { QualisDialog } from "@/features/qualis/components/QualisDialogs";
 import { QualisHeader } from "@/features/qualis/components/QualisHeader";
+import { QualisTabs } from "@/features/qualis/components/QualisTabs";
 import { QualisFormData, useQualis } from "@/features/qualis/hooks/useQualis";
 import { StratumQualis } from "@/types/academic";
 import { Search } from "lucide-react";
@@ -79,7 +79,7 @@ export default function QualisPage() {
         </div>
       </div>
 
-      <QualisAccordion
+      <QualisTabs
         qualis={qualis}
         onEdit={handleEdit}
         onDelete={handleDelete}
