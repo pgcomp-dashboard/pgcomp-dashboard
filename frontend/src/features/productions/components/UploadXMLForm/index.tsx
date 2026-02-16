@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { queryClient } from '@/lib/query-client';
 import { productionService } from '@/services/modules/production.service';
 import { FileText, Loader2, Upload, X } from 'lucide-react';
 import { ChangeEvent, useState } from 'react';
@@ -41,6 +42,8 @@ export default function UploadXMLForm({
       }
       toast.success('Produções cadastradas com sucesso');
       setStatus('success');
+
+      await queryClient.invalidateQueries({ queryKey: ['productions', professorId || 'own'] });
 
       if (onSuccess) {
         onSuccess();

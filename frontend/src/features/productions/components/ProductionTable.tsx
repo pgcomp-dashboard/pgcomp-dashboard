@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Production, StratumQualis } from '@/types/academic';
+import { Production } from '@/types/academic';
 import {
   ArrowUpDown,
   ChevronDown,
@@ -34,7 +34,6 @@ interface ProductionTableProps {
   isLoading: boolean;
   hasActiveFilters: boolean;
   productions: Production[];
-  qualisList: StratumQualis[];
   sortConfig: {
     key: string;
     direction: 'asc' | 'desc';
@@ -51,7 +50,6 @@ export function ProductionTable({
   isLoading,
   hasActiveFilters,
   productions,
-  qualisList,
   sortConfig,
   onSort,
   onEdit,
@@ -223,10 +221,10 @@ export function ProductionTable({
                   {production.source === 'xml' || production.source === 'lattes' ? 'Lattes' : production.source}
                 </TableCell>
                 <TableCell className="text-center px-1 py-2 text-sm">
-                  {production.publisher?.stratum_qualis?.id && qualisList.find(q => q.id == production.publisher?.stratum_qualis?.id)?.code}
+                  {production.publisher?.stratum_qualis?.code || '--'}
                 </TableCell>
                 <TableCell className="text-center px-1 py-2 text-sm">
-                  {production.publisher?.stratum_qualis?.id && qualisList.find(q => q.id == production.publisher?.stratum_qualis?.id)?.score}
+                  {production.publisher?.stratum_qualis?.score || '--'}
                 </TableCell>
                 <TableCell className="text-center px-1 py-2">
                   <Button variant="ghost" size="icon" onClick={() => onEdit(production)} title="Editar">
@@ -269,7 +267,7 @@ export function ProductionTable({
 
       <div className="md:hidden flex flex-col gap-3 w-full">
         {productions.map((production) => {
-          const qualis = qualisList.find(q => q.id === production.publisher?.stratum_qualis?.id);
+          const qualis = production.publisher?.stratum_qualis;
           return (
             <div key={production.id} className="rounded-lg border bg-card shadow-sm overflow-hidden">
               <div className="p-3 bg-muted/30 border-b">

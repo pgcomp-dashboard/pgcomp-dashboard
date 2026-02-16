@@ -136,7 +136,6 @@ export default function ProductionsPage() {
               isLoading={isLoading}
               hasActiveFilters={hasActiveFilters}
               productions={filteredAndSortedProductions}
-              qualisList={qualisList}
               sortConfig={sortConfig}
               onSort={handleSort}
               onEdit={(p) => {

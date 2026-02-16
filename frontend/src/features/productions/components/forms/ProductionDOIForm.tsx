@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { queryClient } from '@/lib/query-client';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -17,7 +17,6 @@ interface ProductionDOIFormProps {
 }
 
 export function ProductionDOIForm({ professorId, onSuccess }: ProductionDOIFormProps) {
-  const queryClient = useQueryClient();
   const [ doi, setDoi ] = useState<string>('');
   const [ publisherType, setPublisherType ] = useState('conference');
   const [ isLoading, setIsLoading ] = useState(false);
@@ -40,7 +39,7 @@ export function ProductionDOIForm({ professorId, onSuccess }: ProductionDOIFormP
 
       toast.success('Criado com sucesso');
       setDoi('');
-      queryClient.invalidateQueries({ queryKey: [ 'productions', professorId || 'own' ] });
+      await queryClient.invalidateQueries({ queryKey: ['productions', professorId || 'own'] });
       if (onSuccess) onSuccess();
     } catch (err) {
       toast.error('Erro ao criar produção');

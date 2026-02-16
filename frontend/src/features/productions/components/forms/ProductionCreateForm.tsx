@@ -1,5 +1,5 @@
+import { queryClient } from '@/lib/query-client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { Loader2, Search } from 'lucide-react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -31,7 +31,6 @@ interface ProductionCreateFormProps {
 }
 
 export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreateFormProps) {
-  const queryClient = useQueryClient();
   const [ publisher, setPublisher ] = useState<Publisher | null>(null);
   const [ publisherType, setPublisherType ] = useState('conference');
   const [ publisherSearch, setPublisherSearch ] = useState<string>('');
@@ -94,7 +93,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
         await productionService.createProduction(payload);
       }
       toast.success('Produção Criada com sucesso');
-      queryClient.invalidateQueries({ queryKey: [ 'productions', professorId || 'own' ] });
+      await queryClient.invalidateQueries({ queryKey: ['productions', professorId || 'own'] });
       if (onSuccess) onSuccess();
     } catch (err) {
       toast.error('Erro ao criar Produção');

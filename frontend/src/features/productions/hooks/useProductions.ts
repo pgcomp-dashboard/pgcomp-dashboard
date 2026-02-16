@@ -42,8 +42,8 @@ export function useProductions() {
   const [ filters, setFilters ] = useState({
     titulo: '',
     local: '',
-    anoInicio: (date.getFullYear() - 4).toString(),
-    anoFim: (date.getFullYear() - 1).toString(),
+    anoInicio: 'all',
+    anoFim: 'all',
     tipo: 'all',
     origem: 'all',
     qualis: 'all',

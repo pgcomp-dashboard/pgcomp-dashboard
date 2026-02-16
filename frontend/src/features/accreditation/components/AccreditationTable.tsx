@@ -1,12 +1,12 @@
 import LattesIcon from "@/components/LattesIcon";
 import { Button } from "@/components/ui/button";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Ranking } from "@/types/academic";
 import { BookOpenTextIcon } from "lucide-react";
