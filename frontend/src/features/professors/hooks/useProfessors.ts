@@ -7,6 +7,9 @@ import { toast } from "sonner";
 
 export function useProfessors() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortField, setSortField] = useState<"name" | "category" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const { data, isLoading, error } = useQuery<Professor[], Error>({
     queryKey: ["professors"],
@@ -14,12 +17,35 @@ export function useProfessors() {
     placeholderData: (prevData) => prevData,
   });
 
+  const handleSort = (field: "name" | "category") => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
+
   const filteredProfessors = useMemo(() => {
     if (!data) return [];
-    return data.filter((p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [data, searchTerm]);
+    let result = data.filter((p) => {
+      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = categoryFilter === "all" || p.category?.toLowerCase() === categoryFilter.toLowerCase();
+      return matchesSearch && matchesCategory;
+    });
+
+    if (sortField) {
+      result = [...result].sort((a, b) => {
+        const valA = (sortField === "name" ? a.name : a.category) || "";
+        const valB = (sortField === "name" ? b.name : b.category) || "";
+        return sortOrder === "asc"
+          ? valA.localeCompare(valB)
+          : valB.localeCompare(valA);
+      });
+    }
+
+    return result;
+  }, [data, searchTerm, categoryFilter, sortField, sortOrder]);
 
   const counts = useMemo(() => {
     if (!data) return { permanente: 0, colaborador: 0, visitante: 0 };
@@ -49,6 +75,11 @@ export function useProfessors() {
     isError: !!error,
     searchTerm,
     setSearchTerm,
+    categoryFilter,
+    setCategoryFilter,
+    sortField,
+    sortOrder,
+    handleSort,
     counts,
     updateMutation,
   };

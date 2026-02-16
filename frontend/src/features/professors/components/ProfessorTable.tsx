@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -9,13 +16,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Professor } from "@/types/user";
-import { Eye, FileText, SquarePenIcon } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Eye,
+  FileText,
+  SquarePenIcon
+} from "lucide-react";
 import { Link } from "react-router";
 
 interface ProfessorTableProps {
   professors: Professor[];
   searchTerm: string;
   setSearchTerm: (term: string) => void;
+  categoryFilter: string;
+  setCategoryFilter: (category: string) => void;
+  sortField: "name" | "category" | null;
+  sortOrder: "asc" | "desc";
+  onSort: (field: "name" | "category") => void;
   onViewDetails: (professor: Professor) => void;
   onViewProductions: (id: number) => void;
 }
@@ -24,12 +43,25 @@ export function ProfessorTable({
   professors,
   searchTerm,
   setSearchTerm,
+  categoryFilter,
+  setCategoryFilter,
+  sortField,
+  sortOrder,
+  onSort,
   onViewDetails,
   onViewProductions,
 }: ProfessorTableProps) {
+  const getSortIcon = (field: "name" | "category") => {
+    if (sortField !== field) return <ArrowUpDown className="ml-2 h-4 w-4" />;
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
+    );
+  };
   return (
     <div className="flex flex-col gap-4">
-      {/* Search Filter */}
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex-1">
           <Input
@@ -40,6 +72,19 @@ export function ProfessorTable({
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <div className="w-full sm:w-48">
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas Categorias</SelectItem>
+              <SelectItem value="permanente">Permanente</SelectItem>
+              <SelectItem value="colaborador">Colaborador</SelectItem>
+              <SelectItem value="visitante">Visitante</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Desktop Table */}
@@ -47,8 +92,22 @@ export function ProfessorTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center">Nome</TableHead>
-              <TableHead className="text-center">Categoria</TableHead>
+              <TableHead
+                className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => onSort("name")}
+              >
+                <div className="flex items-center justify-center">
+                  Nome {getSortIcon("name")}
+                </div>
+              </TableHead>
+              <TableHead
+                className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => onSort("category")}
+              >
+                <div className="flex items-center justify-center">
+                  Categoria {getSortIcon("category")}
+                </div>
+              </TableHead>
               <TableHead className="text-center">Administrador</TableHead>
               <TableHead className="text-center">Ações</TableHead>
             </TableRow>

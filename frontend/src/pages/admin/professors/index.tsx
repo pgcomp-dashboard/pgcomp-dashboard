@@ -19,6 +19,11 @@ export default function ProfessorsPage() {
     isError,
     searchTerm,
     setSearchTerm,
+    categoryFilter,
+    setCategoryFilter,
+    sortField,
+    sortOrder,
+    handleSort,
     counts,
     updateMutation,
   } = useProfessors();
@@ -66,6 +71,11 @@ export default function ProfessorsPage() {
             professors={professors}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            sortField={sortField}
+            sortOrder={sortOrder}
+            onSort={handleSort}
             onViewDetails={handleViewDetails}
             onViewProductions={handleViewProductions}
           />
