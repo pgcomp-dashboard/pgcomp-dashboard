@@ -87,7 +87,7 @@ class LattesZipXml
 
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
-                $publisher_id = Publishers::firstOrCreate(['issn' => $issn], ['issn' => $issn, 'name' => $publisher_name, 'stratum_qualis_id' => StratumQualis::findByCode('NI', PublisherType::JOURNAL->value)->id])?->id;
+                $publisher_id = Publishers::where('issn' , $issn)->first()?->id;
             }
 
             $production = compact('home_page', 'source', 'title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');
@@ -130,7 +130,7 @@ class LattesZipXml
             $source = ProductionSource::XML->value;
 
             if ($conferenceName) {
-                $publisher_id = Publishers::firstOrCreate(['name' => $conferenceName], ['name' => $conferenceName, 'stratum_qualis_id' => StratumQualis::findByCode('NI', PublisherType::CONFERENCE->value)->id])?->id;
+                $publisher_id = Publishers::whereLike('name' ,$conferenceName)->first()?->id;
             }
 
             $production = compact('home_page', 'source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number', 'issn', 'isbn');
