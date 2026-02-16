@@ -1,10 +1,10 @@
 import { Label } from '@/components/ui/label';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Professor } from "@/types/user";
@@ -43,7 +43,7 @@ export function ProductionHeader({
           Visualize, crie e edite produções.
         </p>
       </div>
-
+      <div className='w-full flex flex-row items-center'>
       {isAdmin && (
         <div className="w-full max-w-md mx-auto mb-4">
           <Label className="text-sm font-medium mb-1.5 block">
@@ -87,6 +87,7 @@ export function ProductionHeader({
               <span>Pontuação filtrada: <strong>{filteredScore}</strong></span>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
