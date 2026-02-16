@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\ProductionService;
 use App\Http\Requests\Admin\ImportLattesRequest;
+use App\Http\Requests\User\UpdateSelfRequest;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -30,10 +31,10 @@ class UserController extends Controller
             ]);
     }
 
-    public function updateUserInfo(Request $request)
+    public function updateUserInfo(UpdateSelfRequest $request)
     {
         $user = auth()->user();
-        $user->update($request->all());
+        $user->update($request->validated());
 
         return response()->json([
             'message' => 'Usuário atualizado com sucesso!',
