@@ -4,6 +4,9 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin \App\Models\User
+ */
 class UserResource extends JsonResource
 {
     /**
@@ -22,6 +25,7 @@ class UserResource extends JsonResource
             'type' => $this->type,
             'category' => $this->category,
             'email' => $this->email,
+            'is_admin' => $this->is_admin,
             'lattes_url' => $this->lattes_url,
             'defended_at' => $this->defended_at,
             'created_at' => $this->created_at,

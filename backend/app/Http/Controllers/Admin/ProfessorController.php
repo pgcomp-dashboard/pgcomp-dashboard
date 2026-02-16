@@ -2,16 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\UserType;
-use App\Http\Controllers\BaseApiResourceController;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Resources\UserResource;
-use App\Models\BaseModel;
-use App\Models\User;
 use App\Services\UserService;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use App\Http\Requests\Admin\StoreProfessorRequest;
 use App\Http\Requests\Admin\UpdateProfessorRequest;
 
