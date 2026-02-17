@@ -1,8 +1,8 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AdminHeader } from "@/features/admins/components/AdminHeader";
-import { AdminTable } from "@/features/admins/components/AdminTable";
+import { AdminHeader } from "@/features/professors/components/AdminHeader";
+import { AdminTable } from "@/features/professors/components/AdminTable";
 import { ProfessorDialog } from "@/features/professors/components/ProfessorDialog";
 import { ProfessorHeader } from "@/features/professors/components/ProfessorHeader";
 import { ProfessorTable } from "@/features/professors/components/ProfessorTable";
