@@ -131,7 +131,7 @@ export function ProfessorTable({
                   ) || "Não Encontrado"}
                 </TableCell>
                 <TableCell className="text-center">
-                  {professor.is_admin ? "Sim" : "Não"}
+                  {professor.is_admin ? "Administrador" : "Usuário"}
                 </TableCell>
                 <TableCell className="flex justify-center gap-2">
                   <Button
