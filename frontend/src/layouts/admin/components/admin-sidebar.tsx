@@ -81,7 +81,7 @@ export function AdminSidebar() {
                 >
                   <Link to="/admin/publishers">
                     <BookOpen className="h-4 w-4" />
-                    <span>Revistas/Conferencias</span>
+                    <span>Revistas/Conferências</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
