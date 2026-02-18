@@ -38,7 +38,8 @@ export default function CredenciamentoPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-10">
-        <Loader2 className="animate-spin mr-2" /> Carregando ranking de credenciamento...
+        <Loader2 className="animate-spin mr-2" /> Carregando ranking de
+        credenciamento...
       </div>
     );
   }
@@ -55,9 +56,12 @@ export default function CredenciamentoPage() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Credenciamento</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Credenciamento
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Visualize o ranking dos docentes com publicações cadastrados no sistema.
+            Visualize o ranking dos docentes com publicações cadastrados no
+            sistema.
           </p>
         </div>
         <div className="flex items-center gap-3 bg-card px-4 py-2 rounded-lg border shadow-sm">
@@ -73,7 +77,10 @@ export default function CredenciamentoPage() {
 
       <div className="flex flex-wrap gap-4 items-end bg-muted/40 p-4 rounded-lg border">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="start-year" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+          <Label
+            htmlFor="start-year"
+            className="text-xs uppercase tracking-wider text-muted-foreground font-semibold"
+          >
             Ano Início
           </Label>
           <Select
@@ -98,7 +105,10 @@ export default function CredenciamentoPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="end-year" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+          <Label
+            htmlFor="end-year"
+            className="text-xs uppercase tracking-wider text-muted-foreground font-semibold"
+          >
             Ano Fim
           </Label>
           <Select
@@ -121,7 +131,9 @@ export default function CredenciamentoPage() {
             </SelectContent>
           </Select>
         </div>
-        {isFetching && <Loader2 className="mb-2 h-5 w-5 animate-spin text-primary" />}
+        {isFetching && (
+          <Loader2 className="mb-2 h-5 w-5 animate-spin text-primary" />
+        )}
       </div>
 
       <section className="space-y-4">
@@ -134,10 +146,15 @@ export default function CredenciamentoPage() {
           >
             Resolução
           </Link>{" "}
-          são considerados os últimos 4 anos completos. Atualmente exibindo produções de {startYear} até {endYear}.
+          são considerados os últimos 4 anos completos. Atualmente exibindo
+          produções de {startYear} até {endYear}.
         </div>
 
-        <AccreditationTable ranking={ranking} onShowDetails={handleShowDetails} />
+        <AccreditationTable
+          ranking={ranking}
+          isLoading={isLoading}
+          onShowDetails={handleShowDetails}
+        />
       </section>
 
       <AccreditationDialogs

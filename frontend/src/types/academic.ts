@@ -55,7 +55,7 @@ export type RankingProduction = Pick<
   Production,
   "title" | "year" | "publisher_type"
 > & {
-  productions_id: number;
+  id: number;
   code: string;
   score: number;
 };

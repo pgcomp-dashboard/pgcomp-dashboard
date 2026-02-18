@@ -1,5 +1,6 @@
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -74,7 +75,9 @@ export function AreaFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-106">
         <DialogHeader>
-          <DialogTitle>{editingArea ? "Editar Área" : "Adicionar Área"}</DialogTitle>
+          <DialogTitle>
+            {editingArea ? "Editar Área" : "Adicionar Área"}
+          </DialogTitle>
           <DialogDescription>
             {editingArea
               ? "Atualize o nome desta área de pesquisa."
@@ -82,7 +85,10 @@ export function AreaFormDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 pt-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4 pt-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -90,7 +96,10 @@ export function AreaFormDialog({
                 <FormItem>
                   <FormLabel>Nome da Área</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Engenharia de Software" {...field} />
+                    <Input
+                      placeholder="Ex: Engenharia de Software"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,8 +146,9 @@ export function AreaDeleteDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Excluir Área</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja excluir a área <strong>{areaToDelete?.name}</strong>?
-            Esta ação não pode ser desfeita.
+            Tem certeza que deseja excluir a área{" "}
+            <strong>{areaToDelete?.name}</strong>? Esta ação não pode ser
+            desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -150,6 +160,13 @@ export function AreaDeleteDialog({
           >
             {isDeleting ? "Excluindo..." : "Excluir"}
           </Button>
+          <AlertDialogAction
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isDeleting ? "Excluindo..." : "Excluir"}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { RankingProduction } from "@/types/academic";
 import { Loader2 } from "lucide-react";
@@ -29,7 +29,7 @@ export function AccreditationDialogs({
         <DialogHeader>
           <DialogTitle>Produções Consideradas</DialogTitle>
           <DialogDescription>
-            Visualizar produções consideradas na pontuação. Caso queira mais
+            Lista de produções consideradas na pontuação. Caso queira mais
             detalhes sobre suas produções vá a aba Minhas Produções.
           </DialogDescription>
         </DialogHeader>
@@ -52,28 +52,27 @@ export function AccreditationDialogs({
                     <strong>Ano:</strong> {production.year}
                   </p>
                   <p>
-                    <strong>Qualis:</strong>{" "}
-                    {production.code || "N/A"}
+                    <strong>Qualis:</strong> {production.code || "N/A"}
                   </p>
                   <p>
-                    <strong>Pontos:</strong>{" "}
-                    {production.score || 0}
+                    <strong>Pontos:</strong> {production.score || 0}
                   </p>
                   <p className="capitalize">
-                    <strong>Tipo:</strong>{" "}
-                    {production.publisher_type || "N/A"}
+                    <strong>Tipo:</strong> {production.publisher_type || "N/A"}
                   </p>
                 </div>
               </div>
             ))
           ) : (
             <div className="text-center p-10 text-muted-foreground italic">
-              Nenhuma produção encontrada para este período.
+              Nenhuma produção encontrada para o período definido.
             </div>
           )}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Fechar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

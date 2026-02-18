@@ -2,10 +2,11 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  useReactTable
-} from "@tanstack/react-table"
+  Row,
+  useReactTable,
+} from "@tanstack/react-table";
 
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -13,15 +14,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Loader2 } from "lucide-react"
+} from "@/components/ui/table";
+import { Loader2 } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data?: TData[]
-  isLoading?: boolean
-  isFetching?: boolean
-  emptyMessage?: string
+  columns: ColumnDef<TData, TValue>[];
+  data?: TData[];
+  isLoading?: boolean;
+  isFetching?: boolean;
+  emptyMessage?: string;
+  getRowClassName?: (row: Row<TData>) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -30,12 +32,13 @@ export function DataTable<TData, TValue>({
   isLoading,
   isFetching,
   emptyMessage,
+  getRowClassName,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data: data ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
   const showSkeletons = isLoading || data === undefined;
 
@@ -59,10 +62,10 @@ export function DataTable<TData, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
-                )
+                );
               })}
             </TableRow>
           ))}
@@ -83,6 +86,7 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className={getRowClassName?.(row)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
@@ -101,5 +105,5 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
