@@ -155,6 +155,10 @@ export function AccreditationTable({
             ? "font-medium bg-green-100/50 hover:bg-green-100/80 transition-colors"
             : "bg-red-50/50 hover:bg-red-50/80 transition-colors"
         }
+        pagination={{
+          pageIndex: 0,
+          pageSize: 1000,
+        }}
       />
     </>
   );
