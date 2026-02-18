@@ -89,7 +89,7 @@ export function AccreditationTable({
         ),
       }),
     ],
-    [],
+    [onShowDetails],
   );
 
   return (

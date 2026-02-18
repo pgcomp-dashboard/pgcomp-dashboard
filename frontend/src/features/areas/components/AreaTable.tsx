@@ -60,7 +60,7 @@ export function AreaTable({
         ),
       }),
     ],
-    [onEdit, onDelete]
+    [onEdit, onDelete],
   );
 
   return (
