@@ -18,7 +18,7 @@ class AccreditationProductionResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'year' => $this->year,
-            'type' => $this->publisher_type,
+            'publisher_type' => $this->publisher_type,
             'code' => $this->code,
             'score' => (float) $this->score,
         ];
