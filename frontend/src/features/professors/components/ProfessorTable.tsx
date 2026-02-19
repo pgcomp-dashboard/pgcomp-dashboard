@@ -136,39 +136,42 @@ export function ProfessorTable({
   const renderMobileCard = (row: Row<Professor>) => {
     const professor = row.original;
     return (
-      <div className="flex flex-col gap-4">
-        <div>
-          <h3 className="font-semibold text-base">
-            <Link
-              to={professor.lattes_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-primary hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
-            >
-              {professor.name}
-            </Link>
-          </h3>
-          <div className="mt-1 flex flex-wrap gap-2 text-sm text-muted-foreground">
-            <span className="capitalize">
-              {professor.category || "Sem categoria"}
-            </span>
-            <span>•</span>
-            <span>{professor.is_admin ? "Admin" : "Usuário"}</span>
+      <div className="flex flex-col">
+        <div className="p-4 flex flex-col gap-4">
+          <div>
+            <h3 className="font-semibold text-base">
+              <Link
+                to={professor.lattes_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
+              >
+                {professor.name}
+              </Link>
+            </h3>
+            <div className="mt-1 flex flex-wrap gap-2 text-sm text-muted-foreground">
+              <span className="capitalize">
+                {professor.category || "Sem categoria"}
+              </span>
+              <span>•</span>
+              <span>{professor.is_admin ? "Admin" : "Usuário"}</span>
+            </div>
           </div>
         </div>
 
-        <CardFooter className="flex gap-2 pt-2 border-t p-0 mt-2">
+        <CardFooter className="flex border-t mt-auto items-stretch">
           <Button
-            variant="outline"
-            className="flex-1"
+            variant="ghost"
+            className="flex-1 rounded-none h-11 text-sm"
             onClick={() => onViewDetails(professor)}
           >
             <Eye className="h-4 w-4 mr-2" />
             Detalhes
           </Button>
+          <div className="w-px bg-border self-stretch" />
           <Button
-            variant="outline"
-            className="flex-1"
+            variant="ghost"
+            className="flex-1 rounded-none h-11 text-sm"
             onClick={() => onViewProductions(professor.id)}
           >
             <FileText className="h-4 w-4 mr-2" />
