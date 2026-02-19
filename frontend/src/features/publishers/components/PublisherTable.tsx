@@ -1,15 +1,11 @@
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { CardFooter } from "@/components/ui/card";
+import { DataTable } from "@/components/ui/data-table";
 import { Publisher } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
-import { Pencil, Trash2 } from "lucide-react";
+import { ColumnDef, createColumnHelper, PaginationState } from "@tanstack/react-table";
+import { Pencil, SquarePenIcon, Trash } from "lucide-react";
+import { useMemo } from "react";
 
 interface PublisherTableProps {
   publishers: Publisher[];
@@ -20,6 +16,8 @@ interface PublisherTableProps {
   onPageChange: (page: number) => void;
 }
 
+const columnHelper = createColumnHelper<Publisher>();
+
 export function PublisherTable({
   publishers,
   pagination,
@@ -28,126 +26,147 @@ export function PublisherTable({
   onDelete,
   onPageChange,
 }: PublisherTableProps) {
-  return (
-    <div className="relative w-full overflow-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-center">ISSN/Sigla</TableHead>
-            <TableHead className="text-center">Nome</TableHead>
-            <TableHead className="text-center">Veículo</TableHead>
-            <TableHead className="text-center">Qualis</TableHead>
-            <TableHead className="text-center w-25">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center">
-                Carregando...
-              </TableCell>
-            </TableRow>
-          ) : publishers.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center">
-                Nenhum registro encontrado.
-              </TableCell>
-            </TableRow>
-          ) : (
-            publishers.map((publisher) => (
-              <TableRow key={publisher.id}>
-                <TableCell className="text-center">
-                  {publisher.publisher_type === 'journal'
-                    ? (publisher.issn || '—')
-                    : (publisher.initials || '—')}
-                </TableCell>
-                <TableCell className="capitalize text-justify max-w-[500px] min-w-[200px] whitespace-normal break-words mx-auto">
-                  {publisher.name.toLowerCase()}
-                </TableCell>
-                <TableCell className="text-center">
-                  {publisher.publisher_type === 'journal' ? 'Periódico' :
-                    publisher.publisher_type === 'conference' ? 'Conferência' :
-                      publisher.publisher_type}
-                </TableCell>
-                <TableCell className="text-center">
-                  {publisher.stratum_qualis?.code || '—'}
-                </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex justify-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => onEdit(publisher)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => onDelete(publisher)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-
-      {/* Pagination */}
-      {pagination && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t">
-          <span className="text-sm text-muted-foreground">
-            Página {pagination.meta.current_page} de {pagination.meta.last_page}
-          </span>
-
-          <div className="flex gap-2 w-full sm:w-auto">
+  const columns = useMemo<ColumnDef<Publisher, any>[]>(
+    () => [
+      columnHelper.accessor((row) => row, {
+        id: "issn_sigla",
+        header: () => <div className="text-center">ISSN/Sigla</div>,
+        cell: (info) => {
+          const publisher = info.getValue();
+          return (
+            <div className="text-center">
+              {publisher.publisher_type === "journal"
+                ? publisher.issn || "—"
+                : publisher.initials || "—"}
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("name", {
+        header: () => <div className="text-center">Nome</div>,
+        cell: (info) => (
+          <div className="capitalize text-justify max-w-[500px] min-w-[200px] whitespace-normal break-words mx-auto">
+            {info.getValue().toLowerCase()}
+          </div>
+        ),
+      }),
+      columnHelper.accessor("publisher_type", {
+        header: () => <div className="text-center">Veículo</div>,
+        cell: (info) => (
+          <div className="text-center">
+            {info.getValue() === "journal"
+              ? "Periódico"
+              : info.getValue() === "conference"
+                ? "Conferência"
+                : info.getValue()}
+          </div>
+        ),
+      }),
+      columnHelper.accessor("stratum_qualis.code", {
+        header: () => <div className="text-center">Qualis</div>,
+        cell: (info) => (
+          <div className="text-center">{info.getValue() || "—"}</div>
+        ),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: () => <div className="text-center w-25">Ações</div>,
+        cell: (info) => (
+          <div className="flex justify-center gap-1">
             <Button
-              variant="outline"
-              size="sm"
-              className="hidden sm:flex"
-              disabled={pagination.meta.current_page === 1}
-              onClick={() => onPageChange(1)}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onEdit(info.row.original)}
             >
-              {'<<'}
+              <Pencil className="h-4 w-4" />
             </Button>
-
             <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 sm:flex-none"
-              disabled={pagination.meta.current_page === 1}
-              onClick={() => onPageChange(pagination.meta.current_page - 1)}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-destructive hover:text-destructive"
+              onClick={() => onDelete(info.row.original)}
             >
-              Anterior
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 sm:flex-none"
-              disabled={pagination.meta.current_page === pagination.meta.last_page}
-              onClick={() => onPageChange(pagination.meta.current_page + 1)}
-            >
-              Próxima
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="hidden sm:flex"
-              disabled={pagination.meta.current_page === pagination.meta.last_page}
-              onClick={() => onPageChange(pagination.meta.last_page)}
-            >
-              {'>>'}
+              <Trash className="h-4 w-4" />
             </Button>
           </div>
+        ),
+      }),
+    ],
+    [onEdit, onDelete]
+  );
+
+  const paginationState: PaginationState = useMemo(() => {
+    return {
+      pageIndex: (pagination?.meta.current_page ?? 1) - 1,
+      pageSize: pagination?.meta.per_page ?? 10,
+    };
+  }, [pagination]);
+
+  const handlePaginationChange = (updater: any) => {
+    const nextState =
+      typeof updater === "function" ? updater(paginationState) : updater;
+    onPageChange(nextState.pageIndex + 1);
+  };
+
+  const renderMobileCard = (row: any) => {
+    const publisher = row.original as Publisher;
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-start">
+          <div className="font-semibold">{publisher.name}</div>
+          <div className="text-sm bg-muted px-2 py-1 rounded">
+            {publisher.stratum_qualis?.code || "—"}
+          </div>
         </div>
-      )}
-    </div>
+        <div className="text-sm text-muted-foreground flex flex-col gap-1">
+          <div>
+            <span className="font-medium">Tipo:</span>{" "}
+            {publisher.publisher_type === "journal"
+              ? "Periódico"
+              : "Conferência"}
+          </div>
+          <div>
+            <span className="font-medium">
+              {publisher.publisher_type === "journal" ? "ISSN" : "Sigla"}:
+            </span>{" "}
+            {publisher.publisher_type === "journal"
+              ? publisher.issn || "—"
+              : publisher.initials || "—"}
+          </div>
+        </div>
+        <CardFooter className="flex border-t items-stretch">
+          <Button
+            variant="ghost"
+            className="flex-1 rounded-none h-11 text-sm"
+            onClick={() => onEdit(publisher)}
+          >
+            <SquarePenIcon className="h-4 w-4 mr-2" /> Editar
+          </Button>
+          <div className="w-px bg-border self-stretch" />
+          <Button
+            variant="ghost"
+            className="flex-1 rounded-none h-11 text-sm text-destructive hover:text-destructive"
+            onClick={() => onDelete(publisher)}
+          >
+            <Trash className="h-4 w-4 mr-2" /> Deletar
+          </Button>
+        </CardFooter>
+      </div>
+    );
+  };
+
+  return (
+    <DataTable
+      columns={columns}
+      data={publishers}
+      isLoading={isLoading}
+      pagination={paginationState}
+      pageCount={pagination?.meta.last_page ?? 1}
+      onPaginationChange={handlePaginationChange}
+      manualPagination={true}
+      renderMobileCard={renderMobileCard}
+      emptyMessage="Nenhum registro encontrado."
+    />
   );
 }
