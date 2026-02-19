@@ -43,8 +43,8 @@ Route::get('healthcheck', function (Request $request) {
 
 // Free Access routes
 Route::post('login', [AuthController::class, 'login']);
-Route::post('forgot-password', [UserAdminController::class, 'forgotPassword']);
-Route::post('reset-password', [UserAdminController::class, 'resetPassword']);
+Route::post('forgot-password', [UserController::class, 'forgotPassword']);
+Route::post('reset-password', [UserController::class, 'resetPassword']);
 
 // Middleware
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
