@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { CardFooter } from "@/components/ui/card";
+import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -7,23 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Professor } from "@/types/user";
 import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  Eye,
-  FileText,
-  SquarePenIcon
-} from "lucide-react";
+  ColumnDef,
+  createColumnHelper,
+  OnChangeFn,
+  Row,
+  SortingState,
+} from "@tanstack/react-table";
+import { Eye, FileText, SquarePenIcon } from "lucide-react";
+import { useMemo } from "react";
 import { Link } from "react-router";
 
 interface ProfessorTableProps {
@@ -39,6 +35,8 @@ interface ProfessorTableProps {
   onViewProductions: (id: number) => void;
 }
 
+const columnHelper = createColumnHelper<Professor>();
+
 export function ProfessorTable({
   professors,
   searchTerm,
@@ -51,14 +49,136 @@ export function ProfessorTable({
   onViewDetails,
   onViewProductions,
 }: ProfessorTableProps) {
-  const getSortIcon = (field: "name" | "category") => {
-    if (sortField !== field) return <ArrowUpDown className="ml-2 h-4 w-4" />;
-    return sortOrder === "asc" ? (
-      <ArrowUp className="ml-2 h-4 w-4" />
-    ) : (
-      <ArrowDown className="ml-2 h-4 w-4" />
+  const sorting = useMemo<SortingState>(() => {
+    if (!sortField) return [];
+    return [{ id: sortField, desc: sortOrder === "desc" }];
+  }, [sortField, sortOrder]);
+
+  const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
+    const newSorting =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(sorting)
+        : updaterOrValue;
+
+    const firstSort = newSorting[0];
+    if (firstSort && (firstSort.id === "name" || firstSort.id === "category")) {
+      onSort(firstSort.id);
+    }
+  };
+
+  const columns = useMemo<ColumnDef<Professor, any>[]>(
+    () => [
+      columnHelper.accessor("name", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Nome" />
+        ),
+        cell: (info) => (
+          <div className="text-center">
+            <Link
+              to={info.row.original.lattes_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
+            >
+              {info.getValue()}
+            </Link>
+          </div>
+        ),
+      }),
+      columnHelper.accessor("category", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Categoria" />
+        ),
+        cell: (info) => (
+          <div className="text-center">
+            {info.getValue()?.replace(/^./, (match: string) =>
+              match.toUpperCase(),
+            ) || "Não Encontrado"}
+          </div>
+        ),
+      }),
+      columnHelper.accessor("is_admin", {
+        header: () => <div className="text-center">Administrador</div>,
+        cell: (info) => (
+          <div className="text-center">
+            {info.getValue() ? "Administrador" : "Usuário"}
+          </div>
+        ),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: () => <div className="text-center">Ações</div>,
+        cell: (info) => (
+          <div className="flex justify-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onViewDetails(info.row.original)}
+              title="Editar"
+            >
+              <SquarePenIcon className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onViewProductions(info.row.original.id)}
+              title="Produções"
+            >
+              <FileText className="h-5 w-5" />
+            </Button>
+          </div>
+        ),
+      }),
+    ],
+    [onViewDetails, onViewProductions],
+  );
+
+  const renderMobileCard = (row: Row<Professor>) => {
+    const professor = row.original;
+    return (
+      <div className="flex flex-col gap-4">
+        <div>
+          <h3 className="font-semibold text-base">
+            <Link
+              to={professor.lattes_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
+            >
+              {professor.name}
+            </Link>
+          </h3>
+          <div className="mt-1 flex flex-wrap gap-2 text-sm text-muted-foreground">
+            <span className="capitalize">
+              {professor.category || "Sem categoria"}
+            </span>
+            <span>•</span>
+            <span>{professor.is_admin ? "Admin" : "Usuário"}</span>
+          </div>
+        </div>
+
+        <CardFooter className="flex gap-2 pt-2 border-t p-0 mt-2">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => onViewDetails(professor)}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Detalhes
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => onViewProductions(professor.id)}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Produções
+          </Button>
+        </CardFooter>
+      </div>
     );
   };
+
   return (
     <div className="flex flex-col gap-4">
       {/* Filters */}
@@ -87,115 +207,15 @@ export function ProfessorTable({
         </div>
       </div>
 
-      {/* Desktop Table */}
-      <div className="hidden md:block rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead
-                className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => onSort("name")}
-              >
-                <div className="flex items-center justify-center">
-                  Nome {getSortIcon("name")}
-                </div>
-              </TableHead>
-              <TableHead
-                className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => onSort("category")}
-              >
-                <div className="flex items-center justify-center">
-                  Categoria {getSortIcon("category")}
-                </div>
-              </TableHead>
-              <TableHead className="text-center">Administrador</TableHead>
-              <TableHead className="text-center">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {professors.map((professor) => (
-              <TableRow key={professor.id}>
-                <TableCell className="text-center">
-                  <Link
-                    to={professor.lattes_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-primary hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
-                  >
-                    {professor.name}
-                  </Link>
-                </TableCell>
-                <TableCell className="text-center">
-                  {professor.category?.replace(/^./, (match) =>
-                    match.toUpperCase()
-                  ) || "Não Encontrado"}
-                </TableCell>
-                <TableCell className="text-center">
-                  {professor.is_admin ? "Administrador" : "Usuário"}
-                </TableCell>
-                <TableCell className="flex justify-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onViewDetails(professor)}
-                    title="Editar"
-                  >
-                    <SquarePenIcon className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onViewProductions(professor.id)}
-                    title="Produções"
-                  >
-                    <FileText className="h-5 w-5" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Mobile Cards */}
-      <div className="md:hidden">
-        <div className="flex flex-col gap-3">
-          {professors.map((professor) => (
-            <div key={professor.id} className="rounded-lg border p-4 bg-white">
-              <div className="flex flex-col gap-3">
-                <h3 className="font-semibold text-base">
-                  <Link
-                    to={professor.lattes_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-primary hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
-                  >
-                    {professor.name}
-                  </Link>
-                </h3>
-                <div className="flex gap-2 pt-2 border-t">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => onViewDetails(professor)}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Detalhes
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => onViewProductions(professor.id)}
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Produções
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={professors}
+        renderMobileCard={renderMobileCard}
+        emptyMessage="Nenhum professor encontrado."
+        sorting={sorting}
+        onSortingChange={handleSortingChange}
+        manualSorting={true}
+      />
     </div>
   );
 }
