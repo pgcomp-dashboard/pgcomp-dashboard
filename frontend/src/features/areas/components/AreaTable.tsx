@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Area } from "@/types/academic";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper, Row } from "@tanstack/react-table";
 import { Pencil, Search, Trash2 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -63,6 +65,44 @@ export function AreaTable({
     [onEdit, onDelete],
   );
 
+  const renderMobileCard = (row: Row<Area>) => {
+    const area = row.original;
+    return (
+      <div className="flex flex-col gap-4">
+        <div>
+          <Label className="text-xs text-muted-foreground">Nome da Área</Label>
+          <h3 className="font-semibold text-base">{area.name}</h3>
+        </div>
+
+        <div>
+          <Label className="text-xs text-muted-foreground">
+            Alunos por Área
+          </Label>
+          <p className="font-medium">{area.students_count}</p>
+        </div>
+
+        <CardFooter className="flex gap-2 pt-2 border-t">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => onEdit(area)}
+          >
+            <Pencil className="h-4 w-4 mr-2" />
+            Editar
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1 text-destructive hover:text-destructive"
+            onClick={() => onDelete(area)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Deletar
+          </Button>
+        </CardFooter>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -81,6 +121,7 @@ export function AreaTable({
         data={areas}
         isLoading={isLoading}
         emptyMessage="Nenhuma área encontrada."
+        renderMobileCard={renderMobileCard}
       />
     </div>
   );

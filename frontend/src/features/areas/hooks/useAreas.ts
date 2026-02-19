@@ -8,7 +8,11 @@ import { toast } from "sonner";
 export function useAreas() {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: areas = [], isLoading, error } = useQuery<Area[], Error>({
+  const {
+    data: areas = [],
+    isLoading,
+    error,
+  } = useQuery<Area[], Error>({
     queryKey: ["areas"],
     queryFn: () => areaService.fetchAreas(),
   });
@@ -16,9 +20,7 @@ export function useAreas() {
   const filteredAreas = useMemo(() => {
     const term = searchTerm.toLowerCase().trim();
     if (!term) return areas;
-    return areas.filter((area) =>
-      area.name.toLowerCase().includes(term)
-    );
+    return areas.filter((area) => area.name.toLowerCase().includes(term));
   }, [areas, searchTerm]);
 
   const handleSuccess = (message: string) => {
