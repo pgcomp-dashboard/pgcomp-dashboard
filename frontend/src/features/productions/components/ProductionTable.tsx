@@ -24,9 +24,8 @@ import {
   ArrowUpDown,
   ChevronDown,
   ChevronUp,
-  FileText,
   SquarePenIcon,
-  Trash,
+  Trash
 } from 'lucide-react';
 import { Link } from 'react-router';
 
@@ -299,7 +298,7 @@ export function ProductionTable({
               </div>
               <div className="flex border-t">
                 <Button variant="ghost" className="flex-1 rounded-none h-11 text-sm" onClick={() => onEdit(production)}>
-                  <FileText className="h-4 w-4 mr-2" /> Editar
+                  <SquarePenIcon className="h-4 w-4 mr-2" /> Editar
                 </Button>
                 <div className="w-px bg-border" />
                 <AlertDialog>
