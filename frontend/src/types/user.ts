@@ -41,3 +41,15 @@ export interface Advisor {
 }
 
 export type User = Professor | Student | Manager;
+
+export type AdminRequest = {
+  id: number;
+  name: string;
+  email: string;
+  admin_status: 'pending' | 'approved' | 'rejected' | null;
+  admin_requested_at: string | null;
+  approver?: {
+    id: number;
+    name: string;
+  } | null;
+};
