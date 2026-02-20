@@ -63,12 +63,12 @@ services:
                 - ping
             retries: 3
             timeout: 5s
-    scriptlattes:
-        image: cainanlima/scriptlattes:2.0
-        networks:
-            - sail
-        ports:
-            - '8000:8000'
+    # scriptlattes:
+    #     image: cainanlima/scriptlattes:2.0
+    #     networks:
+    #         - sail
+    #     ports:
+    #         - '8000:8000'
 networks:
     sail:
         driver: bridge

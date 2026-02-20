@@ -18,7 +18,7 @@ import {
   Row,
   SortingState,
 } from "@tanstack/react-table";
-import { Eye, FileText, SquarePenIcon } from "lucide-react";
+import { Eye, FileText, SquarePenIcon, Trash } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router";
 
@@ -33,6 +33,7 @@ interface ProfessorTableProps {
   onSort: (field: "name" | "category") => void;
   onViewDetails: (professor: Professor) => void;
   onViewProductions: (id: number) => void;
+  onDelete: (professor: Professor) => void;
 }
 
 const columnHelper = createColumnHelper<Professor>();
@@ -48,6 +49,7 @@ export function ProfessorTable({
   onSort,
   onViewDetails,
   onViewProductions,
+  onDelete,
 }: ProfessorTableProps) {
   const sorting = useMemo<SortingState>(() => {
     if (!sortField) return [];
@@ -126,11 +128,20 @@ export function ProfessorTable({
             >
               <FileText className="h-5 w-5" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:text-destructive/80"
+              onClick={() => onDelete(info.row.original)}
+              title="Excluir"
+            >
+              <Trash className="h-5 w-5" />
+            </Button>
           </div>
         ),
       }),
     ],
-    [onViewDetails, onViewProductions],
+    [onViewDetails, onViewProductions, onDelete],
   );
 
   const renderMobileCard = (row: Row<Professor>) => {
@@ -176,6 +187,15 @@ export function ProfessorTable({
           >
             <FileText className="h-4 w-4 mr-2" />
             Produções
+          </Button>
+          <div className="w-px bg-border self-stretch" />
+          <Button
+            variant="ghost"
+            className="flex-1 rounded-none h-11 text-sm text-destructive hover:text-destructive/80"
+            onClick={() => onDelete(professor)}
+          >
+            <Trash className="h-4 w-4 mr-2" />
+            Excluir
           </Button>
         </CardFooter>
       </div>
