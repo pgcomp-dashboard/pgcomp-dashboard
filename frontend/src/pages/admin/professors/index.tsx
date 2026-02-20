@@ -3,6 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminHeader } from "@/features/professors/components/AdminHeader";
 import { AdminTable } from "@/features/professors/components/AdminTable";
+import { ProfessorDeleteDialog } from "@/features/professors/components/ProfessorDeleteDialog";
 import { ProfessorDialog } from "@/features/professors/components/ProfessorDialog";
 import { ProfessorHeader } from "@/features/professors/components/ProfessorHeader";
 import { ProfessorTable } from "@/features/professors/components/ProfessorTable";
@@ -26,10 +27,17 @@ export default function ProfessorsPage() {
     handleSort,
     counts,
     updateMutation,
+    deleteMutation,
   } = useProfessors();
 
   const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
   const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(
+    null,
+  );
+
+  // Estados para o modal de exclusão
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [professorToDelete, setProfessorToDelete] = useState<Professor | null>(
     null,
   );
 
@@ -53,6 +61,19 @@ export default function ProfessorsPage() {
 
   const handleViewProductions = (id: number) => {
     navigate(`/portal/productions?professorId=${id}`);
+  };
+
+  const handleDelete = (professor: Professor) => {
+    setProfessorToDelete(professor);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (professorToDelete) {
+      await deleteMutation.mutateAsync(professorToDelete.id);
+      setIsDeleteDialogOpen(false);
+      setProfessorToDelete(null);
+    }
   };
 
   if (isLoading) return <div>Carregando...</div>;
@@ -80,6 +101,7 @@ export default function ProfessorsPage() {
             onSort={handleSort}
             onViewDetails={handleViewDetails}
             onViewProductions={handleViewProductions}
+            onDelete={handleDelete}
           />
         </TabsContent>
 
@@ -94,6 +116,13 @@ export default function ProfessorsPage() {
         onOpenChange={setIsDetailProfOpen}
         professor={currentProfessor}
         onUpdate={handleUpdate}
+      />
+
+      <ProfessorDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        professor={professorToDelete}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );
