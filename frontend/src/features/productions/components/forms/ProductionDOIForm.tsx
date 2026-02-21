@@ -76,7 +76,7 @@ export function ProductionDOIForm({ professorId, onSuccess }: ProductionDOIFormP
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="journal" id="doi-journal" />
                 <Label htmlFor="doi-journal" className="font-normal cursor-pointer">
-                  Revista
+                  Periódico
                 </Label>
               </div>
             </RadioGroup>

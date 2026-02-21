@@ -14,7 +14,7 @@ export function useAreas() {
     error,
   } = useQuery<Area[], Error>({
     queryKey: ["areas"],
-    queryFn: () => areaService.fetchAreas(),
+    queryFn: () => areaService.fetchAreas({ per_page: 1000 }),
   });
 
   const filteredAreas = useMemo(() => {

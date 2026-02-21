@@ -4,7 +4,7 @@ import { studentService } from '@/services/modules/student.service';
 import { Area, Course } from '@/types/academic';
 import { Student } from '@/types/user';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 export function useStudents() {
   const queryClient = useQueryClient();
@@ -13,26 +13,22 @@ export function useStudents() {
   const [search, setSearch] = useState('');
 
   // Queries
-  const studentsQuery = useQuery({
-    queryKey: ['students', page, perPage, search],
-    queryFn: async () => {
-      const filters: Record<string, any> = {};
-      if (search.trim()) {
-        filters['filters[0][field]'] = 'name';
-        filters['filters[0][value]'] = search.trim();
-        filters['filters[0][operator]'] = 'like';
-      }
-      const response = await studentService.fetchStudents(page, perPage, filters);
-      return {
-        ...response,
-        meta: {
-          ...response.meta,
-          last_page: Math.max(1, response.meta.last_page),
-        },
-      };
-    },
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['students'],
+    queryFn: () => studentService.fetchStudents({ per_page: 1000 }),
     placeholderData: (prevData) => prevData,
   });
+
+  const students = useMemo(() => {
+    if (!data?.data) return [];
+
+    const term = search.toLowerCase().trim();
+    if (!term) return data.data;
+
+    return data.data.filter((student: Student) =>
+      student.name.toLowerCase().includes(term)
+    );
+  }, [data, search]);
 
   const areasQuery = useQuery<Area[]>({
     queryKey: ['areas'],
@@ -79,14 +75,14 @@ export function useStudents() {
     setSearch,
 
     // Data
-    students: studentsQuery.data?.data ?? [],
-    pagination: studentsQuery.data ?? null,
+    students,
+    pagination: data ?? null,
     areas: areasQuery.data ?? [],
     courses: coursesQuery.data ?? [],
 
     // Status
-    isLoading: studentsQuery.isLoading || areasQuery.isLoading || coursesQuery.isLoading,
-    isError: studentsQuery.isError || areasQuery.isError || coursesQuery.isError,
+    isLoading: isLoading || areasQuery.isLoading || coursesQuery.isLoading,
+    isError: !!error || areasQuery.isError || coursesQuery.isError,
 
     // Actions
     createMutation,

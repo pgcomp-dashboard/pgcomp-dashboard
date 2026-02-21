@@ -18,7 +18,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { transformFilters } from '@/lib/utils';
 import { productionService } from '@/services/modules/production.service';
 import { publisherService } from '@/services/modules/publisher.service';
 import { Publisher } from '@/types/academic';
@@ -44,12 +43,12 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
       if (publisherSearch.length >= 2 && !isSelectedRef.current) {
         setIsSearching(true);
         try {
-          const filters = transformFilters([
-            { field: 'name', value: publisherSearch, operator: 'like' },
-            { field: 'publisher_type', value: publisherType, operator: '=' },
-          ]);
-
-          const response = await publisherService.getAllPublishers(1, 20, filters);
+          const response = await publisherService.getAllPublishers({
+            filter: {
+              name: publisherSearch,
+              publisher_type: publisherType,
+            }
+          });
           setSearchResults(response.data);
           setShowResults(true);
         } catch (err) {
@@ -138,7 +137,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="journal" id="manual-journal" />
               <Label htmlFor="manual-journal" className="font-normal cursor-pointer">
-                Revista
+                Periódico
               </Label>
             </div>
           </RadioGroup>

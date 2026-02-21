@@ -3,7 +3,7 @@ import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { Publisher } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
-import { ColumnDef, createColumnHelper, PaginationState } from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper, PaginationState, SortingState } from "@tanstack/react-table";
 import { Pencil, SquarePenIcon, Trash } from "lucide-react";
 import { useMemo } from "react";
 
@@ -11,9 +11,12 @@ interface PublisherTableProps {
   publishers: Publisher[];
   pagination: PaginatedResponse<Publisher> | null;
   isLoading: boolean;
+  isFetching: boolean;
   onEdit: (publisher: Publisher) => void;
   onDelete: (publisher: Publisher) => void;
   onPageChange: (page: number) => void;
+  sorting: SortingState;
+  onSortingChange: (updater: any) => void;
 }
 
 const columnHelper = createColumnHelper<Publisher>();
@@ -22,9 +25,12 @@ export function PublisherTable({
   publishers,
   pagination,
   isLoading,
+  isFetching,
   onEdit,
   onDelete,
   onPageChange,
+  sorting,
+  onSortingChange,
 }: PublisherTableProps) {
   const columns = useMemo<ColumnDef<Publisher, any>[]>(
     () => [
@@ -161,10 +167,14 @@ export function PublisherTable({
       columns={columns}
       data={publishers}
       isLoading={isLoading}
+      isFetching={isFetching}
       pagination={paginationState}
       pageCount={pagination?.meta.last_page ?? 1}
       onPaginationChange={handlePaginationChange}
+      sorting={sorting}
+      onSortingChange={onSortingChange}
       manualPagination={true}
+      manualSorting={true}
       renderMobileCard={renderMobileCard}
       emptyMessage="Nenhum registro encontrado."
     />

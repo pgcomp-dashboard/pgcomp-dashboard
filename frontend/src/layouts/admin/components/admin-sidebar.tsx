@@ -1,20 +1,14 @@
-import {
-    BookOpen,
-  File,
-    GraduationCap,
-    Trophy,
-  Users
-} from "lucide-react";
+import { BookOpen, File, GraduationCap, Trophy, Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import AppLogo from "@/components/AppLogo";
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import useAuth from "@/hooks/auth";
 
@@ -48,7 +42,7 @@ export function AdminSidebar() {
                 >
                   <Link to="/admin/dashboard" data-cy="link-areas">
                     <Users className="h-4 w-4" />
-                    <span>DashBoard PGCOMP</span>
+                    <span>DashBoard</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -81,7 +75,7 @@ export function AdminSidebar() {
                 >
                   <Link to="/admin/publishers">
                     <BookOpen className="h-4 w-4" />
-                    <span>Revistas/Conferências</span>
+                    <span>Periódicos/Conferências</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

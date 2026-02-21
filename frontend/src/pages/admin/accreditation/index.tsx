@@ -60,8 +60,8 @@ export default function CredenciamentoPage() {
             Credenciamento
           </h1>
           <p className="text-muted-foreground mt-1">
-            Visualize o ranking dos docentes com publicações cadastrados no
-            sistema.
+            Ranking de docentes de acordo com a{" "}
+            <i>Resolução PGCOMP de Credenciamento</i> vigente.
           </p>
         </div>
         <div className="flex items-center gap-3 bg-card px-4 py-2 rounded-lg border shadow-sm">

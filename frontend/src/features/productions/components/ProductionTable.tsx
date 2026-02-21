@@ -101,7 +101,7 @@ export function ProductionTable({
             </div>
             <div>
               <span className="text-xs text-muted-foreground block">Tipo</span>
-              <span className="font-medium">{production.publisher_type === 'journal' ? 'Revista' : 'Conferência'}</span>
+              <span className="font-medium">{production.publisher_type === 'journal' ? 'Periódico' : 'Conferência'}</span>
             </div>
             <div>
               <span className="text-xs text-muted-foreground block">Origem</span>

@@ -13,7 +13,7 @@ export function useProfessors() {
 
   const { data, isLoading, error } = useQuery<Professor[], Error>({
     queryKey: ["professors"],
-    queryFn: () => professorService.fetchProfessors(),
+    queryFn: () => professorService.fetchProfessors({ per_page: 1000 }),
     placeholderData: (prevData) => prevData,
   });
 

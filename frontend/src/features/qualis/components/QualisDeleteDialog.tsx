@@ -29,7 +29,7 @@ export function QualisDeleteDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Excluir Qualis</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja excluir o Qualis <strong>{item?.code}</strong> ({item?.type === 'journal' ? 'Revista' : 'Conferência'})?
+            Tem certeza que deseja excluir o Qualis <strong>{item?.code}</strong> ({item?.type === 'journal' ? 'Periódico' : 'Conferência'})?
             Esta ação não pode ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>

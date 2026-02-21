@@ -2,9 +2,10 @@ import { Professor } from "@/types/user";
 import { apiClient } from "../http-client";
 
 export const professorService = {
-  async fetchProfessors() {
+  async fetchProfessors(params: Record<string, any> = {}) {
     const response = await apiClient.get<{ data: Professor[] }>(
       "/api/admin/professors",
+      params
     );
     return response.data;
   },

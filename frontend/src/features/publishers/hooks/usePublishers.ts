@@ -1,9 +1,9 @@
-import { FilterItem, transformFilters } from "@/lib/utils";
 import { publisherService } from "@/services/modules/publisher.service";
 import { qualisService } from "@/services/modules/qualis.service";
 import { Publisher, StratumQualis } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { SortingState } from "@tanstack/react-table";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -14,31 +14,40 @@ export function usePublishers() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [qualisFilter, setQualisFilter] = useState("all");
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const { data: qualisOptions = [] } = useQuery<StratumQualis[], Error>({
     queryKey: ["qualis-options"],
     queryFn: () => qualisService.getAllQualis(),
   });
 
-  const { data: publishersData, isLoading, isError } = useQuery<PaginatedResponse<Publisher>, Error>({
-    queryKey: ["publishers", page, perPage, search, typeFilter, qualisFilter],
+  const { data: publishersData, isLoading, isError, isFetching } = useQuery<PaginatedResponse<Publisher>, Error>({
+    queryKey: ["publishers", page, perPage, search, typeFilter, qualisFilter, sorting],
     queryFn: async () => {
-      const filterList: FilterItem[] = [];
+      const params: Record<string, any> = {
+        page,
+        per_page: perPage,
+        filter: {},
+      };
 
       if (search.trim()) {
-        filterList.push({ field: 'name', value: search.trim(), operator: 'like' });
+        params.filter.name = search.trim();
       }
 
       if (typeFilter !== 'all') {
-        filterList.push({ field: 'publisher_type', value: typeFilter, operator: '=' });
+        params.filter.publisher_type = typeFilter;
       }
 
       if (qualisFilter !== 'all') {
-        filterList.push({ field: 'qualis_code', value: qualisFilter, operator: '=' });
+        params.filter.qualis_code = qualisFilter;
       }
 
-      const filters = transformFilters(filterList);
-      const response = await publisherService.getAllPublishers(page, perPage, filters);
+      if (sorting.length > 0) {
+        const sort = sorting[0];
+        params.sort = sort.desc ? `-${sort.id}` : sort.id;
+      }
+
+      const response = await publisherService.getAllPublishers(params);
 
       return {
         ...response,
@@ -93,6 +102,7 @@ export function usePublishers() {
     publishers: publishersData?.data || [],
     pagination: publishersData || null,
     isLoading,
+    isFetching,
     isError,
     page,
     setPage,
@@ -104,6 +114,8 @@ export function usePublishers() {
     setTypeFilter,
     qualisFilter,
     setQualisFilter,
+    sorting,
+    setSorting,
     qualisOptions,
     createMutation,
     updateMutation,

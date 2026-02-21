@@ -24,7 +24,7 @@ export function QualisTable({ items, onEdit, onDelete }: QualisTableProps) {
       }),
       columnHelper.accessor("score", {
         header: "Pontuação",
-        cell: (info) => info.getValue().toFixed(1),
+        cell: (info) => info.getValue().toFixed(2),
       }),
       columnHelper.accessor("updated_at", {
         header: "Atualizado",

@@ -16,6 +16,7 @@ export default function PublishersPage() {
     publishers,
     pagination,
     isLoading,
+    isFetching,
     setPage,
     perPage,
     setPerPage,
@@ -25,6 +26,8 @@ export default function PublishersPage() {
     setTypeFilter,
     qualisFilter,
     setQualisFilter,
+    sorting,
+    setSorting,
     qualisOptions,
     createMutation,
     updateMutation,
@@ -109,9 +112,12 @@ export default function PublishersPage() {
           publishers={publishers}
           pagination={pagination}
           isLoading={isLoading}
+          isFetching={isFetching}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onPageChange={setPage}
+          sorting={sorting}
+          onSortingChange={setSorting}
         />
       </div>
 

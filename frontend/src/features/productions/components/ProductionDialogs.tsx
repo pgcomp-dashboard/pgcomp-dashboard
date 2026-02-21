@@ -88,7 +88,7 @@ export function ProductionDialogs({
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="journal" id="edit-journal" />
                   <Label htmlFor="edit-journal" className="font-normal cursor-pointer">
-                    Revista
+                    Periódico
                   </Label>
                 </div>
               </RadioGroup>

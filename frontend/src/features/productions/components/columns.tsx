@@ -109,7 +109,7 @@ export const getProductionColumns = ({
     ),
     cell: (info) => (
       <div className="text-center text-sm">
-        {info.getValue() === "journal" ? "Revista" : "Conferência"}
+        {info.getValue() === "journal" ? "Periódico" : "Conferência"}
       </div>
     ),
     meta: {

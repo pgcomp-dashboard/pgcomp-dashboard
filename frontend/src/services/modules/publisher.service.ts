@@ -3,12 +3,7 @@ import { PaginatedResponse } from "@/types/common";
 import { apiClient } from "../http-client";
 
 export const publisherService = {
-  async getAllPublishers(page: number = 1, perPage: number = 10, filters: Record<string, any> = {}) {
-    const params = {
-      page,
-      per_page: perPage,
-      ...filters,
-    };
+  async getAllPublishers(params: Record<string, any> = {}) {
     return await apiClient.get<PaginatedResponse<Publisher>>('/api/admin/publishers', params);
   },
 

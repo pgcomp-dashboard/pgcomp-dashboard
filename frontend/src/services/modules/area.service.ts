@@ -2,8 +2,8 @@ import { Area } from "@/types/academic";
 import { apiClient } from "../http-client";
 
 export const areaService = {
-  async fetchAreas(): Promise<Area[]> {
-    const response = await apiClient.get<{ data: Area[] }>("/api/admin/areas");
+  async fetchAreas(params: Record<string, any> = {}): Promise<Area[]> {
+    const response = await apiClient.get<{ data: Area[] }>("/api/admin/areas", params);
     return response.data;
   },
 

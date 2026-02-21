@@ -31,14 +31,29 @@ export class HttpClient {
     endpoint: string,
     method: string,
     body: RequestBodyType = undefined,
-    params: Record<string, string | number | undefined> = {},
+    params: Record<string, any> = {},
     headers: Record<string, string> = {},
   ): Promise<T> {
     const queryParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
+
+    const appendParam = (key: string, value: any) => {
+      if (value === undefined || value === null) return;
+
+      if (typeof value === "object" && !Array.isArray(value)) {
+        Object.entries(value).forEach(([subKey, subValue]) => {
+          appendParam(`${key}[${subKey}]`, subValue);
+        });
+      } else if (Array.isArray(value)) {
+        value.forEach((item, index) => {
+          appendParam(`${key}[${index}]`, item);
+        });
+      } else {
         queryParams.append(key, value.toString());
       }
+    };
+
+    Object.entries(params).forEach(([key, value]) => {
+      appendParam(key, value);
     });
 
     const queryString = queryParams.toString();
@@ -118,7 +133,7 @@ export class HttpClient {
 
   async get<T>(
     endpoint: string,
-    params: Record<string, string | number | undefined> = {},
+    params: Record<string, any> = {},
     headers: Record<string, string> = {},
   ) {
     return this.request<T>(endpoint, "GET", undefined, params, headers);
@@ -127,7 +142,7 @@ export class HttpClient {
   async post<T>(
     endpoint: string,
     body: RequestBodyType,
-    params: Record<string, string | number | undefined> = {},
+    params: Record<string, any> = {},
     headers: Record<string, string> = {},
   ) {
     return this.request<T>(endpoint, "POST", body, params, headers);
@@ -136,7 +151,7 @@ export class HttpClient {
   async put<T>(
     endpoint: string,
     body: RequestBodyType,
-    params: Record<string, string | number | undefined> = {},
+    params: Record<string, any> = {},
     headers: Record<string, string> = {},
   ) {
     return this.request<T>(endpoint, "PUT", body, params, headers);
@@ -144,7 +159,7 @@ export class HttpClient {
 
   async delete<T>(
     endpoint: string,
-    params: Record<string, string | number | undefined> = {},
+    params: Record<string, any> = {},
     headers: Record<string, string> = {},
   ) {
     return this.request<T>(endpoint, "DELETE", undefined, params, headers);
@@ -153,7 +168,7 @@ export class HttpClient {
   async patch<T>(
     endpoint: string,
     body: RequestBodyType,
-    params: Record<string, string | number | undefined> = {},
+    params: Record<string, any> = {},
     headers: Record<string, string> = {},
   ) {
     return this.request<T>(endpoint, "PATCH", body, params, headers);

@@ -3,11 +3,11 @@ import { Link, useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import useAuth from "@/hooks/auth";
@@ -30,16 +30,6 @@ export function AdminHeader() {
         Menu Lateral
       </div>
       <div className="ml-auto flex items-center gap-2 sm:gap-4">
-        {auth?.isAdmin && (
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-            className="hidden lg:flex"
-          >
-            <Link to="/admin/dashboard">Dashboard PGCOMP</Link>
-          </Button>
-        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

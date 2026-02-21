@@ -70,7 +70,9 @@ export function ProfessorTable({
     () => [
       columnHelper.accessor("name", {
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Nome" />
+          <div className="items-center">
+            <DataTableColumnHeader column={column} title="Nome" />
+          </div>
         ),
         cell: (info) => (
           <div className="text-center">
@@ -91,9 +93,10 @@ export function ProfessorTable({
         ),
         cell: (info) => (
           <div className="text-center">
-            {info.getValue()?.replace(/^./, (match: string) =>
-              match.toUpperCase(),
-            ) || "Não Encontrado"}
+            {info
+              .getValue()
+              ?.replace(/^./, (match: string) => match.toUpperCase()) ||
+              "Não Encontrado"}
           </div>
         ),
       }),

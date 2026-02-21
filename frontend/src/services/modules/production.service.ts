@@ -21,8 +21,8 @@ export const productionService = {
   },
 
   //Get productions of logged user.
-  async getProductions() {
-    const response = await apiClient.get<{ data: Production[] }>('/api/portal/productions');
+  async getProductions(params: Record<string, any> = {}) {
+    const response = await apiClient.get<{ data: Production[] }>('/api/portal/productions', params);
     return response.data;
   },
 
@@ -51,16 +51,16 @@ export const productionService = {
     return apiClient.post<{ status: string, message: string }>(`/api/admin/professors/${professorId}/productions`, body);
   },
 
-  async getAllProduction() {
-    return apiClient.get<{status: string, message: string}>('/api/admin/productions');
+  async getAllProduction(params: Record<string, any> = {}) {
+    return apiClient.get<{ status: string, message: string }>('/api/admin/productions', params);
   },
 
   async getProduction(productionId: number) {
     return apiClient.get<{status: string, message: string}>(`/api/admin/productions/${productionId}`);
   },
 
-  async getUserProductions(professorId: number) {
-    const response = await apiClient.get<{ data: Production[] }>(`/api/admin/professors/${professorId}/productions/`);
+  async getUserProductions(professorId: number, params: Record<string, any> = {}) {
+    const response = await apiClient.get<{ data: Production[] }>(`/api/admin/professors/${professorId}/productions/`, params);
     return response.data;
   },
 

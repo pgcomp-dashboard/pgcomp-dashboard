@@ -105,7 +105,7 @@ export function QualisDialog({
                 <SelectValue placeholder="Selecione o tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="journal">Revista</SelectItem>
+                <SelectItem value="journal">Periódico</SelectItem>
                 <SelectItem value="conference">Conferência</SelectItem>
               </SelectContent>
             </Select>

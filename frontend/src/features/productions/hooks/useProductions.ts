@@ -1,6 +1,5 @@
 import useAuth from '@/hooks/auth';
 import { queryClient } from '@/lib/query-client';
-import { transformFilters } from '@/lib/utils';
 import { productionService } from '@/services/modules/production.service';
 import { professorService } from '@/services/modules/professor.service';
 import { publisherService } from '@/services/modules/publisher.service';
@@ -66,12 +65,14 @@ export function useProductions() {
       if (editPublisherSearch.length >= 2 && !isEditSelectedRef.current) {
         setIsEditSearching(true);
         try {
-          const filters = transformFilters([
-            { field: 'name', value: editPublisherSearch, operator: 'like' },
-            { field: 'publisher_type', value: editPublisherType, operator: '=' },
-          ]);
-
-          const response = await publisherService.getAllPublishers(1, 20, filters);
+          const response = await publisherService.getAllPublishers({
+            page: 1,
+            per_page: 20,
+            filter: {
+              name: editPublisherSearch,
+              publisher_type: editPublisherType,
+            }
+          });
           setEditSearchResults(response.data);
           setShowEditResults(true);
         } catch (err) {
