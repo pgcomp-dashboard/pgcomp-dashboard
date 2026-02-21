@@ -13,7 +13,7 @@ export function useProfessors() {
 
   const { data, isLoading, error } = useQuery<Professor[], Error>({
     queryKey: ["professors"],
-    queryFn: () => professorService.fetchProfessors({ per_page: 1000 }),
+    queryFn: () => professorService.fetchProfessors({ per_page: 100 }),
     placeholderData: (prevData) => prevData,
   });
 
@@ -29,8 +29,12 @@ export function useProfessors() {
   const filteredProfessors = useMemo(() => {
     if (!data) return [];
     let result = data.filter((p) => {
-      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = categoryFilter === "all" || p.category?.toLowerCase() === categoryFilter.toLowerCase();
+      const matchesSearch = p.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        categoryFilter === "all" ||
+        p.category?.toLowerCase() === categoryFilter.toLowerCase();
       return matchesSearch && matchesCategory;
     });
 
@@ -50,9 +54,13 @@ export function useProfessors() {
   const counts = useMemo(() => {
     if (!data) return { permanente: 0, colaborador: 0, visitante: 0 };
     return {
-      permanente: data.filter((p) => p.category?.toLowerCase() === "permanente").length,
-      colaborador: data.filter((p) => p.category?.toLowerCase() === "colaborador").length,
-      visitante: data.filter((p) => p.category?.toLowerCase() === "visitante").length,
+      permanente: data.filter((p) => p.category?.toLowerCase() === "permanente")
+        .length,
+      colaborador: data.filter(
+        (p) => p.category?.toLowerCase() === "colaborador",
+      ).length,
+      visitante: data.filter((p) => p.category?.toLowerCase() === "visitante")
+        .length,
     };
   }, [data]);
 
