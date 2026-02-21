@@ -14,7 +14,10 @@ export function useProfessors() {
   const [sortField, setSortField] = useState<"name" | "category" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  const { data, isLoading, error } = useQuery<PaginatedResponse<Professor>, Error>({
+  const { data, isLoading, error } = useQuery<
+    PaginatedResponse<Professor>,
+    Error
+  >({
     queryKey: [
       "professors",
       page,
@@ -42,8 +45,6 @@ export function useProfessors() {
   const professorsList = useMemo(() => {
     return data?.data || [];
   }, [data]);
-
-  console.log(professorsList);
 
   const handleSort = (field: "name" | "category") => {
     if (sortField === field) {

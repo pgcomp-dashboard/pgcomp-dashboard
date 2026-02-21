@@ -18,7 +18,7 @@ export function useStudents() {
     queryFn: () => studentService.fetchStudents({
       page,
       per_page: perPage,
-      filter: { name: search }
+      filter: { name: search.trim() || undefined }
     }),
     placeholderData: (prevData) => prevData,
   });
@@ -30,7 +30,7 @@ export function useStudents() {
   const areasQuery = useQuery<Area[]>({
     queryKey: ['areas'],
     queryFn: async () => {
-      const response = await areaService.fetchAreas({ per_page: 1000 });
+      const response = await areaService.fetchAreas({ per_page: 100 });
       return response.data;
     },
     staleTime: 1000 * 60 * 30, // 30 minutes

@@ -98,11 +98,11 @@ export function useProductions() {
 
   const { data: professorsData } = useQuery({
     queryKey: [ 'professors' ],
-    queryFn: () => professorService.fetchProfessors(),
+    queryFn: () => professorService.fetchProfessors({ paginate: 'false' }),
     enabled: !!auth?.isAdmin,
   });
 
-  const professorsList = useMemo(() => professorsData || [], [ professorsData ]);
+  const professorsList = useMemo(() => professorsData?.data || [], [professorsData]);
 
   const { data, isLoading, error } = useQuery<Production[], Error>({
     queryKey: [ 'productions', selectedProfessorId ],
