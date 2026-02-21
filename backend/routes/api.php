@@ -13,7 +13,6 @@ use App\Http\Controllers\Admin\StratumQualisController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\StudentProductionController;
 use App\Http\Controllers\Admin\UserController as UserAdminController;
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\AdminRequestController;
 use App\Http\Controllers\User\ProductionController;
 use App\Http\Controllers\Admin\ProductionController as ProductionAdminController;
@@ -40,11 +39,6 @@ Route::get('healthcheck', function (Request $request) {
 
     return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
 });
-
-// Free Access routes
-Route::post('login', [AuthController::class, 'login']);
-Route::post('forgot-password', [UserController::class, 'forgotPassword']);
-Route::post('reset-password', [UserController::class, 'resetPassword']);
 
 // Middleware
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -103,7 +97,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('professors/{professors}/productions-all', [ProfessorProductionController::class, 'destroyAll']);
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
         Route::get('admin-request', [AdminApprovalController::class, 'index']);
-        Route::post('admin-request/{user}', [AdminApprovalController::class, 'update']);
+        Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
         Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
 
 

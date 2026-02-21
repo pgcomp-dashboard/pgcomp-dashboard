@@ -7,9 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\ScrapingExecution;
-use App\Models\BaseModel;
 use App\Http\Requests\Api\BaseResourceIndexRequest;
-use App\Http\Controllers\Api\BaseApiResourceController;
 use App\Jobs\RunScraping;
 use Illuminate\Support\Facades\Cache;
 //use Illuminate\Support\Facades\Redis;
@@ -17,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ScrapingExecutionController extends Controller
 {
-    public function listExecutions(BaseResourceIndexRequest $request): JsonResponse
+    public function listExecutions(Request $request): JsonResponse
     {
         $executions = ScrapingExecution::query()
             ->orderBy('executed_at', 'desc')
@@ -63,7 +61,7 @@ class ScrapingExecutionController extends Controller
         ]);
     }
 
-    public function setInterval(BaseResourceIndexRequest $request): JsonResponse
+    public function setInterval(Request $request): JsonResponse
 {
     $validated = $request->validate(
         [

@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\User;
 
-use App\Models\Production;
+use App\Enums\PublisherType;
+use App\Enums\ProductionSource;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class StoreProductionRequest extends FormRequest
 {
@@ -20,6 +22,14 @@ class StoreProductionRequest extends FormRequest
      */
     public function rules(): array
     {
-        return Production::creationRules();
+        return [
+            'users_id' => 'sometimes|exists:users,id',
+            'title' => 'required|string|max:500',
+            'year' => 'required|integer',
+            'publisher_type' => ['required', new Enum(PublisherType::class)],
+            'publisher_id' => 'nullable|exists:publishers,id',
+            'doi' => 'nullable|string|unique:productions,doi',
+            'source' => ['sometimes', new Enum(ProductionSource::class)],
+        ];
     }
 }

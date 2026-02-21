@@ -6,10 +6,29 @@ use App\Enums\UserType;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Http\Filters;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class UserService
 {
+    /**
+     * List all users.
+     */
+    public function listAll()
+    {
+        return QueryBuilder::for(User::class)
+            ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
+            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
+            ->paginate(request()->input('per_page', 15));
+    }
+
+    /**
+     * Find a user by ID.
+     */
+    public function find(int $id): User
+    {
+        return User::findOrFail($id);
+    }
+
     /**
      * Store a new user.
      */
@@ -92,7 +111,10 @@ class UserService
      */
     public function listProfessors()
     {
-        return User::professors()->get();
+         return QueryBuilder::for(User::professors())
+            ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
+            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
+            ->paginate(request()->input('per_page', 15));
     }
 
     /**
@@ -108,17 +130,10 @@ class UserService
      */
     public function listStudents(array $params = [])
     {
-        $query = User::students();
-
-        if (isset($params['order_by']) && $params['order_by']) {
-            $query->orderBy($params['order_by'], $params['dir'] ?? 'asc');
-        }
-
-        if (isset($params['filters'])) {
-            (new Filters($query))->applyFilters($params['filters']);
-        }
-
-        return $query->paginate($params['per_page'] ?? 15);
+        return QueryBuilder::for(User::students())
+            ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
+            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
+            ->paginate(request()->input('per_page', 15));
     }
 
     /**

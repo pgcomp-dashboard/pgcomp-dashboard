@@ -6,6 +6,7 @@ use App\Enums\UserType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -29,45 +30,13 @@ use Illuminate\Support\Carbon;
  *
  * @mixin Eloquent
  */
-class Area extends BaseModel
+class Area extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'area',
     ];
-
-    /**
-     * The attributes that are used to filter.
-     *
-     * @var string[]
-     */
-    protected array $filterable = ['area'];
-
-    /**
-     * The attributes that are used to sort.
-     *
-     * @var string[]
-     */
-    protected array $sortable = ['area'];
-
-    /**
-     * @return array creation rules to validate attributes.
-     */
-    public static function creationRules(): array
-    {
-        return [
-            'area' => 'required|string|max:255',
-        ];
-    }
-
-    /**
-     * @return array update rules to validate attributes.
-     */
-    public function updateRules(): array
-    {
-        return self::creationRules();
-    }
 
     /**
      * @return HasMany all users that belong to this area

@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
-use App\Http\Requests\Api\BaseResourceIndexRequest;
+use Illuminate\Http\Request;
 use App\Http\Requests\Admin\StoreStudentRequest;
 use App\Http\Requests\Admin\UpdateStudentRequest;
+use App\Http\Requests\Admin\IndexStudentRequest;
 
 class StudentController extends Controller
 {
@@ -18,9 +19,9 @@ class StudentController extends Controller
         $this->userService = $userService;
     }
 
-    public function index(BaseResourceIndexRequest $request)
+    public function index(IndexStudentRequest $request)
     {
-        return UserResource::collection($this->userService->listStudents($request->validated()));
+        return UserResource::collection($this->userService->listStudents());
     }
 
     public function show(int $id)

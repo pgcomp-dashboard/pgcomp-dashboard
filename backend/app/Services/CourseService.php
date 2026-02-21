@@ -4,9 +4,23 @@ namespace App\Services;
 
 use App\Models\Course;
 use Illuminate\Database\Eloquent\Collection;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class CourseService
 {
+    public function list()
+    {
+        return QueryBuilder::for(Course::class)
+            ->allowedFilters(['name'])
+            ->allowedSorts(['name'])
+            ->paginate(request()->input('per_page', 15));
+    }
+
+    public function find(int $id): Course
+    {
+        return Course::findOrFail($id);
+    }
+
     public function create(array $data): Course
     {
         return Course::create($data);
@@ -19,8 +33,9 @@ class CourseService
         return $course;
     }
 
-    public function find(int $id): Course
+    public function delete(int $id): bool
     {
-        return Course::findOrFail($id);
+        $course = $this->find($id);
+        return $course->delete();
     }
 }

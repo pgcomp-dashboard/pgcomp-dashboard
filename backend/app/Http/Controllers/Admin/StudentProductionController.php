@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\User\ProductionController;
-use App\Http\Requests\Api\BaseResourceIndexRequest;
+use Illuminate\Http\Request;
 use App\Http\Requests\User\StoreProductionRequest;
 use App\Http\Requests\User\UpdateProductionRequest;
 use App\Services\ProductionService;
@@ -19,7 +19,7 @@ class StudentProductionController extends Controller
         $this->productionService = $productionService;
     }
 
-    public function index(BaseResourceIndexRequest $request, $students)
+    public function index(Request $request, $students)
     {
         $this->productionController = $this->newInstance();
         $this->productionController->studentQuery($students);

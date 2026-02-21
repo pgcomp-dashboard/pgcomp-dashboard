@@ -13,7 +13,6 @@ class UserPolicy
         // 2. Ele não pode aprovar a própria solicitação
         // 3. O usuário alvo deve estar realmente com status pendente
         return $admin->is_admin
-            && $admin->id !== $targetUser->id
-            && $targetUser->admin_status === 'pending';
+            && $admin->id !== $targetUser->id;
     }
 }

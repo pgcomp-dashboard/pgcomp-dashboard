@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Domain\Lattes\LattesZipXml;
 use App\Enums\ProductionSource;
-use App\Http\Filters;
 use App\Models\Production;
 use App\Models\Publishers;
 use App\Models\User;
@@ -12,6 +11,8 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class ProductionService
 {
@@ -167,23 +168,18 @@ class ProductionService
     /**
      * Get productions for a specific user with filters and ordering.
      */
-    public function getProductionsForUser(int $userId, ?string $orderBy = null, ?string $direction = 'asc', array $filters = [])
+    public function getProductionsForUser(int $userId)
     {
-        $query = Production::ofUser($userId)
-            ->withPublisherAndQualis();
-
-        if ($orderBy) {
-            $model = new Production;
-            if ($model->canSortBy($orderBy)) {
-                $query->orderBy($orderBy, $direction);
-            }
-        }
-
-        if (!empty($filters)) {
-            (new Filters($query))->applyFilters($filters);
-        }
-
-        return $query->get();
+        return QueryBuilder::for(Production::ofUser($userId))
+            ->withPublisherAndQualis()
+            ->allowedFilters([
+                AllowedFilter::partial('title'),
+                AllowedFilter::exact('year'),
+                AllowedFilter::exact('publisher_type'),
+                AllowedFilter::exact('source'),
+            ])
+            ->allowedSorts(['title', 'year', 'created_at'])
+            ->get();
     }
 
     /**

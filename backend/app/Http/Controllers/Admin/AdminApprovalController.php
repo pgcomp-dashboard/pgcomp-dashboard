@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\Admin\UpdateAdminApprovalRequest;
 use App\Services\Admin\AdminApprovalService;
 
 class AdminApprovalController extends Controller
@@ -28,15 +28,14 @@ class AdminApprovalController extends Controller
         return response()->json(["data" => $results], 200);
     }
 
-    public function update(Request $request, User $user)
+    public function update(UpdateAdminApprovalRequest $request, User $user)
     {
-        $this->authorize('approve', $user);
+        //$this->authorize('approve', $user);
+        $validated = $request->validated();
 
-        // Validate that the status is either approved or rejected
-        $validated = $request->validate([
-            //'status' => 'required|in:' . User::STATUS_APPROVED . ',' . User::STATUS_REJECTED,
-            'status' => ['required', Rule::in([User::STATUS_APPROVED, User::STATUS_REJECTED ])]
-        ]);
+        if ($user->admin_status !== 'pending') {
+            return response()->json(['message' => 'Pedido não está pendente.'], 400);
+        }
 
         $result = $this->approvalService->approveOrReject($user, $validated['status'], auth()->id());
 

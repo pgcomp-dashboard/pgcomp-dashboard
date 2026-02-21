@@ -18,6 +18,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\Access\Authorizable;
@@ -105,7 +106,7 @@ use Laravel\Sanctum\PersonalAccessToken;
  *
  * @mixin Eloquent
  */
-class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
+class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
     use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;
     use HasApiTokens, HasFactory, Notifiable;
@@ -121,11 +122,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'password',
         'course_id',
         'lattes_url',
-        'is_admin',
         'admin_status',
         'admin_requested_at',
-        'approved_by_id',
-        'is_protected',
         'defended_at',
     ];
 
@@ -146,20 +144,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'admin_requested_at' => 'datetime'
     ];
 
-    /**
-     * The attributes that are used to filter.
-     *
-     * @var string[]
-     */
-    protected array $filterable = ['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'];
-
-    /**
-     * The attributes that are used to sort.
-     *
-     * @var string[]
-     */
-    protected array $sortable = ['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'];
-
     protected $attributes = [
         'is_admin' => false,
         'is_protected' => true,
@@ -168,42 +152,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_REJECTED = 'rejected';
-
-    /**
-     * @return array creation rules to validate attributes.
-     */
-    public static function creationRules(): array
-    {
-        return [
-            'registration' => 'nullable|int|required_if:type,'.UserType::STUDENT->value,
-            'siape' => 'nullable|int|required_if:type,'.UserType::PROFESSOR->value,
-            'name' => 'required|string|max:255',
-            'type' => ['required', new Enum(UserType::class)],
-            'category' => ['nullable', new Enum(UserCategory::class)],
-            'area_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Area::class, 'id'),
-            ],
-            'email' => [
-                'nullable',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique(User::class),
-            ],
-            'password' => ['required', 'string', new Password, 'confirmed'],
-            'course_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Course::class, 'id'),
-                'required_if:type,'.UserType::STUDENT->value,
-            ],
-            'lattes_url' => 'nullable|string|max:255',
-            'is_admin' => 'nullable|bool',
-            'is_protected' => 'nullable|bool'
-        ];
-    }
 
     /**
      * Establishes a relationship of belongsToMany with the production model
@@ -223,45 +171,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by_id');
-    }
-
-    /**
-     * @return array update rules to validate attributes.
-     */
-    public function updateRules(): array
-    {
-        $courseIdRules = [
-            'int',
-            Rule::exists(Course::class, 'id'),
-        ];
-        if ($this->type === UserType::PROFESSOR) {
-            $courseIdRules[] = 'nullable';
-        }
-
-        return [
-            'name' => 'string|max:255',
-            'email' => [
-                'nullable',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($this->id),
-            ],
-            'registration' => 'nullable|int',
-            'siape' => 'nullable|int',
-            'type' => ['nullable', new Enum(UserType::class)],
-            'area_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Area::class, 'id'),
-            ],
-            'course_id' => $courseIdRules,
-            'lattes_url' => 'nullable|string|max:255',
-            'is_admin' => 'nullable|bool',
-            'admin_status' => ['nullable', Rule::in(['approved', 'rejected', 'pending'])],
-            'admin_requested_at' => 'nullable|date',
-            'approved_by_id' =>['nullable', 'int', Rule::exists(User::class, 'id')],
-        ];
     }
 
     /**
@@ -319,40 +228,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->toArray();
     }
 
-    public static function countAdvisedStudentsByProfessorAndCourse(int $professorId, ?string $courseType = null): array
-    {
-        $query = DB::table('user_user as uu')
-            ->join('users as students', 'uu.student_user_id', '=', 'students.id')
-            ->join('courses as c', 'students.course_id', '=', 'c.id')
-            ->where('uu.professor_user_id', $professorId)
-            ->where('uu.relation_type', UserRelationType::ADVISOR)
-            ->whereNull('students.defended_at'); // Apenas conta alunos orientados ativos
-
-        if ($courseType) {
-            $query->where('c.name', $courseType);
-        }
-
-        return $query->groupBy('c.name')
-            ->selectRaw('c.name, COUNT(students.id) AS total')
-            ->pluck('total', 'name')
-            ->toArray();
-    }
-
-    public static function countDefendedAdvisedStudentsByProfessor(int $professorId, ?string $courseType = null): int
-    {
-        $query = DB::table('user_user as uu')
-            ->join('users as students', 'uu.student_user_id', '=', 'students.id')
-            ->join('courses as c', 'students.course_id', '=', 'c.id')
-            ->where('uu.professor_user_id', $professorId)
-            ->where('uu.relation_type', UserRelationType::ADVISOR)
-            ->whereNotNull('students.defended_at'); // Contar apenas defendidos
-
-        if ($courseType) {
-            $query->where('c.name', $courseType);
-        }
-
-        return $query->count('students.id');
-    }
 
     public function sendPasswordResetNotification($token)
     {
@@ -377,19 +252,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         $this->save();
     }
 
-    protected function checkIfUserAlreadyExist($sigaaId)
-    {
-        return User::find($sigaaId);
-    }
-
-    protected function checkIfUserWasFound($user)
-    {
-        if (is_null($user)) {
-            return 'error';
-        }
-
-        return $user;
-    }
 
     public function programs(): BelongsToMany
     {

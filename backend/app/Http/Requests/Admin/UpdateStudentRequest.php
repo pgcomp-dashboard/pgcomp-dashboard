@@ -2,8 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Models\User;
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateStudentRequest extends FormRequest
 {
@@ -14,10 +13,17 @@ class UpdateStudentRequest extends FormRequest
 
     public function rules(): array
     {
-        $rules = User::updateRules();
-
-        $rules['registration'] = 'nullable|int';
-
-        return $rules;
+        return [
+            'name' => 'sometimes|string|max:255',
+            'email' => [
+                'sometimes',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($this->route('student') ?? $this->route('id')),
+            ],
+            'password' => 'sometimes|string|min:8',
+            'registration' => 'nullable|int',
+        ];
     }
 }

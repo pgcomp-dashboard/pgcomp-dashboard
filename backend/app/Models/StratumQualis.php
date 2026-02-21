@@ -6,6 +6,7 @@ use App\Enums\PublisherType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,7 @@ use Illuminate\Support\Facades\DB;
  *
  * @mixin Eloquent
  */
-class StratumQualis extends BaseModel
+class StratumQualis extends Model
 {
     use HasFactory;
 
@@ -39,25 +40,6 @@ class StratumQualis extends BaseModel
         'code',
         'score',
     ];
-
-    /**
-     * The attributes that are used to filter.
-     *
-     * @var string[]
-     */
-    protected array $filterable = ['type', 'code', 'score'];
-
-    /**
-     * @return array creation rules to validate attributes.
-     */
-    public static function creationRules(): array
-    {
-        return [
-            'type' => 'required|in:journal,conference',
-            'code' => 'required|string|max:2',
-            'score' => 'required|decimal:0,2',
-        ];
-    }
 
     /**
      * finds a certain stratum qualis from a code
@@ -70,18 +52,6 @@ class StratumQualis extends BaseModel
     {
         return self::where('type', $type)
         ->where('code', $code)->firstOrFail($columns);
-    }
-
-    /**
-     * @return array update rules to validate attributes.
-     */
-    public function updateRules(): array
-    {
-        return [
-            'type' => 'string|in:journal,conference',
-            'code' => 'string|max:2',
-            'score' => 'decimal:0,2',
-        ];
     }
 
     /**

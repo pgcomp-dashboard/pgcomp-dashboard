@@ -23,12 +23,13 @@ class StoreStudentRequest extends FormRequest
 
     public function rules(): array
     {
-        $rules = User::creationRules();
-
-        $rules['type'] = ['required', new Enum(UserType::class)];
-        $rules['registration'] = 'required|int';
-        $rules['course_id'] = 'required|int|exists:courses,id';
-
-        return $rules;
+        return [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'type' => ['required', new Enum(UserType::class)],
+            'registration' => 'required|int',
+            'course_id' => 'required|int|exists:courses,id',
+        ];
     }
 }

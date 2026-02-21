@@ -5,12 +5,24 @@ namespace App\Services;
 use App\Models\Area;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Spatie\QueryBuilder\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class AreaService
 {
-    public function list(): Collection
+    public function list()
     {
-        return Area::withCount('students')->get();
+        return QueryBuilder::for(Area::class)
+            ->withCount('students')
+            ->allowedFilters(['area'])
+            ->allowedSorts(['area'])
+            ->paginate(request()->input('per_page', 15));
+    }
+
+    public function find(int $id): Area
+    {
+        return Area::findOrFail($id);
     }
 
     public function create(array $data): Area
@@ -25,21 +37,12 @@ class AreaService
         return $area;
     }
 
-    public function delete(int $id): bool
+    public function delete(Area $area): bool
     {
-        $area = $this->find($id);
+        if ($area->users()->exists()) {
+            throw new ConflictHttpException('Erro: Usuários cadastrados nessa área');
+        }
 
-        return $area->delete();
-    }
-
-    public function find(int $id): Area
-    {
-        return Area::findOrFail($id);
-    }
-
-    public function hasUsers(int $id): bool
-    {
-        $area = $this->find($id);
-        return $area->users()->exists();
+        return DB::transaction(fn () => $area->delete());
     }
 }

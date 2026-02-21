@@ -2,57 +2,57 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\BaseApiResourceController;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\CourseResource;
-use App\Models\BaseModel;
 use App\Models\Course;
 use App\Services\CourseService;
+use App\Http\Requests\Admin\Course\StoreCourseRequest;
+use App\Http\Requests\Admin\Course\UpdateCourseRequest;
+use App\Http\Requests\Admin\Course\IndexCourseRequest;
 use Illuminate\Http\Request;
 
-class CourseController extends BaseApiResourceController
+class CourseController extends Controller
 {
     private CourseService $courseService;
 
     public function __construct(CourseService $courseService)
     {
-        parent::__construct();
         $this->courseService = $courseService;
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCourseRequest $request)
     {
-        $model = $this->courseService->create($request->all());
-
-        if ($resourceClass = $this->resourceClass()) {
-            return new $resourceClass($model);
-        }
-
-        return $model;
+        $course = $this->courseService->create($request->validated());
+        return new CourseResource($course);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, int $id)
+    public function update(UpdateCourseRequest $request, int $id)
     {
-        $model = $this->courseService->update($id, $request->all());
-
-        if ($resourceClass = $this->resourceClass()) {
-            return new $resourceClass($model);
-        }
-
-        return $model;
-    }
-    protected function modelClass(): string|BaseModel
-    {
-        return Course::class;
+        $course = $this->courseService->update($id, $request->validated());
+        return new CourseResource($course);
     }
 
-    protected function resourceClass(): string
+    public function index(IndexCourseRequest $request)
     {
-        return CourseResource::class;
+        $courses = $this->courseService->list();
+        return CourseResource::collection($courses);
+    }
+
+    public function show(int $id)
+    {
+        $course = $this->courseService->find($id);
+        return new CourseResource($course);
+    }
+
+    public function destroy(int $id)
+    {
+        $this->courseService->delete($id);
+        return response()->noContent();
     }
 }

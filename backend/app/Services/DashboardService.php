@@ -22,20 +22,24 @@ class DashboardService
             $courseNameForCount = 'Mestrado';
         }
 
-        $advisors = User::where('type', UserType::PROFESSOR)->get($attributes);
+        $query = User::where('type', UserType::PROFESSOR)
+            ->withCount(['advisedes as advisedes_count' => function ($query) use ($userType, $courseNameForCount) {
+                if ($userType === 'completed') {
+                    $query->whereNotNull('defended_at');
+                } else {
+                    $query->whereNull('defended_at');
+                }
 
-        return $advisors->map(function ($advisor) use ($courseNameForCount, $userType, $attributes) {
-            $count = 0;
+                if ($courseNameForCount) {
+                    $query->whereHas('course', function ($q) use ($courseNameForCount) {
+                        $q->where('name', $courseNameForCount);
+                    });
+                }
+            }]);
 
-            if ($userType === 'completed') {
-                $count = User::countDefendedAdvisedStudentsByProfessor($advisor->id, $courseNameForCount);
-            } else {
-                $countsByCourse = User::countAdvisedStudentsByProfessorAndCourse($advisor->id, $courseNameForCount);
-                $count = array_sum($countsByCourse);
-            }
-
-            return $advisor->only($attributes) + ['advisedes_count' => $count];
-        })->sortByDesc('advisedes_count')->values();
+        return $query->get(array_merge($attributes, ['advisedes_count']))
+            ->sortByDesc('advisedes_count')
+            ->values();
     }
 
     public function getDefensesPerYear()
@@ -141,30 +145,31 @@ class DashboardService
      */
     public function getTotalProductionsPerYear(?string $user_type, ?string $course_id, ?string $publisher_type): array
     {
-        $years = range(2014, Carbon::now()->year);
-        $data = [];
-        foreach ($years as $year) {
-            $data[] = Production::where('year', $year)
-                ->when($publisher_type, function ($builder, $publisherType) {
-                    $builder->whereHas('publisher', function ($q) use ($publisherType) {
-                        $q->where('publisher_type', $publisherType);
-                    });
-                })
-                ->when($user_type, function ($builder, $userType) {
-                    $builder->whereHas('isWroteBy', function ($builder) use ($userType) {
-                        $builder->where('type', $userType);
-                    });
-                })
-                ->when($course_id, function ($builder, $courseId) {
-                    $builder->whereHas('isWroteBy', function ($builder) use ($courseId) {
-                        $builder->where('course_id', $courseId);
-                    });
-                })
-                ->distinct()
-                ->count();
-        }
+        $yearsRange = range(2014, Carbon::now()->year);
 
-        return compact('years', 'data');
+        $results = Production::select('year', DB::raw('count(distinct id) as total'))
+            ->whereIn('year', $yearsRange)
+            ->when($publisher_type, function ($builder, $publisherType) {
+                $builder->whereHas('publisher', function ($q) use ($publisherType) {
+                    $q->where('publisher_type', $publisherType);
+                });
+            })
+            ->when($user_type, function ($builder, $userType) {
+                $builder->whereHas('isWroteBy', function ($builder) use ($userType) {
+                    $builder->where('type', $userType);
+                });
+            })
+            ->when($course_id, function ($builder, $courseId) {
+                $builder->whereHas('isWroteBy', function ($builder) use ($courseId) {
+                    $builder->where('course_id', $courseId);
+                });
+            })
+            ->groupBy('year')
+            ->pluck('total', 'year');
+
+        $data = array_map(fn($year) => $results[$year] ?? 0, $yearsRange);
+
+        return ['years' => $yearsRange, 'data' => $data];
     }
 
     /**
@@ -173,29 +178,34 @@ class DashboardService
      */
     public function getTotalProductionsPerCourse($publisherType): array
     {
-        $years = range(2014, Carbon::now()->year);
+        $yearsRange = range(2014, Carbon::now()->year);
         $courses = Course::all();
-        $data = [];
-        /** @var Course $course */
-        foreach ($courses as $course) {
-            $courseData = ['label' => $course->name, 'data' => []];
-            foreach ($years as $year) {
-                $courseData['data'][] = Production::where('year', $year)
-                    ->when($publisherType, function ($builder, $publisherType) {
-                        $builder->whereHas('publisher', function ($builder) use ($publisherType) {
-                            $builder->where('publisher_type', $publisherType);
-                        });
-                    })
-                    ->whereHas('isWroteBy', function ($builder) use ($course) {
-                        $builder->where('course_id', $course->id);
-                    })
-                    ->distinct()
-                    ->count();
-            }
-            $data[] = $courseData;
-        }
 
-        return compact('years', 'data');
+        $queryResults = Production::select('year', 'users.course_id', DB::raw('count(distinct productions.id) as total'))
+            ->join('users_productions', 'productions.id', '=', 'users_productions.productions_id')
+            ->join('users', 'users_productions.users_id', '=', 'users.id')
+            ->whereIn('productions.year', $yearsRange)
+            ->when($publisherType, function ($builder, $publisherType) {
+                $builder->whereHas('publisher', function ($q) use ($publisherType) {
+                    $q->where('publisher_type', $publisherType);
+                });
+            })
+            ->groupBy('productions.year', 'users.course_id')
+            ->get();
+
+        $data = $courses->map(function ($course) use ($yearsRange, $queryResults) {
+            $courseYearlyData = [];
+            foreach ($yearsRange as $year) {
+                $match = $queryResults->where('year', $year)->where('course_id', $course->id)->first();
+                $courseYearlyData[] = $match ? $match->total : 0;
+            }
+            return [
+                'label' => $course->name,
+                'data' => $courseYearlyData
+            ];
+        })->toArray();
+
+        return ['years' => $yearsRange, 'data' => $data];
     }
 
 }

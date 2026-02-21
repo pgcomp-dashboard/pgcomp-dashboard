@@ -5,12 +5,13 @@ namespace App\Services;
 use App\Domain\Qualis\ConferenceQualisXLSX;
 use App\Domain\Qualis\JournalQualisXLSX;
 use App\Enums\PublisherType;
-use App\Http\Filters;
 use App\Models\Publishers;
 use App\Models\StratumQualis;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class PublisherService
 {
@@ -80,25 +81,18 @@ class PublisherService
 
     public function listAll(array $params = []): LengthAwarePaginator
     {
-        $query = Publishers::with('stratumQualis');
-
-        if (isset($params['filters'])) {
-            $filters = $params['filters'];
-
-            // Handle custom qualis_code filter
-            foreach ($filters as $key => $filter) {
-                if ($filter['field'] === 'qualis_code' && !empty($filter['value'])) {
-                    $query->whereHas('stratumQualis', function($q) use ($filter) {
-                        $q->where('code', $filter['value']);
+        return QueryBuilder::for(Publishers::class)
+            ->with('stratumQualis')
+            ->allowedFilters([
+                'name', 'initials', 'issn', 'publisher_type', 'stratum_qualis_id',
+                AllowedFilter::callback('qualis_code', function ($query, $value) {
+                    $query->whereHas('stratumQualis', function($q) use ($value) {
+                        $q->where('code', $value);
                     });
-                    unset($filters[$key]);
-                }
-            }
-
-            (new Filters($query))->applyFilters($filters);
-        }
-
-        return $query->paginate($params['per_page'] ?? 15);
+                })
+            ])
+            ->allowedSorts(['name', 'initials', 'issn', 'publisher_type', 'stratum_qualis_id', 'qualis_code'])
+            ->paginate($params['per_page'] ?? 15);
     }
 
     public function importQualis(string $type, string $filePath): array

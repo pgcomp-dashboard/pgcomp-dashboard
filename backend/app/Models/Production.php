@@ -52,7 +52,7 @@ use Illuminate\Validation\Rule;
  *
  * @mixin Eloquent
  */
-class Production extends BaseModel
+class Production extends Model
 {
     use HasFactory;
 
@@ -67,57 +67,9 @@ class Production extends BaseModel
         'home_page'
     ];
 
-    /**
-     * The attributes that are used to filter.
-     *
-     * @var string[]
-     */
-    protected array $filterable = [
-        'title',
-        'year',
-        'publisher_type',
-        'source',
-        'publisher_id',
-        'stratum_qualis_id',
-        'doi'
-    ];
-
-    /**
-     * The attributes that are used to sort.
-     *
-     * @var string[]
-     */
-    protected array $sortable = [
-        'title',
-        'year',
-        'publisher_type',
-        'source',
-        'doi',
-        'publisher_id',
-        'stratum_qualis_id'
-    ];
-
     protected $casts = [
         'publisher_type' => PublisherType::class
     ];
-
-    /**
-     * @return array creation rules to validate attributes.
-     */
-    public static function creationRules(): array
-    {
-        return [
-            'title' => ['required', 'string', 'max:255', Rule::unique(Production::class, 'title')->whereNull('doi')],
-            'year' => 'required|int|date_format:Y',
-            'publisher_type' => ['nullable', 'string', 'max:255'],
-            'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
-            'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
-            'sequence_number' => 'nullable|int',
-            'source' => 'nullable|string|max:255',
-            'stratum_qualis_id' => 'nullable|int',
-            'home_page' => 'nullable|string|max:255'
-        ];
-    }
 
     /**
      * boot the model by setting the production qualis
@@ -185,23 +137,6 @@ class Production extends BaseModel
     public function scopeWithPublisherAndQualis($query)
     {
         return $query->with(['publisher', 'publisher.stratumQualis']);
-    }
-
-    /**
-     * @return array update rules to validate attributes.
-     */
-    public function updateRules(): array
-    {
-        return [
-            'title' => 'string|max:255',
-            'year' => 'int|date_format:Y',
-            'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255'],
-            'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
-            'sequence_number' => 'nullable|int',
-            'source' => 'nullable|string|max:255',
-            'stratum_qualis_id' => 'nullable|int',
-            'home_page' => 'nullable|string|max:255'
-        ];
     }
 
     /**

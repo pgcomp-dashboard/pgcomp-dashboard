@@ -5,6 +5,7 @@ namespace App\Models;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -28,40 +29,13 @@ use Illuminate\Support\Carbon;
  *
  * @mixin Eloquent
  */
-class Course extends BaseModel
+class Course extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
     ];
-
-    /**
-     * The attributes that are used to filter.
-     *
-     * @var string[]
-     */
-    protected array $filterable = ['name'];
-
-    /**
-     * @return array creation rules to validate attributes.
-     */
-    public static function creationRules(): array
-    {
-        return [
-            'name' => 'required|string|max:255',
-        ];
-    }
-
-    /**
-     * @return array update rules to validate attributes.
-     */
-    public function updateRules(): array
-    {
-        return [
-            'name' => 'string|max:255',
-        ];
-    }
 
     public function students(): HasMany
     {

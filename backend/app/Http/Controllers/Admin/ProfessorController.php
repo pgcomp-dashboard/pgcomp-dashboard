@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use App\Http\Requests\Admin\StoreProfessorRequest;
 use App\Http\Requests\Admin\UpdateProfessorRequest;
+use App\Http\Requests\Admin\IndexProfessorRequest;
 
 class ProfessorController extends Controller
 {
@@ -17,7 +18,7 @@ class ProfessorController extends Controller
         $this->userService = $userService;
     }
 
-    public function index()
+    public function index(IndexProfessorRequest $request)
     {
         return UserResource::collection($this->userService->listProfessors());
     }

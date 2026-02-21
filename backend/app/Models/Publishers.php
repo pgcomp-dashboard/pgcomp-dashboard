@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Validation\Rule;
 
-class Publishers extends BaseModel
+class Publishers extends Model
 {
-    //
+    use HasFactory;
 
     protected $fillable = [
         'id',
@@ -23,58 +25,6 @@ class Publishers extends BaseModel
         'logs',
         'stratum_qualis_id',
     ];
-
-    /**
-     * The attributes that are used to filter.
-     *
-     * @var string[]
-     */
-    protected array $filterable = ['name', 'initials', 'issn', 'publisher_type', 'stratum_qualis_id', 'qualis_code'];
-
-    /**
-     * The attributes that are used to sort.
-     *
-     * @var string[]
-     */
-    protected array $sortable = ['name', 'initials', 'issn', 'publisher_type', 'stratum_qualis_id', 'qualis_code'];
-
-    public static function creationRules(): array
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'stratum_qualis_id' => [
-                'nullable',
-                'int',
-                Rule::exists(StratumQualis::class, 'id'),
-            ],
-            'issn' => 'string|nullable|max:255',
-            'percentile' => 'string|nullable|max:255',
-            'update_date' => 'date|nullable',
-            'tentative_date' => 'date|nullable',
-            'logs' => 'string|nullable|max:255',
-            'initials' => 'string|max:255|nullable',
-            'publisher_type' => 'nullable|in:journal,conference',
-        ];
-    }
-
-    public function updateRules(): array
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'stratum_qualis_id' => [
-                'nullable',
-                'int',
-                Rule::exists(StratumQualis::class, 'id'),
-            ],
-            'issn' => 'string|nullable|max:255',
-            'percentile' => 'string|nullable|max:255',
-            'update_date' => 'date|nullable',
-            'tentative_date' => 'date|nullable',
-            'logs' => 'string|nullable|max:255',
-            'initials' => 'string|max:255|nullable',
-            'publisher_type' => 'nullable|in:journal,conference',
-        ];
-    }
 
     public function stratumQualis(): BelongsTo
     {

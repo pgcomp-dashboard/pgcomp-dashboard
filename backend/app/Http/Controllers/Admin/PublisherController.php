@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\BaseApiResourceController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PublisherResource;
-use App\Models\BaseModel;
 use App\Models\Publishers;
 use Illuminate\Http\Request;
-use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Http\Requests\Admin\Publisher\StorePublisherRequest;
 use App\Http\Requests\Admin\Publisher\UpdatePublisherRequest;
+use App\Http\Requests\Admin\Publisher\IndexPublisherRequest;
 use App\Http\Requests\Admin\ImportQualisRequest;
 use App\Domain\Qualis\ConferenceQualisXLSX;
 use App\Domain\Qualis\JournalQualisXLSX;
@@ -42,9 +40,15 @@ class PublisherController extends Controller
         return new PublisherResource($model);
     }
 
-    public function index(BaseResourceIndexRequest $request)
+    public function show(int $id)
     {
-        $results = $this->publisherService->listAll($request->validated());
+        $publisher = $this->publisherService->find($id);
+        return new PublisherResource($publisher);
+    }
+
+    public function index(IndexPublisherRequest $request)
+    {
+        $results = $this->publisherService->listAll();
         return PublisherResource::collection($results);
     }
 

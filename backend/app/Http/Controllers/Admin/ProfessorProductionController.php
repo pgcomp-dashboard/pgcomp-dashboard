@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\BaseResourceIndexRequest;
 use App\Services\ProductionService;
+use App\Http\Requests\Admin\Production\StoreProductionRequest;
+use App\Http\Requests\Admin\Production\UpdateProductionRequest;
+use App\Http\Requests\Admin\Production\IndexProductionRequest;
 use Illuminate\Http\Request;
 
 class ProfessorProductionController extends Controller
@@ -16,16 +18,11 @@ class ProfessorProductionController extends Controller
         $this->productionService = $productionService;
     }
 
-    public function index(BaseResourceIndexRequest $request, $professors)
+    public function index(IndexProductionRequest $request, $professors)
     {
         $typeCounts = $this->productionService->getTypeCounts($professors);
 
-        $productions = $this->productionService->getProductionsForUser(
-            $professors,
-            $request->input('order_by'),
-            $request->input('dir', 'asc'),
-            $request->input('filters', [])
-        );
+        $productions = $this->productionService->getProductionsForUser($professors);
 
         return response()->json([
             'data' => $productions->toArray(),
@@ -44,16 +41,16 @@ class ProfessorProductionController extends Controller
         return response()->json($production->load(['publisher', 'publisher.stratumQualis']));
     }
 
-    public function store(Request $request, $professors)
+    public function store(StoreProductionRequest $request, $professors)
     {
-        $production = $this->productionService->store($request->all(), $professors);
+        $production = $this->productionService->store($request->validated(), $professors);
 
         return response()->json($production, 201);
     }
 
-    public function update(Request $request, $professors, $productions)
+    public function update(UpdateProductionRequest $request, $professors, $productions)
     {
-        $production = $this->productionService->updateForUser($professors, $productions, $request->all());
+        $production = $this->productionService->updateForUser($professors, $productions, $request->validated());
 
         return response()->json($production);
     }

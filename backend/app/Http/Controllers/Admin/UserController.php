@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Domain\Lattes\LattesZipXml;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
-use App\Http\Requests\Api\BaseResourceIndexRequest;
+use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
-use App\Models\BaseModel;
-use App\Models\User;
 use App\Services\UserService;
 use App\Services\ProductionService;
-use Illuminate\Http\Request;
-use App\Http\Requests\Admin\ImportLattesRequest;
+use App\Http\Requests\Admin\IndexUserRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UserController extends Controller
 {
@@ -26,37 +24,38 @@ class UserController extends Controller
         $this->productionService = $productionService;
     }
 
-    protected function modelClass(): string|BaseModel
+    public function index(IndexUserRequest $request): AnonymousResourceCollection
     {
-        return User::class;
-    }
-
-    public function index(BaseResourceIndexRequest $request)
-    {
-        $users = parent::index($request);
+        $users = $this->userService->listAll();
         return UserResource::collection($users);
     }
 
-    public function show(int $id)
+    public function show(int $id): UserResource
     {
-        $user = $this->findOrFail($id);
+        $user = $this->userService->find($id);
         return new UserResource($user);
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request): UserResource
     {
         $user = $this->userService->store($request->validated());
 
         return new UserResource($user);
     }
 
-    public function update(UpdateUserRequest $request, int $id)
+    public function update(UpdateUserRequest $request, int $id): UserResource
     {
-        $user = $this->findOrFail($id);
+        $user = $this->userService->find($id);
         $user = $this->userService->update($user, $request->validated());
 
         return new UserResource($user);
     }
 
+    public function destroy(int $id): JsonResponse
+    {
+        $user = $this->userService->find($id);
+        $user = $this->userService->delete($user);
 
+        return response()->json(['message' => 'User deleted successfully'], 204);
+    }
 }
