@@ -14,15 +14,11 @@ class LoginResponse implements \Laravel\Fortify\Contracts\LoginResponse
      */
     public function toResponse($request)
     {
-        if ($request->wantsJson()) {
-            $user = $request->user();
-            return response()->json([
-                'token' => $user->createToken('login')->plainTextToken,
-                'name' => $user->name,
-                'role' => $user->is_admin ? 'admin' : 'basic'
-            ]);
-        }
-
-        return redirect()->intended(Fortify::redirects('login'));
+        $user = $request->user();
+        return response()->json([
+            'token' => $user->createToken('login')->plainTextToken,
+            'name' => $user->name,
+            'role' => $user->is_admin ? 'admin' : 'basic'
+        ]);
     }
 }

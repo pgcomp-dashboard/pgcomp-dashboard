@@ -13,11 +13,16 @@ class AreaService
 {
     public function list()
     {
-        return QueryBuilder::for(Area::class)
+        $query = QueryBuilder::for(Area::class)
             ->withCount('students')
             ->allowedFilters(['area'])
-            ->allowedSorts(['area'])
-            ->paginate(request()->input('per_page', 15));
+            ->allowedSorts(['area']);
+
+        if (request()->query('paginate') === 'false') {
+            return $query->get();
+        }
+
+        return $query->paginate(request()->input('per_page', 15));
     }
 
     public function find(int $id): Area

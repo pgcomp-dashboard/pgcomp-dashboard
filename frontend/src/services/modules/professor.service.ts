@@ -1,13 +1,14 @@
+import { PaginatedResponse } from "@/types/common";
 import { Professor } from "@/types/user";
 import { apiClient } from "../http-client";
 
 export const professorService = {
-  async fetchProfessors(params: Record<string, any> = {}) {
-    const response = await apiClient.get<{ data: Professor[] }>(
+  async fetchProfessors(params: Record<string, any> = {}): Promise<PaginatedResponse<Professor>> {
+    const response = await apiClient.get<PaginatedResponse<Professor>>(
       "/api/admin/professors",
       params
     );
-    return response.data;
+    return response;
   },
 
   async getProfessorById(id: number): Promise<Professor> {

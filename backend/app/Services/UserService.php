@@ -111,10 +111,15 @@ class UserService
      */
     public function listProfessors()
     {
-         return QueryBuilder::for(User::professors())
+         $query = QueryBuilder::for(User::professors())
             ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
-            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
-            ->paginate(request()->input('per_page', 15));
+            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin']);
+
+        if (request()->query('paginate') === 'false') {
+            return $query->get();
+        }
+
+        return $query->paginate(request()->input('per_page', 15));
     }
 
     /**
@@ -130,10 +135,15 @@ class UserService
      */
     public function listStudents(array $params = [])
     {
-        return QueryBuilder::for(User::students())
+        $query = QueryBuilder::for(User::students())
             ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
-            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
-            ->paginate(request()->input('per_page', 15));
+            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin']);
+
+        if (request()->query('paginate') === 'false') {
+            return $query->get();
+        }
+
+        return $query->paginate(request()->input('per_page', 15));
     }
 
     /**

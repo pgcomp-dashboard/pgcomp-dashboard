@@ -160,7 +160,6 @@ export function ProductionTable({
       }
       sorting={sorting}
       onSortingChange={handleSortingChange}
-      manualSorting={true}
       renderMobileCard={renderMobileCard}
       getRowClassName={() => "align-top"}
     />

@@ -11,14 +11,7 @@ export default function AreasPage() {
   const {
     areas,
     isLoading,
-    searchTerm,
-    setSearchTerm,
     actions,
-    page,
-    setPage,
-    perPage,
-    setPerPage,
-    pagination,
   } = useAreas();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -70,15 +63,8 @@ export default function AreasPage() {
       <AreaTable
         areas={areas}
         isLoading={isLoading}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        page={page}
-        setPage={setPage}
-        perPage={perPage}
-        setPerPage={setPerPage}
-        pagination={pagination}
       />
 
       {/* Dialog para adicionar e editar áreas */}

@@ -1,10 +1,14 @@
 import { Button } from '@/components/ui/button';
+import { CardFooter } from '@/components/ui/card';
+import { DataTable } from '@/components/ui/data-table';
+import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Area, Course } from '@/types/academic';
 import { PaginatedResponse } from '@/types/common';
 import { Student } from '@/types/user';
+import { ColumnDef, createColumnHelper, OnChangeFn, Row } from '@tanstack/react-table';
 import { Pencil, Search, Trash } from 'lucide-react';
+import { useMemo } from 'react';
 
 interface StudentTableProps {
   students: Student[];
@@ -20,6 +24,8 @@ interface StudentTableProps {
   onEdit: (student: Student) => void;
   onDelete: (student: Student) => void;
 }
+
+const columnHelper = createColumnHelper<Student>();
 
 export function StudentTable({
   students,
@@ -38,9 +44,128 @@ export function StudentTable({
   const getAreaName = (id: number) => areas.find((a) => a.id === id)?.name || '—';
   const getCourseName = (id: number) => courses.find((c) => c.id === id)?.name || '—';
 
+  const columns = useMemo<ColumnDef<Student, any>[]>(
+    () => [
+      columnHelper.accessor("registration", {
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Matrícula" />,
+        cell: (info) => <div className="text-center">{info.getValue()}</div>,
+      }),
+      columnHelper.accessor("name", {
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Nome" />,
+        cell: (info) => <div className="text-center font-medium">{info.getValue()}</div>,
+      }),
+      columnHelper.accessor("email", {
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+        cell: (info) => <div className="text-center">{info.getValue() || '—'}</div>,
+      }),
+      columnHelper.accessor("course_id", {
+        header: "Curso",
+        cell: (info) => <div className="text-center">{getCourseName(info.getValue())}</div>,
+      }),
+      columnHelper.accessor("area_id", {
+        header: "Área",
+        cell: (info) => <div className="text-center">{getAreaName(info.getValue() ?? 0)}</div>,
+      }),
+      columnHelper.accessor("lattes_url", {
+        header: "Lattes",
+        cell: (info) => {
+          const url = info.getValue();
+          return (
+            <div className="text-center">
+              {url ? (
+                <a href={url} target="_blank" rel="noreferrer" className="text-blue-600 underline hover:text-blue-800">
+                  Lattes
+                </a>
+              ) : '—'}
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("defended_at", {
+        header: "Defesa",
+        cell: (info) => (
+          <div className="text-center">
+            {info.getValue() ? new Date(info.getValue()!).toLocaleDateString('pt-BR') : '—'}
+          </div>
+        ),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "Ações",
+        cell: (info) => (
+          <div className="flex justify-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => onEdit(info.row.original)}>
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => onDelete(info.row.original)}>
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      }),
+    ],
+    [areas, courses, onEdit, onDelete]
+  );
+
+  const paginationState = useMemo(() => ({
+    pageIndex: page - 1,
+    pageSize: perPage,
+  }), [page, perPage]);
+
+  const handlePaginationChange: OnChangeFn<any> = (updater) => {
+    const nextState = typeof updater === 'function' ? updater(paginationState) : updater;
+    if (nextState.pageSize !== perPage) {
+      setPerPage(nextState.pageSize);
+      setPage(1);
+    } else {
+      setPage(nextState.pageIndex + 1);
+    }
+  };
+
+  const renderMobileCard = (row: Row<Student>) => {
+    const student = row.original;
+    return (
+      <div className="flex flex-col">
+        <div className="p-4 flex flex-col gap-3">
+          <div>
+            <span className="text-xs font-medium text-muted-foreground mr-2">#{student.registration}</span>
+            <h3 className="font-semibold text-base">{student.name}</h3>
+            {student.email && <p className="text-sm text-muted-foreground mt-1">{student.email}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <span className="text-xs text-muted-foreground">Curso</span>
+              <p className="font-medium">{getCourseName(student.course_id)}</p>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">Área</span>
+              <p className="font-medium">{getAreaName(student.area_id ?? 0)}</p>
+            </div>
+          </div>
+          {student.lattes_url && (
+            <a href={student.lattes_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 underline">
+              Link Lattes
+            </a>
+          )}
+        </div>
+
+        <CardFooter className="flex border-t mt-auto items-stretch p-0">
+          <Button variant="ghost" className="flex-1 rounded-none h-11 text-sm" onClick={() => onEdit(student)}>
+            <Pencil className="h-4 w-4 mr-2" /> Editar
+          </Button>
+          <div className="w-px bg-border self-stretch" />
+          <Button variant="ghost" className="flex-1 rounded-none h-11 text-sm text-destructive hover:text-destructive" onClick={() => onDelete(student)}>
+            <Trash className="h-4 w-4 mr-2" /> Deletar
+          </Button>
+        </CardFooter>
+      </div>
+    );
+  };
+
   return (
-    <div className="rounded-md border">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 border-b">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -55,130 +180,40 @@ export function StudentTable({
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <label htmlFor="perPageSelect" className="text-sm text-muted-foreground whitespace-nowrap">
-            Por página:
-          </label>
-          <select
-            id="perPageSelect"
-            className="border rounded px-2 py-1 text-sm w-full sm:w-auto"
-            value={perPage}
-            onChange={(e) => {
-              setPerPage(Number(e.target.value));
-              setPage(1);
-            }}
-          >
-            {[5, 10, 15, 25, 50, 100].map((v) => (
-              <option key={v} value={v}>{v}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Desktop View */}
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Matrícula</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Curso</TableHead>
-              <TableHead>Área</TableHead>
-              <TableHead>Lattes</TableHead>
-              <TableHead>Data de defesa</TableHead>
-              <TableHead>Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {students.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell>{student.registration}</TableCell>
-                <TableCell>{student.name}</TableCell>
-                <TableCell>{student.email}</TableCell>
-                <TableCell>{getCourseName(student.course_id)}</TableCell>
-                <TableCell>{getAreaName(student.area_id ?? 0)}</TableCell>
-                <TableCell>
-                  {student.lattes_url ? (
-                    <a href={student.lattes_url} target="_blank" rel="noreferrer" className="text-blue-600 underline">
-                      Lattes
-                    </a>
-                  ) : '—'}
-                </TableCell>
-                <TableCell>
-                  {student.defended_at ? new Date(student.defended_at).toLocaleDateString('pt-BR') : '—'}
-                </TableCell>
-                <TableCell className="flex gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(student)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => onDelete(student)}>
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Mobile View */}
-      <div className="md:hidden flex flex-col gap-3 p-4">
-        {students.map((student) => (
-          <div key={student.id} className="rounded-lg border p-4 bg-white">
-            <div className="flex flex-col gap-3">
-              <div className="flex-1">
-                <span className="text-xs font-medium text-muted-foreground mr-2">#{student.registration}</span>
-                <h3 className="font-semibold text-base">{student.name}</h3>
-                {student.email && <p className="text-sm text-muted-foreground mt-1">{student.email}</p>}
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className="text-xs text-muted-foreground">Curso</span>
-                  <p className="font-medium">{getCourseName(student.course_id)}</p>
-                </div>
-                <div>
-                  <span className="text-xs text-muted-foreground">Área</span>
-                  <p className="font-medium">{getAreaName(student.area_id ?? 0)}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2 border-t">
-                <Button variant="outline" className="flex-1" onClick={() => onEdit(student)}>
-                  <Pencil className="h-4 w-4 mr-2" /> Editar
-                </Button>
-                <Button variant="outline" className="flex-1 text-red-500 hover:text-red-600" onClick={() => onDelete(student)}>
-                  <Trash className="h-4 w-4 mr-2" /> Deletar
-                </Button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Pagination */}
-      {pagination && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t">
-          <span className="text-sm text-muted-foreground">
-            Página {pagination.meta.current_page} de {pagination.meta.last_page}
-          </span>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(1)}>
-              {'<<'}
-            </Button>
-            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-              Anterior
-            </Button>
-            <Button variant="outline" size="sm" disabled={page === pagination.meta.last_page} onClick={() => setPage(page + 1)}>
-              Próxima
-            </Button>
-            <Button variant="outline" size="sm" disabled={page === pagination.meta.last_page} onClick={() => setPage(pagination.meta.last_page)}>
-              {'>>'}
-            </Button>
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          <div className="flex items-center gap-2">
+            <label htmlFor="perPageSelect" className="text-sm text-muted-foreground whitespace-nowrap">
+              Por página:
+            </label>
+            <select
+              id="perPageSelect"
+              className="border rounded px-2 py-1 text-sm bg-background"
+              value={perPage}
+              onChange={(e) => {
+                setPerPage(Number(e.target.value));
+                setPage(1);
+              }}
+            >
+              {[5, 10, 25, 50, 100].map((v) => (
+                <option key={v} value={v}>{v}</option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={students}
+        pagination={paginationState}
+        pageCount={pagination?.meta.last_page ?? 1}
+        onPaginationChange={handlePaginationChange}
+        manualPagination={true}
+        manualSorting={true}
+        manualFiltering={true}
+        renderMobileCard={renderMobileCard}
+        emptyMessage="Nenhum estudante encontrado."
+      />
     </div>
   );
 }
