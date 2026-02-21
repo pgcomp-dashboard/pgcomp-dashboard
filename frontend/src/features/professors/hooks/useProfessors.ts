@@ -8,14 +8,28 @@ import { toast } from "sonner";
 export function useProfessors() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
   const [sortField, setSortField] = useState<"name" | "category" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  const { data, isLoading, error } = useQuery<Professor[], Error>({
-    queryKey: ["professors"],
-    queryFn: () => professorService.fetchProfessors({ per_page: 1000 }),
-    placeholderData: (prevData) => prevData,
+  const { data, isLoading, error } = useQuery<any, Error>({
+    queryKey: ["professors", page, perPage, searchTerm, categoryFilter, sortField, sortOrder],
+    queryFn: () => professorService.fetchProfessors({
+      page,
+      per_page: perPage,
+      filter: {
+        name: searchTerm || undefined,
+        category: categoryFilter === "all" ? undefined : categoryFilter,
+      },
+      sort: sortField ? `${sortOrder === "desc" ? "-" : ""}${sortField}` : undefined,
+    }),
+    placeholderData: (prevData: any) => prevData,
   });
+
+  const professorsList = useMemo(() => {
+    return data?.data || [];
+  }, [data]);
 
   const handleSort = (field: "name" | "category") => {
     if (sortField === field) {
@@ -24,37 +38,17 @@ export function useProfessors() {
       setSortField(field);
       setSortOrder("asc");
     }
+    setPage(1);
   };
 
-  const filteredProfessors = useMemo(() => {
-    if (!data) return [];
-    let result = data.filter((p) => {
-      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = categoryFilter === "all" || p.category?.toLowerCase() === categoryFilter.toLowerCase();
-      return matchesSearch && matchesCategory;
-    });
-
-    if (sortField) {
-      result = [...result].sort((a, b) => {
-        const valA = (sortField === "name" ? a.name : a.category) || "";
-        const valB = (sortField === "name" ? b.name : b.category) || "";
-        return sortOrder === "asc"
-          ? valA.localeCompare(valB)
-          : valB.localeCompare(valA);
-      });
-    }
-
-    return result;
-  }, [data, searchTerm, categoryFilter, sortField, sortOrder]);
-
   const counts = useMemo(() => {
-    if (!data) return { permanente: 0, colaborador: 0, visitante: 0 };
+    // Note: These counts are only for the current page if not provided by API totals
     return {
-      permanente: data.filter((p) => p.category?.toLowerCase() === "permanente").length,
-      colaborador: data.filter((p) => p.category?.toLowerCase() === "colaborador").length,
-      visitante: data.filter((p) => p.category?.toLowerCase() === "visitante").length,
+      permanente: professorsList.filter((p: any) => p.category?.toLowerCase() === "permanente").length,
+      colaborador: professorsList.filter((p: any) => p.category?.toLowerCase() === "colaborador").length,
+      visitante: professorsList.filter((p: any) => p.category?.toLowerCase() === "visitante").length,
     };
-  }, [data]);
+  }, [professorsList]);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Professor> }) =>
@@ -68,19 +62,37 @@ export function useProfessors() {
     },
   });
 
+  const handleSetSearchTerm = (term: string) => {
+    setSearchTerm(term);
+    setPage(1);
+  };
+
+  const handleSetCategoryFilter = (category: string) => {
+    setCategoryFilter(category);
+    setPage(1);
+  };
+
   return {
-    professors: filteredProfessors,
-    allProfessors: data ?? [],
+    professors: professorsList,
+    allProfessors: professorsList,
     isLoading,
     isError: !!error,
     searchTerm,
-    setSearchTerm,
+    setSearchTerm: handleSetSearchTerm,
     categoryFilter,
-    setCategoryFilter,
+    setCategoryFilter: handleSetCategoryFilter,
     sortField,
     sortOrder,
     handleSort,
     counts,
     updateMutation,
+    page,
+    setPage,
+    perPage,
+    setPerPage: (val: number) => {
+      setPerPage(val);
+      setPage(1);
+    },
+    pagination: data || null,
   };
 }

@@ -118,6 +118,8 @@ export default function PublishersPage() {
           onPageChange={setPage}
           sorting={sorting}
           onSortingChange={setSorting}
+          perPage={perPage}
+          onPerPageChange={setPerPage}
         />
       </div>
 

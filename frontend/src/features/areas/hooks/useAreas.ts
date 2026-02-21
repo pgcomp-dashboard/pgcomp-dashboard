@@ -1,27 +1,31 @@
 import { queryClient } from "@/lib/query-client";
 import { areaService } from "@/services/modules/area.service";
-import { Area } from "@/types/academic";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 export function useAreas() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
 
   const {
-    data: areas = [],
+    data,
     isLoading,
     error,
-  } = useQuery<Area[], Error>({
-    queryKey: ["areas"],
-    queryFn: () => areaService.fetchAreas({ per_page: 1000 }),
+  } = useQuery<any, Error>({
+    queryKey: ["areas", page, perPage, searchTerm],
+    queryFn: () => areaService.fetchAreas({
+      page,
+      per_page: perPage,
+      filter: { area: searchTerm || undefined }
+    }),
+    placeholderData: (prevData: any) => prevData,
   });
 
-  const filteredAreas = useMemo(() => {
-    const term = searchTerm.toLowerCase().trim();
-    if (!term) return areas;
-    return areas.filter((area) => area.name.toLowerCase().includes(term));
-  }, [areas, searchTerm]);
+  const areasList = useMemo(() => {
+    return data?.data || [];
+  }, [data]);
 
   const handleSuccess = (message: string) => {
     queryClient.invalidateQueries({ queryKey: ["areas"] });
@@ -46,12 +50,25 @@ export function useAreas() {
     onError: () => toast.error("Erro ao excluir área."),
   });
 
+  const handleSetSearchTerm = (term: string) => {
+    setSearchTerm(term);
+    setPage(1);
+  };
+
   return {
-    areas: filteredAreas,
+    areas: areasList,
     isLoading,
     error,
     searchTerm,
-    setSearchTerm,
+    setSearchTerm: handleSetSearchTerm,
+    page,
+    setPage,
+    perPage,
+    setPerPage: (val: number) => {
+      setPerPage(val);
+      setPage(1);
+    },
+    pagination: data || null,
     actions: {
       add: addAreaMutation,
       update: updateAreaMutation,

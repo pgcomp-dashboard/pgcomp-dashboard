@@ -48,7 +48,7 @@ class PublisherController extends Controller
 
     public function index(IndexPublisherRequest $request)
     {
-        $results = $this->publisherService->listAll();
+        $results = $this->publisherService->listAll($request->validated());
         return PublisherResource::collection($results);
     }
 

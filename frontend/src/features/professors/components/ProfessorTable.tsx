@@ -33,6 +33,11 @@ interface ProfessorTableProps {
   onSort: (field: "name" | "category") => void;
   onViewDetails: (professor: Professor) => void;
   onViewProductions: (id: number) => void;
+  page: number;
+  setPage: (page: number) => void;
+  perPage: number;
+  setPerPage: (perPage: number) => void;
+  pagination: any;
 }
 
 const columnHelper = createColumnHelper<Professor>();
@@ -48,6 +53,11 @@ export function ProfessorTable({
   onSort,
   onViewDetails,
   onViewProductions,
+  page,
+  setPage,
+  perPage,
+  setPerPage,
+  pagination,
 }: ProfessorTableProps) {
   const sorting = useMemo<SortingState>(() => {
     if (!sortField) return [];
@@ -70,9 +80,7 @@ export function ProfessorTable({
     () => [
       columnHelper.accessor("name", {
         header: ({ column }) => (
-          <div className="items-center">
-            <DataTableColumnHeader column={column} title="Nome" />
-          </div>
+          <DataTableColumnHeader column={column} title="Nome" />
         ),
         cell: (info) => (
           <div className="text-center">
@@ -101,7 +109,7 @@ export function ProfessorTable({
         ),
       }),
       columnHelper.accessor("is_admin", {
-        header: () => <div className="text-center">Administrador</div>,
+        header: () => "Administrador",
         cell: (info) => (
           <div className="text-center">
             {info.getValue() ? "Administrador" : "Usuário"}
@@ -110,7 +118,7 @@ export function ProfessorTable({
       }),
       columnHelper.display({
         id: "actions",
-        header: () => <div className="text-center">Ações</div>,
+        header: () => "Ações",
         cell: (info) => (
           <div className="flex justify-center gap-2">
             <Button
@@ -211,6 +219,21 @@ export function ProfessorTable({
             </SelectContent>
           </Select>
         </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
+          <label htmlFor="perPageSelect" className="text-sm text-muted-foreground whitespace-nowrap">
+            Por página:
+          </label>
+          <select
+            id="perPageSelect"
+            className="border rounded px-2 py-1 text-sm w-full sm:w-auto bg-background"
+            value={perPage}
+            onChange={(e) => setPerPage(Number(e.target.value))}
+          >
+            {[10, 25, 50, 100].map((v) => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <DataTable
@@ -222,6 +245,49 @@ export function ProfessorTable({
         onSortingChange={handleSortingChange}
         manualSorting={true}
       />
+
+      {/* Pagination */}
+      {pagination && pagination.meta && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border rounded-md bg-muted/20">
+          <span className="text-sm text-muted-foreground">
+            Página {pagination.meta.current_page} de {pagination.meta.last_page}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1}
+              onClick={() => setPage(1)}
+            >
+              {"<<"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === pagination.meta.last_page}
+              onClick={() => setPage(page + 1)}
+            >
+              Próxima
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === pagination.meta.last_page}
+              onClick={() => setPage(pagination.meta.last_page)}
+            >
+              {">>"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

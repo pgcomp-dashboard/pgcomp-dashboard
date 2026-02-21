@@ -26,6 +26,11 @@ export default function ProfessorsPage() {
     handleSort,
     counts,
     updateMutation,
+    page,
+    setPage,
+    perPage,
+    setPerPage,
+    pagination,
   } = useProfessors();
 
   const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
@@ -78,6 +83,11 @@ export default function ProfessorsPage() {
             onSort={handleSort}
             onViewDetails={handleViewDetails}
             onViewProductions={handleViewProductions}
+            page={page}
+            setPage={setPage}
+            perPage={perPage}
+            setPerPage={setPerPage}
+            pagination={pagination}
           />
         </TabsContent>
 

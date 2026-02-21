@@ -168,15 +168,19 @@ class ProductionService
     /**
      * Get productions for a specific user with filters and ordering.
      */
-    public function getProductionsForUser(int $userId)
+    public function getProductionsForUser(int $userId, array $params = [])
     {
         return QueryBuilder::for(Production::ofUser($userId))
             ->withPublisherAndQualis()
             ->allowedFilters([
                 AllowedFilter::partial('title'),
+                AllowedFilter::partial('titulo', 'title'), // Alias for frontend
                 AllowedFilter::exact('year'),
+                AllowedFilter::exact('ano', 'year'), // Alias
                 AllowedFilter::exact('publisher_type'),
+                AllowedFilter::exact('tipo', 'publisher_type'), // Alias
                 AllowedFilter::exact('source'),
+                AllowedFilter::exact('origem', 'source'), // Alias
             ])
             ->allowedSorts(['title', 'year', 'created_at'])
             ->get();

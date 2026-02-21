@@ -16,6 +16,27 @@ export function usePublishers() {
   const [qualisFilter, setQualisFilter] = useState("all");
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  // Reset to page 1 when filters or perPage change
+  const handleSetPerPage = (newPerPage: number) => {
+    setPerPage(newPerPage);
+    setPage(1);
+  };
+
+  const handleSetSearch = (newSearch: string) => {
+    setSearch(newSearch);
+    setPage(1);
+  };
+
+  const handleSetTypeFilter = (newType: string) => {
+    setTypeFilter(newType);
+    setPage(1);
+  };
+
+  const handleSetQualisFilter = (newQualis: string) => {
+    setQualisFilter(newQualis);
+    setPage(1);
+  };
+
   const { data: qualisOptions = [] } = useQuery<StratumQualis[], Error>({
     queryKey: ["qualis-options"],
     queryFn: () => qualisService.getAllQualis(),
@@ -107,13 +128,13 @@ export function usePublishers() {
     page,
     setPage,
     perPage,
-    setPerPage,
+    setPerPage: handleSetPerPage,
     search,
-    setSearch,
+    setSearch: handleSetSearch,
     typeFilter,
-    setTypeFilter,
+    setTypeFilter: handleSetTypeFilter,
     qualisFilter,
-    setQualisFilter,
+    setQualisFilter: handleSetQualisFilter,
     sorting,
     setSorting,
     qualisOptions,

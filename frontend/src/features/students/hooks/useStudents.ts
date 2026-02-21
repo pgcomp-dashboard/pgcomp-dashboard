@@ -14,25 +14,25 @@ export function useStudents() {
 
   // Queries
   const { data, isLoading, error } = useQuery({
-    queryKey: ['students'],
-    queryFn: () => studentService.fetchStudents({ per_page: 1000 }),
+    queryKey: ['students', page, perPage, search],
+    queryFn: () => studentService.fetchStudents({
+      page,
+      per_page: perPage,
+      filter: { name: search }
+    }),
     placeholderData: (prevData) => prevData,
   });
 
   const students = useMemo(() => {
-    if (!data?.data) return [];
-
-    const term = search.toLowerCase().trim();
-    if (!term) return data.data;
-
-    return data.data.filter((student: Student) =>
-      student.name.toLowerCase().includes(term)
-    );
-  }, [data, search]);
+    return data?.data || [];
+  }, [data]);
 
   const areasQuery = useQuery<Area[]>({
     queryKey: ['areas'],
-    queryFn: () => areaService.fetchAreas(),
+    queryFn: async () => {
+      const response = await areaService.fetchAreas({ per_page: 1000 });
+      return response.data;
+    },
     staleTime: 1000 * 60 * 30, // 30 minutes
   });
 
@@ -72,7 +72,10 @@ export function useStudents() {
     perPage,
     setPerPage,
     search,
-    setSearch,
+    setSearch: (val: string) => {
+      setSearch(val);
+      setPage(1);
+    },
 
     // Data
     students,

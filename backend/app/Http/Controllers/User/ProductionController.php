@@ -45,16 +45,11 @@ class ProductionController extends Controller
     }
 
 
-    public function userProductions()
+    public function userProductions(Request $request)
     {
         $user = auth()->user();
 
-        $productions = $user->writerOf()
-            ->with([
-                'publisher:id,name,publisher_type,stratum_qualis_id',
-                'publisher.stratumQualis:id,code,score'
-            ])
-            ->get();
+        $productions = $this->productionService->getProductionsForUser($user->id, $request->all());
 
         return ProductionResource::collection($productions);
     }

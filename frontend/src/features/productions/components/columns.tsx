@@ -70,9 +70,7 @@ export const getProductionColumns = ({
   columnHelper.accessor((row) => row.publisher?.name, {
     id: "local",
     header: ({ column }) => (
-      <div className="text-center">
-        <DataTableColumnHeader column={column} title="Local" />
-      </div>
+      <DataTableColumnHeader column={column} title="Local" />
     ),
     cell: (info) => (
       <div
@@ -89,9 +87,7 @@ export const getProductionColumns = ({
   columnHelper.accessor("year", {
     id: "year",
     header: ({ column }) => (
-      <div className="text-center">
-        <DataTableColumnHeader column={column} title="Ano" />
-      </div>
+      <DataTableColumnHeader column={column} title="Ano" />
     ),
     cell: (info) => (
       <div className="text-center text-sm">{info.getValue()}</div>
@@ -103,9 +99,7 @@ export const getProductionColumns = ({
   columnHelper.accessor("publisher_type", {
     id: "tipo",
     header: ({ column }) => (
-      <div className="text-center">
-        <DataTableColumnHeader column={column} title="Tipo" />
-      </div>
+      <DataTableColumnHeader column={column} title="Tipo" />
     ),
     cell: (info) => (
       <div className="text-center text-sm">
@@ -119,9 +113,7 @@ export const getProductionColumns = ({
   columnHelper.accessor("source", {
     id: "origem",
     header: ({ column }) => (
-      <div className="text-center">
-        <DataTableColumnHeader column={column} title="Origem" />
-      </div>
+      <DataTableColumnHeader column={column} title="Origem" />
     ),
     cell: (info) => (
       <div className="text-center text-sm capitalize">
@@ -136,7 +128,7 @@ export const getProductionColumns = ({
   }),
   columnHelper.accessor((row) => row.publisher?.stratum_qualis?.code, {
     id: "qualis",
-    header: () => <div className="text-center text-xs font-semibold">Qualis</div>,
+    header: () => "Qualis",
     cell: (info) => (
       <div className="text-center text-sm">{info.getValue() || "--"}</div>
     ),
@@ -147,9 +139,7 @@ export const getProductionColumns = ({
   columnHelper.accessor((row) => row.publisher?.stratum_qualis?.score, {
     id: "pontuacao",
     header: ({ column }) => (
-      <div className="text-center">
-         <DataTableColumnHeader column={column} title="Pts" />
-      </div>
+      <DataTableColumnHeader column={column} title="Pts" />
     ),
     cell: (info) => (
       <div className="text-center text-sm">{info.getValue() || "--"}</div>
@@ -160,7 +150,7 @@ export const getProductionColumns = ({
   }),
   columnHelper.display({
     id: "actions",
-    header: () => <div className="text-center text-xs font-semibold">Ações</div>,
+    header: () => "Ações",
     cell: ({ row }) => {
       const production = row.original;
       return (

@@ -20,21 +20,29 @@ export function QualisTable({ items, onEdit, onDelete }: QualisTableProps) {
     () => [
       columnHelper.accessor("code", {
         header: "Código",
-        cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+        cell: (info) => (
+          <div className="font-medium text-center">{info.getValue()}</div>
+        ),
       }),
       columnHelper.accessor("score", {
         header: "Pontuação",
-        cell: (info) => info.getValue().toFixed(2),
+        cell: (info) => (
+          <div className="text-center">{info.getValue().toFixed(2)}</div>
+        ),
       }),
       columnHelper.accessor("updated_at", {
         header: "Atualizado",
-        cell: (info) => new Date(info.getValue()).toLocaleDateString("pt-BR"),
+        cell: (info) => (
+          <div className="text-center">
+            {new Date(info.getValue()).toLocaleDateString("pt-BR")}
+          </div>
+        ),
       }),
       columnHelper.display({
         id: "actions",
         header: "Ações",
         cell: (info) => (
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-center">
             <Button
               variant="ghost"
               size="icon"

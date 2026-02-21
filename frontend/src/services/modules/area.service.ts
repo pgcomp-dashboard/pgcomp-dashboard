@@ -1,10 +1,11 @@
 import { Area } from "@/types/academic";
+import { PaginatedResponse } from "@/types/common";
 import { apiClient } from "../http-client";
 
 export const areaService = {
-  async fetchAreas(params: Record<string, any> = {}): Promise<Area[]> {
-    const response = await apiClient.get<{ data: Area[] }>("/api/admin/areas", params);
-    return response.data;
+  async fetchAreas(params: Record<string, any> = {}): Promise<PaginatedResponse<Area>> {
+    const response = await apiClient.get<PaginatedResponse<Area>>("/api/admin/areas", params);
+    return response;
   },
 
   async createArea(area: { name: string }) {

@@ -17,6 +17,8 @@ interface PublisherTableProps {
   onPageChange: (page: number) => void;
   sorting: SortingState;
   onSortingChange: (updater: any) => void;
+  perPage: number;
+  onPerPageChange: (perPage: number) => void;
 }
 
 const columnHelper = createColumnHelper<Publisher>();
@@ -31,12 +33,14 @@ export function PublisherTable({
   onPageChange,
   sorting,
   onSortingChange,
+  perPage,
+  onPerPageChange,
 }: PublisherTableProps) {
   const columns = useMemo<ColumnDef<Publisher, any>[]>(
     () => [
       columnHelper.accessor((row) => row, {
         id: "issn_sigla",
-        header: () => <div className="text-center">ISSN/Sigla</div>,
+        header: "ISSN/Sigla",
         cell: (info) => {
           const publisher = info.getValue();
           return (
@@ -49,7 +53,7 @@ export function PublisherTable({
         },
       }),
       columnHelper.accessor("name", {
-        header: () => <div className="text-center">Nome</div>,
+        header: "Nome",
         cell: (info) => (
           <div className="capitalize text-justify max-w-[500px] min-w-[200px] whitespace-normal break-words mx-auto">
             {info.getValue().toLowerCase()}
@@ -57,7 +61,7 @@ export function PublisherTable({
         ),
       }),
       columnHelper.accessor("publisher_type", {
-        header: () => <div className="text-center">Veículo</div>,
+        header: "Veículo",
         cell: (info) => (
           <div className="text-center">
             {info.getValue() === "journal"
@@ -69,14 +73,14 @@ export function PublisherTable({
         ),
       }),
       columnHelper.accessor("stratum_qualis.code", {
-        header: () => <div className="text-center">Qualis</div>,
+        header: "Qualis",
         cell: (info) => (
           <div className="text-center">{info.getValue() || "—"}</div>
         ),
       }),
       columnHelper.display({
         id: "actions",
-        header: () => <div className="text-center w-25">Ações</div>,
+        header: "Ações",
         cell: (info) => (
           <div className="flex justify-center gap-1">
             <Button
@@ -112,7 +116,12 @@ export function PublisherTable({
   const handlePaginationChange = (updater: any) => {
     const nextState =
       typeof updater === "function" ? updater(paginationState) : updater;
-    onPageChange(nextState.pageIndex + 1);
+
+    if (nextState.pageSize !== perPage) {
+      onPerPageChange(nextState.pageSize);
+    } else {
+      onPageChange(nextState.pageIndex + 1);
+    }
   };
 
   const renderMobileCard = (row: any) => {

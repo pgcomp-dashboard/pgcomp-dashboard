@@ -1,9 +1,4 @@
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StratumQualis } from "@/types/academic";
 import { QualisTable } from "./QualisTable";
 
@@ -25,14 +20,22 @@ export function QualisTabs({ qualis, onEdit, onDelete }: QualisTabsProps) {
       </TabsList>
       <TabsContent value="journal" className="mt-4">
         <div className="rounded-md border p-4">
-          <h3 className="mb-4 text-lg font-medium">Qualis das produções de Periódicos (NI = Não Identificado)</h3>
+          <h3 className="mb-4 text-lg font-medium">
+            Qualis das produções de periódicos (NI = Não Identificado)
+          </h3>
           <QualisTable items={journals} onEdit={onEdit} onDelete={onDelete} />
         </div>
       </TabsContent>
       <TabsContent value="conference" className="mt-4">
         <div className="rounded-md border p-4">
-          <h3 className="mb-4 text-lg font-medium">Qualis das produções de conferências (NI = Não Identificado)</h3>
-          <QualisTable items={conferences} onEdit={onEdit} onDelete={onDelete} />
+          <h3 className="mb-4 text-lg font-medium">
+            Qualis das produções de conferências (NI = Não Identificado)
+          </h3>
+          <QualisTable
+            items={conferences}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
         </div>
       </TabsContent>
     </Tabs>

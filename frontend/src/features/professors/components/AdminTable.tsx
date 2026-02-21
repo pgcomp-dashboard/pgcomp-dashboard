@@ -32,11 +32,11 @@ export function AdminTable() {
   const columns = useMemo<ColumnDef<AdminRequest, any>[]>(
     () => [
       columnHelper.accessor("name", {
-        header: () => <div className="text-center">Nome</div>,
+        header: "Nome",
         cell: (info) => <div className="text-center font-medium">{info.getValue()}</div>,
       }),
       columnHelper.accessor("admin_status", {
-        header: () => <div className="text-center">Status</div>,
+        header: "Status",
         cell: (info) => (
           <div className="text-center">
             {statusLabels[info.getValue() as keyof typeof statusLabels || 'notfound']}
@@ -44,7 +44,7 @@ export function AdminTable() {
         ),
       }),
       columnHelper.accessor("admin_requested_at", {
-        header: () => <div className="text-center">Data de solicitação</div>,
+        header: "Data de solicitação",
         cell: (info) => (
           <div className="text-center">
             {formatarData(info.getValue())}
@@ -53,7 +53,7 @@ export function AdminTable() {
       }),
       columnHelper.display({
         id: "actions",
-        header: () => <div className="text-center">Analisado Por / Ações</div>,
+        header: "Analisado Por / Ações",
         cell: ({ row }) => {
           const admin = row.original;
           if (['approved', 'rejected'].includes(admin.admin_status ?? 'notfound')) {

@@ -21,7 +21,7 @@ class AreaController extends Controller
 
      public function index(IndexAreaRequest $request)
     {
-        $areas = $this->areaService->list();
+        $areas = $this->areaService->list($request->validated());
 
         return AreaResource::collection($areas);
     }

@@ -28,7 +28,7 @@ export function AccreditationTable({
     () => [
       columnHelper.display({
         id: "colocacao",
-        header: () => <div className="text-center">Colocação</div>,
+        header: "Colocação",
         cell: ({ row }) => {
           const score = row.original.total_score;
           const index = row.index;
@@ -41,7 +41,7 @@ export function AccreditationTable({
         },
       }),
       columnHelper.accessor("name", {
-        header: () => <div className="text-center">Nome</div>,
+        header: "Nome",
         cell: (info) => (
           <div className="font-medium text-center">
             {formatName(info.getValue())}
@@ -49,7 +49,7 @@ export function AccreditationTable({
         ),
       }),
       columnHelper.accessor("category", {
-        header: () => <div className="text-center">Categoria</div>,
+        header: "Categoria",
         cell: (info) => (
           <div className="font-medium text-center capitalize">
             {info.getValue()}
@@ -57,7 +57,7 @@ export function AccreditationTable({
         ),
       }),
       columnHelper.accessor("productions", {
-        header: () => <div className="text-center">Publicações</div>,
+        header: "Publicações",
         cell: (info) => (
           <div className="font-medium text-center">
             <Button
@@ -71,7 +71,7 @@ export function AccreditationTable({
         ),
       }),
       columnHelper.accessor("total_score", {
-        header: () => <div className="font-medium text-center">Pontuação</div>,
+        header: "Pontuação",
         cell: (info) => (
           <div className="font-medium text-center">
             {info.getValue().toFixed(1)}
@@ -79,7 +79,7 @@ export function AccreditationTable({
         ),
       }),
       columnHelper.accessor("lattes_url", {
-        header: () => <div className="text-center">Lattes</div>,
+        header: "Lattes",
         cell: (info) => (
           <div className="font-medium text-center">
             <Link

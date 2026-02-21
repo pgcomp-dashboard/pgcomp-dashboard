@@ -20,7 +20,7 @@ class ProfessorController extends Controller
 
     public function index(IndexProfessorRequest $request)
     {
-        return UserResource::collection($this->userService->listProfessors());
+        return UserResource::collection($this->userService->listProfessors($request->validated()));
     }
 
     public function show(int $id)

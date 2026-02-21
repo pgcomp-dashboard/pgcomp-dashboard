@@ -21,7 +21,7 @@ class StudentController extends Controller
 
     public function index(IndexStudentRequest $request)
     {
-        return UserResource::collection($this->userService->listStudents());
+        return UserResource::collection($this->userService->listStudents($request->validated()));
     }
 
     public function show(int $id)
