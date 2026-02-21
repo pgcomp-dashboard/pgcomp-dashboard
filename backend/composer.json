@@ -22,6 +22,7 @@
         "laravel/tinker": "^2.7",
         "pestphp/pest": "^3.0",
         "querypath/querypath": "^3.0",
+        "spatie/laravel-query-builder": "^6.4",
         "symfony/panther": "^2.1"
     },
     "require-dev": {
