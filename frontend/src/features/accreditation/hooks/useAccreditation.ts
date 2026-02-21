@@ -6,28 +6,41 @@ import { useMemo, useState } from "react";
 export function useAccreditation() {
   const date = new Date();
   const [isToggled, setIsToggled] = useState(false);
-  const [startYear, setStartYear] = useState(date.getFullYear() - 5);
+  const [startYear, setStartYear] = useState(date.getFullYear() - 4);
   const [endYear, setEndYear] = useState(date.getFullYear());
 
   const [isProductionsOpen, setIsProductionsOpen] = useState(false);
-  const [currentProductionList, setCurrentProductionList] = useState<RankingProduction[] | null>(null);
+  const [currentProductionList, setCurrentProductionList] = useState<
+    RankingProduction[] | null
+  >(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
-  const { data: ranking = [], isLoading, isFetching, error } = useQuery<Ranking[], Error>({
+  const {
+    data: ranking = [],
+    isLoading,
+    isFetching,
+    error,
+  } = useQuery<Ranking[], Error>({
     queryKey: ["ranking", startYear, endYear],
     queryFn: () => userService.getAccreditationRanking(startYear, endYear),
     placeholderData: (prevData) => prevData,
   });
 
   const filteredRanking = useMemo(() => {
-    return isToggled ? ranking : ranking.filter(rank => rank.category === "permanente");
+    return isToggled
+      ? ranking
+      : ranking.filter((rank) => rank.category === "permanente");
   }, [ranking, isToggled]);
 
   const handleShowDetails = async (userId: number) => {
     setIsLoadingDetails(true);
     setIsProductionsOpen(true);
     try {
-      const response = await userService.getAccreditationProductions(userId, startYear, endYear);
+      const response = await userService.getAccreditationProductions(
+        userId,
+        startYear,
+        endYear,
+      );
       if (response) {
         setCurrentProductionList(response.productions);
       }
@@ -41,7 +54,7 @@ export function useAccreditation() {
   const years = useMemo(() => {
     return Array.from(
       { length: date.getFullYear() - 2000 + 1 },
-      (_, i) => 2000 + i
+      (_, i) => 2000 + i,
     ).reverse();
   }, [date]);
 
