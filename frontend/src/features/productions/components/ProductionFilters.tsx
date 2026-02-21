@@ -29,12 +29,9 @@ interface ProductionFiltersProps {
 }
 
 export function ProductionFilters({
-  showFilters,
-  setShowFilters,
   filters,
   setFilters,
   clearFilters,
-  hasActiveFilters,
   uniqueYears,
   qualisList,
 }: ProductionFiltersProps) {
@@ -141,11 +138,13 @@ export function ProductionFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                {[...new Map(qualisList.map((q) => [q.code, q])).values()].map((q) => (
-                  <SelectItem key={q.code} value={q.code}>
-                    {q.code}
-                  </SelectItem>
-                ))}
+                {[...new Map(qualisList.map((q) => [q.code, q])).values()].map(
+                  (q) => (
+                    <SelectItem key={q.code} value={q.code}>
+                      {q.code}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>

@@ -61,7 +61,14 @@ export default function CredenciamentoPage() {
           </h1>
           <p className="text-muted-foreground mt-1">
             Ranking de docentes de acordo com a{" "}
-            <i>Resolução PGCOMP de Credenciamento</i> vigente.
+            <Link
+              to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf"
+              target="_blank"
+              className="font-medium underline underline-offset-4 hover:text-primary transition-colors italic"
+            >
+              Resolução PGCOMP de Credenciamento
+            </Link>{" "}
+            vigente.
           </p>
         </div>
         <div className="flex items-center gap-3 bg-card px-4 py-2 rounded-lg border shadow-sm">
@@ -136,26 +143,11 @@ export default function CredenciamentoPage() {
         )}
       </div>
 
-      <section className="space-y-4">
-        <div className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-primary">
-          Pela{" "}
-          <Link
-            to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf"
-            target="_blank"
-            className="font-medium underline underline-offset-4 hover:text-primary transition-colors"
-          >
-            Resolução
-          </Link>{" "}
-          são considerados os últimos 4 anos completos. Atualmente exibindo
-          produções de {startYear} até {endYear}.
-        </div>
-
-        <AccreditationTable
-          ranking={ranking}
-          isLoading={isLoading}
-          onShowDetails={handleShowDetails}
-        />
-      </section>
+      <AccreditationTable
+        ranking={ranking}
+        isLoading={isLoading}
+        onShowDetails={handleShowDetails}
+      />
 
       <AccreditationDialogs
         isOpen={isProductionsOpen}
