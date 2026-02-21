@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminHeader } from "@/features/professors/components/AdminHeader";
@@ -26,12 +26,12 @@ export default function ProfessorsPage() {
     handleSort,
     counts,
     updateMutation,
-    perPage,
-    setPerPage,
   } = useProfessors();
 
   const [isDetailProfOpen, setIsDetailProfOpen] = useState(false);
-  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(null);
+  const [currentProfessor, setCurrentProfessor] = useState<Professor | null>(
+    null,
+  );
 
   const handleUpdate = async (data: any) => {
     if (!currentProfessor) return;
@@ -80,8 +80,6 @@ export default function ProfessorsPage() {
             onSort={handleSort}
             onViewDetails={handleViewDetails}
             onViewProductions={handleViewProductions}
-            perPage={perPage}
-            setPerPage={setPerPage}
           />
         </TabsContent>
 

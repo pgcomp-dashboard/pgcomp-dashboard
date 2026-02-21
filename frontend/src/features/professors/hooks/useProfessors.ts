@@ -1,6 +1,5 @@
 import { queryClient } from "@/lib/query-client";
 import { professorService } from "@/services/modules/professor.service";
-import { PaginatedResponse } from "@/types/common";
 import { Professor } from "@/types/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -9,42 +8,58 @@ import { toast } from "sonner";
 export function useProfessors() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(100);
+  const [perPage, setPerPage] = useState(10);
   const [sortField, setSortField] = useState<"name" | "category" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  const { data, isLoading, error } = useQuery<
-    PaginatedResponse<Professor>,
-    Error
-  >({
-    queryKey: [
-      "professors",
-      page,
-      perPage,
-      searchTerm,
-      categoryFilter,
-      sortField,
-      sortOrder,
-    ],
-    queryFn: () =>
-      professorService.fetchProfessors({
-        page,
-        per_page: perPage,
-        filter: {
-          name: searchTerm || undefined,
-          category: categoryFilter === "all" ? undefined : categoryFilter,
-        },
-        sort: sortField
-          ? `${sortOrder === "desc" ? "-" : ""}${sortField}`
-          : undefined,
-      }),
-    placeholderData: (prevData: any) => prevData,
+  // Fetch all professors once — no pagination, no server-side filters
+  const { data, isLoading, error } = useQuery<{ data: Professor[] }, Error>({
+    queryKey: ["professors"],
+    queryFn: () => professorService.fetchProfessors({ paginate: "false" }),
   });
 
-  const professorsList = useMemo(() => {
-    return data?.data || [];
-  }, [data]);
+  const allProfessors = useMemo<Professor[]>(() => data?.data || [], [data]);
+
+  // Counts always reflect the full unfiltered dataset
+  const counts = useMemo(() => ({
+    permanente: allProfessors.filter(
+      (p) => p.category?.toLowerCase() === "permanente",
+    ).length,
+    colaborador: allProfessors.filter(
+      (p) => p.category?.toLowerCase() === "colaborador",
+    ).length,
+    visitante: allProfessors.filter(
+      (p) => p.category?.toLowerCase() === "visitante",
+    ).length,
+  }), [allProfessors]);
+
+  // Client-side filter + sort
+  const professors = useMemo<Professor[]>(() => {
+    let list = [...allProfessors];
+
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      list = list.filter((p) => p.name.toLowerCase().includes(term));
+    }
+
+    if (categoryFilter !== "all") {
+      list = list.filter(
+        (p) => p.category?.toLowerCase() === categoryFilter.toLowerCase(),
+      );
+    }
+
+    if (sortField) {
+      list.sort((a, b) => {
+        const aVal = (a[sortField] ?? "").toString().toLowerCase();
+        const bVal = (b[sortField] ?? "").toString().toLowerCase();
+        if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return list;
+  }, [allProfessors, searchTerm, categoryFilter, sortField, sortOrder]);
 
   const handleSort = (field: "name" | "category") => {
     if (sortField === field) {
@@ -53,23 +68,7 @@ export function useProfessors() {
       setSortField(field);
       setSortOrder("asc");
     }
-    setPage(1);
   };
-
-  const counts = useMemo(() => {
-    // Note: These counts are only for the current page if not provided by API totals
-    return {
-      permanente: professorsList.filter(
-        (p: any) => p.category?.toLowerCase() === "permanente",
-      ).length,
-      colaborador: professorsList.filter(
-        (p: any) => p.category?.toLowerCase() === "colaborador",
-      ).length,
-      visitante: professorsList.filter(
-        (p: any) => p.category?.toLowerCase() === "visitante",
-      ).length,
-    };
-  }, [professorsList]);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Professor> }) =>
@@ -83,37 +82,21 @@ export function useProfessors() {
     },
   });
 
-  const handleSetSearchTerm = (term: string) => {
-    setSearchTerm(term);
-    setPage(1);
-  };
-
-  const handleSetCategoryFilter = (category: string) => {
-    setCategoryFilter(category);
-    setPage(1);
-  };
-
   return {
-    professors: professorsList,
-    allProfessors: professorsList,
+    professors,
+    allProfessors,
     isLoading,
     isError: !!error,
     searchTerm,
-    setSearchTerm: handleSetSearchTerm,
+    setSearchTerm,
     categoryFilter,
-    setCategoryFilter: handleSetCategoryFilter,
+    setCategoryFilter,
     sortField,
     sortOrder,
     handleSort,
     counts,
     updateMutation,
-    page,
-    setPage,
     perPage,
-    setPerPage: (val: number) => {
-      setPerPage(val);
-      setPage(1);
-    },
-    pagination: data || null,
+    setPerPage,
   };
 }

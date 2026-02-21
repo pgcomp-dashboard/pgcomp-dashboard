@@ -33,8 +33,6 @@ interface ProfessorTableProps {
   onSort: (field: "name" | "category") => void;
   onViewDetails: (professor: Professor) => void;
   onViewProductions: (id: number) => void;
-  perPage: number;
-  setPerPage: (perPage: number) => void;
 }
 
 const columnHelper = createColumnHelper<Professor>();
@@ -50,8 +48,6 @@ export function ProfessorTable({
   onSort,
   onViewDetails,
   onViewProductions,
-  perPage,
-  setPerPage,
 }: ProfessorTableProps) {
   const sorting = useMemo<SortingState>(() => {
     if (!sortField) return [];
@@ -213,26 +209,6 @@ export function ProfessorTable({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
-          <label
-            htmlFor="perPageSelect"
-            className="text-sm text-muted-foreground whitespace-nowrap"
-          >
-            Por página:
-          </label>
-          <select
-            id="perPageSelect"
-            className="border rounded px-2 py-1 text-sm w-full sm:w-auto bg-background"
-            value={perPage}
-            onChange={(e) => setPerPage(Number(e.target.value))}
-          >
-            {[10, 25, 50, 100].map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
       <DataTable
@@ -242,6 +218,7 @@ export function ProfessorTable({
         emptyMessage="Nenhum professor encontrado."
         sorting={sorting}
         onSortingChange={handleSortingChange}
+        pagination={{ pageIndex: 0, pageSize: professors.length || 9999 }}
       />
     </div>
   );
