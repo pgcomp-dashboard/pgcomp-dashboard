@@ -13,7 +13,7 @@ import { ProductionCreateForm } from "@/features/productions/components/forms/Pr
 import { ProductionDOIForm } from "@/features/productions/components/forms/ProductionDOIForm";
 import {
   ClearProductionsDialog,
-  ProductionDialogs
+  ProductionDialogs,
 } from "@/features/productions/components/ProductionDialogs";
 import { ProductionFilters } from "@/features/productions/components/ProductionFilters";
 import { ProductionHeader } from "@/features/productions/components/ProductionHeader";
@@ -88,7 +88,7 @@ export default function ProductionsPage() {
                   ? "Adicionar via DOI"
                   : chosenForm === "other"
                     ? "Adicionar Manualmente"
-                    : "Minhas Produções"}
+                    : null}
             </h2>
           </div>
 
@@ -106,12 +106,18 @@ export default function ProductionsPage() {
                     <DropdownMenuItem onClick={() => setChosenForm("xml")}>
                       Importar XML Lattes
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setChosenForm("doi")}>
-                      Adicionar via DOI
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setChosenForm("other")}>
-                      Adicionar Manualmente
-                    </DropdownMenuItem>
+                    {auth?.isAdmin && (
+                      <>
+                        <DropdownMenuItem onClick={() => setChosenForm("doi")}>
+                          Adicionar via DOI
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setChosenForm("other")}
+                        >
+                          Adicionar Manualmente
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
@@ -150,17 +156,23 @@ export default function ProductionsPage() {
           </div>
         ) : chosenForm === "xml" ? (
           <UploadXMLForm
-              professorId={selectedProfessorId === "own" ? undefined : selectedProfessorId}
-              onSuccess={() => setChosenForm("none")}
+            professorId={
+              selectedProfessorId === "own" ? undefined : selectedProfessorId
+            }
+            onSuccess={() => setChosenForm("none")}
           />
-          ) : chosenForm === "doi" ? (
-            <ProductionDOIForm
-                professorId={selectedProfessorId === "own" ? undefined : selectedProfessorId}
-                onSuccess={() => setChosenForm("none")}
-              />
-            ) : (
-              <ProductionCreateForm
-            professorId={selectedProfessorId === "own" ? undefined : selectedProfessorId}
+        ) : chosenForm === "doi" ? (
+          <ProductionDOIForm
+            professorId={
+              selectedProfessorId === "own" ? undefined : selectedProfessorId
+            }
+            onSuccess={() => setChosenForm("none")}
+          />
+        ) : (
+          <ProductionCreateForm
+            professorId={
+              selectedProfessorId === "own" ? undefined : selectedProfessorId
+            }
             onSuccess={() => setChosenForm("none")}
           />
         )}
