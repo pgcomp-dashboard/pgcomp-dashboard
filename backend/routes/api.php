@@ -63,6 +63,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('productions/doi', [ProductionController::class, 'productionFromDoi']);
         Route::post('admin-request', [AdminRequestController::class, 'store']);
         Route::get('admin-status', [AdminRequestController::class, 'getStatus']);
+        Route::get('publishers', [PublisherController::class, 'index']);
     });
 
     // Admin group routes

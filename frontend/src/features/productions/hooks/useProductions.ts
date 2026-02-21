@@ -65,7 +65,7 @@ export function useProductions() {
       if (editPublisherSearch.length >= 2 && !isEditSelectedRef.current) {
         setIsEditSearching(true);
         try {
-          const response = await publisherService.getAllPublishers({
+          const response = await publisherService.searchPublishers({
             page: 1,
             per_page: 20,
             filter: {
