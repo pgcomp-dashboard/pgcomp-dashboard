@@ -14,6 +14,7 @@ import useAuth from '@/hooks/auth';
 import { authService } from '@/services/modules/auth.service';
 import { ApiError } from '@/types/common';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
@@ -32,7 +33,9 @@ const formSchema = z.object({
 export default function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
-  const [ status, setStatus ] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -107,7 +110,30 @@ export default function LoginPage() {
                       <FormItem>
                         <FormLabel>Senha</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="" {...field} />
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              className="pr-10"
+                              {...field}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="lg"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent [&_svg]:size-6"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="text-muted-foreground" aria-hidden="true" />
+                              ) : (
+                                <Eye className="text-muted-foreground" aria-hidden="true" />
+                              )}
+                              <span className="sr-only">
+                                {showPassword ? "Esconder senha" : "Mostrar senha"}
+                              </span>
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormDescription>
                           A senha do seu usuário.
