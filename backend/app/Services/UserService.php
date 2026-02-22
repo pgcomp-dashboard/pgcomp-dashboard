@@ -74,7 +74,8 @@ class UserService
      */
     public function delete(User $user): bool
     {
-        $user->writerOf()->detach();
+        $user->writerOf()->each(fn($production) => $production->delete());
+
         $user->advisors()->detach();
         $user->advisedes()->detach();
         $user->coadvisors()->detach();
