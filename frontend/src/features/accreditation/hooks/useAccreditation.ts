@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 export function useAccreditation() {
   const date = new Date();
   const [isToggled, setIsToggled] = useState(false);
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("permanente");
   const [startYear, setStartYear] = useState(date.getFullYear() - 4);
   const [endYear, setEndYear] = useState(date.getFullYear());
 
