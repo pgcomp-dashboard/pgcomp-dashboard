@@ -87,7 +87,9 @@ class LattesZipXml
 
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
-                $publisher_id = Publishers::where('issn' , $issn)->first()?->id;
+                $publisher_id = Publishers::whereHas('issns', function ($q) use ($issn) {
+                    $q->where('issn', $issn);
+                })->first()?->id;
             }
 
             $production = compact('home_page', 'source', 'title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');

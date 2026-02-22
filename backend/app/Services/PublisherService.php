@@ -106,12 +106,21 @@ class PublisherService
     public function listAll(array $params = []): LengthAwarePaginator
     {
         return QueryBuilder::for(Publishers::class)
-            ->with('stratumQualis')
+            ->with(['stratumQualis', 'issns'])
             ->allowedFilters([
                 'name', 'initials', 'publisher_type', 'stratum_qualis_id',
                 AllowedFilter::callback('issn', function ($query, $value) {
                     $query->whereHas('issns', function($q) use ($value) {
                         $q->where('issn', 'like', "%{$value}%");
+                    });
+                }),
+                AllowedFilter::callback('search', function ($query, $value) {
+                    $query->where(function ($q) use ($value) {
+                        $q->where('name', 'like', "%{$value}%")
+                          ->orWhere('initials', 'like', "%{$value}%")
+                          ->orWhereHas('issns', function ($issnQ) use ($value) {
+                              $issnQ->where('issn', 'like', "%{$value}%");
+                          });
                     });
                 }),
                 AllowedFilter::callback('qualis_code', function ($query, $value) {

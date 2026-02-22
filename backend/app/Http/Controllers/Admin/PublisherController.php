@@ -55,17 +55,13 @@ class PublisherController extends Controller
     public function conferenceByInitials(Request $request){
         $initial = $request->query('initial');
         $publisher = $this->publisherService->findByInitials($initial);
-        return response()->json([
-                'data' => $publisher,
-            ]);
+        return new PublisherResource($publisher);
     }
 
     public function journalByIssn(Request $request){
         $issn = $request->query('issn');
         $publisher = $this->publisherService->findByIssn($issn);
-        return response()->json([
-                'data' => $publisher,
-            ]);
+        return new PublisherResource($publisher);
     }
 
     public function destroy(int $id)
