@@ -92,7 +92,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('students', StudentController::class);
         Route::apiResource('students.productions', StudentProductionController::class)
             ->except(['destroy']);
-        Route::apiResource('professors', ProfessorController::class)->except(['destroy']);
+        Route::apiResource('professors', ProfessorController::class);
         Route::apiResource('professors.productions', ProfessorProductionController::class);
         Route::post('professors/{professors}/productions/doi', [ProfessorProductionController::class, 'storeFromDoi']);
         Route::delete('professors/{professors}/productions-all', [ProfessorProductionController::class, 'destroyAll']);
