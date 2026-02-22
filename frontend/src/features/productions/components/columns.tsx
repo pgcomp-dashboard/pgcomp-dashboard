@@ -1,14 +1,13 @@
-
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogOverlay,
-    AlertDialogPortal,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogOverlay,
+  AlertDialogPortal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
@@ -44,9 +43,7 @@ export const getProductionColumns = ({
         <Link
           to={info.row.original.doi || info.row.original.home_page || "#"}
           target={
-            info.row.original.doi || info.row.original.home_page
-              ? "_blank"
-              : ""
+            info.row.original.doi || info.row.original.home_page ? "_blank" : ""
           }
           rel={
             info.row.original.doi || info.row.original.home_page
@@ -65,7 +62,7 @@ export const getProductionColumns = ({
     ),
     meta: {
       className: "w-[25%]",
-    }
+    },
   }),
   columnHelper.accessor((row) => row.publisher?.name, {
     id: "local",
@@ -82,7 +79,7 @@ export const getProductionColumns = ({
     ),
     meta: {
       className: "w-[20%]",
-    }
+    },
   }),
   columnHelper.accessor("year", {
     id: "year",
@@ -94,7 +91,7 @@ export const getProductionColumns = ({
     ),
     meta: {
       className: "w-[8%]",
-    }
+    },
   }),
   columnHelper.accessor("publisher_type", {
     id: "tipo",
@@ -108,7 +105,7 @@ export const getProductionColumns = ({
     ),
     meta: {
       className: "w-[10%]",
-    }
+    },
   }),
   columnHelper.accessor("source", {
     id: "origem",
@@ -124,7 +121,7 @@ export const getProductionColumns = ({
     ),
     meta: {
       className: "w-[10%]",
-    }
+    },
   }),
   columnHelper.accessor((row) => row.publisher?.stratum_qualis?.code, {
     id: "qualis",
@@ -134,7 +131,7 @@ export const getProductionColumns = ({
     ),
     meta: {
       className: "w-[8%]",
-    }
+    },
   }),
   columnHelper.accessor((row) => row.publisher?.stratum_qualis?.score, {
     id: "pontuacao",
@@ -142,11 +139,17 @@ export const getProductionColumns = ({
       <DataTableColumnHeader column={column} title="Pts" />
     ),
     cell: (info) => (
-      <div className="text-center text-sm">{info.getValue() || "--"}</div>
+      <div className="text-center text-sm">
+        {info.getValue() >= 0
+          ? Number.isInteger(info.getValue())
+            ? info.getValue()
+            : info.getValue().toFixed(2)
+          : "--"}
+      </div>
     ),
     meta: {
       className: "w-[8%]",
-    }
+    },
   }),
   columnHelper.display({
     id: "actions",
@@ -211,6 +214,6 @@ export const getProductionColumns = ({
     },
     meta: {
       className: "w-[11%]",
-    }
+    },
   }),
 ];
