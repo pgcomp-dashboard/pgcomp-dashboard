@@ -22,7 +22,15 @@ class UpdatePublisherRequest extends FormRequest
                 'int',
                 Rule::exists(StratumQualis::class, 'id'),
             ],
-            'issn' => 'string|nullable|max:255',
+            'issns' => 'array|nullable',
+            'issns.*' => [
+                'string',
+                'max:255',
+                Rule::unique('publisher_issns', 'issn')->ignore(
+                    $this->route('publisher')?->id ?? $this->route('publisher'),
+                    'publishers_id'
+                ),
+            ],
             'percentile' => 'string|nullable|max:255',
             'update_date' => 'date|nullable',
             'tentative_date' => 'date|nullable',

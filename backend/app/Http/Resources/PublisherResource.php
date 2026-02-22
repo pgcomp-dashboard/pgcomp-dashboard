@@ -16,7 +16,7 @@ class PublisherResource extends JsonResource
             'initials' => $this->initials,
             'name' => $this->name,
             'publisher_type' => $this->publisher_type,
-            'issn' => $this->issn,
+            'issns' => $this->issns->pluck('issn'),
             'scopus_url' => $this->scopus_url,
             'sbc_adjustment' => $this->sbc_adjustment,
             'percentile' => $this->percentile,

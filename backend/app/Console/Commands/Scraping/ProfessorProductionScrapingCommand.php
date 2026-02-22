@@ -105,9 +105,14 @@ class ProfessorProductionScrapingCommand extends Command
                 continue;
             }
 
-            $publisher = Publishers::whereLike('name', $production['revista'])
-                ->orWhereLike('issn', Str::numbers($production['issn']))
-                ->first();
+            $issnStr = Str::numbers($production['issn'] ?? '');
+            $publisherQuery = Publishers::whereLike('name', $production['revista']);
+            if (!empty($issnStr)) {
+                $publisherQuery->orWhereHas('issns', function($q) use ($issnStr) {
+                    $q->where('issn', 'like', "%{$issnStr}%");
+                });
+            }
+            $publisher = $publisherQuery->first();
 
             if (! $publisher) {
                 $publishersNotFound[] = $production['revista'];

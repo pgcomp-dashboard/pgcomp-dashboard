@@ -52,22 +52,32 @@ class JournalScrapingCommand extends Command
             } catch (ModelNotFoundException) {
                 $stratumQualisId = null;
             }
-            Publishers::updateOrCreate(
-                [
-                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
-                ],
-                [
-                    'name' => $item['periodico'],
+            $issnStr = Str::of($item['issn'])->replace('-', '')->upper()->value();
+            $publisher = Publishers::whereHas('issns', function($q) use ($issnStr) {
+                $q->where('issn', $issnStr);
+            })->first();
 
-                    'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
-                    'update_date' => $this->stringToDate($item['data-atualizacao']),
-                    'tentative_date' => $this->stringToDate($item['data-tentativa']),
-                    'logs' => (string) $item['logs'],
-                    'publisher_type' => PublisherType::JOURNAL->value,
-                    'issn' => Str::of($item['issn'])->replace('-', '')->upper()->value(),
-                    'stratum_qualis_id' => $stratumQualisId,
-                ]
-            );
+            if (!$publisher) {
+                $publisher = Publishers::where('name', $item['periodico'])->first();
+            }
+
+            $publishersData = [
+                'name' => $item['periodico'],
+                'percentile' => in_array($item['percentil'], ['nulo']) ? null : $item['percentil'],
+                'update_date' => $this->stringToDate($item['data-atualizacao']),
+                'tentative_date' => $this->stringToDate($item['data-tentativa']),
+                'logs' => (string) $item['logs'],
+                'publisher_type' => PublisherType::JOURNAL->value,
+                'stratum_qualis_id' => $stratumQualisId,
+            ];
+
+            if ($publisher) {
+                $publisher->update($publishersData);
+                $publisher->issns()->firstOrCreate(['issn' => $issnStr]);
+            } else {
+                $publisher = Publishers::create($publishersData);
+                $publisher->issns()->create(['issn' => $issnStr]);
+            }
         });
 
         $this->getOutput()->info('Dados salvos com sucesso.');

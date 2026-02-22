@@ -137,9 +137,12 @@ class ImportPublisherTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('publishers', [
-            'issn' => '12345678', // hyphen removed in controller
             'name' => 'Journal 1',
             'publisher_type' => PublisherType::JOURNAL->value
+        ]);
+
+        $this->assertDatabaseHas('publisher_issns', [
+            'issn' => '12345678', // hyphen removed in controller
         ]);
     }
 }

@@ -25,7 +25,17 @@ class PublisherService
      */
     public function create(array $data): Publishers
     {
-        return Publishers::create($data);
+        $publisher = Publishers::create($data);
+        if (isset($data['issns']) && is_array($data['issns'])) {
+            $issnData = collect($data['issns'])
+                ->filter()
+                ->map(fn($issn) => ['issn' => $issn])
+                ->toArray();
+            if (count($issnData) > 0) {
+                $publisher->issns()->createMany($issnData);
+            }
+        }
+        return $publisher;
     }
 
     /**
@@ -54,6 +64,17 @@ class PublisherService
         $publisher = Publishers::findOrFail($id);
         $publisher->update($data);
 
+        if (array_key_exists('issns', $data) && is_array($data['issns'])) {
+            $publisher->issns()->delete();
+            $issnData = collect($data['issns'])
+                ->filter()
+                ->map(fn($issn) => ['issn' => $issn])
+                ->toArray();
+            if (count($issnData) > 0) {
+                $publisher->issns()->createMany($issnData);
+            }
+        }
+
         return $publisher;
     }
 
@@ -76,7 +97,10 @@ class PublisherService
 
     public function findByIssn(string $issn): ?Publishers
     {
-        return Publishers::where('issn', '=', Str::of($issn)->trim()->remove('-')->value())->first();
+        $cleanIssn = Str::of($issn)->trim()->remove('-')->value();
+        return Publishers::whereHas('issns', function($q) use ($cleanIssn) {
+            $q->where('issn', '=', $cleanIssn);
+        })->first();
     }
 
     public function listAll(array $params = []): LengthAwarePaginator
@@ -84,14 +108,19 @@ class PublisherService
         return QueryBuilder::for(Publishers::class)
             ->with('stratumQualis')
             ->allowedFilters([
-                'name', 'initials', 'issn', 'publisher_type', 'stratum_qualis_id',
+                'name', 'initials', 'publisher_type', 'stratum_qualis_id',
+                AllowedFilter::callback('issn', function ($query, $value) {
+                    $query->whereHas('issns', function($q) use ($value) {
+                        $q->where('issn', 'like', "%{$value}%");
+                    });
+                }),
                 AllowedFilter::callback('qualis_code', function ($query, $value) {
                     $query->whereHas('stratumQualis', function($q) use ($value) {
                         $q->where('code', $value);
                     });
                 })
             ])
-            ->allowedSorts(['name', 'initials', 'issn', 'publisher_type', 'stratum_qualis_id', 'qualis_code'])
+            ->allowedSorts(['name', 'initials', 'publisher_type', 'stratum_qualis_id', 'qualis_code'])
             ->paginate($params['per_page'] ?? 15);
     }
 
@@ -131,18 +160,30 @@ class PublisherService
                     );
                 } else {
                     $issn = Str::of($row[0])->trim()->remove('-')->value();
-                    Publishers::updateOrCreate(
-                        [
-                            'issn' => $issn,
-                            'name' => $row[1]
-                        ],
-                        [
-                            'issn' => $issn,
+
+                    $publisher = Publishers::whereHas('issns', function($q) use ($issn) {
+                        $q->where('issn', $issn);
+                    })->first();
+
+                    if (!$publisher) {
+                        $publisher = Publishers::where('name', $row[1])->first();
+                    }
+
+                    if ($publisher) {
+                        $publisher->update([
                             'name' => $row[1],
                             'stratum_qualis_id' => $qualisId,
                             'publisher_type' => $publisherType->value
-                        ]
-                    );
+                        ]);
+                        $publisher->issns()->firstOrCreate(['issn' => $issn]);
+                    } else {
+                        $publisher = Publishers::create([
+                            'name' => $row[1],
+                            'stratum_qualis_id' => $qualisId,
+                            'publisher_type' => $publisherType->value
+                        ]);
+                        $publisher->issns()->create(['issn' => $issn]);
+                    }
                 }
             }
 

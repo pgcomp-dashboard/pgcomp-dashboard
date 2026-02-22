@@ -14,8 +14,19 @@ class PublishersFactory extends Factory
         return [
             'name' => fake()->company(),
             'publisher_type' => fake()->randomElement(['journal', 'conference']),
-            'issn' => fake()->optional()->numerify('####-####'),
             'initials' => fake()->optional()->lexify('????'),
         ];
+    }
+
+    public function configure()
+    {
+        return $this->afterCreating(function (Publishers $publisher) {
+            // Give it an ISSN 80% of the time
+            if (fake()->boolean(80)) {
+                $publisher->issns()->create([
+                    'issn' => fake()->numerify('####-####')
+                ]);
+            }
+        });
     }
 }
