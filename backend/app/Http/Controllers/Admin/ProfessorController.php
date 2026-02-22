@@ -44,4 +44,10 @@ class ProfessorController extends Controller
 
         return new UserResource($updated);
     }
+    public function destroy(int $id){
+        $professor = $this->userService->findProfessor($id);
+        $this->userService->delete($professor);
+
+        return response()->json(['message' => 'Professor deletado com sucesso']);
+    }
 }

@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 export function useAccreditation() {
   const date = new Date();
   const [isToggled, setIsToggled] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState("permanente");
   const [startYear, setStartYear] = useState(date.getFullYear() - 4);
   const [endYear, setEndYear] = useState(date.getFullYear());
 
@@ -27,10 +28,9 @@ export function useAccreditation() {
   });
 
   const filteredRanking = useMemo(() => {
-    return isToggled
-      ? ranking
-      : ranking.filter((rank) => rank.category === "permanente");
-  }, [ranking, isToggled]);
+    if (categoryFilter === "all") return ranking;
+    return ranking.filter((rank) => rank.category === categoryFilter);
+  }, [ranking, categoryFilter]);
 
   const handleShowDetails = async (userId: number) => {
     setIsLoadingDetails(true);
@@ -69,6 +69,8 @@ export function useAccreditation() {
     setEndYear,
     isToggled,
     setIsToggled,
+    categoryFilter,
+    setCategoryFilter,
     isProductionsOpen,
     setIsProductionsOpen,
     currentProductionList,

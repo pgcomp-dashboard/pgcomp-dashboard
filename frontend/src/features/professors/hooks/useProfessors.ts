@@ -21,17 +21,20 @@ export function useProfessors() {
   const allProfessors = useMemo<Professor[]>(() => data?.data || [], [data]);
 
   // Counts always reflect the full unfiltered dataset
-  const counts = useMemo(() => ({
-    permanente: allProfessors.filter(
-      (p) => p.category?.toLowerCase() === "permanente",
-    ).length,
-    colaborador: allProfessors.filter(
-      (p) => p.category?.toLowerCase() === "colaborador",
-    ).length,
-    visitante: allProfessors.filter(
-      (p) => p.category?.toLowerCase() === "visitante",
-    ).length,
-  }), [allProfessors]);
+  const counts = useMemo(
+    () => ({
+      permanente: allProfessors.filter(
+        (p) => p.category?.toLowerCase() === "permanente",
+      ).length,
+      colaborador: allProfessors.filter(
+        (p) => p.category?.toLowerCase() === "colaborador",
+      ).length,
+      visitante: allProfessors.filter(
+        (p) => p.category?.toLowerCase() === "visitante",
+      ).length,
+    }),
+    [allProfessors],
+  );
 
   // Client-side filter + sort
   const professors = useMemo<Professor[]>(() => {
@@ -82,6 +85,30 @@ export function useProfessors() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => professorService.deleteProfessor(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["professors"] });
+      toast.success("Professor excluído com sucesso!");
+
+      // Mostrar warnings se houver
+      if (response.warnings && response.warnings.length > 0) {
+        setTimeout(() => {
+          response.warnings?.forEach((warning) => {
+            toast.warning(warning, { duration: 5000 });
+          });
+        }, 500);
+      }
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 403) {
+        toast.error("Não é possível excluir usuário protegido");
+      } else {
+        toast.error("Erro ao excluir professor. Por favor, tente novamente.");
+      }
+    },
+  });
+
   return {
     professors,
     allProfessors,
@@ -98,5 +125,6 @@ export function useProfessors() {
     updateMutation,
     perPage,
     setPerPage,
+    deleteMutation,
   };
 }

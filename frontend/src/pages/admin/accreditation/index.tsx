@@ -11,7 +11,6 @@ import {
 import { AccreditationDialogs } from "@/features/accreditation/components/AccreditationDialogs";
 import { AccreditationTable } from "@/features/accreditation/components/AccreditationTable";
 import { useAccreditation } from "@/features/accreditation/hooks/useAccreditation";
-import Switch from "@mui/material/Switch";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router";
 
@@ -25,8 +24,8 @@ export default function CredenciamentoPage() {
     setStartYear,
     endYear,
     setEndYear,
-    isToggled,
-    setIsToggled,
+    categoryFilter,
+    setCategoryFilter,
     isProductionsOpen,
     setIsProductionsOpen,
     currentProductionList,
@@ -72,13 +71,19 @@ export default function CredenciamentoPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 bg-card px-4 py-2 rounded-lg border shadow-sm">
-          <Label className="text-sm font-medium">Mostrar Todos</Label>
-          <Switch
-            checked={isToggled}
-            onChange={() => setIsToggled(!isToggled)}
-            size="medium"
-            color="primary"
-          />
+          <div className="w-full sm:w-48">
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas Categorias</SelectItem>
+                <SelectItem value="permanente">Permanente</SelectItem>
+                <SelectItem value="colaborador">Colaborador</SelectItem>
+                <SelectItem value="visitante">Visitante</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </header>
 

@@ -20,5 +20,9 @@ export const professorService = {
 
   async updateProfessor(id: number, data: Partial<Professor>){
     return await apiClient.put<Professor>(`/api/admin/professors/${id}`, data);
+  },
+
+  async deleteProfessor(id: number): Promise<{ message: string; warnings?: string[] }> {
+    return await apiClient.delete<{ message: string; warnings?: string[] }>(`/api/admin/professors/${id}`);
   }
 };

@@ -74,6 +74,12 @@ class UserService
      */
     public function delete(User $user): bool
     {
+        $user->writerOf()->detach();
+        $user->advisors()->detach();
+        $user->advisedes()->detach();
+        $user->coadvisors()->detach();
+        $user->coadviseees()->detach();
+
         return $user->delete();
     }
 
