@@ -19,6 +19,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Professor } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
@@ -53,7 +54,7 @@ export function ProfessorDialog({
     handleSubmit,
     reset,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<UpdateProfessorForm>({
     resolver: zodResolver(updateProfessorSchema),
   });
@@ -164,7 +165,13 @@ export function ProfessorDialog({
             <Button type="button" onClick={() => onOpenChange(false)} variant="ghost">
               Cancelar
             </Button>
-            <Button type="submit">Salvar Alterações</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</>
+              ) : (
+                'Salvar Alterações'
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
