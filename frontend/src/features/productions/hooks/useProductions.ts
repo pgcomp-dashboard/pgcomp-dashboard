@@ -69,7 +69,7 @@ export function useProductions() {
             page: 1,
             per_page: 20,
             filter: {
-              name: editPublisherSearch,
+              search: editPublisherSearch,
               publisher_type: editPublisherType,
             }
           });

@@ -1,38 +1,40 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Publisher, StratumQualis } from "@/types/academic";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const publisherFormSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(255),
   initials: z.string().max(255).optional().nullable(),
-  issn: z.string().max(255).optional().nullable(),
+  issns: z.array(z.string()).optional(),
   publisher_type: z.enum(['journal', 'conference']).optional().nullable(),
   stratum_qualis_id: z.coerce.number().optional().nullable(),
 });
@@ -44,7 +46,7 @@ interface PublisherDialogsProps {
   onOpenChange: (open: boolean) => void;
   editingPublisher: Publisher | null;
   qualisOptions: StratumQualis[];
-  onSave: (values: PublisherFormValues) => Promise<void>;
+  onSave: (values: any) => Promise<void>;
 }
 
 export function PublisherDialogs({
@@ -59,11 +61,14 @@ export function PublisherDialogs({
     defaultValues: {
       name: '',
       initials: '',
-      issn: '',
+      issns: [],
       publisher_type: 'journal',
       stratum_qualis_id: null,
     },
   });
+
+  const [tagInput, setTagInput] = useState('');
+  const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -71,7 +76,7 @@ export function PublisherDialogs({
         form.reset({
           name: editingPublisher.name,
           initials: editingPublisher.initials || '',
-          issn: editingPublisher.issn || '',
+          issns: editingPublisher.issns || [],
           publisher_type: editingPublisher.publisher_type as 'journal' | 'conference',
           stratum_qualis_id: editingPublisher.stratum_qualis_id || null,
         });
@@ -79,24 +84,42 @@ export function PublisherDialogs({
         form.reset({
           name: '',
           initials: '',
-          issn: '',
+          issns: [],
           publisher_type: 'journal',
           stratum_qualis_id: null,
         });
       }
+      setTagInput('');
     }
   }, [editingPublisher, isOpen, form]);
 
   const handleSubmit = async (values: PublisherFormValues) => {
-    await onSave(values);
+    const payload = {
+      name: values.name,
+      initials: values.initials,
+      issns: values.issns || [],
+      publisher_type: values.publisher_type,
+      stratum_qualis_id: values.stratum_qualis_id,
+    };
+
+    await onSave(payload);
     onOpenChange(false);
   };
 
   const publisherType = form.watch('publisher_type');
 
+  const addTag = () => {
+    if (!tagInput.trim()) return;
+    const currentTags = form.getValues('issns') || [];
+    if (!currentTags.includes(tagInput.trim())) {
+      form.setValue('issns', [...currentTags, tagInput.trim()]);
+    }
+    setTagInput('');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-125">
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editingPublisher ? 'Editar Veículo' : 'Novo Veículo'}</DialogTitle>
           <DialogDescription>
@@ -120,38 +143,89 @@ export function PublisherDialogs({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
-              {publisherType === 'conference' && (
-                <FormField
-                  control={form.control}
-                  name="initials"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sigla</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: SIGMOD" {...field} value={field.value || ''} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-              {publisherType === 'journal' && (
-                <FormField
-                  control={form.control}
-                  name="issn"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ISSN</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: 0000-0000" {...field} value={field.value || ''} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
+            {publisherType === 'conference' && (
+              <FormField
+                control={form.control}
+                name="initials"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sigla</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: SIGMOD" {...field} value={field.value || ''} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {publisherType === 'journal' && (
+              <div className="border p-4 rounded-md space-y-4 bg-muted/20">
+                <div className="space-y-2">
+                  <FormLabel className="font-bold text-primary">ISSNs</FormLabel>
+                  <FormDescription className="text-xs">
+                    Digite um ISSN e clique '+' ou pressione Enter. Clique no ISSN adicionado para editá-lo.
+                  </FormDescription>
+                  <div className="flex gap-2 mb-2 mt-2">
+                    <Input
+                      placeholder="Ex: 1234-5678"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addTag();
+                        }
+                      }}
+                    />
+                    <Button type="button" onClick={addTag} size="icon" variant="secondary"><Plus className="w-4 h-4" /></Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.watch('issns')?.map((tag, idx) => (
+                      <div key={idx} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+                        {editingTagIndex === idx ? (
+                          <input
+                            autoFocus
+                            className="bg-transparent border-b border-primary outline-none text-center"
+                            style={{ width: `${Math.max(tag.length, 5)}ch` }}
+                            defaultValue={tag}
+                            onBlur={(e) => {
+                              const newTag = e.target.value.trim();
+                              const tags = form.getValues('issns') || [];
+                              if (newTag) {
+                                tags[idx] = newTag;
+                              } else {
+                                tags.splice(idx, 1);
+                              }
+                              form.setValue('issns', [...tags]);
+                              setEditingTagIndex(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                e.currentTarget.blur();
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span className="cursor-pointer hover:underline" onClick={() => setEditingTagIndex(idx)}>
+                            {tag}
+                          </span>
+                        )}
+                        <button type="button" onClick={() => {
+                          const tags = form.getValues('issns') || [];
+                          tags.splice(idx, 1);
+                          form.setValue('issns', [...tags]);
+                        }}>
+                          <X className="w-3 h-3 hover:text-destructive" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}

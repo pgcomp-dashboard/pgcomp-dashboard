@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Publisher } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
 import { ColumnDef, createColumnHelper, PaginationState, SortingState } from "@tanstack/react-table";
-import { Pencil, SquarePenIcon, Trash } from "lucide-react";
-import { useMemo } from "react";
+import { Info, Pencil, SquarePenIcon, Trash } from "lucide-react";
+import { useMemo, useState } from "react";
 
 interface PublisherTableProps {
   publishers: Publisher[];
@@ -22,6 +23,42 @@ interface PublisherTableProps {
 }
 
 const columnHelper = createColumnHelper<Publisher>();
+
+const MobileCardIssnList = ({ issns }: { issns: string[] }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  if (!issns?.length) return <span>—</span>;
+  if (issns.length <= 2) return <span>{issns.join(", ")}</span>;
+
+  if (expanded) {
+    return (
+      <div className="flex flex-col gap-1 mt-1 bg-background border p-2 rounded-md w-full">
+        {issns.map((issn, idx) => (
+          <span key={idx} className="text-xs bg-muted/50 px-2 py-1 rounded">{issn}</span>
+        ))}
+        <button
+          className="text-primary text-xs font-semibold self-start hover:underline mt-1 cursor-pointer"
+          onClick={() => setExpanded(false)}
+        >
+          Ocultar lista
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      {issns.slice(0, 2).join(", ")}
+      <span className="text-muted-foreground text-xs">(+{issns.length - 2})</span>
+      <button
+        className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        onClick={() => setExpanded(true)}
+      >
+        <Info className="w-3.5 h-3.5 mt-0.5" />
+      </button>
+    </span>
+  );
+};
 
 export function PublisherTable({
   publishers,
@@ -43,11 +80,34 @@ export function PublisherTable({
         header: "ISSN/Sigla",
         cell: (info) => {
           const publisher = info.getValue();
+          if (publisher.publisher_type !== "journal") {
+            return <div className="text-center">{publisher.initials || "—"}</div>;
+          }
+
+          const issns = publisher.issns || [];
+          if (issns.length === 0) return <div className="text-center">—</div>;
+
+          if (issns.length <= 2) {
+            return <div className="text-center">{issns.join(", ")}</div>;
+          }
+
           return (
-            <div className="text-center">
-              {publisher.publisher_type === "journal"
-                ? publisher.issn || "—"
-                : publisher.initials || "—"}
+            <div className="text-center flex items-center justify-center gap-1">
+              <span>{issns.slice(0, 2).join(", ")} (+{issns.length - 2})</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="flex flex-col gap-1 text-sm">
+                      {issns.map((issn: string, idx: number) => (
+                        <span key={idx}>{issn}</span>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           );
         },
@@ -146,7 +206,7 @@ export function PublisherTable({
               {publisher.publisher_type === "journal" ? "ISSN" : "Sigla"}:
             </span>{" "}
             {publisher.publisher_type === "journal"
-              ? publisher.issn || "—"
+              ? <MobileCardIssnList issns={publisher.issns || []} />
               : publisher.initials || "—"}
           </div>
         </div>

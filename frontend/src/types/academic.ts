@@ -23,7 +23,7 @@ export interface Publisher {
   initials: string | null;
   name: string;
   publisher_type: string;
-  issn: string | null;
+  issns: string[];
   percentile: string | null;
   update_date: string | null;
   tentative_date: string | null;

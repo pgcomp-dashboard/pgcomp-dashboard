@@ -45,7 +45,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
         try {
           const response = await publisherService.getAllPublishers({
             filter: {
-              name: publisherSearch,
+              search: publisherSearch,
               publisher_type: publisherType,
             }
           });
@@ -227,7 +227,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                         <div className="text-xs text-muted-foreground flex justify-between">
                           <span>
                             {p.publisher_type === 'journal'
-                              ? `ISSN: ${p.issn || 'N/A'}`
+                              ? `ISSN: ${p.issns?.join(", ") || 'N/A'}`
                               : `Sigla: ${p.initials || 'N/A'}`}
                           </span>
                           <span className="font-semibold text-primary">
@@ -247,7 +247,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                       <p className="font-medium text-green-800">{publisher.name}</p>
                       <p className="text-xs text-green-700">
                         {publisher.publisher_type === 'journal'
-                          ? `ISSN: ${publisher.issn || 'N/A'}`
+                          ? `ISSN: ${publisher.issns?.join(", ") || 'N/A'}`
                           : `Sigla: ${publisher.initials || 'N/A'}`}
                       </p>
                     </div>

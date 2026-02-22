@@ -176,7 +176,7 @@ export function ProductionDialogs({
                             <div className="text-xs text-muted-foreground flex justify-between">
                               <span>
                                 {p.publisher_type === 'journal'
-                                  ? `ISSN: ${p.issn || 'N/A'}`
+                                  ? `ISSN: ${p.issns?.join(", ") || 'N/A'}`
                                   : `Sigla: ${p.initials || 'N/A'}`}
                               </span>
                               <span className="font-semibold text-primary">
@@ -196,7 +196,7 @@ export function ProductionDialogs({
                           <p className="font-medium text-green-800">{editState.publisher.name}</p>
                           <p className="text-xs text-green-700">
                             {editState.publisher.publisher_type === 'journal'
-                              ? `ISSN: ${editState.publisher.issn || 'N/A'}`
+                              ? `ISSN: ${editState.publisher.issns?.join(", ") || 'N/A'}`
                               : `Sigla: ${editState.publisher.initials || 'N/A'}`}
                           </p>
                         </div>
