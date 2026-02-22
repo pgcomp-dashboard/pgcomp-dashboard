@@ -40,7 +40,7 @@ class ProfessorController extends Controller
      public function update(UpdateProfessorRequest $request, int $id)
     {
         $professor = $this->userService->findProfessor($id);
-        $updated = $this->userService->update($professor, $request->all());
+        $updated = $this->userService->update($professor, $request->validated());
 
         return new UserResource($updated);
     }

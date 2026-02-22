@@ -23,6 +23,7 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($this->route('user') ?? $this->route('id')),
             ],
             'password' => 'sometimes|string|min:8',
+            'is_admin' => 'sometimes|boolean',
         ];
     }
 }

@@ -54,7 +54,25 @@ class UserService
             unset($data['password']);
         }
 
+        if (array_key_exists('is_admin', $data)) {
+            $user->is_admin = $data['is_admin'];
+
+            if ($data['is_admin']) {
+                $user->admin_status = $user::STATUS_APPROVED;
+            } else {
+                $user->admin_status = $user::STATUS_REJECTED;
+            }
+
+            $user->approved_by_id = auth()->id();
+
+            unset($data['is_admin']);
+            unset($data['approved_by_id']);
+            unset($data['admin_status']);
+        }
+
         $user->update($data);
+        $user->save();
+
         return $user;
     }
 
