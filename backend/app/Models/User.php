@@ -61,6 +61,7 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property string|null $lattes_updated_at
  * @property string|null $admin_status
  * @property string|null $admin_requested_at
+ * @property int|null $approved_by_id
  * @property UserCategory $category
  * @property-read Collection|User[] $advisedes
  * @property-read int|null $advisedes_count
