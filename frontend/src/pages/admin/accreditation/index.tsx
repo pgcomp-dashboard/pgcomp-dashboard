@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AccreditationDialogs } from "@/features/accreditation/components/AccreditationDialogs";
 import { AccreditationTable } from "@/features/accreditation/components/AccreditationTable";
 import { useAccreditation } from "@/features/accreditation/hooks/useAccreditation";
 import { Loader2 } from "lucide-react";
@@ -26,11 +25,6 @@ export default function CredenciamentoPage() {
     setEndYear,
     categoryFilter,
     setCategoryFilter,
-    isProductionsOpen,
-    setIsProductionsOpen,
-    currentProductionList,
-    isLoadingDetails,
-    handleShowDetails,
     years,
   } = useAccreditation();
 
@@ -151,15 +145,11 @@ export default function CredenciamentoPage() {
       <AccreditationTable
         ranking={ranking}
         isLoading={isLoading}
-        onShowDetails={handleShowDetails}
+        startYear={startYear}
+        endYear={endYear}
       />
 
-      <AccreditationDialogs
-        isOpen={isProductionsOpen}
-        onOpenChange={setIsProductionsOpen}
-        isLoading={isLoadingDetails}
-        productions={currentProductionList}
-      />
+
     </div>
   );
 }

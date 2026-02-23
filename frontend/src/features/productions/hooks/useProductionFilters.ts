@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 
 export interface ProductionFilters {
   titulo: string;
@@ -23,7 +24,15 @@ const defaultFilters: ProductionFilters = {
 type SortKey = 'titulo' | 'local' | 'year' | 'tipo' | 'origem' | 'pontuacao';
 
 export function useProductionFilters() {
-  const [filters, setFilters] = useState<ProductionFilters>(defaultFilters);
+  const [searchParams] = useSearchParams();
+  const initialYearParam = searchParams.get('initialYear');
+  const finalYearParam = searchParams.get('finalYear');
+
+  const [filters, setFilters] = useState<ProductionFilters>({
+    ...defaultFilters,
+    anoInicio: initialYearParam || defaultFilters.anoInicio,
+    anoFim: finalYearParam || defaultFilters.anoFim,
+  });
   const [sortConfig, setSortConfig] = useState<{
     key: SortKey;
     direction: 'asc' | 'desc';

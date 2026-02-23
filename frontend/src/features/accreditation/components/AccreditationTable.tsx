@@ -5,12 +5,13 @@ import { Ranking } from "@/types/academic";
 import { ColumnDef, createColumnHelper, Row } from "@tanstack/react-table";
 import { BookOpenTextIcon } from "lucide-react";
 import { useMemo } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 interface AccreditationTableProps {
   ranking: Ranking[];
   isLoading: boolean;
-  onShowDetails: (userId: number) => void;
+  startYear: number;
+  endYear: number;
 }
 
 const columnHelper = createColumnHelper<Ranking>();
@@ -22,8 +23,15 @@ const formatName = (name: string) =>
 export function AccreditationTable({
   ranking,
   isLoading,
-  onShowDetails,
+  startYear,
+  endYear,
 }: AccreditationTableProps) {
+  const navigate = useNavigate();
+
+  const handleShowDetails = (userId: number) => {
+    navigate(`/portal/productions?professorId=${userId}&initialYear=${startYear}&finalYear=${endYear}`);
+  };
+
   const columns = useMemo<ColumnDef<Ranking, any>[]>(
     () => [
       columnHelper.display({
@@ -63,7 +71,7 @@ export function AccreditationTable({
             <Button
               variant="ghost"
               className="hover:bg-transparent h-full"
-              onClick={() => onShowDetails(info.row.original.user_id)}
+              onClick={() => handleShowDetails(info.row.original.user_id)}
             >
               <BookOpenTextIcon className="size-5" />
             </Button>
@@ -93,7 +101,7 @@ export function AccreditationTable({
         ),
       }),
     ],
-    [onShowDetails],
+    [handleShowDetails],
   );
 
   const renderMobileCard = (row: Row<Ranking>) => {
@@ -111,7 +119,7 @@ export function AccreditationTable({
               <Button
                 variant="ghost"
                 className="p-0 h-auto font-semibold text-left justify-start hover:underline hover:bg-transparent"
-                onClick={() => onShowDetails(rank.user_id)}
+                onClick={() => handleShowDetails(rank.user_id)}
               >
                 {formatName(rank.name)}
               </Button>

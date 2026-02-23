@@ -1,5 +1,5 @@
 import { userService } from "@/services/modules/user.service";
-import { Ranking, RankingProduction } from "@/types/academic";
+import { Ranking } from "@/types/academic";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
@@ -9,12 +9,6 @@ export function useAccreditation() {
   const [categoryFilter, setCategoryFilter] = useState("permanente");
   const [startYear, setStartYear] = useState(date.getFullYear() - 4);
   const [endYear, setEndYear] = useState(date.getFullYear());
-
-  const [isProductionsOpen, setIsProductionsOpen] = useState(false);
-  const [currentProductionList, setCurrentProductionList] = useState<
-    RankingProduction[] | null
-  >(null);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
   const {
     data: ranking = [],
@@ -32,24 +26,7 @@ export function useAccreditation() {
     return ranking.filter((rank) => rank.category === categoryFilter);
   }, [ranking, categoryFilter]);
 
-  const handleShowDetails = async (userId: number) => {
-    setIsLoadingDetails(true);
-    setIsProductionsOpen(true);
-    try {
-      const response = await userService.getAccreditationProductions(
-        userId,
-        startYear,
-        endYear,
-      );
-      if (response) {
-        setCurrentProductionList(response.productions);
-      }
-    } catch (error) {
-      console.error("Erro ao carregar detalhes da acreditação:", error);
-    } finally {
-      setIsLoadingDetails(false);
-    }
-  };
+
 
   const years = useMemo(() => {
     return Array.from(
@@ -71,11 +48,6 @@ export function useAccreditation() {
     setIsToggled,
     categoryFilter,
     setCategoryFilter,
-    isProductionsOpen,
-    setIsProductionsOpen,
-    currentProductionList,
-    isLoadingDetails,
-    handleShowDetails,
     years,
   };
 }
