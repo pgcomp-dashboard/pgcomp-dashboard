@@ -44,8 +44,16 @@ class ProductionService
         $message = $data['message'];
         $productionDoiUrl = 'http://dx.doi.org/'.$message['DOI'];
 
-        if (Production::where('doi', '=', $productionDoiUrl)->exists()) {
-            throw new Exception("Produção já cadastrada");
+        $production = Production::where('doi', '=', $productionDoiUrl)->first();
+        if ($production) {
+            if ($this->checkOwnership($userId, $production->id)) {
+                throw new Exception("Produção já cadastrada para este usuário");
+            }
+            $production->saveInterTable($userId);
+            return [
+                'production' => $production,
+                'publisher_not_found' => null
+            ];
         }
 
         $title = $message['title'][0];
@@ -147,7 +155,10 @@ class ProductionService
         $userProductions = $user->writerOf;
         $count = 0;
         foreach ($userProductions as $production) {
-            if ($production->delete()) {
+            if ($production->isWroteBy()->count() > 1) {
+                $production->isWroteBy()->detach($user->id);
+                $count++;
+            } elseif ($production->delete()) {
                 $count++;
             }
         }
@@ -211,6 +222,12 @@ class ProductionService
     public function deleteForUser(int $userId, int $productionId): bool
     {
         $production = $this->findForUser($userId, $productionId);
+
+        if ($production->isWroteBy()->count() > 1) {
+            $production->isWroteBy()->detach($userId);
+            return true;
+        }
+
         return $production->delete();
     }
 }

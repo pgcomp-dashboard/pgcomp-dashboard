@@ -244,12 +244,15 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function updateLattes(array $data): void
     {
-        error_log("entered the update function");
-        foreach ($data['productions'] as $production) {
-            if (!$production['doi']) {
+        foreach ($data['productions'] as $productionData) {
+            if (empty($productionData['doi'])) {
                 continue;
             }
-            $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
+            $production = Production::updateOrCreate(
+                ['doi' => $productionData['doi']],
+                $productionData
+            );
+            $this->writerOf()->syncWithoutDetaching([$production->id]);
         }
         $this->lattes_updated_at = $data['lattes_updated_at'];
         $this->save();
