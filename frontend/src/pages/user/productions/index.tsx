@@ -3,9 +3,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { ProductionCreateForm } from "@/features/productions/components/forms/ProductionCreateForm";
 import { ProductionDOIForm } from "@/features/productions/components/forms/ProductionDOIForm";
-import {
-  ProductionDialogs,
-} from "@/features/productions/components/ProductionDialogs";
+import { ProductionDialogs } from "@/features/productions/components/ProductionDialogs";
 import { ProductionHeader } from "@/features/productions/components/ProductionHeader";
 import { ProductionTable } from "@/features/productions/components/ProductionTable";
 import { ProductionToolbar } from "@/features/productions/components/ProductionToolbar";
@@ -72,7 +70,7 @@ export default function ProductionsPage() {
                 ? "Adicionar via DOI"
                 : chosenForm === "other"
                   ? "Adicionar Manualmente"
-                  : "Produções"}
+                  : null}
           </h2>
         </div>
 
@@ -107,17 +105,23 @@ export default function ProductionsPage() {
           </div>
         ) : chosenForm === "xml" ? (
           <UploadXMLForm
-              professorId={selectedProfessorId === "own" ? undefined : selectedProfessorId}
+            professorId={
+              selectedProfessorId === "own" ? undefined : selectedProfessorId
+            }
             onSuccess={() => setChosenForm("none")}
           />
         ) : chosenForm === "doi" ? (
           <ProductionDOIForm
-                professorId={selectedProfessorId === "own" ? undefined : selectedProfessorId}
+            professorId={
+              selectedProfessorId === "own" ? undefined : selectedProfessorId
+            }
             onSuccess={() => setChosenForm("none")}
           />
         ) : (
           <ProductionCreateForm
-                  professorId={selectedProfessorId === "own" ? undefined : selectedProfessorId}
+            professorId={
+              selectedProfessorId === "own" ? undefined : selectedProfessorId
+            }
             onSuccess={() => setChosenForm("none")}
           />
         )}
