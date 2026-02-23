@@ -26,9 +26,9 @@ class UserService
      */
     public function listPendingApproval()
     {
-        return QueryBuilder::for(User::where('is_approved', false))
-            ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category'])
-            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category'])
+        return QueryBuilder::for(User::professors()->where('is_approved', false))
+            ->allowedFilters(['name', 'email', 'siape', 'category'])
+            ->allowedSorts(['name', 'email', 'siape', 'category'])
             ->paginate(request()->input('per_page', 15));
     }
 
@@ -37,6 +37,10 @@ class UserService
      */
     public function approve(User $user): User
     {
+        if ($user->type !== UserType::PROFESSOR) {
+            throw new \InvalidArgumentException('Apenas docentes podem ser aprovados manualmente.');
+        }
+
         $user->is_approved = true;
         $user->save();
         return $user;

@@ -1,12 +1,12 @@
 import AppLogo from '@/components/AppLogo';
 import { Button } from '@/components/ui/button';
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { authService } from '@/services/modules/auth.service';
@@ -22,7 +22,7 @@ const formSchema = z.object({
   name: z.string().min(2, 'Nome muito curto!'),
   email: z.string().email('Email inválido!'),
   password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres!'),
-  password_confirmation: z.string()
+  password_confirmation: z.string(),
 }).refine((data) => data.password === data.password_confirmation, {
   message: "As senhas não coincidem",
   path: ["password_confirmation"],
@@ -45,7 +45,7 @@ export default function RegisterPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await authService.register(values);
+      await authService.register({ ...values, type: 'professor' });
       navigate('/login', { state: { message: 'Cadastro realizado com sucesso! Aguarde a aprovação.' } });
     } catch (e: unknown) {
       const error = e as ApiError;
@@ -157,6 +157,8 @@ export default function RegisterPage() {
                     </FormItem>
                   )}
                 />
+
+
 
                 {status && <span className="text-destructive text-sm font-medium">{status}</span>}
 
