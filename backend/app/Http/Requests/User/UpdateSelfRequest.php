@@ -54,6 +54,7 @@ class UpdateSelfRequest extends FormRequest
             ],
             'course_id' => $courseIdRules,
             'lattes_url' => 'nullable|string|max:255',
+            'pq' => 'boolean|nullable',
         ];
     }
 }

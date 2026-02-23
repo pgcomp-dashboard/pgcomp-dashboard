@@ -5,9 +5,10 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { UseFormReturn } from 'react-hook-form';
 import { UserConfigFormValues } from '../types';
 
@@ -122,6 +123,26 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
                 />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="pq"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Bolsista PQ</FormLabel>
+                <div className='text-[0.8rem] text-muted-foreground'>
+                  Indique se você possui bolsa de produtividade em pesquisa.
+                </div>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value || false}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />

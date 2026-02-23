@@ -41,6 +41,7 @@ class StoreProfessorRequest extends FormRequest
                 'sometimes',
                 new Enum(UserCategory::class),
             ],
+            'pq' => 'sometimes|boolean|nullable',
         ];
     }
 }

@@ -126,6 +126,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'admin_status',
         'admin_requested_at',
         'defended_at',
+        'pq',
     ];
 
     protected $hidden = [
@@ -142,7 +143,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'type' => UserType::class,
         'siape' => 'int',
         'course_id' => 'int',
-        'admin_requested_at' => 'datetime'
+        'admin_requested_at' => 'datetime',
+        'pq' => 'boolean',
     ];
 
     protected $attributes = [

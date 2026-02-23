@@ -43,15 +43,17 @@ export function useUserConfig() {
       registration: '',
       siape: 0,
       lattes_url: '',
+      pq: false,
     },
     values: userInfo
       ? {
         name: userInfo.name,
         email: userInfo.email ?? '',
         registration: userInfo.type === 'student' ? String(userInfo.registration) : '',
-        siape: userInfo.type === 'professor' ? userInfo.siape : 0,
+        siape: userInfo.type === 'professor' ? (userInfo as any).siape : 0,
         lattes_url: userInfo.type !== 'manager' ? (userInfo.lattes_url ?? '') : '',
-      }
+        pq: userInfo.type === 'professor' ? (userInfo as any).pq : false,
+      } as any
       : undefined,
     resetOptions: {
       keepDirtyValues: true,

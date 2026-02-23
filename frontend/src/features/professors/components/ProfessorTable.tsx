@@ -108,6 +108,22 @@ export function ProfessorTable({
           </div>
         ),
       }),
+      columnHelper.accessor("pq", {
+        header: () => "PQ",
+        cell: (info) => (
+          <div className="text-center font-medium">
+            {info.getValue() ? (
+              <span className="text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs border border-green-200">
+                Sim
+              </span>
+            ) : (
+              <span className="text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full text-xs border border-muted-foreground/10">
+                Não
+              </span>
+            )}
+          </div>
+        ),
+      }),
       columnHelper.display({
         id: "actions",
         header: () => "Ações",
@@ -167,6 +183,10 @@ export function ProfessorTable({
               </span>
               <span>•</span>
               <span>{professor.is_admin ? "Admin" : "Usuário"}</span>
+              <span>•</span>
+              <span className={professor.pq ? "text-green-600 font-medium" : ""}>
+                {professor.pq ? "PQ" : "Não PQ"}
+              </span>
             </div>
           </div>
         </div>

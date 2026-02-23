@@ -32,6 +32,7 @@ const updateProfessorSchema = z.object({
   lattes_url: z.string().url("URL do Lattes inválida").optional(),
   category: z.enum(["permanente", "colaborador", "visitante"]),
   is_admin: z.boolean(),
+  pq: z.boolean().optional(),
 });
 
 type UpdateProfessorForm = z.infer<typeof updateProfessorSchema>;
@@ -69,6 +70,7 @@ export function ProfessorDialog({
         orcid: "0000-0000-0000-0000", // Manter placeholder do código original
         category: (professor.category?.toLowerCase() as any) || "permanente",
         is_admin: professor.is_admin,
+        pq: professor.pq || false,
       });
     }
   }, [professor, reset]);
@@ -158,6 +160,21 @@ export function ProfessorDialog({
                 )}
               />
               <Label htmlFor="is_admin" className="font-semibold">Administrador</Label>
+            </div>
+
+            <div className="flex items-center space-x-2 py-4">
+              <Controller
+                name="pq"
+                control={control}
+                render={({ field }) => (
+                  <Switch
+                    id="pq"
+                    checked={field.value || false}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label htmlFor="pq" className="font-semibold">Bolsista PQ</Label>
             </div>
           </div>
 

@@ -41,6 +41,7 @@ class UserResource extends JsonResource
             $this->mergeWhen($this->type !== UserType::STUDENT, [
                 'siape' => $this->siape,
                 'is_admin' => $this->is_admin,
+                'pq' => $this->pq,
             ]),
         ];
     }

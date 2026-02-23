@@ -35,6 +35,7 @@ class UpdateProfessorRequest extends FormRequest
                 new Enum(UserCategory::class),
             ],
             'is_admin' => 'sometimes|boolean',
+            'pq' => 'sometimes|boolean|nullable',
         ];
     }
 }

@@ -11,6 +11,7 @@ export type Professor = UserBase & {
   lattes_id: string;
   category: string | null;
   is_admin: boolean;
+  pq: boolean;
   admin_status: 'pending' | 'approved' | 'rejected' | null;
   admin_requested_at: string;
   approved_by_id: number;
