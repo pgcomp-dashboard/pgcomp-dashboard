@@ -57,7 +57,7 @@ export function ProductionHeader({
               <SelectValue placeholder="Selecione um docente" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="own">Minhas Produções</SelectItem>
+                <SelectItem value="own">Minhas produções</SelectItem>
               {professorsList.map((prof) => (
                 <SelectItem key={prof.id} value={prof.id.toString()}>
                   {prof.name}

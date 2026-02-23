@@ -1,7 +1,6 @@
 import { queryClient } from '@/lib/query-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Search } from 'lucide-react';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -19,9 +18,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { productionService } from '@/services/modules/production.service';
-import { publisherService } from '@/services/modules/publisher.service';
-import { Publisher } from '@/types/academic';
 import { normalizeDoi } from '@/utils/doi';
+import { usePublisherSearch } from '../../hooks/usePublisherSearch';
 import { CreateRequestBodyType, createProductionFormSchema } from '../../types';
 
 interface ProductionCreateFormProps {
@@ -30,40 +28,17 @@ interface ProductionCreateFormProps {
 }
 
 export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreateFormProps) {
-  const [ publisher, setPublisher ] = useState<Publisher | null>(null);
-  const [ publisherType, setPublisherType ] = useState('conference');
-  const [ publisherSearch, setPublisherSearch ] = useState<string>('');
-  const [ isSearching, setIsSearching ] = useState(false);
-  const [ searchResults, setSearchResults ] = useState<Publisher[]>([]);
-  const [ showResults, setShowResults ] = useState(false);
-  const isSelectedRef = useRef(false);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
-      if (publisherSearch.length >= 2 && !isSelectedRef.current) {
-        setIsSearching(true);
-        try {
-          const response = await publisherService.getAllPublishers({
-            filter: {
-              search: publisherSearch,
-              publisher_type: publisherType,
-            }
-          });
-          setSearchResults(response.data);
-          setShowResults(true);
-        } catch (err) {
-          console.error('Erro ao buscar veículos:', err);
-        } finally {
-          setIsSearching(false);
-        }
-      } else {
-        setSearchResults([]);
-        setShowResults(false);
-      }
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [ publisherSearch, publisherType ]);
+  const {
+    publisher,
+    publisherType,
+    publisherSearch,
+    isSearching,
+    searchResults,
+    showResults,
+    handleInput,
+    handleTypeChange,
+    handleSelect,
+  } = usePublisherSearch();
 
   const form = useForm<z.infer<typeof createProductionFormSchema>>({
     resolver: zodResolver(createProductionFormSchema),
@@ -99,19 +74,6 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
       console.error('Erro ao criar produção:', err);
     }
   }
-
-  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
-    isSelectedRef.current = false;
-    setPublisherSearch(e.target.value);
-    setPublisher(null);
-  };
-
-  const handleTypeChange = (value: string) => {
-    setPublisherType(value);
-    setPublisher(null);
-    setSearchResults([]);
-    setPublisherSearch('');
-  };
 
   return (
     <div className="flex flex-col w-full items-center">
@@ -216,18 +178,13 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                         key={p.id}
                         type="button"
                         className="w-full text-left px-4 py-2 hover:bg-muted text-sm border-b last:border-0 transition-colors"
-                        onClick={() => {
-                          setPublisher(p);
-                          isSelectedRef.current = true;
-                          setPublisherSearch(p.name);
-                          setShowResults(false);
-                        }}
+                        onClick={() => handleSelect(p)}
                       >
                         <div className="font-medium truncate">{p.name}</div>
                         <div className="text-xs text-muted-foreground flex justify-between">
                           <span>
                             {p.publisher_type === 'journal'
-                              ? `ISSN: ${p.issns?.join(", ") || 'N/A'}`
+                              ? `ISSN: ${p.issns?.join(', ') || 'N/A'}`
                               : `Sigla: ${p.initials || 'N/A'}`}
                           </span>
                           <span className="font-semibold text-primary">
@@ -247,7 +204,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                       <p className="font-medium text-green-800">{publisher.name}</p>
                       <p className="text-xs text-green-700">
                         {publisher.publisher_type === 'journal'
-                          ? `ISSN: ${publisher.issns?.join(", ") || 'N/A'}`
+                          ? `ISSN: ${publisher.issns?.join(', ') || 'N/A'}`
                           : `Sigla: ${publisher.initials || 'N/A'}`}
                       </p>
                     </div>

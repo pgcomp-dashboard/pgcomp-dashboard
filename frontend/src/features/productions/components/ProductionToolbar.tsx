@@ -1,4 +1,10 @@
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -8,8 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Plus } from "lucide-react";
+import { ClearProductionsDialog } from "./ProductionDialogs";
 
-interface ProductionFiltersProps {
+interface ProductionToolbarProps {
   showFilters: boolean;
   setShowFilters: (show: boolean) => void;
   filters: {
@@ -26,18 +34,26 @@ interface ProductionFiltersProps {
   hasActiveFilters: boolean;
   uniqueYears: number[];
   qualisList: any[];
+  // Action button props
+  isAdmin?: boolean;
+  onAdd: (form: "xml" | "doi" | "other") => void;
+  onClearAll: () => Promise<void>;
 }
 
-export function ProductionFilters({
+export function ProductionToolbar({
   filters,
   setFilters,
   clearFilters,
   uniqueYears,
   qualisList,
-}: ProductionFiltersProps) {
+  isAdmin,
+  onAdd,
+  onClearAll,
+}: ProductionToolbarProps) {
   return (
     <div className="w-full">
       <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+        {/* Top row: filter fields + action buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
           <div>
             <Label className="text-xs mb-1.5 block">Título</Label>
@@ -150,7 +166,8 @@ export function ProductionFilters({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 border-t pt-3">
+        {/* Bottom row: clear filters + action buttons */}
+        <div className="flex justify-between items-center border-t pt-3">
           <Button
             variant="ghost"
             size="sm"
@@ -159,6 +176,28 @@ export function ProductionFilters({
           >
             Limpar Filtros
           </Button>
+
+          <div className="flex items-center gap-2">
+            <ClearProductionsDialog onConfirm={onClearAll} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="h-9 bg-primary hover:bg-primary/90 text-sm">
+                  <Plus className="mr-1.5 h-4 w-4" /> Adicionar
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => onAdd("xml")}>
+                  Importar XML Lattes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAdd("doi")}>
+                  Adicionar via DOI
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAdd("other")}>
+                  Adicionar Manualmente
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
     </div>
