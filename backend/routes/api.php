@@ -84,6 +84,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             Route::get('professor/{professorId}/productions', [DashboardController::class, 'professorProduction']);
         });
 
+        Route::get('users/pending', [UserAdminController::class, 'indexPending']);
+        Route::post('users/{user}/approve', [UserAdminController::class, 'approve']);
         Route::apiResource('users', UserAdminController::class);
         Route::apiResource('publishers', PublisherController::class);
         Route::apiResource('stratum_qualis', StratumQualisController::class)->parameters(['stratum_qualis' => 'qualis']);
@@ -100,8 +102,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('admin-request', [AdminApprovalController::class, 'index']);
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
 
-        Route::get('users/pending', [UserAdminController::class, 'indexPending']);
-        Route::post('users/{user}/approve', [UserAdminController::class, 'approve']);
+
 
         Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
 
