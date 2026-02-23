@@ -127,7 +127,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'admin_requested_at',
         'defended_at',
         'pq',
-        'is_approved',
     ];
 
     protected $hidden = [
