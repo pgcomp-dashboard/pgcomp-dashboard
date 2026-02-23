@@ -18,6 +18,7 @@ import './chart.css';
 // Adicionados para expansão com scroll
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
+import useAuth from '@/hooks/auth';
 import { dashboardService } from '@/services/modules/dashboard.service';
 import ChartScrollWrapper from './ChartScrollWrapper';
 
@@ -43,12 +44,14 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' | 'todos' }) {
+  const auth = useAuth();
   const { data, isLoading, error } = useQuery({
     queryKey: [ 'defenses_per_year' ],
     queryFn: async () => {
       const response = await dashboardService.defensesPerYear();
       return Array.isArray(response) ? response : [ response ];
     },
+    enabled: !!auth?.isAdmin,
   });
 
   const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart((data ?? []).length, MAX_VISIBLE_BARS);

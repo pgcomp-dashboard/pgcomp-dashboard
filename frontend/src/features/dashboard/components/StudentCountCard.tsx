@@ -1,3 +1,4 @@
+import useAuth from '@/hooks/auth';
 import { dashboardService } from '@/services/modules/dashboard.service';
 import { useQuery } from '@tanstack/react-query';
 
@@ -6,9 +7,11 @@ export default function StudentCountCard({
 }: {
   studentFilter: string;
 }) {
+  const auth = useAuth();
   const { data, isLoading, error } = useQuery({
     queryKey: [ 'number_of_students' ],
     queryFn: () => dashboardService.numberOfStudents(),
+    enabled: !!auth?.isAdmin,
   });
 
   if (isLoading) return <>Carregando...</>;

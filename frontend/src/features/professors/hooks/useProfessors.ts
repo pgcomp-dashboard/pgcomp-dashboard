@@ -1,3 +1,4 @@
+import useAuth from "@/hooks/auth";
 import { queryClient } from "@/lib/query-client";
 import { professorService } from "@/services/modules/professor.service";
 import { Professor } from "@/types/user";
@@ -6,6 +7,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 export function useProfessors() {
+  const auth = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [perPage, setPerPage] = useState(10);
@@ -14,8 +16,9 @@ export function useProfessors() {
 
   // Fetch all professors once — no pagination, no server-side filters
   const { data, isLoading, error } = useQuery<{ data: Professor[] }, Error>({
-    queryKey: ["professors"],
+    queryKey: ["professors", "full"],
     queryFn: () => professorService.fetchProfessors({ paginate: "false" }),
+    enabled: !!auth?.isAdmin,
   });
 
   const allProfessors = useMemo<Professor[]>(() => data?.data || [], [data]);

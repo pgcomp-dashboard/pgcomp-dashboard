@@ -16,12 +16,14 @@ import {
 // 👇 Importando suporte à expansão com scroll
 import ExpandChartButton from "@/components/ui/ExpandChartButton";
 import { useExpandableChart } from "@/features/dashboard/hooks/useExpandableChart";
+import useAuth from "@/hooks/auth";
 import { dashboardService } from '@/services/modules/dashboard.service';
 import ChartScrollWrapper from "./ChartScrollWrapper";
 
 const MAX_VISIBLE_BARS = 15;
 
 export default function ProductionPerQualisChart() {
+  const auth = useAuth();
   const chartRef = useRef<HTMLDivElement>(null);
   const [, setChartHeight] = useState<number>(0);
 
@@ -38,6 +40,7 @@ export default function ProductionPerQualisChart() {
   } = useQuery({
     queryKey: ["productionPerQualis"],
     queryFn: () => dashboardService.productionPerQualis(),
+    enabled: !!auth?.isAdmin,
   });
 
   const years: number[] = Array.isArray(response?.years) ? response.years : [];

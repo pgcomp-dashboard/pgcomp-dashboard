@@ -14,7 +14,7 @@ interface UseProductionDataOptions {
 }
 
 export function useProductionData({ filters, sortConfig }: UseProductionDataOptions) {
-  const date = new Date();
+
   const auth = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramProfessorId = searchParams.get('professorId');
@@ -30,7 +30,7 @@ export function useProductionData({ filters, sortConfig }: UseProductionDataOpti
   const qualisList = useMemo(() => qualisData || [], [qualisData]);
 
   const { data: professorsData } = useQuery({
-    queryKey: ['professors'],
+    queryKey: ['professors', 'full'],
     queryFn: () => professorService.fetchProfessors({ paginate: 'false' }),
     enabled: !!auth?.isAdmin,
   });
@@ -44,6 +44,7 @@ export function useProductionData({ filters, sortConfig }: UseProductionDataOpti
       }
       return productionService.getProductions();
     },
+    enabled: !!auth?.isAuthenticated,
   });
 
   // ── Derived data ──────────────────────────────────────────────────────────
@@ -64,10 +65,10 @@ export function useProductionData({ filters, sortConfig }: UseProductionDataOpti
 
   const uniqueYears = useMemo(() => {
     const years = new Set(baseProductions.map((p) => p.year));
-    const currentYear = date.getFullYear();
+    const currentYear = new Date().getFullYear();
     for (let y = currentYear - 10; y <= currentYear; y++) years.add(y);
     return Array.from(years).sort((a, b) => b - a);
-  }, [baseProductions, date]);
+  }, [baseProductions]);
 
   const filteredAndSortedProductions = useMemo(() => {
     let result = [...baseProductions];
@@ -106,11 +107,11 @@ export function useProductionData({ filters, sortConfig }: UseProductionDataOpti
   }, [baseProductions, qualisList, filters, sortConfig]);
 
   const totalScore = useMemo(() => {
-    const currentYear = date.getFullYear();
+    const currentYear = new Date().getFullYear();
     return baseProductions
       .filter((p) => p.year >= currentYear - 4 && p.year <= currentYear - 1)
       .reduce((acc, p) => acc + (qualisMap.get(p.publisher?.stratum_qualis?.id ?? -1)?.score ?? 0), 0);
-  }, [baseProductions, qualisMap, date]);
+  }, [baseProductions, qualisMap]);
 
   const filteredScore = useMemo(() =>
     filteredAndSortedProductions.reduce(

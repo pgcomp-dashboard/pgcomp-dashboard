@@ -1,6 +1,7 @@
 import { ChartContainer } from '@/components/ui/chart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
+import useAuth from '@/hooks/auth';
 import { dashboardService } from '@/services/modules/dashboard.service';
 import { colorFromName } from '@/utils/color';
 import { useQuery } from '@tanstack/react-query';
@@ -44,11 +45,13 @@ const CustomTooltip = ({
 };
 
 export default function AllProductionsPerYear() {
+  const auth = useAuth();
   const [ publisherType, setPublisherType ] = useState<'journal' | 'conference' | undefined>(undefined);
 
   const { data: productions, error, isLoading } = useQuery({
     queryKey: [ 'totalProductionsPerYear', publisherType ],
     queryFn: () => dashboardService.totalProductionsPerYear(publisherType),
+    enabled: !!auth?.isAdmin,
   });
 
   if (isLoading) return <>Carregando...</>;

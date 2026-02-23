@@ -18,7 +18,7 @@ import {
   Row,
   SortingState,
 } from "@tanstack/react-table";
-import { Eye, FileText, SquarePenIcon, Trash } from "lucide-react";
+import { Eye, FileText, SquarePenIcon, Trash, UserRoundX } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router";
 
@@ -136,7 +136,7 @@ export function ProfessorTable({
               onClick={() => onDelete(info.row.original)}
               title="Excluir"
             >
-              <Trash className="h-5 w-5" />
+              <UserRoundX className="h-5 w-5" />
             </Button>
           </div>
         ),

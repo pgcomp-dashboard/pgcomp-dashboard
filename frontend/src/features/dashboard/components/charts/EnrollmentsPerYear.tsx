@@ -1,6 +1,7 @@
 import { ChartContainer } from '@/components/ui/chart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
+import useAuth from '@/hooks/auth';
 import { dashboardService } from '@/services/modules/dashboard.service';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -41,12 +42,14 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' | 'todos' }) {
+  const auth = useAuth();
   const { data, isLoading, error } = useQuery({
     queryKey: [ 'enrollments_per_year' ],
     queryFn: async () => {
       const response = await dashboardService.enrollmentsPerYear();
       return Array.isArray(response) ? response : [ response ];
     },
+    enabled: !!auth?.isAdmin,
   });
 
   const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart((data ?? []).length, MAX_VISIBLE_BARS);

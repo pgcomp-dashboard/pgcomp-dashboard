@@ -29,6 +29,7 @@ import './chart.css';
 // Importando suporte à expansão com scroll
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
+import useAuth from '@/hooks/auth';
 import { dashboardService } from '@/services/modules/dashboard.service';
 import ChartScrollWrapper from './ChartScrollWrapper';
 
@@ -58,6 +59,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 export default function ProfessorProductionPerYear() {
+  const auth = useAuth();
   const [ currentProfessorId, setCurrentProfessorId ] = useState<number | null>(null);
   const [ period, setPeriod ] = useState<{
     from?: number,
@@ -68,8 +70,9 @@ export default function ProfessorProductionPerYear() {
   });
 
   const { data: professors, error: professorsError } = useQuery({
-    queryKey: [ 'professors' ],
+    queryKey: ['professors', 'dashboard'],
     queryFn: () => dashboardService.professors(),
+    enabled: !!auth?.isAdmin,
   });
 
   const { data: productions, error } = useQuery({

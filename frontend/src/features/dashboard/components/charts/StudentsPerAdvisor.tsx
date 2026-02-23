@@ -25,6 +25,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, Di
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
+import useAuth from '@/hooks/auth';
 
 import { dashboardService } from '@/services/modules/dashboard.service';
 import { User } from 'lucide-react';
@@ -59,6 +60,7 @@ const CustomTooltip = ({
 type StudentsPerAdvisorFilter = 'mestrando' | 'doutorando' | 'completed' | undefined;
 
 export default function StudentsPerAdvisorChart() {
+  const auth = useAuth();
   const [ filter, setFilter ] = useState<StudentsPerAdvisorFilter>(undefined);
   const [ visibleProfessors, setVisibleProfessors ] = useState(new Map<number, boolean>());
 
@@ -67,11 +69,13 @@ export default function StudentsPerAdvisorChart() {
     queryFn: async () => {
       return dashboardService.totalStudentsPerAdvisor(filter);
     },
+    enabled: !!auth?.isAdmin,
   });
 
   const { data: professors, error: professorsError } = useQuery({
-    queryKey: [ 'professors' ],
+    queryKey: ['professors', 'dashboard'],
     queryFn: () => dashboardService.professors(),
+    enabled: !!auth?.isAdmin,
   });
 
   const chartData = Object.entries(query.data ?? {})
