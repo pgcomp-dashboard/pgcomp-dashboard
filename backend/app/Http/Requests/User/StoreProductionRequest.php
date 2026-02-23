@@ -29,6 +29,7 @@ class StoreProductionRequest extends FormRequest
             'publisher_type' => ['required', new Enum(PublisherType::class)],
             'publisher_id' => 'nullable|exists:publishers,id',
             'doi' => 'nullable|string|unique:productions,doi',
+            'nature' => ['nullable', 'string'],
             'source' => ['sometimes', new Enum(ProductionSource::class)],
         ];
     }

@@ -24,6 +24,7 @@ class ProductionResource extends JsonResource
             'doi' => $this->doi,
             'source' => $this->source,
             'home_page' =>$this->home_page,
+            'nature' => $this->nature,
             'publisher' => $this->whenLoaded('publisher'),
         ];
     }

@@ -29,6 +29,7 @@ use Illuminate\Validation\Rule;
  * @property string|null $doi
  * @property string|null $source
  * @property string|null $home_page
+ * @property string|null $nature
  * @property-read Collection|User[] $isWroteBy
  * @property-read int|null $is_wrote_by_count
  * @property-read Model|Eloquent $publisher
@@ -64,7 +65,8 @@ class Production extends Model
         'doi',
         'source',
         'stratum_qualis_id',
-        'home_page'
+        'home_page',
+        'nature'
     ];
 
     protected $casts = [

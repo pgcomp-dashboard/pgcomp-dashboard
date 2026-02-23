@@ -34,6 +34,7 @@ class LattesZipXml
      *          publisher_id: string,
      *          publisher_type: string,
      *          doi: string,
+     *          nature: string,
      *          sequence_number: string
      *      }>
      * }
@@ -80,6 +81,7 @@ class LattesZipXml
             }
             $issn = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['ISSN'];
             $publisher_name = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['TITULO-DO-PERIODICO-OU-REVISTA'];
+            $nature = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['NATUREZA'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
             $publisher_type = PublisherType::JOURNAL->value;
@@ -92,7 +94,7 @@ class LattesZipXml
                 })->first()?->id;
             }
 
-            $production = compact('home_page', 'source', 'title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number');
+            $production = compact('home_page', 'source', 'title', 'year', 'publisher_id', 'publisher_type', 'doi', 'nature', 'sequence_number');
             $data['productions'][] = $production;
         }
 
@@ -126,6 +128,7 @@ class LattesZipXml
                 $home_page = str_ireplace('doi:', 'http://dx.doi.org/', $home_page);
             }
             $conferenceName = (string)$item->{'DETALHAMENTO-DO-TRABALHO'}->attributes()['NOME-DO-EVENTO'];
+            $nature = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['NATUREZA'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
             $publisher_type = PublisherType::CONFERENCE->value;
@@ -135,7 +138,7 @@ class LattesZipXml
                 $publisher_id = Publishers::whereLike('name' ,$conferenceName)->first()?->id;
             }
 
-            $production = compact('home_page', 'source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'sequence_number', 'issn', 'isbn');
+            $production = compact('home_page', 'source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'nature', 'sequence_number', 'issn', 'isbn');
             $data['productions'][] = $production;
         }
 

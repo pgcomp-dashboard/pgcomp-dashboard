@@ -34,6 +34,7 @@ class UpdateProductionRequest extends FormRequest
                 'string',
                 Rule::unique('productions', 'doi')->ignore($this->route('production') ?? $this->route('id')),
             ],
+            'nature' => ['nullable', 'string'],
             'source' => ['sometimes', new Enum(ProductionSource::class)],
         ];
     }

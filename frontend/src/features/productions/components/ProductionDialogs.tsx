@@ -137,6 +137,19 @@ export function ProductionDialogs({
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={editForm.control}
+                    name="nature"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Natureza</FormLabel>
+                        <FormControl>
+                          <Input type="text" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 <div className="space-y-3 p-4 bg-muted/30 rounded-lg relative">

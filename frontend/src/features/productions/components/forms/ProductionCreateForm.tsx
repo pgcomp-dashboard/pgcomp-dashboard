@@ -45,6 +45,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
     defaultValues: {
       title: '',
       year: 0,
+      nature: '',
     },
   });
 
@@ -58,6 +59,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
       publisher_type: publisher?.publisher_type || null,
       publisher_id: publisher?.id || null,
       doi: normalizeDoi(values.doi),
+      nature: values.nature || null,
     };
 
     try {
@@ -143,6 +145,23 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                     <Input
                       type="text"
                       placeholder="Ex: 10.1590/xyz or http://dx.doi.org/..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="nature"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Natureza</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Ex: Completo, Resumo, etc."
                       {...field}
                     />
                   </FormControl>

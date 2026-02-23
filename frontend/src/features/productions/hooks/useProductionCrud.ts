@@ -25,6 +25,7 @@ export function useProductionCrud(selectedProfessorId: string) {
       title: production.title,
       year: production.year,
       doi: production.doi || '',
+      nature: production.nature || '',
     });
     publisherSearch.reset(
       production.publisher || null,
@@ -45,6 +46,7 @@ export function useProductionCrud(selectedProfessorId: string) {
       publisher_id: publisherSearch.publisher?.id || null,
       stratum_qualis_id: publisherSearch.publisher?.stratum_qualis_id || null,
       doi: normalizeDoi(values.doi),
+      nature: values.nature || null,
     };
 
     try {

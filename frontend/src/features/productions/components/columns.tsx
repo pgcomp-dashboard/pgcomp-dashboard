@@ -61,7 +61,7 @@ export const getProductionColumns = ({
       </div>
     ),
     meta: {
-      className: "w-[25%]",
+      className: "w-[20%]",
     },
   }),
   columnHelper.accessor((row) => row.publisher?.name, {
@@ -78,7 +78,21 @@ export const getProductionColumns = ({
       </div>
     ),
     meta: {
-      className: "w-[20%]",
+      className: "w-[15%]",
+    },
+  }),
+    columnHelper.accessor("nature", {
+      id: "natureza",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Natureza" />
+      ),
+      cell: (info) => (
+        <div className="text-center text-sm capitalize">
+          {info.getValue() || "--"}
+        </div>
+      ),
+      meta: {
+        className: "w-[10%]",
     },
   }),
   columnHelper.accessor("year", {

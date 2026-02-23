@@ -47,6 +47,7 @@ export interface Production {
   sequence_number: number | null;
   doi: string | null;
   home_page: string | null;
+  nature: string | null;
   publisher: Publisher | null;
   source: string;
 }

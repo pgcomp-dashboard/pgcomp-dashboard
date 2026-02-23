@@ -9,6 +9,7 @@ export interface RequestBodyType {
   publisher_id: number | null;
   stratum_qualis_id: number | null;
   doi: string | null;
+  nature: string | null;
 }
 
 export interface CreateRequestBodyType {
@@ -17,16 +18,19 @@ export interface CreateRequestBodyType {
   publisher_type: string | null;
   publisher_id: number | null;
   doi: string | null;
+  nature: string | null;
 }
 
 export const updateProductionFormSchema = z.object({
   title: z.string().min(1, 'Campo obrigatório'),
   year: z.coerce.number().min(1900, 'Ano inválido'),
   doi: z.string().optional(),
+  nature: z.string().optional(),
 });
 
 export const createProductionFormSchema = z.object({
   title: z.string().min(1, 'Campo obrigatório'),
   year: z.coerce.number().min(1900, 'Ano inválido'),
   doi: z.string().optional(),
+  nature: z.string().optional(),
 });
