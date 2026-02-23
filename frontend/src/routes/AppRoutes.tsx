@@ -35,10 +35,9 @@ export function AppRoutes() {
       <Route path="forgot-password" element={<ForgotPasswordPage />} />
       <Route path="reset-password" element={<ResetPasswordPage />} />
       <Route path="register" element={<RegisterPage />} />
-      <Route path="waiting-approval" element={<WaitingApprovalPage />} />
-
       {/* Rotas Protegidas (Geral) */}
       <Route element={<EnsureAuthenticated />}>
+        <Route path="waiting-approval" element={<WaitingApprovalPage />} />
         <Route element={<EnsureIsApproved />}>
           <Route
             element={
