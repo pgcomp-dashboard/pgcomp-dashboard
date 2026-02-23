@@ -106,12 +106,7 @@ export function useProductionData({ filters, sortConfig }: UseProductionDataOpti
     return result;
   }, [baseProductions, qualisList, filters, sortConfig]);
 
-  const totalScore = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    return baseProductions
-      .filter((p) => p.year >= currentYear - 4 && p.year <= currentYear - 1)
-      .reduce((acc, p) => acc + (qualisMap.get(p.publisher?.stratum_qualis?.id ?? -1)?.score ?? 0), 0);
-  }, [baseProductions, qualisMap]);
+
 
   const filteredScore = useMemo(() =>
     filteredAndSortedProductions.reduce(
@@ -141,7 +136,6 @@ export function useProductionData({ filters, sortConfig }: UseProductionDataOpti
     uniqueYears,
     baseProductions,
     filteredAndSortedProductions,
-    totalScore,
     filteredScore,
     selectedProfessorId,
     handleProfessorChange,

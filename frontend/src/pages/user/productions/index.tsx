@@ -27,7 +27,6 @@ export default function ProductionsPage() {
     professorsList,
     uniqueYears,
     filteredAndSortedProductions,
-    totalScore,
     filteredScore,
     selectedProfessorId,
     handleProfessorChange,
@@ -42,8 +41,7 @@ export default function ProductionsPage() {
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto px-4 py-8">
       <ProductionHeader
         isAdmin={auth?.isAdmin}
-        totalScore={totalScore}
-        filteredScore={filteredScore}
+        score={filteredScore}
         hasActiveFilters={filterState.hasActiveFilters}
         isLoading={isLoading}
         isPending={isPending}
