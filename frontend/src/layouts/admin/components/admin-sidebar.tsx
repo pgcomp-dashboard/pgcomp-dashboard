@@ -20,7 +20,9 @@ export function AdminSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b h-18">
         <div className="flex items-center justify-center gap-2 px-2">
-          <AppLogo className="w-32" />
+          <Link to="/">
+            <AppLogo className="w-32" />
+          </Link>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -75,7 +77,7 @@ export function AdminSidebar() {
                 >
                   <Link to="/admin/publishers">
                     <BookOpen className="h-4 w-4" />
-                    <span>Periódicos/Conferências</span>
+                    <span>Veículos</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
