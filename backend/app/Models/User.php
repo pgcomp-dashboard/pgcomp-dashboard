@@ -127,6 +127,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'admin_requested_at',
         'defended_at',
         'pq',
+        'is_approved',
     ];
 
     protected $hidden = [
@@ -145,6 +146,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'course_id' => 'int',
         'admin_requested_at' => 'datetime',
         'pq' => 'boolean',
+        'is_approved' => 'boolean',
     ];
 
     protected $attributes = [
@@ -310,5 +312,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function scopeStudents($query)
     {
         return $query->where('users.type', UserType::STUDENT);
+    }
+
+    public function scopeOnlyApproved($query)
+    {
+        return $query->where('is_approved', true);
     }
 }

@@ -16,9 +16,30 @@ class UserService
     public function listAll()
     {
         return QueryBuilder::for(User::class)
-            ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
-            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
+            ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved'])
+            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved'])
             ->paginate(request()->input('per_page', 15));
+    }
+
+    /**
+     * List users pending approval.
+     */
+    public function listPendingApproval()
+    {
+        return QueryBuilder::for(User::where('is_approved', false))
+            ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category'])
+            ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category'])
+            ->paginate(request()->input('per_page', 15));
+    }
+
+    /**
+     * Approve a user.
+     */
+    public function approve(User $user): User
+    {
+        $user->is_approved = true;
+        $user->save();
+        return $user;
     }
 
     /**

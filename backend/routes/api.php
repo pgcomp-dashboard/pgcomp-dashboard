@@ -48,7 +48,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Logged group routes
 Route::group(['middleware' => ['auth:sanctum']], function () {
     // Login general access routes
-    Route::group(['as' => 'portal.', 'prefix' => 'portal'], function () {
+    Route::group(['as' => 'portal.', 'prefix' => 'portal', 'middleware' => ['approved']], function () {
         Route::get('journal', [PublisherController::class, 'journalByIssn']);
         Route::get('conference', [PublisherController::class, 'conferenceByInitials']);
         Route::apiResource('stratum_qualis', StratumQualisController::class)->only(['index']);
@@ -67,7 +67,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     // Admin group routes
-    Route::group(['as' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class]], function () {
+    Route::group(['as' => 'admin.', 'prefix' => 'admin', 'middleware' => [IsAdmin::class, 'approved']], function () {
         // Dashboard Routes
         Route::group(['name' => 'dashboard.', 'prefix' => 'dashboard'], function () {
             // TODO: Dar nomes melhores e mais padrao
@@ -99,6 +99,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
         Route::get('admin-request', [AdminApprovalController::class, 'index']);
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
+
+        Route::get('users/pending', [UserAdminController::class, 'indexPending']);
+        Route::post('users/{user}/approve', [UserAdminController::class, 'approve']);
+
         Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
 
 

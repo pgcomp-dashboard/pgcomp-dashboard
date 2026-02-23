@@ -58,4 +58,17 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User deleted successfully'], 204);
     }
+
+    public function indexPending(IndexUserRequest $request): AnonymousResourceCollection
+    {
+        $users = $this->userService->listPendingApproval();
+        return UserResource::collection($users);
+    }
+
+    public function approve(int $id): UserResource
+    {
+        $user = $this->userService->find($id);
+        $user = $this->userService->approve($user);
+        return new UserResource($user);
+    }
 }
