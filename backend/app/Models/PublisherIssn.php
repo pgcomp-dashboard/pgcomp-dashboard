@@ -13,6 +13,11 @@ class PublisherIssn extends Model
         'issn',
     ];
 
+    public function setIssnAttribute($value)
+    {
+        $this->attributes['issn'] = str_replace('-', '', (string)$value);
+    }
+
     public function publisher(): BelongsTo
     {
         return $this->belongsTo(Publishers::class, 'publishers_id');

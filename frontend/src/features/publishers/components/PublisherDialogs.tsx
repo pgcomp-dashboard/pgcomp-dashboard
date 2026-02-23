@@ -111,8 +111,9 @@ export function PublisherDialogs({
   const addTag = () => {
     if (!tagInput.trim()) return;
     const currentTags = form.getValues('issns') || [];
-    if (!currentTags.includes(tagInput.trim())) {
-      form.setValue('issns', [...currentTags, tagInput.trim()]);
+    const cleanIssn = tagInput.trim().replace(/-/g, "");
+    if (!currentTags.includes(cleanIssn)) {
+      form.setValue("issns", [...currentTags, cleanIssn]);
     }
     setTagInput('');
   };
@@ -190,7 +191,7 @@ export function PublisherDialogs({
                             style={{ width: `${Math.max(tag.length, 5)}ch` }}
                             defaultValue={tag}
                             onBlur={(e) => {
-                              const newTag = e.target.value.trim();
+                              const newTag = e.target.value.trim().replace(/-/g, "");
                               const tags = form.getValues('issns') || [];
                               if (newTag) {
                                 tags[idx] = newTag;
