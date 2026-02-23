@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { PublisherDeleteDialog } from "@/features/publishers/components/PublisherDeleteDialog";
@@ -38,8 +38,12 @@ export default function PublishersPage() {
   const [isPublisherDialogOpen, setIsPublisherDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(null);
-  const [publisherToDelete, setPublisherToDelete] = useState<Publisher | null>(null);
+  const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(
+    null,
+  );
+  const [publisherToDelete, setPublisherToDelete] = useState<Publisher | null>(
+    null,
+  );
 
   const handleAdd = () => {
     setEditingPublisher(null);
@@ -58,7 +62,10 @@ export default function PublishersPage() {
 
   const handleSave = async (values: any) => {
     if (editingPublisher) {
-      await updateMutation.mutateAsync({ id: editingPublisher.id, data: values });
+      await updateMutation.mutateAsync({
+        id: editingPublisher.id,
+        data: values,
+      });
     } else {
       await createMutation.mutateAsync(values);
     }
@@ -71,7 +78,10 @@ export default function PublishersPage() {
     }
   };
 
-  const handleImport = async (formData: FormData, type: 'journal' | 'conference') => {
+  const handleImport = async (
+    formData: FormData,
+    type: "journal" | "conference",
+  ) => {
     await importMutation.mutateAsync({ formData, type });
   };
 
@@ -79,8 +89,12 @@ export default function PublishersPage() {
     <div className="space-y-6">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Periódicos e Conferências</h1>
-          <p className="text-muted-foreground">Gerencie os veículos de publicação cadastrados.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Veículos
+          </h1>
+          <p className="text-muted-foreground">
+            Gerencie os veículos de publicação cadastrados.
+          </p>
         </div>
 
         <div className="flex gap-2">
