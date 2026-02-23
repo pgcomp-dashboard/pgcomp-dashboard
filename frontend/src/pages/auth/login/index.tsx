@@ -1,5 +1,5 @@
-import AppLogo from '@/components/AppLogo';
-import { Button } from '@/components/ui/button';
+import AppLogo from "@/components/AppLogo";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -8,26 +8,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import useAuth from '@/hooks/auth';
-import { authService } from '@/services/modules/auth.service';
-import { ApiError } from '@/types/common';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router';
-import { z } from 'zod';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import useAuth from "@/hooks/auth";
+import { authService } from "@/services/modules/auth.service";
+import { ApiError } from "@/types/common";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
+import { z } from "zod";
 
 export interface User {
-  name: string,
-  role: string
+  name: string;
+  role: string;
+  is_approved: boolean;
 }
 
 const formSchema = z.object({
-  email: z.string().email('Email inválido!'),
-  password: z.string().min(1, 'Senha muito curta!'),
+  email: z.string().email("Email inválido!"),
+  password: z.string().min(1, "Senha muito curta!"),
 });
 
 export default function LoginPage() {
@@ -39,8 +40,8 @@ export default function LoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
@@ -48,14 +49,18 @@ export default function LoginPage() {
     try {
       const response = await authService.login(values.email, values.password);
 
-      const user: User = { name:response.name, role:response.role };
+      const user: User = {
+        name: response.name,
+        role: response.role,
+        is_approved: response.is_approved,
+      };
 
       auth?.login(response.token, user);
 
-      navigate('/admin');
+      navigate("/admin");
     } catch (e: unknown) {
       const error = e as ApiError;
-      console.error('Failed to login', error);
+      console.error("Failed to login", error);
       setStatus(error.errors[0].description);
     }
   }
@@ -75,7 +80,9 @@ export default function LoginPage() {
             </Link>
 
             <div className="space-y-1 sm:space-y-2 text-center">
-              <h1 className="text-lg sm:text-xl font-medium">Entrar na sua conta</h1>
+              <h1 className="text-lg sm:text-xl font-medium">
+                Entrar na sua conta
+              </h1>
               <p className="text-muted-foreground text-center text-xs sm:text-sm">
                 Informe os seus dados para entrar na sua conta
               </p>
@@ -125,12 +132,20 @@ export default function LoginPage() {
                               onClick={() => setShowPassword(!showPassword)}
                             >
                               {showPassword ? (
-                                <EyeOff className="text-muted-foreground" aria-hidden="true" />
+                                <EyeOff
+                                  className="text-muted-foreground"
+                                  aria-hidden="true"
+                                />
                               ) : (
-                                <Eye className="text-muted-foreground" aria-hidden="true" />
+                                <Eye
+                                  className="text-muted-foreground"
+                                  aria-hidden="true"
+                                />
                               )}
                               <span className="sr-only">
-                                {showPassword ? "Esconder senha" : "Mostrar senha"}
+                                {showPassword
+                                  ? "Esconder senha"
+                                  : "Mostrar senha"}
                               </span>
                             </Button>
                           </div>
@@ -143,10 +158,19 @@ export default function LoginPage() {
                     )}
                   />
                 </div>
-                {status && <span className="my-2 text-destructive">{status}</span>}
-                <Button type="submit" disabled={form.formState.isSubmitting}>Entrar</Button>
-                <div className='text-center'>
-                  <Link to="/forgot-password" ><u>Esqueceu sua senha?</u></Link>
+                {status && (
+                  <span className="my-2 text-destructive">{status}</span>
+                )}
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  Entrar
+                </Button>
+                <div className="flex flex-col text-center gap-4">
+                  <Link to="/register">
+                    <u>Não tem uma conta?</u>
+                  </Link>
+                  <Link to="/forgot-password">
+                    <u>Esqueceu sua senha?</u>
+                  </Link>
                 </div>
               </div>
             </form>
