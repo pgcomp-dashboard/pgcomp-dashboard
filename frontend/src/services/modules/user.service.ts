@@ -34,4 +34,12 @@ export const userService = {
     );
     return response.data;
   },
+
+  async getPendingApprovals() {
+    return await apiClient.get<{ data: User[] }>("/api/admin/users/pending");
+  },
+
+  async approveUser(userId: number) {
+    return await apiClient.post(`/api/admin/users/${userId}/approve`, {});
+  },
 };

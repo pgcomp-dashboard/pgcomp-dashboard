@@ -1,6 +1,7 @@
 export type UserBase = {
   id: number;
   name: string;
+  is_approved: boolean;
 };
 
 export type Professor = UserBase & {

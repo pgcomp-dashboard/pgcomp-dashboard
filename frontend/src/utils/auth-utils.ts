@@ -12,5 +12,6 @@ export const normalizeUser = (data: any): User => {
       data.role === "admin" || data.is_admin === true || data.is_admin === 1
         ? "admin"
         : "user",
+    is_approved: data.is_approved === true || data.is_approved === 1,
   };
 };

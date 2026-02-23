@@ -10,6 +10,7 @@ const USER_INFO_STORAGE_KEY = "user-info";
 export interface User {
   name: string;
   role: string;
+  is_approved: boolean;
 }
 
 export interface AuthContextType {

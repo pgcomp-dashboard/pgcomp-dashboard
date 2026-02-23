@@ -17,4 +17,8 @@ export const authService = {
   async updateUserPassword(body: RequestBodyType) {
     return apiClient.put<{ status: string, message: string }>('/api/portal/user/update', body);
   },
+
+  async register(body: RequestBodyType) {
+    return apiClient.post('/api/register', body);
+  },
 };
