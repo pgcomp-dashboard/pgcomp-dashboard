@@ -121,7 +121,8 @@ export default function UserApprovalPage() {
           Aprovação de Cadastros
         </h1>
         <p className="text-muted-foreground mt-1">
-          Gerencie os novos usuários que se cadastraram no sistema e aguardam liberação.
+          Gerencie os novos usuários que se cadastraram no sistema e aguardam
+          liberação.
         </p>
       </header>
 
@@ -130,6 +131,7 @@ export default function UserApprovalPage() {
         data={users}
         renderMobileCard={renderMobileCard}
         emptyMessage="Nenhum cadastro pendente de aprovação."
+        pagination={{ pageIndex: 0, pageSize: users.length || 9999 }}
       />
     </div>
   );

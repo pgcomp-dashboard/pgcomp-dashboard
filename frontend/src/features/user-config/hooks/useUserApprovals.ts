@@ -8,7 +8,7 @@ export function useUserApprovals() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["pending-approvals"],
     queryFn: async () => {
-      const response = await userService.getPendingApprovals();
+      const response = await userService.getPendingApprovals({ paginate: "false" });
       return response.data;
     },
   });

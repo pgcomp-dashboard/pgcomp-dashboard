@@ -26,10 +26,15 @@ class UserService
      */
     public function listPendingApproval()
     {
-        return QueryBuilder::for(User::professors()->where('is_approved', false))
+        $query = QueryBuilder::for(User::professors()->where('is_approved', false))
             ->allowedFilters(['name', 'email', 'siape', 'category'])
-            ->allowedSorts(['name', 'email', 'siape', 'category'])
-            ->paginate(request()->input('per_page', 15));
+            ->allowedSorts(['name', 'email', 'siape', 'category']);
+
+        if (request()->query('paginate') === 'false') {
+            return $query->get();
+        }
+
+        return  $query->paginate(request()->input('per_page', 15));
     }
 
     /**

@@ -1,5 +1,5 @@
 import { Ranking } from "@/types/academic";
-import { RequestBodyType } from "@/types/common";
+import { PaginatedResponse, RequestBodyType } from "@/types/common";
 import { Professor, User } from "@/types/user";
 import { apiClient } from "../http-client";
 
@@ -35,8 +35,11 @@ export const userService = {
     return response.data;
   },
 
-  async getPendingApprovals() {
-    return await apiClient.get<{ data: User[] }>("/api/admin/users/pending");
+  async getPendingApprovals(params: Record<string, any> = {}) {
+    return await apiClient.get<PaginatedResponse<User>>(
+      "/api/admin/users/pending",
+      params,
+    );
   },
 
   async approveUser(userId: number) {
