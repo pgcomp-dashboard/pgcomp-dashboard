@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
     isLoading,
     isAuthenticated: !!token && !!user,
     isAdmin: user?.role === "admin",
-    isManager: user?.role === "admin" || user?.role === "manager" || user?.type === "manager",
+    isManager: user?.type === "manager",
     login,
     logout,
   };
