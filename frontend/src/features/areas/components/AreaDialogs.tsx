@@ -23,9 +23,9 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useFormErrorToast } from "@/hooks/useFormErrorToast";
 import { Area } from "@/types/academic";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -58,6 +58,8 @@ export function AreaFormDialog({
       name: "",
     },
   });
+
+  useFormErrorToast(form.formState.errors);
 
   useEffect(() => {
     if (open) {
@@ -102,7 +104,6 @@ export function AreaFormDialog({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />

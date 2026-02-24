@@ -83,7 +83,7 @@ export default function ProfessorsPage() {
       <Tabs defaultValue="list">
         <TabsList>
           <TabsTrigger value="list">Lista de Docentes</TabsTrigger>
-          <TabsTrigger value="requests">Solicitações de Admin</TabsTrigger>
+          <TabsTrigger value="requests">Solicitações</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="flex flex-col gap-4 mt-4">
@@ -106,9 +106,12 @@ export default function ProfessorsPage() {
 
         <TabsContent value="requests" className="flex flex-col gap-4 mt-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Solicitações de Acesso</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Solicitações de Acesso
+            </h1>
             <p className="text-muted-foreground">
-              Gerencie novos cadastros e solicitações de privilégios de administrador.
+              Gerencie novos cadastros e solicitações de privilégios de
+              administrador.
             </p>
           </div>
           <UnifiedApprovalTable />

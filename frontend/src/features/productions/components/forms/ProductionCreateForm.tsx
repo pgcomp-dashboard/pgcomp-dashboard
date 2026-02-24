@@ -12,11 +12,11 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { productionService } from '@/services/modules/production.service';
 import { normalizeDoi } from '@/utils/doi';
 import { usePublisherSearch } from '../../hooks/usePublisherSearch';
@@ -48,6 +48,8 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
       nature: '',
     },
   });
+
+  useFormErrorToast(form.formState.errors);
 
   async function onSubmit(values: z.infer<typeof createProductionFormSchema>) {
     const parsedYear = parseFloat(values.year.toString());
@@ -118,7 +120,6 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                   <FormControl>
                     <Input type="text" placeholder="Digite o título" {...field} />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -131,7 +132,6 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                   <FormControl>
                     <Input type="number" placeholder="2024" {...field} />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -148,7 +148,6 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -165,7 +164,6 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />

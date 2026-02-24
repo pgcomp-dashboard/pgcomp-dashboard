@@ -28,9 +28,9 @@ interface ProfessorTableProps {
   setSearchTerm: (term: string) => void;
   categoryFilter: string;
   setCategoryFilter: (category: string) => void;
-  sortField: "name" | "category" | null;
+  sortField: "name" | "category" | "is_admin" | "pq" | null;
   sortOrder: "asc" | "desc";
-  onSort: (field: "name" | "category") => void;
+  onSort: (field: "name" | "category" | "is_admin" | "pq") => void;
   onViewDetails: (professor: Professor) => void;
   onViewProductions: (id: number) => void;
   onDelete: (professor: Professor) => void;
@@ -63,7 +63,13 @@ export function ProfessorTable({
         : updaterOrValue;
 
     const firstSort = newSorting[0];
-    if (firstSort && (firstSort.id === "name" || firstSort.id === "category")) {
+    if (
+      firstSort &&
+      (firstSort.id === "name" ||
+        firstSort.id === "category" ||
+        firstSort.id === "is_admin" ||
+        firstSort.id === "pq")
+    ) {
       onSort(firstSort.id);
     }
   };
@@ -101,7 +107,9 @@ export function ProfessorTable({
         ),
       }),
       columnHelper.accessor("is_admin", {
-        header: () => "Administrador",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Administrador" />
+        ),
         cell: (info) => (
           <div className="text-center">
             {info.getValue() ? "Administrador" : "Usuário"}
@@ -109,7 +117,9 @@ export function ProfessorTable({
         ),
       }),
       columnHelper.accessor("pq", {
-        header: () => "PQ",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="PQ" />
+        ),
         cell: (info) => (
           <div className="text-center font-medium">
             {info.getValue() ? (

@@ -7,9 +7,9 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { authService } from '@/services/modules/auth.service';
 import { RequestBodyType } from '@/types/common';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +30,8 @@ export default function ForgotPasswordPage() {
       email: '',
     },
   });
+
+  useFormErrorToast(form.formState.errors);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(JSON.stringify(values));
@@ -55,8 +57,8 @@ export default function ForgotPasswordPage() {
               to="/"
               className="flex flex-col items-center gap-2 font-medium"
             >
-              <div className="mb-4 sm:mb-8 flex h-8 sm:h-9 items-center justify-center rounded-md">
-                <AppLogo className="h-8 sm:h-auto" />
+              <div className="mb-4 sm:mb-8 flex items-center justify-center">
+                <AppLogo />
               </div>
             </Link>
 
@@ -83,7 +85,6 @@ export default function ForgotPasswordPage() {
                       <FormDescription>
                         Digite o e-mail da conta que deseja recuperar
                       </FormDescription>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
