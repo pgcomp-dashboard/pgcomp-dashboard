@@ -198,8 +198,6 @@ export function ProductionToolbar({
             </div>
           </div>
         </div>
-
-        {/* Bottom row: clear filters + action buttons */}
       </div>
     </div>
   );

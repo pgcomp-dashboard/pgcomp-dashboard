@@ -44,7 +44,7 @@ export function AdminSidebar() {
                 >
                   <Link to="/admin/dashboard" data-cy="link-areas">
                     <Users className="h-4 w-4" />
-                    <span>DashBoard</span>
+                    <span>Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

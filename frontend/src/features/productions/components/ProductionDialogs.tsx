@@ -243,7 +243,7 @@ export function ClearProductionsDialog({ onConfirm }: { onConfirm: () => Promise
           variant="outline"
           className="h-10 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
         >
-          <Trash className="mr-1.5 h-4 w-4" /> Limpar
+          <Trash className="mr-1.5 h-4 w-4" /> Apagar
         </Button>
       </AlertDialogTrigger>
       <AlertDialogPortal>
