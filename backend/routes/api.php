@@ -112,7 +112,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
 
         Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
-        });
 
         Route::group(['middleware' => ['is_manager']], function () {
             Route::get('lattes-uploads', [AdminLattesController::class, 'index']);
