@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminLattesController;
 use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\Admin\AdminApprovalController;
+use App\Http\Controllers\Admin\ApprovalRequestController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\Admin\ProductionController as ProductionAdminController
 use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,7 +37,7 @@ use Illuminate\Support\Facades\Route;
 
 // Healthcheck route
 Route::get('healthcheck', function (Request $request) {
-    \Illuminate\Support\Facades\DB::getPdo();
+    DB::getPdo();
     $startTime = defined('LARAVEL_START') ? LARAVEL_START : $request->server('REQUEST_TIME_FLOAT');
 
     return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
@@ -98,17 +101,23 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('professors.productions', ProfessorProductionController::class);
         Route::post('professors/{professors}/productions/doi', [ProfessorProductionController::class, 'storeFromDoi']);
         Route::delete('professors/{professors}/productions-all', [ProfessorProductionController::class, 'destroyAll']);
+
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
-        Route::get('approval-requests', [\App\Http\Controllers\Admin\ApprovalRequestController::class, 'index']);
-        Route::post('approval-requests/{id}/approve', [\App\Http\Controllers\Admin\ApprovalRequestController::class, 'approve']);
-        Route::post('approval-requests/{id}/reject', [\App\Http\Controllers\Admin\ApprovalRequestController::class, 'reject']);
+
+        Route::get('approval-requests', [ApprovalRequestController::class, 'index']);
+        Route::post('approval-requests/{id}/approve', [ApprovalRequestController::class, 'approve']);
+        Route::post('approval-requests/{id}/reject', [ApprovalRequestController::class, 'reject']);
 
         Route::get('admin-request', [AdminApprovalController::class, 'index']);
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
 
-
-
         Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
+        });
+
+        Route::group(['middleware' => ['is_manager']], function () {
+            Route::get('lattes-uploads', [AdminLattesController::class, 'index']);
+            Route::get('lattes-uploads/{user}/download', [AdminLattesController::class, 'download']);
+        });
 
 
         //Update Qualis By SpreadSheets

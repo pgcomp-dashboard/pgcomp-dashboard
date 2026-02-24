@@ -173,6 +173,66 @@ export class HttpClient {
   ) {
     return this.request<T>(endpoint, "PATCH", body, params, headers);
   }
+
+  async download(
+    endpoint: string,
+    filename: string,
+    params: Record<string, any> = {},
+    headers: Record<string, string> = {},
+  ) {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = queryParams.toString();
+    const url = `${this.baseUrl}${endpoint}${queryString ? `?${queryString}` : ""}`;
+
+    const finalHeaders: Record<string, string> = {
+      'Accept': 'application/xml, application/octet-stream, */*',
+      ...headers,
+    };
+
+    if (this.authToken) {
+      finalHeaders["Authorization"] = `Bearer ${this.authToken}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: finalHeaders,
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao baixar o arquivo.");
+      }
+
+      // Try to get filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let finalFilename = filename;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?(.+?)"?($|;)/);
+        if (match && match[1]) {
+          finalFilename = match[1];
+        }
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', finalFilename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (e) {
+      console.error("Erro no download:", e);
+      throw e;
+    }
+  }
 }
 
 const savedToken =

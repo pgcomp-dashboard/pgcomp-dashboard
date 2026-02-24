@@ -14,6 +14,8 @@ export type Professor = UserBase & {
   is_admin: boolean;
   pq: boolean;
   admin_status: 'pending' | 'approved' | 'rejected' | null;
+  lattes_xml_path?: string;
+  lattes_xml_uploaded_at?: string;
 }
 
 export type Student = UserBase & {

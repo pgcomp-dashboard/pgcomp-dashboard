@@ -106,7 +106,7 @@ export function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === "/portal/ranking"}
+                  isActive={pathname === "/admin/credenciamento"}
                 >
                   <Link to="/admin/credenciamento">
                     <Trophy className="h-4 w-4" />
@@ -115,6 +115,20 @@ export function AdminSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </>
+          )}
+
+          {auth?.isManager && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/admin/lattes-uploads"}
+              >
+                <Link to="/admin/lattes-uploads">
+                  <File className="h-4 w-4" />
+                  <span>XML Lattes</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           )}
 
           <SidebarMenuItem>

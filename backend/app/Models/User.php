@@ -124,6 +124,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'admin_status',
         'defended_at',
         'pq',
+        'lattes_xml_path',
+        'lattes_xml_uploaded_at',
     ];
 
     protected $hidden = [
@@ -143,6 +145,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'course_id' => 'int',
         'pq' => 'boolean',
         'is_approved' => 'boolean',
+        'lattes_xml_uploaded_at' => 'datetime',
     ];
 
     protected $attributes = [

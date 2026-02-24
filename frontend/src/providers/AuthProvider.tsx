@@ -11,6 +11,7 @@ export interface User {
   name: string;
   role: string;
   is_approved: boolean;
+  type?: string;
 }
 
 export interface AuthContextType {
@@ -18,6 +19,7 @@ export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isManager: boolean;
   login(token: string, userData: User): void;
   logout(): void;
 }
@@ -71,6 +73,7 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
     isLoading,
     isAuthenticated: !!token && !!user,
     isAdmin: user?.role === "admin",
+    isManager: user?.role === "admin" || user?.role === "manager" || user?.type === "manager",
     login,
     logout,
   };

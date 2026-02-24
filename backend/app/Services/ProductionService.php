@@ -105,13 +105,9 @@ class ProductionService
      */
     public function importFromLattes(User $user, $filePath)
     {
-        try {
-            $data = LattesZipXml::extractProductions($filePath);
-            $user->updateLattes($data);
-            return $data;
-        } finally {
-            Storage::delete($filePath);
-        }
+        $data = LattesZipXml::extractProductions($filePath);
+        $user->updateLattes($data);
+        return $data;
     }
 
     /**

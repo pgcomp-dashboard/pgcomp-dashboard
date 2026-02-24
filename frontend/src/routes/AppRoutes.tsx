@@ -5,6 +5,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import AdminLayout from "@/layouts/admin/admin-layout";
 import CredenciamentoPage from "@/pages/admin/accreditation";
 import AreasPage from "@/pages/admin/areas";
+import LattesUploadsPage from "@/pages/admin/lattes-uploads";
 import ProfessorsPage from "@/pages/admin/professors";
 import PublishersPage from "@/pages/admin/publishers";
 import QualisPage from "@/pages/admin/qualis/index";
@@ -23,6 +24,7 @@ import WelcomePage from "@/pages/user/welcome";
 import { EnsureAdmin } from "./guards/EnsureAdmin";
 import { EnsureAuthenticated } from "./guards/EnsureAuthenticated";
 import { EnsureIsApproved } from "./guards/EnsureIsApproved";
+import { EnsureManager } from "./guards/EnsureManager";
 
 const DashboardPage = lazy(() => import("@/pages/admin/dashboard"));
 
@@ -48,11 +50,9 @@ export function AppRoutes() {
             <Route index element={<WelcomePage />} />
             <Route path="portal">
               <Route index element={<Navigate to="/" replace />} />
-              <Route path="credenciamento" element={<CredenciamentoPage />} />
               <Route path="productions" element={<ProductionsPage />} />
               <Route path="user-config" element={<UserConfigPage />} />
             </Route>
-
             {/* Rotas restritas apenas para ADMIN */}
             <Route path="admin" element={<EnsureAdmin />}>
               <Route index element={<Navigate to="/" replace />} />
@@ -63,6 +63,9 @@ export function AppRoutes() {
               <Route path="publishers" element={<PublishersPage />} />
               <Route path="qualis" element={<QualisPage />} />
               <Route path="system-config" element={<SystemConfigPage />} />
+              <Route element={<EnsureManager />}>
+                <Route path="lattes-uploads" element={<LattesUploadsPage />} />
+              </Route>
             </Route>
           </Route>
           <Route path="admin" element={<EnsureAdmin />}>
