@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useFormErrorToast } from "@/hooks/useFormErrorToast";
 import { Professor } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -60,6 +61,8 @@ export function ProfessorDialog({
     resolver: zodResolver(updateProfessorSchema),
   });
 
+  useFormErrorToast(errors);
+
   useEffect(() => {
     if (professor) {
       reset({
@@ -97,19 +100,16 @@ export function ProfessorDialog({
             <div className="grid gap-2">
               <Label htmlFor="name">Nome</Label>
               <Input id="name" {...register("name")} />
-              {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" {...register("email")} />
-              {errors.email && <span className="text-xs text-red-500">{errors.email.message}</span>}
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="siape">SIAPE</Label>
               <Input id="siape" {...register("siape")} />
-              {errors.siape && <span className="text-xs text-red-500">{errors.siape.message}</span>}
             </div>
 
             <div className="grid gap-2">
@@ -130,21 +130,16 @@ export function ProfessorDialog({
                   </Select>
                 )}
               />
-              {errors.category && <span className="text-xs text-red-500">{errors.category.message}</span>}
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="lattes_url">Lattes URL</Label>
               <Input id="lattes_url" {...register("lattes_url")} />
-              {errors.lattes_url && (
-                <span className="text-xs text-red-500">{errors.lattes_url.message}</span>
-              )}
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="orcid">ORCID (Opcional)</Label>
               <Input id="orcid" {...register("orcid")} placeholder="0000-0000-0000-0000" />
-              {errors.orcid && <span className="text-xs text-red-500">{errors.orcid.message}</span>}
             </div>
 
             <div className="flex items-center space-x-2 py-4">

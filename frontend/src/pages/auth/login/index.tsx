@@ -7,10 +7,10 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import useAuth from "@/hooks/auth";
+import { useFormErrorToast } from "@/hooks/useFormErrorToast";
 import { authService } from "@/services/modules/auth.service";
 import { ApiError } from "@/types/common";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
 import { z } from "zod";
 
 export interface User {
@@ -34,7 +35,6 @@ const formSchema = z.object({
 export default function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -44,6 +44,8 @@ export default function LoginPage() {
       password: "",
     },
   });
+
+  useFormErrorToast(form.formState.errors);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -61,7 +63,7 @@ export default function LoginPage() {
     } catch (e: unknown) {
       const error = e as ApiError;
       console.error("Failed to login", error);
-      setStatus(error.errors[0].description);
+      toast.error("Email ou senha incorretos");
     }
   }
 
@@ -69,13 +71,10 @@ export default function LoginPage() {
     <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-4 sm:gap-6 p-4 sm:p-6 md:p-10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6 sm:gap-8">
-          <div className="flex flex-col items-center gap-3 sm:gap-4">
-            <Link
-              to="/"
-              className="flex flex-col items-center gap-2 font-medium"
-            >
-              <div className="mb-4 sm:mb-8 flex h-8 sm:h-9 items-center justify-center rounded-md">
-                <AppLogo className="h-8 sm:h-auto" />
+          <div className="flex flex-col items-center sm:gap-4">
+            <Link to="/" className="flex flex-col items-center font-medium">
+              <div className="mb-4 sm:mb-8 flex items-center justify-center">
+                <AppLogo />
               </div>
             </Link>
 
@@ -104,7 +103,6 @@ export default function LoginPage() {
                         <FormDescription>
                           O e-mail do seu usuário.
                         </FormDescription>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -153,14 +151,10 @@ export default function LoginPage() {
                         <FormDescription>
                           A senha do seu usuário.
                         </FormDescription>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-                {status && (
-                  <span className="my-2 text-destructive">{status}</span>
-                )}
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   Entrar
                 </Button>

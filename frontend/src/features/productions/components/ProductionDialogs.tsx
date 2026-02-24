@@ -23,11 +23,11 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { Publisher } from '@/types/academic';
 import { Loader2, Search, Trash } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
@@ -61,6 +61,8 @@ export function ProductionDialogs({
   editForm,
   editState,
 }: ProductionDialogsProps) {
+  useFormErrorToast(editForm.formState.errors);
+
   return (
     <>
       {/* Edit Dialog */}
@@ -105,7 +107,6 @@ export function ProductionDialogs({
                       <FormControl>
                         <Input type="text" {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -120,7 +121,6 @@ export function ProductionDialogs({
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -133,7 +133,6 @@ export function ProductionDialogs({
                         <FormControl>
                           <Input type="text" {...field} />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -146,7 +145,6 @@ export function ProductionDialogs({
                         <FormControl>
                           <Input type="text" {...field} />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />

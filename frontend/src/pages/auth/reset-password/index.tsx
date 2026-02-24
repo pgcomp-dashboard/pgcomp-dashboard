@@ -6,9 +6,9 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { authService } from '@/services/modules/auth.service';
 import { RequestBodyType } from '@/types/common';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,6 +37,8 @@ export default function ResetPasswordPage() {
       confirmPassword: '',
     },
   });
+
+  useFormErrorToast(form.formState.errors);
 
   const queryString: string = window.location.search;
   const urlParams: URLSearchParams = new URLSearchParams(queryString);
@@ -90,7 +92,6 @@ export default function ResetPasswordPage() {
                     <FormDescription>
                       Nova senha do seu usuário.
                     </FormDescription>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -106,7 +107,6 @@ export default function ResetPasswordPage() {
                     <FormDescription>
                       Confirme a nova senha para seu usuário.
                     </FormDescription>
-                    <FormMessage />
                   </FormItem>
                 )}
               />

@@ -16,8 +16,8 @@ export default function WaitingApprovalPage() {
               to="/"
               className="flex flex-col items-center gap-2 font-medium"
             >
-              <div className="mb-4 sm:mb-8 flex h-8 sm:h-9 items-center justify-center rounded-md">
-                <AppLogo className="h-8 sm:h-auto" />
+              <div className="mb-4 sm:mb-8 flex items-center justify-center">
+                <AppLogo />
               </div>
             </Link>
 

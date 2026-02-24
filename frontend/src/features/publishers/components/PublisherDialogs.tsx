@@ -14,7 +14,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFormErrorToast } from "@/hooks/useFormErrorToast";
 import { Publisher, StratumQualis } from "@/types/academic";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
@@ -66,6 +66,8 @@ export function PublisherDialogs({
       stratum_qualis_id: null,
     },
   });
+
+  useFormErrorToast(form.formState.errors);
 
   const [tagInput, setTagInput] = useState('');
   const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
@@ -140,7 +142,6 @@ export function PublisherDialogs({
                   <FormControl>
                     <Input placeholder="Nome do veículo" {...field} value={field.value || ''} />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -154,7 +155,6 @@ export function PublisherDialogs({
                     <FormControl>
                       <Input placeholder="Ex: SIGMOD" {...field} value={field.value || ''} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -248,7 +248,6 @@ export function PublisherDialogs({
                         <SelectItem value="conference">Conferência</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -278,7 +277,6 @@ export function PublisherDialogs({
                           ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
