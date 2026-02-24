@@ -58,6 +58,7 @@ export function AppRoutes() {
               <Route index element={<Navigate to="/" replace />} />
               <Route path="areas" element={<AreasPage />} />
               <Route path="students" element={<StudentsPage />} />
+              <Route path="credenciamento" element={<CredenciamentoPage />} />
               <Route path="professors" element={<ProfessorsPage />} />
               <Route path="publishers" element={<PublishersPage />} />
               <Route path="qualis" element={<QualisPage />} />

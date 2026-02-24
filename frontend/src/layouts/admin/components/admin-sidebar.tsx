@@ -108,7 +108,7 @@ export function AdminSidebar() {
                   asChild
                   isActive={pathname === "/portal/ranking"}
                 >
-                  <Link to="/portal/credenciamento">
+                  <Link to="/admin/credenciamento">
                     <Trophy className="h-4 w-4" />
                     <span>Credenciamento</span>
                   </Link>
