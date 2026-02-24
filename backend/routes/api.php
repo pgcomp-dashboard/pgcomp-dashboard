@@ -99,6 +99,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('professors/{professors}/productions/doi', [ProfessorProductionController::class, 'storeFromDoi']);
         Route::delete('professors/{professors}/productions-all', [ProfessorProductionController::class, 'destroyAll']);
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
+        Route::get('approval-requests', [\App\Http\Controllers\Admin\ApprovalRequestController::class, 'index']);
+        Route::post('approval-requests/{id}/approve', [\App\Http\Controllers\Admin\ApprovalRequestController::class, 'approve']);
+        Route::post('approval-requests/{id}/reject', [\App\Http\Controllers\Admin\ApprovalRequestController::class, 'reject']);
+
         Route::get('admin-request', [AdminApprovalController::class, 'index']);
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
 

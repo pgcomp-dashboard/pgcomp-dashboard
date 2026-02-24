@@ -9,18 +9,16 @@ class AdminApprovalService
 {
     public function listPending(): Collection
     {
-        return User::with('approver:id,name')
-            ->anyAdminRequest()
+        return User::anyAdminRequest()
             ->onlyPendingAdminRequest()
-            ->latest('admin_requested_at')
+            ->latest()
             ->get();
     }
 
     public function listAll(): Collection
     {
-        return User::with('approver:id,name')
-            ->anyAdminRequest()
-            ->latest('admin_requested_at')
+        return User::anyAdminRequest()
+            ->latest()
             ->get();
     }
 
@@ -30,13 +28,12 @@ class AdminApprovalService
 
         $user->update([
             'admin_status' => $status,
-            'approved_by_id' => $reviewerId,
             'is_admin' => $isAdmin,
         ]);
 
         return [
             'message' => $isAdmin ? 'Usuário aprovado!' : 'Usuário rejeitado!',
-            'user' => $user->load('approver:id,name')
+            'user' => $user
         ];
     }
 }

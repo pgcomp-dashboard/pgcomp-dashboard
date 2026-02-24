@@ -89,9 +89,8 @@ class UserService
 
             $user->is_admin = $isAdmin;
             $user->admin_status = $isAdmin ? User::STATUS_APPROVED : User::STATUS_REJECTED;
-            $user->approved_by_id = auth()->id();
 
-            unset($data['is_admin'], $data['approved_by_id'], $data['admin_status']);
+            unset($data['is_admin'], $data['admin_status']);
         }
 
         $user->fill($data)->save();
