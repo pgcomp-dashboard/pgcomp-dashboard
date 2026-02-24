@@ -21,7 +21,7 @@ export function AdminSidebar() {
       <SidebarHeader className="border-b h-18">
         <div className="flex items-center justify-center gap-2 px-2">
           <Link to="/">
-            <AppLogo className="w-32" />
+            <AppLogo className="w-9" />
           </Link>
         </div>
       </SidebarHeader>
