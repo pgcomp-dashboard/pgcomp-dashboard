@@ -14,9 +14,6 @@ export type Professor = UserBase & {
   is_admin: boolean;
   pq: boolean;
   admin_status: 'pending' | 'approved' | 'rejected' | null;
-  admin_requested_at: string;
-  approved_by_id: number;
-  approver: Professor | Manager;
 }
 
 export type Student = UserBase & {
@@ -49,9 +46,13 @@ export type AdminRequest = {
   name: string;
   email: string;
   admin_status: 'pending' | 'approved' | 'rejected' | null;
-  admin_requested_at: string | null;
-  approver?: {
-    id: number;
-    name: string;
-  } | null;
+};
+
+export type ApprovalRequest = {
+  id: number;
+  name: string;
+  email: string;
+  type: 'professor' | 'student' | 'manager';
+  request_type: 'registration' | 'admin';
+  created_at?: string;
 };

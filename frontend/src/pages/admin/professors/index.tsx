@@ -1,13 +1,12 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AdminHeader } from "@/features/professors/components/AdminHeader";
-import { AdminTable } from "@/features/professors/components/AdminTable";
 import { ProfessorDeleteDialog } from "@/features/professors/components/ProfessorDeleteDialog";
 import { ProfessorDialog } from "@/features/professors/components/ProfessorDialog";
 import { ProfessorHeader } from "@/features/professors/components/ProfessorHeader";
 import { ProfessorTable } from "@/features/professors/components/ProfessorTable";
 import { useProfessors } from "@/features/professors/hooks/useProfessors";
+import { UnifiedApprovalTable } from "@/features/user-config/components/UnifiedApprovalTable";
 import { Professor } from "@/types/user";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -106,8 +105,13 @@ export default function ProfessorsPage() {
         </TabsContent>
 
         <TabsContent value="requests" className="flex flex-col gap-4 mt-4">
-          <AdminHeader />
-          <AdminTable />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Solicitações de Acesso</h1>
+            <p className="text-muted-foreground">
+              Gerencie novos cadastros e solicitações de privilégios de administrador.
+            </p>
+          </div>
+          <UnifiedApprovalTable />
         </TabsContent>
       </Tabs>
 

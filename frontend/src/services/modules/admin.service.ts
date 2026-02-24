@@ -19,4 +19,17 @@ export const adminService = {
   async avaliateAdminRequest(id: number, body: RequestBodyType) {
     return await apiClient.post<{ data: Professor, message: string }>(`/api/admin/admin-request/${id}`, body)
   },
+
+  // Unified Approval Requests
+  async getUnifiedRequests() {
+    return await apiClient.get<{ data: any[] }>('/api/admin/approval-requests');
+  },
+
+  async approveRequest(id: number, requestType: string) {
+    return await apiClient.post(`/api/admin/approval-requests/${id}/approve`, { request_type: requestType });
+  },
+
+  async rejectRequest(id: number, requestType: string) {
+    return await apiClient.post(`/api/admin/approval-requests/${id}/reject`, { request_type: requestType });
+  },
 };

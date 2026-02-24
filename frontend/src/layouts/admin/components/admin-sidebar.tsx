@@ -1,4 +1,4 @@
-import { AlertCircle, BookOpen, File, GraduationCap, Trophy, Users } from "lucide-react";
+import { BookOpen, File, GraduationCap, Trophy, Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import AppLogo from "@/components/AppLogo";
@@ -100,17 +100,6 @@ export function AdminSidebar() {
                   <Link to="/admin/students" data-cy="link-discentes">
                     <GraduationCap className="h-4 w-4" />
                     <span>Discentes</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/admin/user-approval"}
-                >
-                  <Link to="/admin/user-approval">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>Aprovação</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

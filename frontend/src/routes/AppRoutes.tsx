@@ -10,7 +10,6 @@ import PublishersPage from "@/pages/admin/publishers";
 import QualisPage from "@/pages/admin/qualis/index";
 import StudentsPage from "@/pages/admin/students";
 import SystemConfigPage from "@/pages/admin/system-config";
-import UserApprovalPage from "@/pages/admin/user-approval";
 import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
@@ -60,7 +59,6 @@ export function AppRoutes() {
               <Route path="areas" element={<AreasPage />} />
               <Route path="students" element={<StudentsPage />} />
               <Route path="professors" element={<ProfessorsPage />} />
-              <Route path="user-approval" element={<UserApprovalPage />} />
               <Route path="publishers" element={<PublishersPage />} />
               <Route path="qualis" element={<QualisPage />} />
               <Route path="system-config" element={<SystemConfigPage />} />
