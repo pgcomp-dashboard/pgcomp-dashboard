@@ -6,9 +6,9 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { authService } from '@/services/modules/auth.service';
 import { ApiError } from '@/types/common';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -30,7 +31,6 @@ const formSchema = z.object({
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -43,6 +43,8 @@ export default function RegisterPage() {
     },
   });
 
+  useFormErrorToast(form.formState.errors);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await authService.register({ ...values, type: 'professor' });
@@ -50,7 +52,7 @@ export default function RegisterPage() {
     } catch (e: unknown) {
       const error = e as ApiError;
       console.error('Falha ao realizar cadastro', error);
-      setStatus(error.errors?.[0]?.description || 'Erro ao realizar cadastro.');
+      toast.error('Erro ao realizar cadastro. Verifique os dados e tente novamente.');
     }
   }
 
@@ -63,8 +65,8 @@ export default function RegisterPage() {
               to="/"
               className="flex flex-col items-center gap-2 font-medium"
             >
-              <div className="mb-4 sm:mb-8 flex h-8 sm:h-9 items-center justify-center rounded-md">
-                <AppLogo className="h-8 sm:h-auto" />
+              <div className="mb-4 sm:mb-8 flex items-center justify-center">
+                <AppLogo />
               </div>
             </Link>
 
@@ -87,7 +89,6 @@ export default function RegisterPage() {
                       <FormControl>
                         <Input placeholder="Seu nome" {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -101,7 +102,6 @@ export default function RegisterPage() {
                       <FormControl>
                         <Input placeholder="example@example.com" {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -135,7 +135,6 @@ export default function RegisterPage() {
                           </Button>
                         </div>
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -153,14 +152,11 @@ export default function RegisterPage() {
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
 
 
-
-                {status && <span className="text-destructive text-sm font-medium">{status}</span>}
 
                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

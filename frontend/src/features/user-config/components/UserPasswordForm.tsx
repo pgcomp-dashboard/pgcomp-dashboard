@@ -6,9 +6,9 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { UseFormReturn } from 'react-hook-form';
 import { UpdatePasswordFormValues } from '../types';
 
@@ -18,6 +18,8 @@ interface UserPasswordFormProps {
 }
 
 export function UserPasswordForm({ form, onSubmit }: UserPasswordFormProps) {
+  useFormErrorToast(form.formState.errors);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -31,7 +33,6 @@ export function UserPasswordForm({ form, onSubmit }: UserPasswordFormProps) {
                 <Input type="password" {...field} />
               </FormControl>
               <FormDescription>Nova senha do seu usuário.</FormDescription>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -47,7 +48,6 @@ export function UserPasswordForm({ form, onSubmit }: UserPasswordFormProps) {
               <FormDescription>
                 Confirme a nova senha para seu usuário.
               </FormDescription>
-              <FormMessage />
             </FormItem>
           )}
         />

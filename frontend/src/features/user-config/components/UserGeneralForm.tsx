@@ -5,10 +5,10 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { UseFormReturn } from 'react-hook-form';
 import { UserConfigFormValues } from '../types';
 
@@ -18,6 +18,8 @@ interface UserGeneralFormProps {
 }
 
 export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
+  useFormErrorToast(form.formState.errors);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -37,7 +39,6 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
                   }
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -57,7 +58,6 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
                   }
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -79,7 +79,6 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
                     }
                   />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
@@ -100,7 +99,6 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
                     }
                   />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
@@ -122,7 +120,6 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
                   }
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
