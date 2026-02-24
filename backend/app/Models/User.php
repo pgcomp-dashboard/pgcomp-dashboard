@@ -60,8 +60,6 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property string|null $lattes_id
  * @property string|null $lattes_updated_at
  * @property string|null $admin_status
- * @property string|null $admin_requested_at
- * @property int|null $approved_by_id
  * @property UserCategory $category
  * @property-read Collection|User[] $advisedes
  * @property-read int|null $advisedes_count
@@ -124,7 +122,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'course_id',
         'lattes_url',
         'admin_status',
-        'admin_requested_at',
         'defended_at',
         'pq',
     ];
@@ -143,7 +140,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'type' => UserType::class,
         'siape' => 'int',
         'course_id' => 'int',
-        'admin_requested_at' => 'datetime',
+        'course_id' => 'int',
         'pq' => 'boolean',
         'is_approved' => 'boolean',
     ];
@@ -165,16 +162,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function writerOf(): BelongsToMany
     {
         return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
-    }
-
-    /**
-     * Establishes a relationship of belongsTo with the User Model
-     *
-     * @return BelongsTo Relation of belongsTo user -> user
-     */
-    public function approver()
-    {
-        return $this->belongsTo(User::class, 'approved_by_id');
     }
 
     /**
