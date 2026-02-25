@@ -1,6 +1,6 @@
 FROM node:24-alpine AS builder
 
-ARG VITE_API_ENDPOINT=https://dashboard-pgcomp-api.app.ic.ufba.br
+ARG VITE_API_ENDPOINT=https://pgcomp-api.app.ic.ufba.br
 RUN test -n $VITE_API_ENDPOINT || (echo "VITE_API_ENDPOINT not set" && false)
 ENV VITE_API_ENDPOINT=$VITE_API_ENDPOINT
 
