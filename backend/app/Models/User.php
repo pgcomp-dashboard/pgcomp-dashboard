@@ -142,7 +142,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'type' => UserType::class,
         'siape' => 'int',
         'course_id' => 'int',
-        'course_id' => 'int',
         'pq' => 'boolean',
         'is_approved' => 'boolean',
         'lattes_xml_uploaded_at' => 'datetime',
