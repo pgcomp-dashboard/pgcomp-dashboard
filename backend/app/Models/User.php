@@ -236,9 +236,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function updateLattes(array $data): void
     {
         foreach ($data['productions'] as $productionData) {
-            if (empty($productionData['doi'])) {
-                continue;
-            }
+            //if (empty($productionData['doi'])) {
+            //    continue;
+            //}
             $production = Production::updateOrCreate(
                 ['doi' => $productionData['doi']],
                 $productionData
