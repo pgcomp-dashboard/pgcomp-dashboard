@@ -16,7 +16,7 @@ export default defineConfig({
     host: true,
     port: 5000,
     allowedHosts: [
-      'dashboard-pgcomp.app.ic.ufba.br',
+      'pgcomp.app.ic.ufba.br',
     ],
   },
   build: {
