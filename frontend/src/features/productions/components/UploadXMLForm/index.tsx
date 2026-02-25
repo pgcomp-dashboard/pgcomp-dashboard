@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +30,7 @@ export default function UploadXMLForm({
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
@@ -61,6 +72,11 @@ export default function UploadXMLForm({
       toast.error("Erro no cadastro das produções");
       console.error("Erro ao criar produções:", err);
     }
+  }
+
+  async function handleConfirm() {
+    setShowConfirmDialog(false);
+    await onSubmit();
   }
 
   return (
@@ -121,7 +137,7 @@ export default function UploadXMLForm({
           {/* Submit Button */}
           <Button
             disabled={!file || status === "uploading"}
-            onClick={onSubmit}
+            onClick={() => setShowConfirmDialog(true)}
             className="w-full"
           >
             {status === "uploading" && (
@@ -129,6 +145,27 @@ export default function UploadXMLForm({
             )}
             {status === "uploading" ? "Enviando..." : "Enviar arquivo"}
           </Button>
+
+          <AlertDialog
+            open={showConfirmDialog}
+            onOpenChange={setShowConfirmDialog}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Importar Produções</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Atenção: todas as produções registradas anteriormente serão
+                  apagadas. Deseja continuar?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleConfirm}>
+                  Continuar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           {/* Status Messages */}
           {status === "success" && (
