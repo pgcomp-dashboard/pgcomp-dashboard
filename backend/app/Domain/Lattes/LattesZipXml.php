@@ -9,8 +9,10 @@ use App\Models\Conference;
 use App\Models\Journal;
 use App\Models\Publishers;
 use App\Models\StratumQualis;
+use App\Services\ProductionService;
 use DOMDocument;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use SimpleXMLElement;
@@ -19,8 +21,11 @@ use ZipArchive;
 
 class LattesZipXml
 {
+    protected $clientHttp;
+
     protected function __construct(protected string $storagePath)
     {
+        $this->clientHttp = new Client;
     }
 
     /**
@@ -77,7 +82,6 @@ class LattesZipXml
                 }
                 $home_page = str_ireplace(['http://https://','http://http://'], 'https://', $result);
                 $home_page = str_ireplace('doi:', 'http://dx.doi.org/', $home_page);
-                error_log("Journal - $rawHomePageData - $home_page");
             }
             $issn = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['ISSN'];
             $publisher_name = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['TITULO-DO-PERIODICO-OU-REVISTA'];
@@ -101,7 +105,6 @@ class LattesZipXml
         $productions = $xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'TRABALHOS-EM-EVENTOS'}->{'TRABALHO-EM-EVENTOS'} ?? [];
         /** @var SimpleXMLElement $item */
         foreach ($productions as $item) {
-            error_log("Conferences");
             $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
             if (!trim($doi)) {
                 continue;
@@ -136,6 +139,25 @@ class LattesZipXml
 
             if ($conferenceName) {
                 $publisher_id = Publishers::whereLike('name' ,$conferenceName)->first()?->id;
+                //$conferenceName === "Hawaii International Conference on System Sciences" ? error_log("Achei o havai, publisher = ". $publisher_id) : $conferenceName;
+            }
+
+            if(!$publisher_id){
+                //error_log("Looking on doi api");
+                //[$acronym, $name] = $loadXml->getConferenceInfoFromDOI($doi);
+                $conferenceInfo = $loadXml->getConferenceInfoFromDOI($doi);
+                if($conferenceInfo){
+                    $acronym = $conferenceInfo['conference_acronym'];
+                    $name = $conferenceInfo['conference_name'];
+                    error_log("Received from doi api:".$acronym ." - ". $name);
+                    $publisher_id = $acronym ? Publishers::where('initials', $acronym)->first()?->id : null;
+                    if (!$publisher_id) {
+                        error_log("Nao encontrei pela initials");
+                        $publisher_id = Publishers::where('name', $name)->first()?->id;
+                        $publisher_id ? error_log("encontrei pelo nome") : error_log("nao encontrei pelo nome");
+                    }
+                    error_log("publisher id = ".$publisher_id);
+                }
             }
 
             $production = compact('home_page', 'source','title', 'year', 'publisher_id', 'publisher_type', 'doi', 'nature', 'sequence_number', 'issn', 'isbn');
@@ -210,4 +232,136 @@ class LattesZipXml
             throw new InvalidXml($errors);
         }
     }
+
+    private function removeYear($text)
+    {
+        if (!$text)
+            return null;
+
+        // Remove 4-digit years (e.g., 2020)
+        $text = preg_replace('/(?<!\d)(19|20)\d{2}(?!\d)/', '', $text);
+
+        // Remove shortened years like '20
+        $text = preg_replace("/'\d{2}\b/", '', $text);
+
+        // Clean extra spaces
+        return trim(preg_replace('/\s+/', ' ', $text));
+    }
+
+    function removerNumerosExtenso($texto) {
+
+    // CARDINAIS - Português
+    $cardinais_pt = [
+        "zero","um","uma","dois","duas","tres","três","quatro","cinco","seis","sete",
+        "oito","nove","dez","onze","doze","treze","catorze","quatorze","quinze",
+        "dezesseis","dezasseis","dezessete","dezoito","dezenove",
+        "vinte","trinta","quarenta","cinquenta","sessenta",
+        "setenta","oitenta","noventa","cem","cento","duzentos",
+        "trezentos","quatrocentos","quinhentos","seiscentos",
+        "setecentos","oitocentos","novecentos","mil","milhao","milhão",
+        "milhoes","milhões","bilhao","bilhão","bilhoes","bilhões"
+    ];
+
+    // ORDINAIS - Português
+    $ordinais_pt = [
+        "primeiro","primeira","segundo","segunda","terceiro","terceira",
+        "quarto","quarta","quinto","quinta","sexto","sexta",
+        "setimo","sétimo","setima","sétima","oitavo","oitava",
+        "nono","nona","decimo","décimo","decima","décima",
+        "vigesimo","vigésimo","vigesima","vigésima",
+        "trigesimo","trigésimo","centesimo","centésimo",
+        "milesimo","milésimo"
+    ];
+
+    // CARDINAIS - Inglês
+    $cardinais_en = [
+        "zero","one","two","three","four","five","six","seven","eight","nine",
+        "ten","eleven","twelve","thirteen","fourteen","fifteen",
+        "sixteen","seventeen","eighteen","nineteen",
+        "twenty","thirty","forty","fifty","sixty",
+        "seventy","eighty","ninety",
+        "hundred","thousand","million","billion"
+    ];
+
+    // ORDINAIS - Inglês
+    $ordinais_en = [
+        "first","second","third","fourth","fifth","sixth","seventh",
+        "eighth","ninth","tenth","eleventh","twelfth","thirteenth",
+        "fourteenth","fifteenth","sixteenth","seventeenth",
+        "eighteenth","nineteenth",
+        "twentieth","thirtieth","fortieth","fiftieth",
+        "sixtieth","seventieth","eightieth","ninetieth",
+        "hundredth","thousandth","millionth","billionth"
+    ];
+
+    $periods = [
+        "annual",
+        "monthly",
+        "estendido",
+        "companion"
+    ];
+
+    //Ordinais numeros
+
+    // Junta tudo
+    $todos = array_merge(
+        $cardinais_pt,
+        $ordinais_pt,
+        $cardinais_en,
+        $ordinais_en,
+        $periods
+    );
+    // Cria regex dinâmica
+    $padrao = '/\b(' . implode('|', $todos) . ')\b/iu';
+
+    // Remove do texto
+    $texto = preg_replace($padrao, '', $texto);
+    $texto = preg_replace('/\b\d+(?:st|nd|rd|th)\b/', '', $texto);
+
+    // Remove espaços duplicados
+    return trim(preg_replace('/\s+/', ' ', $texto));
+}
+
+
+    private function getConferenceInfoFromDOI($doi) {
+        $url = "https://api.crossref.org/works/doi/{$doi}";
+
+        try {
+            $response = $this->clientHttp->get($url, ['query' => []]);
+        } catch (Exception $e) {
+            //throw new Exception("CrossRef API Error: " . $e->getMessage());
+            return null;
+        }
+        //$encodedDoi = urlencode($doi);
+        //error_log("got a response from doi api");
+        $data = json_decode($response->getBody(), true);
+
+        if (!isset($data['message'])) {
+            return null;
+        }
+
+        $message = $data['message'];
+
+        $conferenceName = $message['event']['name'] ?? null;
+        $conferenceAcronym = $message['event']['acronym'] ?? null;
+
+        // Remove year from both fields
+        $conferenceName = $this->removeYear($conferenceName);
+        $conferenceName = $this->removerNumerosExtenso($conferenceName);
+        if (preg_match('/\(([^)]+)\)/', $conferenceName, $match)) {
+            if(!$conferenceAcronym){
+                $conferenceAcronym = $match[1];
+                $conferenceName = preg_replace('/\(([^)]+)\)/', '', $conferenceName);
+            }
+        }
+        $conferenceAcronym = $this->removeYear($conferenceAcronym);
+        $conferenceAcronym = $this->removerNumerosExtenso($conferenceAcronym);
+
+        //error_log($conferenceAcronym." - ". $conferenceName);
+
+        return [
+            'conference_name' => $conferenceName,
+            'conference_acronym' => $conferenceAcronym,
+        ];
+}
 }
