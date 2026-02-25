@@ -81,20 +81,20 @@ export const getProductionColumns = ({
       className: "w-[15%]",
     },
   }),
-    columnHelper.accessor("nature", {
-      id: "natureza",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Natureza" />
-      ),
-      cell: (info) => (
-        <div className="text-center text-sm capitalize">
-          {info.getValue() || "--"}
-        </div>
-      ),
-      meta: {
-        className: "w-[10%]",
-    },
-  }),
+  // columnHelper.accessor("nature", {
+  //   id: "natureza",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Natureza" />
+  //   ),
+  //   cell: (info) => (
+  //     <div className="text-center text-sm capitalize">
+  //       {info.getValue().toLowerCase() || "--"}
+  //     </div>
+  //   ),
+  //   meta: {
+  //     className: "w-[10%]",
+  //   },
+  // }),
   columnHelper.accessor("year", {
     id: "year",
     header: ({ column }) => (
@@ -127,11 +127,7 @@ export const getProductionColumns = ({
       <DataTableColumnHeader column={column} title="Origem" />
     ),
     cell: (info) => (
-      <div className="text-center text-sm capitalize">
-        {info.getValue() === "xml" || info.getValue() === "lattes"
-          ? "Lattes"
-          : info.getValue()}
-      </div>
+      <div className="text-center text-sm capitalize">{info.getValue()}</div>
     ),
     meta: {
       className: "w-[10%]",

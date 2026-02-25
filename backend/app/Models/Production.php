@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductionSource;
 use App\Enums\PublisherType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -70,7 +71,8 @@ class Production extends Model
     ];
 
     protected $casts = [
-        'publisher_type' => PublisherType::class
+        'publisher_type' => PublisherType::class,
+        'source' => ProductionSource::class
     ];
 
     /**
