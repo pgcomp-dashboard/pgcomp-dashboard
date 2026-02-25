@@ -1,4 +1,4 @@
-import { BookOpen, File, GraduationCap, Trophy, Users } from "lucide-react";
+import { BookOpen, File, Trophy, Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import AppLogo from "@/components/AppLogo";
@@ -37,7 +37,7 @@ export function AdminSidebar() {
           </SidebarMenuItem>
           {auth?.isAdmin && (
             <>
-              <SidebarMenuItem>
+              {/* <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === "/admin/dashboard"}
@@ -47,8 +47,8 @@ export function AdminSidebar() {
                     <span>Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
+              </SidebarMenuItem> */}
+              {/* <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === "/admin/areas"}
@@ -58,7 +58,7 @@ export function AdminSidebar() {
                     <span>Áreas</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
+              </SidebarMenuItem> */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
@@ -92,7 +92,7 @@ export function AdminSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
+              {/* <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === "/admin/students"}
@@ -102,7 +102,7 @@ export function AdminSidebar() {
                     <span>Discentes</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
+              </SidebarMenuItem> */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
