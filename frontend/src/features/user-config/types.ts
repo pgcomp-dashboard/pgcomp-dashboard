@@ -7,6 +7,7 @@ export const userConfigFormSchema = z.object({
   siape: z.coerce.number().optional().nullable(),
   lattes_url: z.string().optional().nullable(),
   pq: z.boolean().optional(),
+  orcid: z.string().optional().nullable(),
 });
 
 export const updatePasswordFormSchema = z

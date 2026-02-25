@@ -124,6 +124,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'admin_status',
         'defended_at',
         'pq',
+        'orcid',
         'lattes_xml_path',
         'lattes_xml_uploaded_at',
     ];

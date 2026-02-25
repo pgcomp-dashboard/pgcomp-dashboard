@@ -13,6 +13,7 @@ export type Professor = UserBase & {
   category: string | null;
   is_admin: boolean;
   pq: boolean;
+  orcid: string | null;
   admin_status: 'pending' | 'approved' | 'rejected' | null;
   lattes_xml_path?: string;
   lattes_xml_uploaded_at?: string;

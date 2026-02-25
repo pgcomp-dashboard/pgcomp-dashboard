@@ -70,7 +70,7 @@ export function ProfessorDialog({
         siape: professor.siape?.toString(),
         email: professor.email,
         lattes_url: professor.lattes_url,
-        orcid: "0000-0000-0000-0000", // Manter placeholder do código original
+        orcid: professor.orcid || "0000-0000-0000-0000",
         category: (professor.category?.toLowerCase() as any) || "permanente",
         is_admin: professor.is_admin,
         pq: professor.pq || false,

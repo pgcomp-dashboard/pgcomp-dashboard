@@ -12,10 +12,10 @@ import { userService } from '@/services/modules/user.service';
 import { RequestBodyType } from '@/types/common';
 import { User } from '@/types/user';
 import {
-    updatePasswordFormSchema,
-    UpdatePasswordFormValues,
-    userConfigFormSchema,
-    UserConfigFormValues,
+  updatePasswordFormSchema,
+  UpdatePasswordFormValues,
+  userConfigFormSchema,
+  UserConfigFormValues,
 } from '../types';
 
 export function useUserConfig() {
@@ -44,6 +44,7 @@ export function useUserConfig() {
       siape: 0,
       lattes_url: '',
       pq: false,
+      orcid: '',
     },
     values: userInfo
       ? {
@@ -53,6 +54,7 @@ export function useUserConfig() {
         siape: userInfo.type === 'professor' ? (userInfo as any).siape : 0,
         lattes_url: userInfo.type !== 'manager' ? (userInfo.lattes_url ?? '') : '',
         pq: userInfo.type === 'professor' ? (userInfo as any).pq : false,
+        orcid: userInfo.type === 'professor' ? (userInfo as any).orcid ?? '' : '',
       } as any
       : undefined,
     resetOptions: {

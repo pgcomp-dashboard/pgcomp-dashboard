@@ -24,6 +24,7 @@ class UpdateUserRequest extends FormRequest
             ],
             'password' => 'sometimes|string|min:8',
             'is_admin' => 'sometimes|boolean',
+            'orcid' => 'sometimes|nullable|string|max:255',
         ];
     }
 }

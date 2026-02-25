@@ -143,6 +143,27 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="orcid"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>ORCID:</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  value={field.value || ''}
+                  placeholder="0000-0000-0000-0000"
+                  className={
+                    !form.formState.dirtyFields.orcid
+                      ? 'text-muted-foreground/60'
+                      : 'text-foreground font-medium'
+                  }
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         <Button type="submit" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting ? 'Atualizando...' : 'Atualizar'}
         </Button>

@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'is_admin' => $this->is_admin,
             'lattes_url' => $this->lattes_url,
+            'orcid' => $this->orcid,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
