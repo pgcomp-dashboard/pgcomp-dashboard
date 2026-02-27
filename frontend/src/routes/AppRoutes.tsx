@@ -9,6 +9,7 @@ import LattesUploadsPage from "@/pages/admin/lattes-uploads";
 import ProfessorsPage from "@/pages/admin/professors";
 import PublishersPage from "@/pages/admin/publishers";
 import QualisPage from "@/pages/admin/qualis/index";
+import RulesPage from "@/pages/admin/rules/index";
 import StudentsPage from "@/pages/admin/students";
 import SystemConfigPage from "@/pages/admin/system-config";
 import ForgotPasswordPage from "@/pages/auth/forgot-password";
@@ -62,6 +63,7 @@ export function AppRoutes() {
               <Route path="professors" element={<ProfessorsPage />} />
               <Route path="publishers" element={<PublishersPage />} />
               <Route path="qualis" element={<QualisPage />} />
+              <Route path="rules" element={<RulesPage />} />
               <Route path="system-config" element={<SystemConfigPage />} />
               <Route element={<EnsureManager />}>
                 <Route path="lattes-uploads" element={<LattesUploadsPage />} />

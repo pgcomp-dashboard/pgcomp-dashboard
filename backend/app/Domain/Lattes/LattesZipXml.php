@@ -111,6 +111,7 @@ class LattesZipXml
             }
             $doi = "http://dx.doi.org/$doi";
             $title = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['TITULO-DO-TRABALHO'];
+            error_log($title);
             $year = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ANO-DO-TRABALHO'];
             $issn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISSN'];
             $isbn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISBN'];

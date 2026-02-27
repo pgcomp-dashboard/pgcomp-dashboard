@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\Admin\AdminApprovalController;
 use App\Http\Controllers\Admin\ApprovalRequestController;
 use App\Http\Controllers\Admin\AreaController;
+use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProfessorController;
@@ -111,6 +112,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('admin-request', [AdminApprovalController::class, 'index']);
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
 
+        Route::apiResource('configurations', ConfigurationController::class);
         Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
 
         Route::group(['middleware' => ['is_manager']], function () {
