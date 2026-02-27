@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronsUpDown, Edit, Plus, Settings2, Trash2 } from "lucide-react";
+import { Check, ChevronsUpDown, Edit, Plus, Settings2, Trash2, X } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,10 @@ const ruleSchema = z.object({
     if (!val) return true;
     return true; // Simple string check, will refine for JSON below
   }),
+  jsonValues: z.array(z.object({
+    key: z.string().min(1, "Chave é obrigatória"),
+    value: z.string().min(1, "Valor é obrigatório")
+  })).optional(),
   type: z.enum(["string", "integer", "float", "boolean", "json"]),
   description: z.string().nullable(),
 }).superRefine((data, ctx) => {
@@ -100,10 +104,18 @@ export default function RulesPage() {
       group: "",
       key: "",
       value: "",
+      jsonValues: [],
       type: "string",
       description: "",
     },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "jsonValues",
+  });
+
+  const watchType = form.watch("type");
 
   const createMutation = useMutation({
     mutationFn: (data: RuleFormValues) => configurationService.create(data),
@@ -142,20 +154,66 @@ export default function RulesPage() {
   });
 
   function onSubmit(values: RuleFormValues) {
-    if (editingRule) {
-      updateMutation.mutate(values);
+    const submitValues = { ...values };
+
+    if (submitValues.type === "json") {
+      // Serialize array to deep object or flat object depending on your needs.
+      // Here we create a simple flat object: { key1: val1, key2: val2 }
+      const jsonObj = submitValues.jsonValues?.reduce((acc, curr) => {
+        // try parsing numbers/booleans dynamically or keep as string
+        let finalVal: string | number | boolean = curr.value;
+        if (!isNaN(Number(curr.value))) {
+          finalVal = Number(curr.value);
+        } else if (curr.value === 'true' || curr.value === 'false') {
+          finalVal = curr.value === 'true';
+        }
+        acc[curr.key] = finalVal;
+        return acc;
+      }, {} as Record<string, any>);
+
+      submitValues.value = JSON.stringify(jsonObj);
     } else {
-      createMutation.mutate(values);
+      submitValues.jsonValues = []; // clear if not json
+    }
+
+    // Prepare for backend
+    const payload = {
+      group: submitValues.group,
+      key: submitValues.key,
+      value: submitValues.value,
+      type: submitValues.type,
+      description: submitValues.description,
+    };
+
+    if (editingRule) {
+      updateMutation.mutate(payload);
+    } else {
+      createMutation.mutate(payload);
     }
   }
 
   function handleEdit(rule: Configuration) {
     setEditingRule(rule);
+
+    let parsedJsonValues: { key: string; value: string }[] = [];
+    if (rule.type === 'json' && rule.casted_value) {
+      try {
+        // Convert existing object back to array of {key, value} for the UI
+        parsedJsonValues = Object.entries(rule.casted_value).map(([k, v]) => ({
+          key: k,
+          value: String(v)
+        }));
+      } catch (e) {
+        console.error("Failed to parse existing json for edit", e);
+      }
+    }
+
     form.reset({
       group: rule.group,
       key: rule.key,
       value: rule.value,
       type: rule.type,
+      jsonValues: parsedJsonValues,
       description: rule.description,
     });
     setIsDialogOpen(true);
@@ -174,6 +232,7 @@ export default function RulesPage() {
       group: "",
       key: "",
       value: "",
+      jsonValues: [],
       type: "string",
       description: "",
     });
@@ -313,20 +372,81 @@ export default function RulesPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="value"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Valor</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Valor da regra" {...field} value={field.value || ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {watchType !== "json" ? (
+                    <FormField
+                      control={form.control}
+                      name="value"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Valor</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Valor da regra" {...field} value={field.value || ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ) : null}
                 </div>
+
+                {watchType === "json" && (
+                  <div className="space-y-4 border p-4 rounded-md bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Regras Combinadas (JSON)</FormLabel>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-8"
+                        onClick={() => append({ key: "", value: "" })}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Adicionar Propriedade
+                      </Button>
+                    </div>
+                    {fields.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Nenhuma propriedade adicionada.
+                      </p>
+                    )}
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="flex items-start gap-2">
+                        <FormField
+                          control={form.control}
+                          name={`jsonValues.${index}.key`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormControl>
+                                <Input placeholder="Chave (ex: min_a1)" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`jsonValues.${index}.value`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormControl>
+                                <Input placeholder="Valor (ex: 3 ou true)" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => remove(index)}
+                        >
+                          <X className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <FormField
                   control={form.control}
                   name="description"
