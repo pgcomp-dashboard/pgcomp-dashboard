@@ -66,6 +66,7 @@
                             @endif
 
                             {{-- Botão --}}
+                            @if ($status === 'approved')
                             <table cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
                                     <td style="border-radius: 8px; background-color: #111111;">
@@ -77,6 +78,7 @@
                                     </td>
                                 </tr>
                             </table>
+                            @endif
 
                         </td>
                     </tr>

@@ -21,8 +21,8 @@ class AdminMail extends Mailable
     public function envelope(): Envelope
     {
         $subject = match ($this->status) {
-            'pending'  => 'Dashboard PGCOMP - Nova solicitação de acesso admin - ' . $this->requester->name,
-            'new_registration' => 'Dashboard PGCOMP - Novo cadastro pendente - ' . $this->requester->name,
+            'pending'  => 'Solicitação de acesso admin - ' . $this->requester->name,
+            'new_registration' => 'Cadastro pendente de aprovação - ' . $this->requester->name,
             // 'approved' => 'Dashboard PGCOMP - Solicitação de acesso admin aprovada',
             // 'rejected' => 'Dashboard PGCOMP - Solicitação de acesso admin rejeitada - ' . $this->requester->name,
         };

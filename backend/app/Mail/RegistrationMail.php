@@ -21,9 +21,9 @@ class RegistrationMail extends Mailable
     public function envelope(): Envelope
     {
         $subject = match ($this->status) {
-            'new_registration' => 'Dashboard PGCOMP - Novo cadastro pendente - ' . $this->requester->name,
-            'approved'         => 'Dashboard PGCOMP - Cadastro aprovado!',
-            'rejected'         => 'Dashboard PGCOMP - Cadastro rejeitado',
+            'new_registration' => 'Cadastro pendente de aprovação',
+            'approved'         => 'Cadastro aprovado!',
+            'rejected'         => 'Cadastro rejeitado',
         };
 
         return new Envelope(subject: $subject);

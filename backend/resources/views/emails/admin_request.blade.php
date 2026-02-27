@@ -68,6 +68,7 @@
                             </p>
 
                             {{-- Botão --}}
+                            @if ($status === 'pending' || $status === 'new_registration')
                             <table cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
                                     <td style="border-radius: 8px; background-color: #212121;">
@@ -79,7 +80,7 @@
                                     </td>
                                 </tr>
                             </table>
-
+                            @endif
                         </td>
                     </tr>
 
