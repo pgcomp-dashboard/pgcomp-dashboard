@@ -14,15 +14,18 @@ export interface Configuration {
 
 export const configurationService = {
   async getAll(): Promise<Configuration[]> {
-    return apiClient.get('/api/admin/configurations');
+    const response = await apiClient.get<{ data: Configuration[] }>('/api/admin/configurations');
+    return response.data;
   },
 
   async create(data: Omit<Configuration, 'id' | 'casted_value' | 'created_at' | 'updated_at'>): Promise<Configuration> {
-    return apiClient.post('/api/admin/configurations', data);
+    const response = await apiClient.post<{ data: Configuration }>('/api/admin/configurations', data);
+    return response.data;
   },
 
   async update(id: number, data: Partial<Omit<Configuration, 'id' | 'casted_value'>>): Promise<Configuration> {
-    return apiClient.put(`/api/admin/configurations/${id}`, data);
+    const response = await apiClient.put<{ data: Configuration }>(`/api/admin/configurations/${id}`, data);
+    return response.data;
   },
 
   async delete(id: number): Promise<void> {
