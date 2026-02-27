@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Mail\RegistrationMail;
+use App\Mail\UserMail;
+use Illuminate\Support\Facades\Mail;
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -58,10 +61,12 @@ class ApprovalRequestController extends Controller
         if ($requestType === 'registration') {
             $user->is_approved = true;
             $user->save();
+            Mail::to($user->email)->send(new RegistrationMail($user, 'approved'));
         } elseif ($requestType === 'admin') {
             $user->is_admin = true;
             $user->admin_status = 'approved';
             $user->save();
+            Mail::to($user->email)->send(new UserMail($user, 'approved'));
         }
 
         return response()->json([
@@ -79,13 +84,13 @@ class ApprovalRequestController extends Controller
         $requestType = $request->input('request_type');
 
         if ($requestType === 'registration') {
-            // Delete user if registration is rejected
+            Mail::to($user->email)->send(new RegistrationMail($user, 'rejected'));
             $user->delete();
             return response()->json(['message' => 'Cadastro rejeitado e usuário removido.']);
         } elseif ($requestType === 'admin') {
-            // Set as rejected if admin request is rejected
             $user->admin_status = 'rejected';
             $user->save();
+            Mail::to($user->email)->send(new UserMail($user, 'rejected'));
             return response()->json(['message' => 'Solicitação de admin rejeitada.', 'data' => $user]);
         }
 

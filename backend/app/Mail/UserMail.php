@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AdminMail extends Mailable
+class UserMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -21,10 +21,9 @@ class AdminMail extends Mailable
     public function envelope(): Envelope
     {
         $subject = match ($this->status) {
-            'pending'  => 'Dashboard PGCOMP - Nova solicitação de acesso admin - ' . $this->requester->name,
-            'new_registration' => 'Dashboard PGCOMP - Novo cadastro pendente - ' . $this->requester->name,
-            // 'approved' => 'Dashboard PGCOMP - Solicitação de acesso admin aprovada',
-            // 'rejected' => 'Dashboard PGCOMP - Solicitação de acesso admin rejeitada - ' . $this->requester->name,
+            'pending'  => 'Dashboard PGCOMP - Solicitação de acesso admin pendente',
+            'approved' => 'Dashboard PGCOMP - Solicitação de acesso admin aprovada',
+            'rejected' => 'Dashboard PGCOMP - Solicitação de acesso admin rejeitada'
         };
 
         return new Envelope(subject: $subject);
@@ -33,7 +32,7 @@ class AdminMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.admin_request',
+            view: 'emails.user_request',
         );       
     }
 

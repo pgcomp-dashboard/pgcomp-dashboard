@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\User;
-
+use App\Mail\UserMail;
 use App\Mail\AdminMail;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -40,6 +40,8 @@ class AdminRequestController extends Controller
         if ($admin) {
             Mail::to($admin->email)->send(new AdminMail($user, 'pending'));
         }
+        // Notificar Usuário
+        Mail::to($user->email)->send(new UserMail($user, 'pending'));
 
         return response()->json([
             'message' => 'Solicitação enviada com sucesso! Aguarde a aprovação.',

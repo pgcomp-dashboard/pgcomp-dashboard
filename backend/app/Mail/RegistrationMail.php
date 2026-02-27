@@ -4,13 +4,12 @@ namespace App\Mail;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AdminMail extends Mailable
+class RegistrationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -18,13 +17,13 @@ class AdminMail extends Mailable
         public User $requester,
         public string $status
     ) {}
+
     public function envelope(): Envelope
     {
         $subject = match ($this->status) {
-            'pending'  => 'Dashboard PGCOMP - Nova solicitação de acesso admin - ' . $this->requester->name,
             'new_registration' => 'Dashboard PGCOMP - Novo cadastro pendente - ' . $this->requester->name,
-            // 'approved' => 'Dashboard PGCOMP - Solicitação de acesso admin aprovada',
-            // 'rejected' => 'Dashboard PGCOMP - Solicitação de acesso admin rejeitada - ' . $this->requester->name,
+            'approved'         => 'Dashboard PGCOMP - Cadastro aprovado!',
+            'rejected'         => 'Dashboard PGCOMP - Cadastro rejeitado',
         };
 
         return new Envelope(subject: $subject);
@@ -32,9 +31,6 @@ class AdminMail extends Mailable
 
     public function content(): Content
     {
-        return new Content(
-            view: 'emails.admin_request',
-        );       
+        return new Content(view: 'emails.registration');
     }
-
 }
