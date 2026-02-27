@@ -18,7 +18,7 @@ import {
   Row,
   SortingState,
 } from "@tanstack/react-table";
-import { Eye, FileText, SquarePenIcon, Trash, X } from "lucide-react";
+import { Eye, FileText, SquarePenIcon, Trash } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router";
 
@@ -108,7 +108,7 @@ export function ProfessorTable({
       }),
       columnHelper.accessor("is_admin", {
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Administrador" />
+          <DataTableColumnHeader column={column} title="Perfil" />
         ),
         cell: (info) => (
           <div className="text-center">
@@ -162,7 +162,7 @@ export function ProfessorTable({
               onClick={() => onDelete(info.row.original)}
               title="Excluir"
             >
-              <X className="h-10 w-10" />
+              <Trash className="h-4 w-4" />
             </Button>
           </div>
         ),

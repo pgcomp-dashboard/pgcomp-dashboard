@@ -1,3 +1,14 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
@@ -11,7 +22,8 @@ import { useUnifiedRequests } from "../hooks/useUnifiedRequests";
 const columnHelper = createColumnHelper<ApprovalRequest>();
 
 export function UnifiedApprovalTable() {
-  const { requests, isLoading, error, approveMutation, rejectMutation } = useUnifiedRequests();
+  const { requests, isLoading, error, approveMutation, rejectMutation, approvingId, rejectingId } = useUnifiedRequests();
+  const isAnyPending = approvingId !== null || rejectingId !== null;
 
   const columns = useMemo<ColumnDef<ApprovalRequest, any>[]>(
     () => [
@@ -37,47 +49,69 @@ export function UnifiedApprovalTable() {
         header: "Ações",
         cell: ({ row }) => {
           const request = row.original;
-          const isPending = approveMutation.isPending || rejectMutation.isPending;
+          const isApprovingThis = approvingId === request.id;
+          const isRejectingThis = rejectingId === request.id;
 
           return (
             <div className="flex gap-2 justify-center">
               <Button
                 size="sm"
-                disabled={isPending}
+                disabled={isAnyPending}
                 onClick={() => approveMutation.mutate({ id: request.id, requestType: request.request_type })}
                 className="bg-green-600 hover:bg-green-700"
               >
-                {approveMutation.isPending ? (
+                {isApprovingThis ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Check className="h-4 w-4 mr-1" />
                 )}
                 Aprovar
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={isPending}
-                onClick={() => rejectMutation.mutate({ id: request.id, requestType: request.request_type })}
-              >
-                {rejectMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <X className="h-4 w-4 mr-1" />
-                )}
-                Rejeitar
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isAnyPending}
+                  >
+                    {isRejectingThis ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <X className="h-4 w-4 mr-1" />
+                    )}
+                    Rejeitar
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirmar rejeição</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tem certeza que deseja rejeitar a solicitação de <strong>{request.name}</strong>? Esta ação não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={() => rejectMutation.mutate({ id: request.id, requestType: request.request_type })}
+                    >
+                      Rejeitar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           );
         },
       }),
     ],
-    [approveMutation, rejectMutation],
+    [approveMutation, rejectMutation, approvingId, rejectingId, isAnyPending],
   );
 
   const renderMobileCard = (row: Row<ApprovalRequest>) => {
     const request = row.original;
-    const isPending = approveMutation.isPending || rejectMutation.isPending;
+    const isApprovingThis = approvingId === request.id;
+    const isRejectingThis = rejectingId === request.id;
 
     return (
       <div className="flex flex-col gap-4">
@@ -102,29 +136,49 @@ export function UnifiedApprovalTable() {
         <CardFooter className="flex gap-2 pt-2 border-t p-0 mt-2">
           <Button
             className="flex-1 bg-green-600 hover:bg-green-700"
-            disabled={isPending}
+            disabled={isAnyPending}
             onClick={() => approveMutation.mutate({ id: request.id, requestType: request.request_type })}
           >
-            {approveMutation.isPending ? (
+            {isApprovingThis ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Check className="h-4 w-4 mr-2" />
             )}
             Aprovar
           </Button>
-          <Button
-            variant="destructive"
-            className="flex-1"
-            disabled={isPending}
-            onClick={() => rejectMutation.mutate({ id: request.id, requestType: request.request_type })}
-          >
-            {rejectMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <X className="h-4 w-4 mr-2" />
-            )}
-            Rejeitar
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                disabled={isAnyPending}
+              >
+                {isRejectingThis ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <X className="h-4 w-4 mr-2" />
+                )}
+                Rejeitar
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar rejeição</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja rejeitar a solicitação de <strong>{request.name}</strong>? Esta ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={() => rejectMutation.mutate({ id: request.id, requestType: request.request_type })}
+                >
+                  Rejeitar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardFooter>
       </div>
     );

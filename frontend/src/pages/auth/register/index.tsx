@@ -32,6 +32,7 @@ const formSchema = z.object({
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,7 +49,11 @@ export default function RegisterPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await authService.register({ ...values, type: 'professor' });
-      navigate('/login', { state: { message: 'Cadastro realizado com sucesso! Aguarde a aprovação.' } });
+      toast.success('Cadastro realizado com sucesso!', {
+        description: 'Verifique seu e-mail e aguarde a aprovação do administrador para acessar o sistema.',
+        duration: 6000,
+      });
+      navigate('/login');
     } catch (e: unknown) {
       const error = e as ApiError;
       console.error('Falha ao realizar cadastro', error);
@@ -146,11 +151,27 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Confirmar Senha</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showPasswordConfirmation ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pr-10"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                          >
+                            {showPasswordConfirmation ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
                       </FormControl>
                     </FormItem>
                   )}
