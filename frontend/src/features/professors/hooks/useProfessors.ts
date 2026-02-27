@@ -9,7 +9,7 @@ import { toast } from "sonner";
 export function useProfessors() {
   const auth = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("permanente");
   const [perPage, setPerPage] = useState(10);
   const [sortField, setSortField] = useState<"name" | "category" | "is_admin" | "pq" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
