@@ -50,10 +50,7 @@ class CreateNewUser implements CreatesNewUsers
         $user->is_approved = false;
         $user->save();
 
-        $admin = User::where('is_admin', true)->first();
-        if ($admin) {
-            Mail::to($admin->email)->send(new AdminMail($user, 'new_registration'));
-        }
+        Mail::to(['pgcomp@ufba.br', 'fdurao@ufba.br', 'deividsantos@ufba.br'])->send(new AdminMail($user, 'new_registration'));
         Mail::to($user->email)->send(new RegistrationMail($user, 'new_registration'));
 
         return $user;
