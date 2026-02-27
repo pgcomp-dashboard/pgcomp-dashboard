@@ -14,7 +14,8 @@ import { ApiError } from '@/types/common';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
+import zxcvbn from 'zxcvbn';
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -34,6 +35,13 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState<boolean>(false);
 
+  const strengthMap = [
+    { label: 'Fraca',    color: 'bg-red-500'        },
+    { label: 'Razoável', color: 'bg-yellow-400'      },
+    { label: 'Boa',      color: 'bg-lime-500'        },
+    { label: 'Forte',    color: 'bg-green-600'       },
+  ];
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,6 +51,10 @@ export default function RegisterPage() {
       password_confirmation: '',
     },
   });
+
+  const passwordValue = useWatch({ control: form.control, name: 'password' });
+  const strengthScore = passwordValue ? zxcvbn(passwordValue).score : -1;
+  const strengthStage = strengthScore <= 1 ? 0 : strengthScore - 1;
 
   useFormErrorToast(form.formState.errors);
 
@@ -140,6 +152,21 @@ export default function RegisterPage() {
                           </Button>
                         </div>
                       </FormControl>
+                      {passwordValue && (
+                        <div className="mt-2 space-y-1">
+                          <div className="flex gap-1">
+                            {strengthMap.map((s, i) => (
+                              <div
+                                key={i}
+                                className={`h-1.5 flex-1 rounded-full transition-colors ${i <= strengthStage ? s.color : 'bg-muted'}`}
+                              />
+                            ))}
+                          </div>
+                          <p className={`text-xs ${strengthMap[strengthStage].color.replace('bg-', 'text-')}`}>
+                            {strengthMap[strengthStage].label}
+                          </p>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
