@@ -34,6 +34,8 @@ class UpdateProfessorRequest extends FormRequest
                 'sometimes',
                 new Enum(UserCategory::class),
             ],
+            "lattes_url" => 'sometimes|url|nullable',
+            "orcid" => 'sometimes|string|nullable',
             'is_admin' => 'sometimes|boolean',
             'pq' => 'sometimes|boolean|nullable',
         ];
