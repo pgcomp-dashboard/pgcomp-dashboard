@@ -63,7 +63,7 @@ class LattesZipXml
             $doi = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
             $doi = trim($doi);
             $doi = $doi ? "http://dx.doi.org/$doi" : null;
-            $title = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO'];
+            $title = $loadXml->normalizeText((string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO']);
             $year = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['ANO-DO-ARTIGO'];
             $rawHomePageData = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['HOME-PAGE-DO-TRABALHO'];
             $home_page = "";
@@ -82,7 +82,7 @@ class LattesZipXml
                 $home_page = str_ireplace('doi:', 'http://dx.doi.org/', $home_page);
             }
             $issn = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['ISSN'];
-            $publisher_name = (string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['TITULO-DO-PERIODICO-OU-REVISTA'];
+            $publisher_name = $loadXml->normalizeText((string)$item->{'DETALHAMENTO-DO-ARTIGO'}->attributes()['TITULO-DO-PERIODICO-OU-REVISTA']);
             $nature = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['NATUREZA'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
@@ -123,7 +123,7 @@ class LattesZipXml
             $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
             $doi = trim($doi);
             $doi = $doi ? "http://dx.doi.org/$doi" : null;
-            $title = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['TITULO-DO-TRABALHO'];
+            $title = $loadXml->normalizeText((string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['TITULO-DO-TRABALHO']);
             //error_log($title);
             $year = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ANO-DO-TRABALHO'];
             $issn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISSN'];
@@ -144,7 +144,7 @@ class LattesZipXml
                 $home_page = str_ireplace(['http://https://','http://http://'], 'https://', $result);
                 $home_page = str_ireplace('doi:', 'http://dx.doi.org/', $home_page);
             }
-            $conferenceName = (string)$item->{'DETALHAMENTO-DO-TRABALHO'}->attributes()['NOME-DO-EVENTO'];
+            $conferenceName = $loadXml->normalizeText((string)$item->{'DETALHAMENTO-DO-TRABALHO'}->attributes()['NOME-DO-EVENTO']);
             $nature = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['NATUREZA'];
             $sequence_number = (string)$item->attributes()['SEQUENCIA-PRODUCAO'];
             $publisher_id = null;
@@ -152,7 +152,27 @@ class LattesZipXml
             $source = ProductionSource::XML->value;
 
             if ($conferenceName) {
-                $publisher_id = Publishers::whereLike('name' ,$conferenceName)->first()?->id;
+                $conferenceName = $loadXml->removeYear($conferenceName);
+                $conferenceName = $loadXml->removerNumerosExtenso($conferenceName);
+                $conferenceAcronym = null;
+                if (preg_match('/\(([^)]+)\)/', $conferenceName, $match)) {
+                        $conferenceAcronym = $match[1];
+                        $conferenceName = preg_replace('/\(([^)]+)\)/', '', $conferenceName);
+                }
+                $conferenceName = trim(preg_replace('/\b(international|ieee)\b/iu', '', $conferenceName));
+                $conferenceName = trim(preg_replace('/\bannual\b/iu', '', $conferenceName));
+
+                // Search with wildcards to find records that might still have "International" or "Annual"
+                $publisher_id = Publishers::whereLike('name' ,"%$conferenceName%")->first()?->id;
+
+                if (!$publisher_id && $conferenceAcronym) {
+                   $publisher_id = Publishers::where('initials', $conferenceAcronym)->first()?->id;
+                }
+
+                if (!$publisher_id) {
+                    // Try exact name match just in case
+                    $publisher_id = Publishers::where('name', $conferenceName)->first()?->id;
+                }
                 //$conferenceName === "Hawaii International Conference on System Sciences" ? error_log("Achei o havai, publisher = ". $publisher_id) : $conferenceName;
             }
 
@@ -182,7 +202,9 @@ class LattesZipXml
 
                     $publisher_id = $publisher?->id;
                     //error_log("publisher id = ".$publisher_id);
-                } else if ($conferenceName) {
+                }
+
+                if (!$publisher_id && $conferenceName) {
                     $publisher = Publishers::create([
                         'name' => $conferenceName,
                         'publisher_type' => PublisherType::CONFERENCE->value,
@@ -330,7 +352,7 @@ class LattesZipXml
         "annual",
         "monthly",
         "estendido",
-        "companion"
+        "companion",
     ];
 
     //Ordinais numeros
@@ -349,6 +371,7 @@ class LattesZipXml
     // Remove do texto
     $texto = preg_replace($padrao, '', $texto);
     $texto = preg_replace('/\b\d+(?:st|nd|rd|th)\b/', '', $texto);
+    $texto = preg_replace('/\b(?=[MDCLXVI])M{0,4}(CM|CD|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})\b/iu', '', $texto);
 
     // Remove espaços duplicados
     return trim(preg_replace('/\s+/', ' ', $texto));
@@ -395,5 +418,22 @@ class LattesZipXml
             'conference_name' => $conferenceName,
             'conference_acronym' => $conferenceAcronym,
         ];
-}
+    }
+
+    private function normalizeText(?string $text): ?string
+    {
+        if (empty($text)) {
+            return $text;
+        }
+
+        // Decode HTML entities (e.g., &#769;)
+        $decoded = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        // Normalize to NFC (Composed) to convert combining marks to single characters
+        if (class_exists('\Normalizer')) {
+            return \Normalizer::normalize($decoded, \Normalizer::FORM_C);
+        }
+
+        return $decoded;
+    }
 }
