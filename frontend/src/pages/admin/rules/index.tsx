@@ -70,6 +70,7 @@ export default function RulesPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["configurations"] });
+      queryClient.invalidateQueries({ queryKey: ["ranking"] });
       toast.success("Regras de credenciamento atualizadas com sucesso");
     },
     onError: (error: any) => {
