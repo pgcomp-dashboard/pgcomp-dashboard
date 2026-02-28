@@ -6,19 +6,19 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useFormErrorToast } from '@/hooks/useFormErrorToast';
-import { authService } from '@/services/modules/auth.service';
-import { ApiError } from '@/types/common';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
-import zxcvbn from 'zxcvbn';
-import { Link, useNavigate } from 'react-router';
-import { toast } from 'sonner';
-import { z } from 'zod';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useFormErrorToast } from "@/hooks/useFormErrorToast";
+import { authService } from "@/services/modules/auth.service";
+import { ApiError } from "@/types/common";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
+import { z } from "zod";
+import zxcvbn from "zxcvbn";
 
 const formSchema = z
   .object({
@@ -35,13 +35,14 @@ const formSchema = z
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState<boolean>(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] =
+    useState<boolean>(false);
 
   const strengthMap = [
-    { label: 'Fraca',    color: 'bg-red-500'        },
-    { label: 'Razoável', color: 'bg-yellow-400'      },
-    { label: 'Boa',      color: 'bg-lime-500'        },
-    { label: 'Forte',    color: 'bg-green-600'       },
+    { label: "Fraca", color: "bg-red-500" },
+    { label: "Razoável", color: "bg-yellow-400" },
+    { label: "Boa", color: "bg-lime-500" },
+    { label: "Forte", color: "bg-green-600" },
   ];
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,7 +55,7 @@ export default function RegisterPage() {
     },
   });
 
-  const passwordValue = useWatch({ control: form.control, name: 'password' });
+  const passwordValue = useWatch({ control: form.control, name: "password" });
   const strengthScore = passwordValue ? zxcvbn(passwordValue).score : -1;
   const strengthStage = strengthScore <= 1 ? 0 : strengthScore - 1;
 
@@ -62,12 +63,13 @@ export default function RegisterPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await authService.register({ ...values, type: 'professor' });
-      toast.success('Cadastro realizado com sucesso!', {
-        description: 'Verifique seu e-mail e aguarde a aprovação do administrador para acessar o sistema.',
+      await authService.register({ ...values, type: "professor" });
+      toast.success("Cadastro realizado com sucesso!", {
+        description:
+          "Verifique seu e-mail e aguarde a aprovação do administrador para acessar o sistema.",
         duration: 6000,
       });
-      navigate('/login');
+      navigate("/login");
     } catch (e: unknown) {
       const error = e as ApiError;
       console.error("Falha ao realizar cadastro", error);
@@ -87,7 +89,7 @@ export default function RegisterPage() {
               className="flex flex-col items-center gap-2 font-medium"
             >
               <div className="mb-4 sm:mb-8 flex items-center justify-center">
-                <AppLogo className="w-30"/>
+                <AppLogo className="w-30" />
               </div>
             </Link>
 
@@ -161,11 +163,13 @@ export default function RegisterPage() {
                             {strengthMap.map((s, i) => (
                               <div
                                 key={i}
-                                className={`h-1.5 flex-1 rounded-full transition-colors ${i <= strengthStage ? s.color : 'bg-muted'}`}
+                                className={`h-1.5 flex-1 rounded-full transition-colors ${i <= strengthStage ? s.color : "bg-muted"}`}
                               />
                             ))}
                           </div>
-                          <p className={`text-xs ${strengthMap[strengthStage].color.replace('bg-', 'text-')}`}>
+                          <p
+                            className={`text-xs ${strengthMap[strengthStage].color.replace("bg-", "text-")}`}
+                          >
                             {strengthMap[strengthStage].label}
                           </p>
                         </div>
@@ -183,7 +187,9 @@ export default function RegisterPage() {
                       <FormControl>
                         <div className="relative">
                           <Input
-                            type={showPasswordConfirmation ? "text" : "password"}
+                            type={
+                              showPasswordConfirmation ? "text" : "password"
+                            }
                             placeholder="••••••••"
                             className="pr-10"
                             {...field}
@@ -193,7 +199,11 @@ export default function RegisterPage() {
                             variant="ghost"
                             size="sm"
                             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                            onClick={() =>
+                              setShowPasswordConfirmation(
+                                !showPasswordConfirmation,
+                              )
+                            }
                           >
                             {showPasswordConfirmation ? (
                               <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -207,98 +217,101 @@ export default function RegisterPage() {
                   )}
                 />
 
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Senha</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="••••••••"
-                              className="pr-10"
-                              {...field}
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? (
-                                <EyeOff className="h-4 w-4 text-muted-foreground" />
-                              ) : (
-                                <Eye className="h-4 w-4 text-muted-foreground" />
-                              )}
-                            </Button>
-                          </div>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pr-10"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="password_confirmation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirmar Senha</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              type={showConfirmPassword ? "text" : "password"}
-                              placeholder="••••••••"
-                              className="pr-10"
-                              {...field}
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                              onClick={() =>
-                                setShowConfirmPassword(!showConfirmPassword)
-                              }
-                            >
-                              {showConfirmPassword ? (
-                                <EyeOff className="h-4 w-4 text-muted-foreground" />
-                              ) : (
-                                <Eye className="h-4 w-4 text-muted-foreground" />
-                              )}
-                            </Button>
-                          </div>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="password_confirmation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirmar Senha</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={
+                              showPasswordConfirmation ? "text" : "password"
+                            }
+                            placeholder="••••••••"
+                            className="pr-10"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() =>
+                              setShowPasswordConfirmation(
+                                !showPasswordConfirmation,
+                              )
+                            }
+                          >
+                            {showPasswordConfirmation ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={form.formState.isSubmitting}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Cadastrar
+                </Button>
+
+                <div className="text-center text-sm">
+                  Já tem uma conta?{" "}
+                  <Link
+                    to="/login"
+                    className="underline underline-offset-4 hover:text-primary"
                   >
-                    {form.formState.isSubmitting && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Cadastrar
-                  </Button>
-
-                  <div className="text-center text-sm">
-                    Já tem uma conta?{" "}
-                    <Link
-                      to="/login"
-                      className="underline underline-offset-4 hover:text-primary"
-                    >
-                      Entrar
-                    </Link>
-                  </div>
+                    Entrar
+                  </Link>
                 </div>
-              </form>
-            </Form>
-          </div>
+              </div>
+            </form>
+          </Form>
         </div>
       </div>
     </div>
