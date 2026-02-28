@@ -9,9 +9,9 @@ import { toast } from "sonner";
 export function useProfessors() {
   const auth = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("permanente");
   const [perPage, setPerPage] = useState(10);
-  const [sortField, setSortField] = useState<"name" | "category" | "is_admin" | "pq" | null>(null);
+  const [sortField, setSortField] = useState<"name" | "category" | "is_admin" | "pq" | null>("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // Fetch all professors once — no pagination, no server-side filters

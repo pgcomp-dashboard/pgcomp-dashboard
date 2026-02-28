@@ -198,4 +198,25 @@ class DashboardController extends Controller
     {
         return response()->json($this->dashboardService->getStudentCountPerCourse());
     }
+
+    /**
+     * Get summary of pending items requiring admin action.
+     */
+    public function pendingSummary(): \Illuminate\Http\JsonResponse
+    {
+        $registrations = User::where('is_approved', false)
+            ->where('type', UserType::PROFESSOR)
+            ->count();
+
+        $adminRequests = User::where('admin_status', 'pending')->count();
+
+        $publishers = \App\Models\Publishers::where('is_approved', false)->count();
+
+        return response()->json([
+            'registrations' => $registrations,
+            'admin_requests' => $adminRequests,
+            'publishers' => $publishers,
+            'total' => $registrations + $adminRequests + $publishers
+        ]);
+    }
 }

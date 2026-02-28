@@ -14,6 +14,7 @@ export function usePublishers() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [qualisFilter, setQualisFilter] = useState("all");
+  const [approvalFilter, setApprovalFilter] = useState("approved");
   const [sorting, setSorting] = useState<SortingState>([]);
 
   // Reset to page 1 when filters or perPage change
@@ -37,13 +38,18 @@ export function usePublishers() {
     setPage(1);
   };
 
+  const handleSetApprovalFilter = (newApproval: string) => {
+    setApprovalFilter(newApproval);
+    setPage(1);
+  };
+
   const { data: qualisOptions = [] } = useQuery<StratumQualis[], Error>({
     queryKey: ["qualis-options"],
     queryFn: () => qualisService.getAllQualis(),
   });
 
   const { data: publishersData, isLoading, isError, isFetching } = useQuery<PaginatedResponse<Publisher>, Error>({
-    queryKey: ["publishers", page, perPage, search, typeFilter, qualisFilter, sorting],
+    queryKey: ["publishers", page, perPage, search, typeFilter, qualisFilter, approvalFilter, sorting],
     queryFn: async () => {
       const params: Record<string, any> = {
         page,
@@ -57,6 +63,10 @@ export function usePublishers() {
 
       if (typeFilter !== 'all') {
         params.filter.publisher_type = typeFilter;
+      }
+
+      if (approvalFilter !== 'all') {
+        params.filter.is_approved = approvalFilter === 'approved' ? 1 : 0;
       }
 
       if (qualisFilter !== 'all') {
@@ -109,6 +119,15 @@ export function usePublishers() {
     onError: () => toast.error("Erro ao excluir veículo"),
   });
 
+  const approveMutation = useMutation({
+    mutationFn: (id: number) => publisherService.approvePublisher(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["publishers"] });
+      toast.success("Veículo aprovado com sucesso");
+    },
+    onError: () => toast.error("Erro ao aprovar veículo"),
+  });
+
   const importMutation = useMutation({
     mutationFn: ({ formData, type }: { formData: FormData; type: 'journal' | 'conference' }) =>
       publisherService.createPublishersFromSpreadsheet(formData, type),
@@ -135,12 +154,15 @@ export function usePublishers() {
     setTypeFilter: handleSetTypeFilter,
     qualisFilter,
     setQualisFilter: handleSetQualisFilter,
+    approvalFilter,
+    setApprovalFilter: handleSetApprovalFilter,
     sorting,
     setSorting,
     qualisOptions,
     createMutation,
     updateMutation,
     deleteMutation,
+    approveMutation,
     importMutation,
   };
 }

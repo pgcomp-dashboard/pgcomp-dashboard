@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfessorDeleteDialog } from "@/features/professors/components/ProfessorDeleteDialog";
 import { ProfessorDialog } from "@/features/professors/components/ProfessorDialog";
@@ -7,9 +8,10 @@ import { ProfessorHeader } from "@/features/professors/components/ProfessorHeade
 import { ProfessorTable } from "@/features/professors/components/ProfessorTable";
 import { useProfessors } from "@/features/professors/hooks/useProfessors";
 import { UnifiedApprovalTable } from "@/features/user-config/components/UnifiedApprovalTable";
+import { usePendingSummary } from "@/hooks/usePendingSummary";
 import { Professor } from "@/types/user";
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 
 export default function ProfessorsPage() {
   const navigate = useNavigate();
@@ -75,15 +77,40 @@ export default function ProfessorsPage() {
     }
   };
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "list");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && (tab === "list" || tab === "requests")) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setSearchParams({ tab: value });
+  };
+
   if (isLoading) return <div>Carregando...</div>;
   if (isError) return <div>Erro ao carregar professores!</div>;
 
+  const { summary } = usePendingSummary();
+  const pendingRequests = summary.registrations + summary.admin_requests;
+
   return (
     <div className="flex flex-col gap-4">
-      <Tabs defaultValue="list">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="list">Lista de Docentes</TabsTrigger>
-          <TabsTrigger value="requests">Solicitações</TabsTrigger>
+          <TabsTrigger value="requests" className="flex items-center gap-2">
+            Solicitações
+            {pendingRequests > 0 && (
+              <Badge variant="destructive" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
+                {pendingRequests}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="flex flex-col gap-4 mt-4">

@@ -1,9 +1,15 @@
 import LattesIcon from "@/components/LattesIcon";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Ranking } from "@/types/academic";
 import { ColumnDef, createColumnHelper, Row } from "@tanstack/react-table";
-import { BookOpenTextIcon } from "lucide-react";
+import { BookOpenTextIcon, Info } from "lucide-react";
 import { useMemo } from "react";
 import { Link, useNavigate } from "react-router";
 
@@ -73,18 +79,101 @@ export function AccreditationTable({
               className="hover:bg-transparent h-full"
               onClick={() => handleShowDetails(info.row.original.user_id)}
             >
-              <BookOpenTextIcon className="size-5" />
+              < BookOpenTextIcon className="size-5" />
             </Button>
+          </div>
+        ),
+      }),
+      columnHelper.display({
+        id: "periodicos",
+        header: "#Periódicos",
+        cell: ({ row }) => {
+          const breakdown = row.original.qualis_breakdown || {};
+          const sortedKeys = Object.keys(breakdown).sort();
+
+          return (
+            <div className="flex justify-center">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent className="p-3">
+                    <div className="space-y-1">
+                      <p className="font-semibold border-b pb-1 mb-1">Detalhamento Qualis</p>
+                      {sortedKeys.length > 0 ? (
+                        sortedKeys.map(key => (
+                          <div key={key} className="flex justify-between gap-4">
+                            <span className="font-mono">{key}:</span>
+                            <span className="font-bold">{breakdown[key]}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs italic">Sem publicações no período</p>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("pq", {
+        header: "PQ",
+        cell: (info) => (
+          <div className="font-medium text-center">
+            {info.getValue() ? (
+              <span className="text-primary font-bold">Sim</span>
+            ) : (
+              <span className="text-muted-foreground">Não</span>
+            )}
           </div>
         ),
       }),
       columnHelper.accessor("total_score", {
         header: "Pontuação",
         cell: (info) => (
-          <div className="font-medium text-center">
+          <div className="font-bold text-center">
             {info.getValue().toFixed(1)}
           </div>
         ),
+      }),
+      columnHelper.display({
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const { is_accredited, reasons } = row.original;
+          return (
+            <div className="flex justify-center">
+              {is_accredited ? (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Credenciado
+                </span>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        Não Credenciado
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-red-600">Motivos:</p>
+                        <ul className="list-disc list-inside text-xs">
+                          {reasons?.map((reason, i) => (
+                            <li key={i}>{reason}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+          );
+        },
       }),
       columnHelper.accessor("lattes_url", {
         header: "Lattes",
@@ -107,6 +196,8 @@ export function AccreditationTable({
   const renderMobileCard = (row: Row<Ranking>) => {
     const rank = row.original;
     const index = row.index;
+    const breakdown = rank.qualis_breakdown || {};
+    const sortedKeys = Object.keys(breakdown).sort();
 
     return (
       <div className="flex flex-col gap-3">
@@ -124,19 +215,44 @@ export function AccreditationTable({
                 {formatName(rank.name)}
               </Button>
               <span className="text-sm text-muted-foreground capitalize">
-                {rank.category}
+                {rank.category} {rank.pq && <span className="text-primary font-black ml-1">• PQ</span>}
               </span>
+            </div>
+          </div>
+          {rank.is_accredited ? (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800">
+              Credenciado
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-800">
+              Não Credenciado
+            </span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 text-sm bg-muted/30 p-3 rounded-lg">
+          <div className="flex items-center justify-between border-b pb-2 mb-1">
+            <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Pontuação Total</span>
+            <span className="text-lg font-black text-primary">{rank.total_score.toFixed(1)}</span>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Detalhamento Qualis</p>
+            <div className="grid grid-cols-3 gap-2">
+              {sortedKeys.length > 0 ? (
+                sortedKeys.map(key => (
+                  <div key={key} className="flex flex-col items-center bg-background rounded border p-1 border-border/40">
+                    <span className="text-[10px] font-mono text-muted-foreground">{key}</span>
+                    <span className="text-xs font-bold">{breakdown[key]}</span>
+                  </div>
+                ))
+              ) : (
+                <span className="text-xs italic text-muted-foreground col-span-3">Nenhuma publicação</span>
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t">
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">Pontuação</span>
-            <span className="text-xl font-bold">
-              {rank.total_score.toFixed(1)}
-            </span>
-          </div>
           <Link
             to={rank.lattes_url}
             target="_blank"
@@ -157,9 +273,9 @@ export function AccreditationTable({
       isLoading={isLoading}
       emptyMessage="Não foram encontrados professores"
       getRowClassName={(row) =>
-        row.original.total_score >= 250
-          ? "font-medium bg-green-100/50 hover:bg-green-100/80 transition-colors"
-          : "bg-red-50/50 hover:bg-red-50/80 transition-colors"
+        row.original.is_accredited
+          ? "font-medium bg-green-50/20 hover:bg-green-50/40 transition-colors"
+          : "bg-red-50/20 hover:bg-red-50/40 transition-colors"
       }
       pagination={{
         pageIndex: 0,

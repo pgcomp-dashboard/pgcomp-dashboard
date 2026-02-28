@@ -5,7 +5,7 @@ import { UserGeneralForm } from "@/features/user-config/components/UserGeneralFo
 import { UserPasswordForm } from "@/features/user-config/components/UserPasswordForm";
 import { useUserConfig } from "@/features/user-config/hooks/useUserConfig";
 
-export default function UserConfigPage() {
+export default function ProfilePage() {
   const {
     auth,
     generalForm,
@@ -19,7 +19,7 @@ export default function UserConfigPage() {
     <div className="space-y-6 max-w-4xl mx-auto px-4 py-8">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold tracking-tight">
-          Configurações do Usuário
+          Perfil
         </h1>
         <p className="text-muted-foreground">
           Gerencie suas informações pessoais e configurações de segurança.

@@ -1,11 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Publisher } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
-import { ColumnDef, createColumnHelper, PaginationState, SortingState } from "@tanstack/react-table";
-import { Info, Pencil, SquarePenIcon, Trash } from "lucide-react";
+import {
+  ColumnDef,
+  createColumnHelper,
+  PaginationState,
+  SortingState,
+} from "@tanstack/react-table";
+import { CheckCircle, Info, Pencil, SquarePenIcon, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 
 interface PublisherTableProps {
@@ -15,6 +25,7 @@ interface PublisherTableProps {
   isFetching: boolean;
   onEdit: (publisher: Publisher) => void;
   onDelete: (publisher: Publisher) => void;
+  onApprove: (publisher: Publisher) => void;
   onPageChange: (page: number) => void;
   sorting: SortingState;
   onSortingChange: (updater: any) => void;
@@ -34,7 +45,9 @@ const MobileCardIssnList = ({ issns }: { issns: string[] }) => {
     return (
       <div className="flex flex-col gap-1 mt-1 bg-background border p-2 rounded-md w-full">
         {issns.map((issn, idx) => (
-          <span key={idx} className="text-xs bg-muted/50 px-2 py-1 rounded">{issn}</span>
+          <span key={idx} className="text-xs bg-muted/50 px-2 py-1 rounded">
+            {issn}
+          </span>
         ))}
         <button
           className="text-primary text-xs font-semibold self-start hover:underline mt-1 cursor-pointer"
@@ -49,7 +62,9 @@ const MobileCardIssnList = ({ issns }: { issns: string[] }) => {
   return (
     <span className="inline-flex items-center gap-1">
       {issns.slice(0, 2).join(", ")}
-      <span className="text-muted-foreground text-xs">(+{issns.length - 2})</span>
+      <span className="text-muted-foreground text-xs">
+        (+{issns.length - 2})
+      </span>
       <button
         className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         onClick={() => setExpanded(true)}
@@ -67,6 +82,7 @@ export function PublisherTable({
   isFetching,
   onEdit,
   onDelete,
+  onApprove,
   onPageChange,
   sorting,
   onSortingChange,
@@ -81,7 +97,9 @@ export function PublisherTable({
         cell: (info) => {
           const publisher = info.getValue();
           if (publisher.publisher_type !== "journal") {
-            return <div className="text-center">{publisher.initials || "—"}</div>;
+            return (
+              <div className="text-center">{publisher.initials || "—"}</div>
+            );
           }
 
           const issns = publisher.issns || [];
@@ -93,7 +111,9 @@ export function PublisherTable({
 
           return (
             <div className="text-center flex items-center justify-center gap-1">
-              <span>{issns.slice(0, 2).join(", ")} (+{issns.length - 2})</span>
+              <span>
+                {issns.slice(0, 2).join(", ")} (+{issns.length - 2})
+              </span>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
@@ -143,6 +163,17 @@ export function PublisherTable({
         header: "Ações",
         cell: (info) => (
           <div className="flex justify-center gap-1">
+            {/* {!info.row.original.is_approved && (
+              // <Button
+              //   variant="ghost"
+              //   size="icon"
+              //   className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+              //   onClick={() => onApprove(info.row.original)}
+              //   title="Aprovar"
+              // >
+              //   <CheckCircle className="h-4 w-4" />
+              // </Button>
+            )} */}
             <Button
               variant="ghost"
               size="icon"
@@ -163,7 +194,7 @@ export function PublisherTable({
         ),
       }),
     ],
-    [onEdit, onDelete]
+    [onEdit, onDelete, onApprove],
   );
 
   const paginationState: PaginationState = useMemo(() => {
@@ -205,12 +236,26 @@ export function PublisherTable({
             <span className="font-medium">
               {publisher.publisher_type === "journal" ? "ISSN" : "Sigla"}:
             </span>{" "}
-            {publisher.publisher_type === "journal"
-              ? <MobileCardIssnList issns={publisher.issns || []} />
-              : publisher.initials || "—"}
+            {publisher.publisher_type === "journal" ? (
+              <MobileCardIssnList issns={publisher.issns || []} />
+            ) : (
+              publisher.initials || "—"
+            )}
           </div>
         </div>
-        <CardFooter className="flex border-t items-stretch">
+        <CardFooter className="flex border-t items-stretch flex-wrap">
+          {!publisher.is_approved && (
+            <>
+              <Button
+                variant="ghost"
+                className="flex-1 rounded-none h-11 text-sm text-green-600 hover:text-green-700"
+                onClick={() => onApprove(publisher)}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" /> Aprovar
+              </Button>
+              <div className="w-px bg-border self-stretch hidden sm:block" />
+            </>
+          )}
           <Button
             variant="ghost"
             className="flex-1 rounded-none h-11 text-sm"

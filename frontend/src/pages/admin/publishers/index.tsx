@@ -1,15 +1,19 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PublisherDeleteDialog } from "@/features/publishers/components/PublisherDeleteDialog";
 import { PublisherDialogs } from "@/features/publishers/components/PublisherDialogs";
 import { PublisherFilters } from "@/features/publishers/components/PublisherFilters";
 import { PublisherImport } from "@/features/publishers/components/PublisherImport";
 import { PublisherTable } from "@/features/publishers/components/PublisherTable";
 import { usePublishers } from "@/features/publishers/hooks/usePublishers";
+import { usePendingSummary } from "@/hooks/usePendingSummary";
 import { Publisher } from "@/types/academic";
 import { Plus, Upload } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 
 export default function PublishersPage() {
   const {
@@ -26,12 +30,15 @@ export default function PublishersPage() {
     setTypeFilter,
     qualisFilter,
     setQualisFilter,
+    approvalFilter,
+    setApprovalFilter,
     sorting,
     setSorting,
     qualisOptions,
     createMutation,
     updateMutation,
     deleteMutation,
+    approveMutation,
     importMutation,
   } = usePublishers();
 
@@ -60,6 +67,10 @@ export default function PublishersPage() {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleApprove = async (publisher: Publisher) => {
+    await approveMutation.mutateAsync(publisher.id);
+  };
+
   const handleSave = async (values: any) => {
     if (editingPublisher) {
       await updateMutation.mutateAsync({
@@ -85,6 +96,22 @@ export default function PublishersPage() {
     await importMutation.mutateAsync({ formData, type });
   };
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && (tab === "approved" || tab === "pending")) {
+      setApprovalFilter(tab);
+    }
+  }, [searchParams, setApprovalFilter]);
+
+  const handleTabChange = (value: string) => {
+    setApprovalFilter(value);
+    setSearchParams({ tab: value });
+  };
+
+  const { summary } = usePendingSummary();
+
   return (
     <div className="space-y-6">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -109,33 +136,48 @@ export default function PublishersPage() {
         </div>
       </header>
 
-      <div className="rounded-md border">
-        <PublisherFilters
-          search={search}
-          setSearch={setSearch}
-          typeFilter={typeFilter}
-          setTypeFilter={setTypeFilter}
-          qualisFilter={qualisFilter}
-          setQualisFilter={setQualisFilter}
-          perPage={perPage}
-          setPerPage={setPerPage}
-          qualisOptions={qualisOptions}
-        />
+      <Tabs value={approvalFilter} onValueChange={handleTabChange} className="w-full space-y-4">
+        <TabsList>
+          <TabsTrigger value="approved">Aprovados</TabsTrigger>
+          <TabsTrigger value="pending" className="flex items-center gap-2">
+            Pendentes
+            {summary.publishers > 0 && (
+              <Badge variant="destructive" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
+                {summary.publishers}
+              </Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
 
-        <PublisherTable
-          publishers={publishers}
-          pagination={pagination}
-          isLoading={isLoading}
-          isFetching={isFetching}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onPageChange={setPage}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          perPage={perPage}
-          onPerPageChange={setPerPage}
-        />
-      </div>
+        <div className="rounded-md border">
+          <PublisherFilters
+            search={search}
+            setSearch={setSearch}
+            typeFilter={typeFilter}
+            setTypeFilter={setTypeFilter}
+            qualisFilter={qualisFilter}
+            setQualisFilter={setQualisFilter}
+            perPage={perPage}
+            setPerPage={setPerPage}
+            qualisOptions={qualisOptions}
+          />
+
+          <PublisherTable
+            publishers={publishers}
+            pagination={pagination}
+            isLoading={isLoading}
+            isFetching={isFetching}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onApprove={handleApprove}
+            onPageChange={setPage}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            perPage={perPage}
+            onPerPageChange={setPerPage}
+          />
+        </div>
+      </Tabs>
 
       <PublisherDialogs
         isOpen={isPublisherDialogOpen}

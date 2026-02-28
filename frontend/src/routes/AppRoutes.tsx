@@ -18,9 +18,10 @@ import ResetPasswordPage from "@/pages/auth/reset-password";
 import WaitingApprovalPage from "@/pages/auth/waiting-approval";
 import NotFoundPage from "@/pages/not-found";
 import ProductionsPage from "@/pages/user/productions";
-import UserConfigPage from "@/pages/user/user-config";
+import ProfilePage from "@/pages/user/profile";
 import WelcomePage from "@/pages/user/welcome";
 
+import RulesPage from "@/pages/admin/rules";
 import { EnsureAdmin } from "./guards/EnsureAdmin";
 import { EnsureAuthenticated } from "./guards/EnsureAuthenticated";
 import { EnsureIsApproved } from "./guards/EnsureIsApproved";
@@ -51,7 +52,7 @@ export function AppRoutes() {
             <Route path="portal">
               <Route index element={<Navigate to="/" replace />} />
               <Route path="productions" element={<ProductionsPage />} />
-              <Route path="user-config" element={<UserConfigPage />} />
+              <Route path="profile" element={<ProfilePage />} />
             </Route>
             {/* Rotas restritas apenas para ADMIN */}
             <Route path="admin" element={<EnsureAdmin />}>
@@ -62,6 +63,7 @@ export function AppRoutes() {
               <Route path="professors" element={<ProfessorsPage />} />
               <Route path="publishers" element={<PublishersPage />} />
               <Route path="qualis" element={<QualisPage />} />
+              <Route path="rules" element={<RulesPage />} />
               <Route path="system-config" element={<SystemConfigPage />} />
               <Route element={<EnsureManager />}>
                 <Route path="lattes-uploads" element={<LattesUploadsPage />} />

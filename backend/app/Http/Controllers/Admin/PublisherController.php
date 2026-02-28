@@ -28,7 +28,10 @@ class PublisherController extends Controller
 
     public function store(StorePublisherRequest $request)
     {
-        $model = $this->publisherService->create($request->all());
+        $data = $request->all();
+        $data['is_approved'] = true; // Admin creations are pre-approved
+
+        $model = $this->publisherService->create($data);
 
         return new PublisherResource($model);
     }
@@ -69,6 +72,14 @@ class PublisherController extends Controller
         $this->publisherService->delete($id);
 
         return response()->json(['message' => 'Publisher deleted successfully']);
+    }
+
+    public function approve(int $id)
+    {
+        $publisher = $this->publisherService->find($id);
+        $publisher->update(['is_approved' => true]);
+
+        return response()->json(['message' => 'Publisher approved successfully']);
     }
 
     public function import(ImportQualisRequest $request)

@@ -32,6 +32,7 @@ export interface Publisher {
   created_at: string;
   updated_at: string;
   stratum_qualis: StratumQualis | null;
+  is_approved?: boolean;
 }
 
 export interface Production {
@@ -65,7 +66,12 @@ export type Ranking = {
   user_id: number;
   name: string;
   category: string;
+  pq: boolean;
   total_score: number;
+  a1_a4_count: number;
+  qualis_breakdown: Record<string, number>;
+  is_accredited: boolean;
+  reasons: string[];
   lattes_url: string;
   productions: RankingProduction[];
 };

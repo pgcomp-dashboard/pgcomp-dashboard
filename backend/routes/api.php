@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\Admin\AdminApprovalController;
 use App\Http\Controllers\Admin\ApprovalRequestController;
 use App\Http\Controllers\Admin\AreaController;
+use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProfessorController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\User\AdminRequestController;
 use App\Http\Controllers\User\ProductionController;
 use App\Http\Controllers\Admin\ProductionController as ProductionAdminController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\PublisherController as UserPublisherController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +69,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('admin-request', [AdminRequestController::class, 'store']);
         Route::get('admin-status', [AdminRequestController::class, 'getStatus']);
         Route::get('publishers', [PublisherController::class, 'index']);
+        Route::post('publishers', [UserPublisherController::class, 'store']);
     });
 
     // Admin group routes
@@ -85,11 +88,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             Route::get('enrollments_per_year', [DashboardController::class, 'enrollmentsPerYear']);
             Route::get('professors', [DashboardController::class, 'allProfessors']);
             Route::get('professor/{professorId}/productions', [DashboardController::class, 'professorProduction']);
+            Route::get('pending-summary', [DashboardController::class, 'pendingSummary']);
         });
 
         Route::get('users/pending', [UserAdminController::class, 'indexPending']);
         Route::post('users/{user}/approve', [UserAdminController::class, 'approve']);
         Route::apiResource('users', UserAdminController::class);
+        Route::post('publishers/{id}/approve', [PublisherController::class, 'approve']);
         Route::apiResource('publishers', PublisherController::class);
         Route::apiResource('stratum_qualis', StratumQualisController::class)->parameters(['stratum_qualis' => 'qualis']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
@@ -111,6 +116,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('admin-request', [AdminApprovalController::class, 'index']);
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
 
+        Route::apiResource('configurations', ConfigurationController::class);
         Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
 
         Route::group(['middleware' => ['is_manager']], function () {

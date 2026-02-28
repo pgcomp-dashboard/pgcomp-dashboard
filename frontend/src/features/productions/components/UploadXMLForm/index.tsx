@@ -11,9 +11,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { queryClient } from "@/lib/query-client";
 import { productionService } from "@/services/modules/production.service";
-import { FileText, Loader2, Upload, X } from "lucide-react";
+import { FileText, HelpCircle, Loader2, PlayCircle, Upload, X } from "lucide-react";
 import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -82,13 +90,50 @@ export default function UploadXMLForm({
   return (
     <div className="flex flex-col w-full items-center">
       <div className="flex flex-col w-full max-w-md gap-4 items-center">
-        <div className="text-center">
+        <div className="text-center w-full">
           <h2 className="text-lg sm:text-xl font-semibold">
             Adicionar com XML
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Envie o arquivo ZIP ou XML do Lattes
-          </p>
+          <div className="flex items-center justify-center gap-2 mt-1">
+            <p className="text-sm text-muted-foreground">
+              Envie o arquivo ZIP ou XML do Lattes
+            </p>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-primary/10">
+                  <HelpCircle className="h-4 w-4 text-primary" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="sm:max-w-xl">
+                <SheetHeader className="mb-6 text-left">
+                  <SheetTitle className="flex items-center gap-2 text-2xl">
+                    <PlayCircle className="h-6 w-6 text-primary" />
+                    Como exportar o XML do Lattes?
+                  </SheetTitle>
+                  <SheetDescription>
+                    Siga o passo a passo no vídeo abaixo para obter seu arquivo de produções.
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="relative aspect-video w-full overflow-hidden rounded-xl border bg-muted shadow-lg">
+                  <iframe
+                    className="h-full w-full"
+                    src="https://www.youtube.com/embed/5n7aV5sUzMA?si=ZQvk35-fod67sV_8" title="Como exportar currículo Lattes" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+                <div className="mt-8 space-y-4">
+                  <h4 className="font-semibold text-lg">Resumo simples:</h4>
+                  <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                    <li>Acesse a Plataforma Lattes</li>
+                    <li>Va em atualizar currículo lattes</li>
+                    <li>Clique em <span className="font-medium text-foreground">"Exportar"</span> no menu lateral</li>
+                    <li>Selecione o formato <span className="font-medium text-foreground">"XML"</span></li>
+                    <li>Clique em <span className="font-medium text-foreground">"Confirmar"</span> para baixar o arquivo</li>
+                  </ol>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
 
         <div className="w-full space-y-3">

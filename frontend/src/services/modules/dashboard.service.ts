@@ -60,4 +60,12 @@ export const dashboardService = {
       { category: `${course} - Alunos concluídos`, amount: students.completed },
     ]).flat();
   },
+  async getPendingSummary() {
+    return apiClient.get<{
+      registrations: number;
+      admin_requests: number;
+      publishers: number;
+      total: number;
+    }>('/api/admin/dashboard/pending-summary');
+  },
 };
