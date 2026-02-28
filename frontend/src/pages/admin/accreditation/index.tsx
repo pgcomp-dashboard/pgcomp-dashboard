@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -10,7 +11,8 @@ import {
 } from "@/components/ui/select";
 import { AccreditationTable } from "@/features/accreditation/components/AccreditationTable";
 import { useAccreditation } from "@/features/accreditation/hooks/useAccreditation";
-import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Loader2, RotateCw } from "lucide-react";
 import { Link } from "react-router";
 
 export default function CredenciamentoPage() {
@@ -19,6 +21,7 @@ export default function CredenciamentoPage() {
     isLoading,
     isFetching,
     error,
+    refetch,
     startYear,
     setStartYear,
     endYear,
@@ -141,9 +144,25 @@ export default function CredenciamentoPage() {
             </SelectContent>
           </Select>
         </div>
-        {isFetching && (
-          <Loader2 className="mb-2 h-5 w-5 animate-spin text-primary" />
-        )}
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            title="Atualizar ranking"
+            className="bg-background hover:bg-muted"
+          >
+            <RotateCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
+          </Button>
+
+          {isFetching && (
+            <span className="text-xs text-muted-foreground animate-pulse">
+              Atualizando...
+            </span>
+          )}
+        </div>
       </div>
 
       <AccreditationTable

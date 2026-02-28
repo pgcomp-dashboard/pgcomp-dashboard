@@ -15,6 +15,7 @@ export function useAccreditation() {
     isLoading,
     isFetching,
     error,
+    refetch,
   } = useQuery<Ranking[], Error>({
     queryKey: ["ranking", startYear, endYear],
     queryFn: () => userService.getAccreditationRanking(startYear, endYear),
@@ -40,6 +41,7 @@ export function useAccreditation() {
     isLoading,
     isFetching,
     error,
+    refetch,
     startYear,
     setStartYear,
     endYear,
