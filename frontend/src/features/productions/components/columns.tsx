@@ -127,7 +127,11 @@ export const getProductionColumns = ({
       <DataTableColumnHeader column={column} title="Origem" />
     ),
     cell: (info) => (
-      <div className="text-center text-sm capitalize">{info.getValue()}</div>
+      <div className="text-center text-sm">
+        {info.getValue() === "manual"
+          ? "Manual"
+          : info.getValue().toUpperCase()}
+      </div>
     ),
     meta: {
       className: "w-[10%]",

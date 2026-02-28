@@ -26,6 +26,10 @@ class Publishers extends Model
         'stratum_qualis_id',
     ];
 
+    protected $casts = [
+        'is_approved' => 'boolean',
+    ];
+
     public function issns(): HasMany
     {
         return $this->hasMany(PublisherIssn::class, 'publishers_id');
@@ -43,5 +47,13 @@ class Publishers extends Model
 
     public function scopeOnlyConferences($query){
         return $query->where('publisher_type', 'conference');
+    }
+
+    public function scopeOnlyApproved($query){
+        return $query->where('is_approved', true);
+    }
+
+    public function scopeOnlyPending($query){
+        return $query->where('is_approved', false);
     }
 }

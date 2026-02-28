@@ -20,6 +20,7 @@ use App\Http\Controllers\User\AdminRequestController;
 use App\Http\Controllers\User\ProductionController;
 use App\Http\Controllers\Admin\ProductionController as ProductionAdminController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\PublisherController as UserPublisherController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -68,6 +69,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('admin-request', [AdminRequestController::class, 'store']);
         Route::get('admin-status', [AdminRequestController::class, 'getStatus']);
         Route::get('publishers', [PublisherController::class, 'index']);
+        Route::post('publishers', [UserPublisherController::class, 'store']);
     });
 
     // Admin group routes
@@ -91,6 +93,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('users/pending', [UserAdminController::class, 'indexPending']);
         Route::post('users/{user}/approve', [UserAdminController::class, 'approve']);
         Route::apiResource('users', UserAdminController::class);
+        Route::post('publishers/{id}/approve', [PublisherController::class, 'approve']);
         Route::apiResource('publishers', PublisherController::class);
         Route::apiResource('stratum_qualis', StratumQualisController::class)->parameters(['stratum_qualis' => 'qualis']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);

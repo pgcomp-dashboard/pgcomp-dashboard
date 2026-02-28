@@ -161,11 +161,13 @@ export default function RulesPage() {
       // Here we create a simple flat object: { key1: val1, key2: val2 }
       const jsonObj = submitValues.jsonValues?.reduce((acc, curr) => {
         // try parsing numbers/booleans dynamically or keep as string
-        let finalVal: string | number | boolean = curr.value;
-        if (!isNaN(Number(curr.value))) {
+        let finalVal: string | number | boolean | string[] = curr.value;
+        if (!isNaN(Number(curr.value)) && curr.value.trim() !== '') {
           finalVal = Number(curr.value);
         } else if (curr.value === 'true' || curr.value === 'false') {
           finalVal = curr.value === 'true';
+        } else if (typeof curr.value === 'string' && curr.value.includes(',')) {
+          finalVal = curr.value.split(',').map(s => s.trim());
         }
         acc[curr.key] = finalVal;
         return acc;
@@ -201,7 +203,7 @@ export default function RulesPage() {
         // Convert existing object back to array of {key, value} for the UI
         parsedJsonValues = Object.entries(rule.casted_value).map(([k, v]) => ({
           key: k,
-          value: String(v)
+          value: Array.isArray(v) ? v.join(', ') : String(v)
         }));
       } catch (e) {
         console.error("Failed to parse existing json for edit", e);

@@ -32,6 +32,7 @@ export interface Publisher {
   created_at: string;
   updated_at: string;
   stratum_qualis: StratumQualis | null;
+  is_approved?: boolean;
 }
 
 export interface Production {

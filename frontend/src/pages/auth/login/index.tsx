@@ -68,13 +68,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-4 sm:gap-6 p-4 sm:p-6 md:p-10">
+    <div className="flex min-h-svh flex-col items-center justify-center gap-4 sm:gap-6 p-4 sm:p-6 md:p-10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6 sm:gap-8">
           <div className="flex flex-col items-center sm:gap-4">
             <Link to="/" className="flex flex-col items-center font-medium">
-              <div className="mb-4 sm:mb-8 flex items-center justify-center">
-                <AppLogo />
+              <div className="sm:mb-8 flex items-center justify-center">
+                <AppLogo className="w-35" />
               </div>
             </Link>
 
@@ -82,9 +82,6 @@ export default function LoginPage() {
               <h1 className="text-lg sm:text-xl font-medium">
                 Entrar na sua conta
               </h1>
-              <p className="text-muted-foreground text-center text-xs sm:text-sm">
-                Informe os seus dados para entrar na sua conta
-              </p>
             </div>
           </div>
           <Form {...form}>
