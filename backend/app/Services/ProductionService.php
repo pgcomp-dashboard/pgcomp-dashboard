@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Domain\Lattes\LattesZipXml;
 use App\Enums\ProductionSource;
+use App\Enums\PublisherType;
 use App\Models\Production;
 use App\Models\Publishers;
 use App\Models\User;
@@ -68,17 +69,40 @@ class ProductionService
 
         if ($type == 'journal') {
             $publisherName = $message['container-title'][0] ?? '';
-            foreach ($message['ISSN'] as $issn) {
+            $issns = isset($message['ISSN']) ? (array)$message['ISSN'] : [];
+
+            foreach ($issns as $issn) {
+                $cleanIssn = Str::of($issn)->trim()->remove('-')->value();
                 $publisher = Publishers::where('name', 'like', "%$publisherName%")
-                    ->orWhere('issn', Str::of($issn)->trim()->remove('-')->value())
-                    ->first();
+                    ->orWhereHas('issns', function($q) use ($cleanIssn) {
+                        $q->where('issn', $cleanIssn);
+                    })->first();
                 if ($publisher) {
                     break;
+                }
+            }
+
+            if (!$publisher && $publisherName) {
+                $publisher = Publishers::create([
+                    'name' => $publisherName,
+                    'publisher_type' => PublisherType::JOURNAL->value,
+                    'is_approved' => false
+                ]);
+                foreach ($issns as $issn) {
+                    $publisher->issns()->create(['issn' => Str::of($issn)->trim()->remove('-')->value()]);
                 }
             }
         } else {
             $publisherName = $message['event']['name'] ?? '';
             $publisher = Publishers::where('name', 'like', "%$publisherName%")->first();
+
+            if (!$publisher && $publisherName) {
+                $publisher = Publishers::create([
+                    'name' => $publisherName,
+                    'publisher_type' => PublisherType::CONFERENCE->value,
+                    'is_approved' => false
+                ]);
+            }
         }
 
         $productionData = [

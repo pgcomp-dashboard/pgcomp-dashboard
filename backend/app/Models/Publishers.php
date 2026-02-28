@@ -24,6 +24,7 @@ class Publishers extends Model
         'tentative_date',
         'logs',
         'stratum_qualis_id',
+        'is_approved',
     ];
 
     protected $casts = [

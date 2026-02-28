@@ -112,6 +112,13 @@ export function useProductionCrud(selectedProfessorId: string) {
       handleInput: publisherSearch.handleInput,
       handleTypeChange: publisherSearch.handleTypeChange,
       handleSelect: publisherSearch.handleSelect,
+      isCreatingNew: publisherSearch.isCreatingNew,
+      setIsCreatingNew: publisherSearch.setIsCreatingNew,
+      isSubmittingNew: publisherSearch.isSubmittingNew,
+      qualisOptions: publisherSearch.qualisOptions,
+      newPublisherData: publisherSearch.newPublisherData,
+      setNewPublisherData: publisherSearch.setNewPublisherData,
+      handleCreateNew: publisherSearch.handleCreateNew,
     },
   };
 }

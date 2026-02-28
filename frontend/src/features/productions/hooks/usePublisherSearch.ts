@@ -1,5 +1,7 @@
 import { publisherService } from '@/services/modules/publisher.service';
-import { Publisher } from '@/types/academic';
+import { qualisService } from '@/services/modules/qualis.service';
+import { Publisher, StratumQualis } from '@/types/academic';
+import { useQuery } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 interface UsePublisherSearchOptions {
@@ -16,6 +18,15 @@ export function usePublisherSearch(options: UsePublisherSearchOptions = {}) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Publisher[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [isSubmittingNew, setIsSubmittingNew] = useState(false);
+
+  const { data: qualisOptions = [] } = useQuery<StratumQualis[], Error>({
+    queryKey: ['qualis'],
+    queryFn: () => qualisService.getAllQualis(),
+  });
+
+  const [newPublisherData, setNewPublisherData] = useState<{ name: string; code: string; stratum_qualis_id?: number }>({ name: '', code: '' });
   const isSelectedRef = useRef(false);
 
   useEffect(() => {
@@ -89,5 +100,39 @@ export function usePublisherSearch(options: UsePublisherSearchOptions = {}) {
     handleTypeChange,
     handleSelect,
     reset,
+    isCreatingNew,
+    setIsCreatingNew,
+    isSubmittingNew,
+    qualisOptions,
+    newPublisherData,
+    setNewPublisherData,
+    handleCreateNew: async () => {
+      if (!newPublisherData.name) {
+        throw new Error('O nome é obrigatório');
+      }
+
+      setIsSubmittingNew(true);
+      try {
+        const payload: any = {
+          name: newPublisherData.name,
+          publisher_type: publisherType,
+          stratum_qualis_id: newPublisherData.stratum_qualis_id,
+        };
+
+        if (publisherType === 'journal') {
+          payload.issns = [newPublisherData.code];
+        } else {
+          payload.initials = newPublisherData.code;
+        }
+
+        const response = await publisherService.createPortalPublisher(payload);
+        handleSelect(response);
+        setIsCreatingNew(false);
+        setNewPublisherData({ name: '', code: '', stratum_qualis_id: undefined });
+        return response;
+      } finally {
+        setIsSubmittingNew(false);
+      }
+    },
   };
 }

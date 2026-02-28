@@ -17,6 +17,14 @@ export const publisherService = {
     );
   },
 
+  async createPortalPublisher(data: Partial<Publisher>) {
+    const response = await apiClient.post<{ data: Publisher }>(
+      "/api/portal/publishers",
+      data,
+    );
+    return response.data;
+  },
+
   async createPublishersFromSpreadsheet(
     body: FormData,
     type: "journal" | "conference",

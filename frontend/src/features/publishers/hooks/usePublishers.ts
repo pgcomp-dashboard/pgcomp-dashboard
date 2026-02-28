@@ -44,11 +44,11 @@ export function usePublishers() {
   };
 
   const { data: qualisOptions = [] } = useQuery<StratumQualis[], Error>({
-    queryKey: ["qualis-options"],
+    queryKey: ["qualis"],
     queryFn: () => qualisService.getAllQualis(),
   });
 
-  const { data: publishersData, isLoading, isError, isFetching } = useQuery<PaginatedResponse<Publisher>, Error>({
+  const { data: publishersData, isLoading, isError, isFetching, refetch } = useQuery<PaginatedResponse<Publisher>, Error>({
     queryKey: ["publishers", page, perPage, search, typeFilter, qualisFilter, approvalFilter, sorting],
     queryFn: async () => {
       const params: Record<string, any> = {
@@ -58,7 +58,7 @@ export function usePublishers() {
       };
 
       if (search.trim()) {
-        params.filter.name = search.trim();
+        params.filter.search = search.trim();
       }
 
       if (typeFilter !== 'all') {
@@ -114,6 +114,7 @@ export function usePublishers() {
     mutationFn: (id: number) => publisherService.deletePublisher(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["publishers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "pending-summary"] });
       toast.success("Veículo excluído com sucesso");
     },
     onError: () => toast.error("Erro ao excluir veículo"),
@@ -123,6 +124,7 @@ export function usePublishers() {
     mutationFn: (id: number) => publisherService.approvePublisher(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["publishers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "pending-summary"] });
       toast.success("Veículo aprovado com sucesso");
     },
     onError: () => toast.error("Erro ao aprovar veículo"),
@@ -164,5 +166,6 @@ export function usePublishers() {
     deleteMutation,
     approveMutation,
     importMutation,
+    refetch,
   };
 }

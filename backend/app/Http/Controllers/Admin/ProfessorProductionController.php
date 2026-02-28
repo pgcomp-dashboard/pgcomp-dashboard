@@ -7,6 +7,7 @@ use App\Services\ProductionService;
 use App\Http\Requests\Admin\Production\StoreProductionRequest;
 use App\Http\Requests\Admin\Production\UpdateProductionRequest;
 use App\Http\Requests\Admin\Production\IndexProductionRequest;
+use App\Enums\ProductionSource;
 use Illuminate\Http\Request;
 
 class ProfessorProductionController extends Controller
@@ -43,7 +44,12 @@ class ProfessorProductionController extends Controller
 
     public function store(StoreProductionRequest $request, $professors)
     {
-        $production = $this->productionService->store($request->validated(), $professors);
+        $data = $request->validated();
+        if (!isset($data['source'])) {
+            $data['source'] = ProductionSource::MANUAL->value;
+        }
+
+        $production = $this->productionService->store($data, $professors);
 
         return response()->json($production, 201);
     }

@@ -1,6 +1,7 @@
 import { queryClient } from '@/lib/query-client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2, Plus, Search, X } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -16,6 +17,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { productionService } from '@/services/modules/production.service';
 import { normalizeDoi } from '@/utils/doi';
@@ -38,7 +46,26 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
     handleInput,
     handleTypeChange,
     handleSelect,
+    setShowResults,
+    isCreatingNew,
+    setIsCreatingNew,
+    isSubmittingNew,
+    qualisOptions,
+    newPublisherData,
+    setNewPublisherData,
+    handleCreateNew,
   } = usePublisherSearch();
+
+  const filteredQualis = useMemo(() => {
+    return qualisOptions.filter((q: any) => q.type === publisherType);
+  }, [qualisOptions, publisherType]);
+
+  // Sync newPublisherData.name with search input when starting to create
+  useEffect(() => {
+    if (isCreatingNew && !newPublisherData.name) {
+      setNewPublisherData((prev: any) => ({ ...prev, name: publisherSearch }));
+    }
+  }, [isCreatingNew, publisherSearch]);
 
   const form = useForm<z.infer<typeof createProductionFormSchema>>({
     resolver: zodResolver(createProductionFormSchema),
@@ -76,6 +103,16 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
     } catch (err) {
       toast.error('Erro ao criar Produção');
       console.error('Erro ao criar produção:', err);
+    }
+  }
+
+  async function handleCreateNewPublisher() {
+    try {
+      await handleCreateNew();
+      toast.success('Veículo criado com sucesso (pendente de aprovação)');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao criar veículo');
+      console.error(err);
     }
   }
 
@@ -187,8 +224,7 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                   onChange={handleInput}
                   className="pl-9 h-10"
                 />
-
-                {showResults && searchResults.length > 0 && (
+                {showResults && !isSearching && searchResults.length > 0 && (
                   <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
                     {searchResults.map((p) => (
                       <button
@@ -210,9 +246,93 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
                         </div>
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      className="w-full text-left px-4 py-2 hover:bg-muted text-sm text-primary font-medium flex items-center transition-colors border-t"
+                      onClick={() => {
+                        setIsCreatingNew(true);
+                        setShowResults(false);
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Não encontrou? Criar novo
+                    </button>
+                  </div>
+                )}
+
+                {showResults && !isSearching && searchResults.length === 0 && publisherSearch.length >= 2 && !isCreatingNew && (
+                  <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg p-4 text-center">
+                    <p className="text-sm text-muted-foreground mb-2">Nenhum veículo encontrado</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsCreatingNew(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Criar novo {publisherType === 'journal' ? 'Periódico' : 'Conferência'}
+                    </Button>
                   </div>
                 )}
               </div>
+
+              {isCreatingNew && (
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-md space-y-3 animate-in fade-in slide-in-from-top-1">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-sm font-semibold text-primary">Novo {publisherType === 'journal' ? 'Periódico' : 'Conferência'}</h4>
+                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsCreatingNew(false)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Nome</Label>
+                    <Input
+                      placeholder="Nome completo"
+                      className="h-8 text-sm"
+                      value={newPublisherData.name}
+                      onChange={(e) => setNewPublisherData({ ...newPublisherData, name: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">{publisherType === 'journal' ? 'ISSN' : 'Sigla (Opcional)'}</Label>
+                    <Input
+                      placeholder={publisherType === 'journal' ? "0000-0000" : "Ex: SBBD"}
+                      className="h-8 text-sm"
+                      value={newPublisherData.code}
+                      onChange={(e) => setNewPublisherData({ ...newPublisherData, code: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Qualis (Opcional)</Label>
+                    <Select
+                      value={newPublisherData.stratum_qualis_id?.toString() || ""}
+                      onValueChange={(value) => setNewPublisherData({ ...newPublisherData, stratum_qualis_id: parseInt(value) })}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue placeholder="Selecione o Qualis" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredQualis.map((q) => (
+                          <SelectItem key={q.id} value={q.id.toString()}>
+                            {q.code}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button
+                    type="button"
+                    className="w-full h-8 text-xs"
+                    disabled={isSubmittingNew}
+                    onClick={handleCreateNewPublisher}
+                  >
+                    {isSubmittingNew ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Plus className="h-3 w-3 mr-2" />}
+                    Confirmar e Selecionar
+                  </Button>
+                </div>
+              )}
 
               {publisher && (
                 <div className="p-3 bg-green-50 border border-green-200 rounded-md text-sm animate-in fade-in slide-in-from-top-1">
@@ -233,8 +353,15 @@ export function ProductionCreateForm({ professorId, onSuccess }: ProductionCreat
               )}
             </div>
 
-            <Button type="submit" className="w-full">
-              Criar Produção
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Criando...
+                </>
+              ) : (
+                "Criar Produção"
+              )}
             </Button>
           </form>
         </Form>

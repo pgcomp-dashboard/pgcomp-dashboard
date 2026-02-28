@@ -181,9 +181,9 @@ export default function RulesPage() {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/30">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Exigir Bolsa PQ</FormLabel>
+                    <FormLabel className="text-base">Aprovar se Bolsa PQ?</FormLabel>
                     <FormDescription>
-                      Docentes precisam ser bolsistas de Produtividade em Pesquisa.
+                      Docentes bolsistas de Produtividade em Pesquisa são credenciados diretamente.
                     </FormDescription>
                   </div>
                   <FormControl>

@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PublisherDeleteDialog } from "@/features/publishers/components/PublisherDeleteDialog";
 import { PublisherDialogs } from "@/features/publishers/components/PublisherDialogs";
 import { PublisherFilters } from "@/features/publishers/components/PublisherFilters";
@@ -40,6 +40,7 @@ export default function PublishersPage() {
     deleteMutation,
     approveMutation,
     importMutation,
+    refetch,
   } = usePublishers();
 
   const [isPublisherDialogOpen, setIsPublisherDialogOpen] = useState(false);
@@ -149,34 +150,73 @@ export default function PublishersPage() {
           </TabsTrigger>
         </TabsList>
 
-        <div className="rounded-md border">
-          <PublisherFilters
-            search={search}
-            setSearch={setSearch}
-            typeFilter={typeFilter}
-            setTypeFilter={setTypeFilter}
-            qualisFilter={qualisFilter}
-            setQualisFilter={setQualisFilter}
-            perPage={perPage}
-            setPerPage={setPerPage}
-            qualisOptions={qualisOptions}
-          />
+        <TabsContent value="approved" className="space-y-4">
+          <div className="rounded-md border">
+            <PublisherFilters
+              search={search}
+              setSearch={setSearch}
+              typeFilter={typeFilter}
+              setTypeFilter={setTypeFilter}
+              qualisFilter={qualisFilter}
+              setQualisFilter={setQualisFilter}
+              perPage={perPage}
+              setPerPage={setPerPage}
+              qualisOptions={qualisOptions}
+              refetch={refetch}
+              isFetching={isFetching}
+            />
 
-          <PublisherTable
-            publishers={publishers}
-            pagination={pagination}
-            isLoading={isLoading}
-            isFetching={isFetching}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onApprove={handleApprove}
-            onPageChange={setPage}
-            sorting={sorting}
-            onSortingChange={setSorting}
-            perPage={perPage}
-            onPerPageChange={setPerPage}
-          />
-        </div>
+            <PublisherTable
+              publishers={publishers}
+              pagination={pagination}
+              isLoading={isLoading}
+              isFetching={isFetching}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onApprove={handleApprove}
+              onPageChange={setPage}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              perPage={perPage}
+              onPerPageChange={setPerPage}
+              showApprove={false}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="pending" className="space-y-4">
+          <div className="rounded-md border">
+            <PublisherFilters
+              search={search}
+              setSearch={setSearch}
+              typeFilter={typeFilter}
+              setTypeFilter={setTypeFilter}
+              qualisFilter={qualisFilter}
+              setQualisFilter={setQualisFilter}
+              perPage={perPage}
+              setPerPage={setPerPage}
+              qualisOptions={qualisOptions}
+              refetch={refetch}
+              isFetching={isFetching}
+            />
+
+            <PublisherTable
+              publishers={publishers}
+              pagination={pagination}
+              isLoading={isLoading}
+              isFetching={isFetching}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onApprove={handleApprove}
+              onPageChange={setPage}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              perPage={perPage}
+              onPerPageChange={setPerPage}
+              showApprove={true}
+            />
+          </div>
+        </TabsContent>
       </Tabs>
 
       <PublisherDialogs

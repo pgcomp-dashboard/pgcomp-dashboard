@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StratumQualis } from "@/types/academic";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { QualisFormData } from "../hooks/useQualis";
 
@@ -23,6 +24,7 @@ interface QualisDialogsProps {
   onOpenChange: (open: boolean) => void;
   editingItem: StratumQualis | null;
   onSubmit: (data: QualisFormData) => Promise<void>;
+  isLoading?: boolean;
 }
 
 const initialFormData: QualisFormData = {
@@ -36,6 +38,7 @@ export function QualisDialog({
   onOpenChange,
   editingItem,
   onSubmit,
+  isLoading,
 }: QualisDialogsProps) {
   const [formData, setFormData] = useState<QualisFormData>(initialFormData);
 
@@ -111,8 +114,15 @@ export function QualisDialog({
             </Select>
           </div>
         </div>
-        <Button onClick={handleFormSubmit}>
-          {editingItem ? "Atualizar" : "Salvar"}
+        <Button onClick={handleFormSubmit} disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {editingItem ? "Atualizando..." : "Salvando..."}
+            </>
+          ) : (
+            editingItem ? "Atualizar" : "Salvar"
+          )}
         </Button>
       </DialogContent>
     </Dialog>

@@ -31,6 +31,7 @@ interface PublisherTableProps {
   onSortingChange: (updater: any) => void;
   perPage: number;
   onPerPageChange: (perPage: number) => void;
+  showApprove?: boolean;
 }
 
 const columnHelper = createColumnHelper<Publisher>();
@@ -88,6 +89,7 @@ export function PublisherTable({
   onSortingChange,
   perPage,
   onPerPageChange,
+  showApprove,
 }: PublisherTableProps) {
   const columns = useMemo<ColumnDef<Publisher, any>[]>(
     () => [
@@ -152,7 +154,8 @@ export function PublisherTable({
           </div>
         ),
       }),
-      columnHelper.accessor("stratum_qualis.code", {
+      columnHelper.accessor((row) => row.stratum_qualis?.code, {
+        id: "qualis",
         header: "Qualis",
         cell: (info) => (
           <div className="text-center">{info.getValue() || "—"}</div>
@@ -163,17 +166,17 @@ export function PublisherTable({
         header: "Ações",
         cell: (info) => (
           <div className="flex justify-center gap-1">
-            {/* {!info.row.original.is_approved && (
-              // <Button
-              //   variant="ghost"
-              //   size="icon"
-              //   className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-              //   onClick={() => onApprove(info.row.original)}
-              //   title="Aprovar"
-              // >
-              //   <CheckCircle className="h-4 w-4" />
-              // </Button>
-            )} */}
+            {showApprove && !info.row.original.is_approved && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={() => onApprove(info.row.original)}
+                title="Aprovar"
+              >
+                <CheckCircle className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -194,7 +197,7 @@ export function PublisherTable({
         ),
       }),
     ],
-    [onEdit, onDelete, onApprove],
+    [onEdit, onDelete, onApprove, showApprove],
   );
 
   const paginationState: PaginationState = useMemo(() => {
@@ -244,7 +247,7 @@ export function PublisherTable({
           </div>
         </div>
         <CardFooter className="flex border-t items-stretch flex-wrap">
-          {!publisher.is_approved && (
+          {showApprove && !publisher.is_approved && (
             <>
               <Button
                 variant="ghost"

@@ -100,7 +100,7 @@ export function AccreditationTable({
                   </TooltipTrigger>
                   <TooltipContent className="p-3">
                     <div className="space-y-1">
-                      <p className="font-semibold border-b pb-1 mb-1">Detalhamento Qualis</p>
+                      <p className="font-semibold border-b pb-1 mb-1">Detalhamento</p>
                       {sortedKeys.length > 0 ? (
                         sortedKeys.map(key => (
                           <div key={key} className="flex justify-between gap-4">
@@ -148,14 +148,14 @@ export function AccreditationTable({
             <div className="flex justify-center">
               {is_accredited ? (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  Credenciado
+                  Credenciável
                 </span>
               ) : (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        Não Credenciado
+                        Não Credenciável
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>

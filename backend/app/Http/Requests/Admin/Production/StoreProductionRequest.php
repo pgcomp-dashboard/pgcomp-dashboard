@@ -17,13 +17,14 @@ class StoreProductionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'users_id' => 'required|exists:users,id',
+            'users_id' => 'sometimes|exists:users,id',
             'title' => 'required|string|max:500',
             'year' => 'required|integer',
             'publisher_type' => ['required', new Enum(PublisherType::class)],
             'publisher_id' => 'nullable|exists:publishers,id',
             'doi' => 'nullable|string|unique:productions,doi',
-            'source' => ['required', new Enum(ProductionSource::class)],
+            'nature' => 'nullable|string',
+            'source' => ['sometimes', new Enum(ProductionSource::class)],
         ];
     }
 }

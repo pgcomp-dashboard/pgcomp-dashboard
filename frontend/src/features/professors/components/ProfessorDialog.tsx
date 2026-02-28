@@ -33,10 +33,15 @@ const updateProfessorSchema = z.object({
   siape: z.string().optional(),
   email: z.string().email("Email inválido").optional(),
   orcid: z.string().optional(),
-  lattes_url: z.string().url("URL do Lattes inválida").optional(),
+  lattes_url: z
+    .string()
+    .url("URL do Lattes inválida")
+    .or(z.literal(""))
+    .or(z.null())
+    .optional(),
   category: z.enum(["permanente", "colaborador", "visitante"]),
   is_admin: z.boolean(),
-  pq: z.boolean().optional(),
+  pq: z.boolean(),
 });
 
 type UpdateProfessorForm = z.infer<typeof updateProfessorSchema>;
@@ -134,7 +139,7 @@ export function ProfessorDialog({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="lattes_url">Lattes URL</Label>
+              <Label htmlFor="lattes_url">Lattes URL (Opcional)</Label>
               <Input id="lattes_url" {...register("lattes_url")} />
             </div>
 

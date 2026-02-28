@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,8 +12,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { StratumQualis } from "@/types/academic";
-import { Search } from "lucide-react";
+import { RotateCw, Search } from "lucide-react";
 
 interface PublisherFiltersProps {
   search: string;
@@ -24,6 +32,8 @@ interface PublisherFiltersProps {
   perPage: number;
   setPerPage: (value: number) => void;
   qualisOptions: StratumQualis[];
+  refetch: () => void;
+  isFetching: boolean;
 }
 
 export function PublisherFilters({
@@ -36,16 +46,47 @@ export function PublisherFilters({
   perPage,
   setPerPage,
   qualisOptions,
+  refetch,
+  isFetching,
 }: PublisherFiltersProps) {
   return (
     <div className="flex flex-col gap-4 p-4 border-b bg-muted/20">
-      <Tabs defaultValue="all" value={typeFilter} onValueChange={setTypeFilter} className="w-full sm:w-auto">
-        <TabsList>
-          <TabsTrigger value="all">Todos</TabsTrigger>
-          <TabsTrigger value="journal">Periódicos</TabsTrigger>
-          <TabsTrigger value="conference">Conferências</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <Tabs defaultValue="all" value={typeFilter} onValueChange={setTypeFilter} className="w-full sm:w-auto">
+          <TabsList>
+            <TabsTrigger value="all">Todos</TabsTrigger>
+            <TabsTrigger value="journal">Periódicos</TabsTrigger>
+            <TabsTrigger value="conference">Conferências</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="bg-background hover:bg-muted h-9 w-9"
+                >
+                  <RotateCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Atualizar dados</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {isFetching && (
+            <span className="text-xs text-muted-foreground animate-pulse hidden sm:inline">
+              Atualizando...
+            </span>
+          )}
+        </div>
+      </div>
 
       <div className="flex flex-col sm:flex-row items-center gap-4 justify-between">
         <div className="flex flex-1 items-center gap-4 w-full">

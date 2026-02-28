@@ -93,9 +93,24 @@ class LattesZipXml
 
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
-                $publisher_id = Publishers::whereHas('issns', function ($q) use ($issn) {
+                $publisher = Publishers::whereHas('issns', function ($q) use ($issn) {
                     $q->where('issn', $issn);
-                })->first()?->id;
+                })->first();
+
+                if (!$publisher && $publisher_name) {
+                    $publisher = Publishers::where('name', $publisher_name)->first();
+                }
+
+                if (!$publisher && $publisher_name) {
+                    $publisher = Publishers::create([
+                        'name' => $publisher_name,
+                        'publisher_type' => PublisherType::JOURNAL->value,
+                        'is_approved' => false
+                    ]);
+                    $publisher->issns()->create(['issn' => $issn]);
+                }
+
+                $publisher_id = $publisher?->id;
             }
 
             $production = compact('home_page', 'source', 'title', 'year', 'publisher_id', 'publisher_type', 'doi', 'nature', 'sequence_number');
@@ -151,13 +166,31 @@ class LattesZipXml
                     $acronym = $conferenceInfo['conference_acronym'];
                     $name = $conferenceInfo['conference_name'];
                     error_log("Received from doi api:".$acronym ." - ". $name);
-                    $publisher_id = $acronym ? Publishers::where('initials', $acronym)->first()?->id : null;
-                    if (!$publisher_id) {
+                    $publisher = $acronym ? Publishers::where('initials', $acronym)->first() : null;
+                    if (!$publisher) {
                         error_log("Nao encontrei pela initials");
-                        $publisher_id = Publishers::where('name', $name)->first()?->id;
-                        $publisher_id ? error_log("encontrei pelo nome") : error_log("nao encontrei pelo nome");
+                        $publisher = Publishers::where('name', $name)->first();
+                        $publisher ? error_log("encontrei pelo nome") : error_log("nao encontrei pelo nome");
                     }
+
+                    if (!$publisher && ($name || $acronym)) {
+                        $publisher = Publishers::create([
+                            'name' => $name ?? $conferenceName,
+                            'initials' => $acronym,
+                            'publisher_type' => PublisherType::CONFERENCE->value,
+                            'is_approved' => false
+                        ]);
+                    }
+
+                    $publisher_id = $publisher?->id;
                     error_log("publisher id = ".$publisher_id);
+                } else if ($conferenceName) {
+                    $publisher = Publishers::create([
+                        'name' => $conferenceName,
+                        'publisher_type' => PublisherType::CONFERENCE->value,
+                        'is_approved' => false
+                    ]);
+                    $publisher_id = $publisher->id;
                 }
             }
 

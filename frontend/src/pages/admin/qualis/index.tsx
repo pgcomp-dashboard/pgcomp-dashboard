@@ -90,6 +90,7 @@ export default function QualisPage() {
         onOpenChange={setIsDialogOpen}
         editingItem={editingItem}
         onSubmit={handleSubmit}
+        isLoading={createMutation.isPending || updateMutation.isPending}
       />
 
       <QualisDeleteDialog

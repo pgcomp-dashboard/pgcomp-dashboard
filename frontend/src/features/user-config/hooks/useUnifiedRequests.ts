@@ -24,6 +24,8 @@ export function useUnifiedRequests() {
     onMutate: ({ id }) => setApprovingId(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKey });
+      queryClient.invalidateQueries({ queryKey: ["admin", "pending-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["professors"] });
       toast.success("Solicitação aprovada com sucesso!");
     },
     onError: () => {
@@ -38,6 +40,8 @@ export function useUnifiedRequests() {
     onMutate: ({ id }) => setRejectingId(id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKey });
+      queryClient.invalidateQueries({ queryKey: ["admin", "pending-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["professors"] });
       if (variables.requestType === "registration") {
         toast.success("Cadastro rejeitado e usuário removido.");
       } else {

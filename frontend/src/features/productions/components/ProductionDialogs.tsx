@@ -27,10 +27,19 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useFormErrorToast } from '@/hooks/useFormErrorToast';
 import { Publisher } from '@/types/academic';
-import { Loader2, Search, Trash } from 'lucide-react';
+import { Loader2, Plus, Search, Trash, X } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import { updateProductionFormSchema } from '../types';
 
@@ -50,6 +59,13 @@ interface ProductionDialogsProps {
     handleInput: (e: any) => void;
     handleTypeChange: (value: string) => void;
     handleSelect: (p: Publisher) => void;
+    isCreatingNew: boolean;
+    setIsCreatingNew: (show: boolean) => void;
+    isSubmittingNew: boolean;
+    qualisOptions: any[];
+    newPublisherData: { name: string; code: string; stratum_qualis_id?: number };
+    setNewPublisherData: (data: any) => void;
+    handleCreateNew: () => Promise<Publisher>;
   };
   onClearAll: () => Promise<void>;
 }
@@ -62,6 +78,27 @@ export function ProductionDialogs({
   editState,
 }: ProductionDialogsProps) {
   useFormErrorToast(editForm.formState.errors);
+
+  const filteredQualis = useMemo(() => {
+    return editState.qualisOptions.filter((q: any) => q.type === editState.type);
+  }, [editState.qualisOptions, editState.type]);
+
+  // Sync newPublisherData.name with search input when starting to create
+  useEffect(() => {
+    if (editState.isCreatingNew && !editState.newPublisherData.name) {
+      editState.setNewPublisherData((prev: any) => ({ ...prev, name: editState.search }));
+    }
+  }, [editState.isCreatingNew, editState.search]);
+
+  async function handleCreateNewPublisher() {
+    try {
+      await editState.handleCreateNew();
+      toast.success('Veículo criado com sucesso (pendente de aprovação)');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao criar veículo');
+      console.error(err);
+    }
+  }
 
   return (
     <>
@@ -174,7 +211,7 @@ export function ProductionDialogs({
                       className="pl-9 h-10"
                     />
 
-                    {editState.showResults && editState.results.length > 0 && (
+                    {editState.showResults && !editState.isSearching && editState.results.length > 0 && (
                       <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
                         {editState.results.map((p) => (
                           <button
@@ -196,9 +233,91 @@ export function ProductionDialogs({
                             </div>
                           </button>
                         ))}
+                        <button
+                          type="button"
+                          className="w-full text-left px-4 py-2 hover:bg-muted text-sm text-primary font-medium flex items-center transition-colors border-t"
+                          onClick={() => {
+                            editState.setIsCreatingNew(true);
+                            editState.setShowResults(false);
+                          }}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Não encontrou? Criar novo
+                        </button>
+                      </div>
+                    )}
+
+                    {editState.showResults && !editState.isSearching && editState.results.length === 0 && editState.search.length >= 2 && !editState.isCreatingNew && (
+                      <div className="absolute z-20 w-full mt-1 bg-background border rounded-md shadow-lg p-4 text-center">
+                        <p className="text-sm text-muted-foreground mb-2">Nenhum veículo encontrado</p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => editState.setIsCreatingNew(true)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Criar novo {editState.type === 'journal' ? 'Periódico' : 'Conferência'}
+                        </Button>
                       </div>
                     )}
                   </div>
+
+                  {editState.isCreatingNew && (
+                    <div className="p-4 bg-primary/5 border border-primary/20 rounded-md space-y-3 animate-in fade-in slide-in-from-top-1">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-sm font-semibold text-primary">Novo {editState.type === 'journal' ? 'Periódico' : 'Conferência'}</h4>
+                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => editState.setIsCreatingNew(false)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Nome</Label>
+                        <Input
+                          placeholder="Nome completo"
+                          className="h-8 text-sm"
+                          value={editState.newPublisherData.name}
+                          onChange={(e) => editState.setNewPublisherData({ ...editState.newPublisherData, name: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">{editState.type === 'journal' ? 'ISSN' : 'Sigla (Opcional)'}</Label>
+                        <Input
+                          placeholder={editState.type === 'journal' ? "0000-0000" : "Ex: SBBD"}
+                          className="h-8 text-sm"
+                          value={editState.newPublisherData.code}
+                          onChange={(e) => editState.setNewPublisherData({ ...editState.newPublisherData, code: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Qualis (Opcional)</Label>
+                        <Select
+                          value={editState.newPublisherData.stratum_qualis_id?.toString() || ""}
+                          onValueChange={(value) => editState.setNewPublisherData({ ...editState.newPublisherData, stratum_qualis_id: parseInt(value) })}
+                        >
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Selecione o Qualis" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filteredQualis.map((q) => (
+                              <SelectItem key={q.id} value={q.id.toString()}>
+                                {q.code}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        type="button"
+                        className="w-full h-8 text-xs"
+                        disabled={editState.isSubmittingNew}
+                        onClick={handleCreateNewPublisher}
+                      >
+                        {editState.isSubmittingNew ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Plus className="h-3 w-3 mr-2" />}
+                        Confirmar e Selecionar
+                      </Button>
+                    </div>
+                  )}
 
                   {editState.publisher && (
                     <div className="p-3 bg-green-50 border border-green-200 rounded-md text-sm">
@@ -221,7 +340,14 @@ export function ProductionDialogs({
 
                 <div className="flex justify-end pt-4">
                   <Button type="submit" className="w-full sm:w-auto" disabled={editForm.formState.isSubmitting}>
-                    {editForm.formState.isSubmitting ? 'Salvando...' : 'Salvar alterações'}
+                    {editForm.formState.isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      'Salvar alterações'
+                    )}
                   </Button>
                 </div>
               </form>
