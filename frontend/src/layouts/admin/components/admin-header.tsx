@@ -1,4 +1,12 @@
-import { Bell, BookOpenText, ChevronRight, LogOut, ShieldPlus, User, UserPlus } from "lucide-react";
+import {
+  Bell,
+  BookOpenText,
+  ChevronRight,
+  LogOut,
+  ShieldPlus,
+  User,
+  UserPlus,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +18,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import useAuth from "@/hooks/auth";
 import { usePendingSummary } from "@/hooks/usePendingSummary";
@@ -37,17 +49,25 @@ export function AdminHeader() {
         {summary.total > 0 && (
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-9 w-9 rounded-full ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
                 <Bell className="h-5 w-5 text-muted-foreground" />
-                <span className="absolute -top-1 -right-1 flex h-3 w-4 min-w-3 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                <span className="absolute -top-1 -right-1 flex h-3 w-4 min-w-3 items-center justify-center rounded-full px-1 text-[10px] font-bold text-destructive-foreground border-transparent bg-red-500 text-white hover:bg-red-600">
                   {summary.total}
                 </span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
               <div className="px-4 py-3 border-b">
-                <h4 className="font-semibold text-sm">Solicitações Pendentes</h4>
-                <p className="text-xs text-muted-foreground">Existem {summary.total} solicitações aguardando análise.</p>
+                <h4 className="font-semibold text-sm">
+                  Solicitações Pendentes
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  Existem {summary.total} solicitações aguardando análise.
+                </p>
               </div>
               <div className="flex flex-col">
                 {summary.registrations > 0 && (
@@ -59,7 +79,9 @@ export function AdminHeader() {
                       <UserPlus className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium leading-none">Novos Cadastros</p>
+                      <p className="text-sm font-medium leading-none">
+                        Novos Cadastros
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {summary.registrations} docentes aguardando aprovação.
                       </p>
@@ -78,7 +100,9 @@ export function AdminHeader() {
                       <ShieldPlus className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium leading-none">Acesso Admin</p>
+                      <p className="text-sm font-medium leading-none">
+                        Acesso Admin
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {summary.admin_requests} solicitações de privilégios.
                       </p>
@@ -97,7 +121,9 @@ export function AdminHeader() {
                       <BookOpenText className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium leading-none">Veículos Sugeridos</p>
+                      <p className="text-sm font-medium leading-none">
+                        Veículos Sugeridos
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {summary.publishers} novos periódicos/conferências.
                       </p>

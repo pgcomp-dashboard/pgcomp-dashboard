@@ -142,7 +142,7 @@ export default function PublishersPage() {
           <TabsTrigger value="pending" className="flex items-center gap-2">
             Pendentes
             {summary.publishers > 0 && (
-              <Badge variant="destructive" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
+              <Badge variant="notification" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
                 {summary.publishers}
               </Badge>
             )}

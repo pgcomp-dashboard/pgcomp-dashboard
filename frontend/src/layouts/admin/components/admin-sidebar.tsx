@@ -2,7 +2,6 @@ import { BookOpen, File, Settings2, Trophy, Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import AppLogo from "@/components/AppLogo";
-import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
@@ -12,14 +11,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import useAuth from "@/hooks/auth";
-import { usePendingSummary } from "@/hooks/usePendingSummary";
 
 export function AdminSidebar() {
   const auth = useAuth();
   const { pathname } = useLocation();
-  const { summary } = usePendingSummary();
-
-  const pendingDocentes = summary.registrations + summary.admin_requests;
 
   return (
     <Sidebar>
@@ -80,16 +75,14 @@ export function AdminSidebar() {
                   asChild
                   isActive={pathname === "/admin/publishers"}
                 >
-                  <Link to="/admin/publishers" className="flex items-center justify-between w-full">
+                  <Link
+                    to="/admin/publishers"
+                    className="flex items-center justify-between w-full"
+                  >
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4" />
                       <span>Veículos</span>
                     </div>
-                    {summary.publishers > 0 && (
-                      <Badge variant="destructive" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
-                        {summary.publishers}
-                      </Badge>
-                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -98,16 +91,14 @@ export function AdminSidebar() {
                   asChild
                   isActive={pathname === "/admin/professors"}
                 >
-                  <Link to="/admin/professors" className="flex items-center justify-between w-full">
+                  <Link
+                    to="/admin/professors"
+                    className="flex items-center justify-between w-full"
+                  >
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
                       <span>Docentes</span>
                     </div>
-                    {pendingDocentes > 0 && (
-                      <Badge variant="destructive" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
-                        {pendingDocentes}
-                      </Badge>
-                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
