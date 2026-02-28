@@ -35,7 +35,7 @@ class AdminRequestController extends Controller
         ]);
 
         // Notificar Admin
-        Mail::to(["deividsantos@ufba.br", "pgcomp@ufba.br",  "fdurao@ufba.br"])->send(new AdminMail($user, 'pending'));
+        Mail::to(["deividsantos@ufba.br", "pgcomp@ufba.br",  "fdurao@ufba.br","dashboardpgcomp@gmail.com"])->send(new AdminMail($user, 'pending'));
         // Notificar Usuário
         Mail::to($user->email)->send(new UserMail($user, 'pending'));
 
