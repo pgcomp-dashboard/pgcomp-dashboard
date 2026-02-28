@@ -19,9 +19,8 @@ class AccreditationController extends Controller
 
     public function index(Request $request)
     {
-        // Se não especificar o periodo pega somente o ano anterior
-        $year1 = $request->query("year1", date("Y") - 1);
-        $year2 = $request->query("year2", date("Y"));
+        $year1 = $request->query("year1");
+        $year2 = $request->query("year2");
 
         $ranking = $this->accreditationService->getAccreditationRanking($year1, $year2);
 
@@ -30,9 +29,8 @@ class AccreditationController extends Controller
 
     public function show(Request $request, int $id)
     {
-        // Se não especificar o periodo pega somente o ano anterior
-        $year1 = $request->query("year1", date("Y") - 1);
-        $year2 = $request->query("year2", date("Y"));
+        $year1 = $request->query("year1");
+        $year2 = $request->query("year2");
 
         $details = $this->accreditationService->getAccreditationUserDetails($id, $year1, $year2);
 

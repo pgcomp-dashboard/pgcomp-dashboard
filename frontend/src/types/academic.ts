@@ -66,7 +66,12 @@ export type Ranking = {
   user_id: number;
   name: string;
   category: string;
+  pq: boolean;
   total_score: number;
+  a1_a4_count: number;
+  qualis_breakdown: Record<string, number>;
+  is_accredited: boolean;
+  reasons: string[];
   lattes_url: string;
   productions: RankingProduction[];
 };

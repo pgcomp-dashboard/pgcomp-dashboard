@@ -21,6 +21,7 @@ class UserController extends Controller
     public function userInfo(Request $request)
     {
         $user = auth()->user();
+        $user->loadCount('writerOf');
 
         return response()->json([
                 'data' => $user

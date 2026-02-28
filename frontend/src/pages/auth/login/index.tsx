@@ -155,12 +155,12 @@ export default function LoginPage() {
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   Entrar
                 </Button>
-                <div className="flex flex-col text-center gap-4">
+                <div className="flex text-center gap-4">
                   <Link to="/register">
-                    <u>Não tem uma conta?</u>
+                    <u>Criar conta</u>
                   </Link>
                   <Link to="/forgot-password">
-                    <u>Esqueceu sua senha?</u>
+                    <u>Recuperar senha</u>
                   </Link>
                 </div>
               </div>

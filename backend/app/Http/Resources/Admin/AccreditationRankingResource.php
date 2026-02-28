@@ -18,8 +18,13 @@ class AccreditationRankingResource extends JsonResource
             'user_id' => $this->user_id,
             'name' => $this->name,
             'category' => $this->category,
+            'pq' => (bool) $this->pq,
             'lattes_url' => $this->lattes_url,
             'total_score' => (float) $this->total_score,
+            'a1_a4_count' => (int) $this->a1_a4_count,
+            'is_accredited' => (bool) $this->is_accredited,
+            'reasons' => $this->reasons,
+            'qualis_breakdown' => $this->qualis_breakdown,
         ];
     }
 }

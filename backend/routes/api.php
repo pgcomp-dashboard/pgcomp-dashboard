@@ -88,6 +88,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             Route::get('enrollments_per_year', [DashboardController::class, 'enrollmentsPerYear']);
             Route::get('professors', [DashboardController::class, 'allProfessors']);
             Route::get('professor/{professorId}/productions', [DashboardController::class, 'professorProduction']);
+            Route::get('pending-summary', [DashboardController::class, 'pendingSummary']);
         });
 
         Route::get('users/pending', [UserAdminController::class, 'indexPending']);

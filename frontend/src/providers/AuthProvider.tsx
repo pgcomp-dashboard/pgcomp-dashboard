@@ -12,6 +12,7 @@ export interface User {
   role: string;
   is_approved: boolean;
   type?: string;
+  productions_count?: number;
 }
 
 export interface AuthContextType {

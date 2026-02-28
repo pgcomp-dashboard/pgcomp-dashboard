@@ -108,7 +108,7 @@ export function ProfessorTable({
       }),
       columnHelper.accessor("is_admin", {
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Administrador" />
+          <DataTableColumnHeader column={column} title="Perfil" />
         ),
         cell: (info) => (
           <div className="text-center">

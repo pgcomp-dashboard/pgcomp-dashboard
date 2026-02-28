@@ -1,6 +1,18 @@
 import UploadXMLForm from '@/features/productions/components/UploadXMLForm';
+import useAuth from '@/hooks/auth';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 export default function WelcomePage() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (auth?.isAuthenticated && !auth?.isAdmin && (auth?.user?.productions_count ?? 0) > 0) {
+      navigate('/portal/productions');
+    }
+  }, [auth, navigate]);
+
   return (
     <div className="w-full">
       <div className="flex flex-col items-center justify-between gap-6">
