@@ -1,4 +1,4 @@
-import { BookOpen, File, Settings2, Trophy, Users } from "lucide-react";
+import { BookOpen, File, Trophy, Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import AppLogo from "@/components/AppLogo";
@@ -114,17 +114,17 @@ export function AdminSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/admin/rules"}
-                >
-                  <Link to="/admin/rules">
-                    <Settings2 className="h-4 w-4" />
-                    <span>Regras</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {/* <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/admin/rules"}
+                  >
+                    <Link to="/admin/rules">
+                      <Settings2 className="h-4 w-4" />
+                      <span>Regras</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem> */}
             </>
           )}
 
