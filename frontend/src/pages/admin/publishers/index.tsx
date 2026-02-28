@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PublisherBulkDeleteDialog } from "@/features/publishers/components/PublisherBulkDeleteDialog";
 import { PublisherDeleteDialog } from "@/features/publishers/components/PublisherDeleteDialog";
 import { PublisherDialogs } from "@/features/publishers/components/PublisherDialogs";
 import { PublisherFilters } from "@/features/publishers/components/PublisherFilters";
@@ -40,12 +41,14 @@ export default function PublishersPage() {
     deleteMutation,
     approveMutation,
     importMutation,
+    deletePendingMutation,
     refetch,
   } = usePublishers();
 
   const [isPublisherDialogOpen, setIsPublisherDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
   const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(
     null,
   );
@@ -88,6 +91,11 @@ export default function PublishersPage() {
       await deleteMutation.mutateAsync(publisherToDelete.id);
       setIsDeleteDialogOpen(false);
     }
+  };
+
+  const handleConfirmBulkDelete = async () => {
+    await deletePendingMutation.mutateAsync();
+    setIsBulkDeleteOpen(false);
   };
 
   const handleImport = async (
@@ -200,6 +208,20 @@ export default function PublishersPage() {
               isFetching={isFetching}
             />
 
+            {summary.publishers > 0 && (
+              <div className="p-4 border-b bg-muted/30 flex justify-end">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setIsBulkDeleteOpen(true)}
+                  className="flex gap-2"
+                >
+                  <Plus className="h-4 w-4 rotate-45" />
+                  Remover Todos Pendentes
+                </Button>
+              </div>
+            )}
+
             <PublisherTable
               publishers={publishers}
               pagination={pagination}
@@ -238,6 +260,13 @@ export default function PublishersPage() {
         onOpenChange={setIsDeleteDialogOpen}
         publisher={publisherToDelete}
         onConfirm={handleConfirmDelete}
+      />
+
+      <PublisherBulkDeleteDialog
+        isOpen={isBulkDeleteOpen}
+        onOpenChange={setIsBulkDeleteOpen}
+        onConfirm={handleConfirmBulkDelete}
+        count={summary.publishers}
       />
     </div>
   );

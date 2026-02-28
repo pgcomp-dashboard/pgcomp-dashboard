@@ -140,6 +140,16 @@ export function usePublishers() {
     onError: () => toast.error("Erro ao realizar o upload da planilha"),
   });
 
+  const deletePendingMutation = useMutation({
+    mutationFn: () => publisherService.deleteAllPending(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["publishers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "pending-summary"] });
+      toast.success("Todos os veículos pendentes foram excluídos");
+    },
+    onError: () => toast.error("Erro ao excluir veículos pendentes"),
+  });
+
   return {
     publishers: publishersData?.data || [],
     pagination: publishersData || null,
@@ -166,6 +176,7 @@ export function usePublishers() {
     deleteMutation,
     approveMutation,
     importMutation,
+    deletePendingMutation,
     refetch,
   };
 }

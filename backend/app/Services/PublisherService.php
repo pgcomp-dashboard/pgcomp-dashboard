@@ -90,6 +90,16 @@ class PublisherService
         return $publisher->delete();
     }
 
+    /**
+     * Delete all unapproved publishers.
+     *
+     * @return void
+     */
+    public function destroyAllPending(): void
+    {
+        Publishers::where('is_approved', false)->delete();
+    }
+
     public function findByInitials(string $initials): ?Publishers
     {
         return Publishers::where('initials', '=', $initials)->first();

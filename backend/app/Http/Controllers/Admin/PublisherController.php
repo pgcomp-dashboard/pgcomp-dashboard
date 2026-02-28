@@ -96,4 +96,11 @@ class PublisherController extends Controller
 
         return response()->json($result);
     }
+
+    public function destroyAllPending()
+    {
+        $this->publisherService->destroyAllPending();
+
+        return response()->json(['message' => 'All pending publishers deleted successfully']);
+    }
 }

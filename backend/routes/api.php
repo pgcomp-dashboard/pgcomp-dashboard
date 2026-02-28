@@ -95,6 +95,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('users/{user}/approve', [UserAdminController::class, 'approve']);
         Route::apiResource('users', UserAdminController::class);
         Route::post('publishers/{id}/approve', [PublisherController::class, 'approve']);
+        Route::delete('publishers/pending', [PublisherController::class, 'destroyAllPending']);
         Route::apiResource('publishers', PublisherController::class);
         Route::apiResource('stratum_qualis', StratumQualisController::class)->parameters(['stratum_qualis' => 'qualis']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);

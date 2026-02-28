@@ -78,4 +78,8 @@ export const publisherService = {
       {}
     );
   },
+
+  async deleteAllPending() {
+    return await apiClient.delete<{ message: string }>("/api/admin/publishers/pending");
+  },
 };
