@@ -2,6 +2,9 @@
 
 namespace App\Actions\Fortify;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AdminMail;
+use App\Mail\RegistrationMail;
 use App\Enums\UserType;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -46,6 +49,9 @@ class CreateNewUser implements CreatesNewUsers
         // Professors always start as unapproved
         $user->is_approved = false;
         $user->save();
+
+        Mail::to(["deividsantos@ufba.br", "pgcomp@ufba.br",  "fdurao@ufba.br"])->send(new AdminMail($user, 'new_registration'));
+        Mail::to($user->email)->send(new RegistrationMail($user, 'new_registration'));
 
         return $user;
     }

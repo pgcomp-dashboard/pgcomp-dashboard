@@ -1,11 +1,14 @@
 import { adminService } from "@/services/modules/admin.service";
 import { ApprovalRequest } from "@/types/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export function useUnifiedRequests() {
   const queryClient = useQueryClient();
   const queryKey = ["unified-approval-requests"];
+  const [approvingId, setApprovingId] = useState<number | null>(null);
+  const [rejectingId, setRejectingId] = useState<number | null>(null);
 
   const { data, isLoading, error } = useQuery<ApprovalRequest[]>({
     queryKey: queryKey,
@@ -18,6 +21,7 @@ export function useUnifiedRequests() {
   const approveMutation = useMutation({
     mutationFn: ({ id, requestType }: { id: number; requestType: string }) =>
       adminService.approveRequest(id, requestType),
+    onMutate: ({ id }) => setApprovingId(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKey });
       toast.success("Solicitação aprovada com sucesso!");
@@ -25,11 +29,13 @@ export function useUnifiedRequests() {
     onError: () => {
       toast.error("Erro ao aprovar solicitação.");
     },
+    onSettled: () => setApprovingId(null),
   });
 
   const rejectMutation = useMutation({
     mutationFn: ({ id, requestType }: { id: number; requestType: string }) =>
       adminService.rejectRequest(id, requestType),
+    onMutate: ({ id }) => setRejectingId(id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKey });
       if (variables.requestType === "registration") {
@@ -41,6 +47,7 @@ export function useUnifiedRequests() {
     onError: () => {
       toast.error("Erro ao rejeitar solicitação.");
     },
+    onSettled: () => setRejectingId(null),
   });
 
   return {
@@ -49,5 +56,7 @@ export function useUnifiedRequests() {
     error,
     approveMutation,
     rejectMutation,
+    approvingId,
+    rejectingId,
   };
 }

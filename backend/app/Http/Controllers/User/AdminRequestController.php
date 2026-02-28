@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\User;
-
+use App\Mail\UserMail;
+use App\Mail\AdminMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class AdminRequestController extends Controller
 {
@@ -32,8 +34,10 @@ class AdminRequestController extends Controller
             'approved_by_id' => null,
         ]);
 
-        // Notificar Admins existentes
-        // Notification::send($admins, new NewAdminRequest($user));
+        // Notificar Admin
+        Mail::to(["deividsantos@ufba.br", "pgcomp@ufba.br",  "fdurao@ufba.br"])->send(new AdminMail($user, 'pending'));
+        // Notificar Usuário
+        Mail::to($user->email)->send(new UserMail($user, 'pending'));
 
         return response()->json([
             'message' => 'Solicitação enviada com sucesso! Aguarde a aprovação.',

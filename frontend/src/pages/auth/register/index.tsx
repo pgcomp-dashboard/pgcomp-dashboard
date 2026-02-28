@@ -6,18 +6,19 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useFormErrorToast } from "@/hooks/useFormErrorToast";
-import { authService } from "@/services/modules/auth.service";
-import { ApiError } from "@/types/common";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
-import { toast } from "sonner";
-import { z } from "zod";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useFormErrorToast } from '@/hooks/useFormErrorToast';
+import { authService } from '@/services/modules/auth.service';
+import { ApiError } from '@/types/common';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import zxcvbn from 'zxcvbn';
+import { Link, useNavigate } from 'react-router';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 const formSchema = z
   .object({
@@ -34,8 +35,14 @@ const formSchema = z
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState<boolean>(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState<boolean>(false);
+
+  const strengthMap = [
+    { label: 'Fraca',    color: 'bg-red-500'        },
+    { label: 'Razoável', color: 'bg-yellow-400'      },
+    { label: 'Boa',      color: 'bg-lime-500'        },
+    { label: 'Forte',    color: 'bg-green-600'       },
+  ];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,16 +54,20 @@ export default function RegisterPage() {
     },
   });
 
+  const passwordValue = useWatch({ control: form.control, name: 'password' });
+  const strengthScore = passwordValue ? zxcvbn(passwordValue).score : -1;
+  const strengthStage = strengthScore <= 1 ? 0 : strengthScore - 1;
+
   useFormErrorToast(form.formState.errors);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await authService.register({ ...values, type: "professor" });
-      navigate("/login", {
-        state: {
-          message: "Cadastro realizado com sucesso! Aguarde a aprovação.",
-        },
+      await authService.register({ ...values, type: 'professor' });
+      toast.success('Cadastro realizado com sucesso!', {
+        description: 'Verifique seu e-mail e aguarde a aprovação do administrador para acessar o sistema.',
+        duration: 6000,
       });
+      navigate('/login');
     } catch (e: unknown) {
       const error = e as ApiError;
       console.error("Falha ao realizar cadastro", error);
@@ -86,35 +97,115 @@ export default function RegisterPage() {
               </h1>
             </div>
           </div>
-          <div className="rounded-md border p-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="grid gap-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nome Completo</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Seu nome" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="grid gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome Completo</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Seu nome" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>E-mail</FormLabel>
-                        <FormControl>
-                          <Input placeholder="example@example.com" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>E-mail</FormLabel>
+                      <FormControl>
+                        <Input placeholder="example@example.com" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pr-10"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      {passwordValue && (
+                        <div className="mt-2 space-y-1">
+                          <div className="flex gap-1">
+                            {strengthMap.map((s, i) => (
+                              <div
+                                key={i}
+                                className={`h-1.5 flex-1 rounded-full transition-colors ${i <= strengthStage ? s.color : 'bg-muted'}`}
+                              />
+                            ))}
+                          </div>
+                          <p className={`text-xs ${strengthMap[strengthStage].color.replace('bg-', 'text-')}`}>
+                            {strengthMap[strengthStage].label}
+                          </p>
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password_confirmation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirmar Senha</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPasswordConfirmation ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pr-10"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                          >
+                            {showPasswordConfirmation ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
                   <FormField
                     control={form.control}

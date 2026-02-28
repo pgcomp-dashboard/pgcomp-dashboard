@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Mail\UserMail;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -38,6 +40,7 @@ class AdminApprovalController extends Controller
         }
 
         $result = $this->approvalService->approveOrReject($user, $validated['status'], auth()->id());
+        Mail::to($user->email)->send(new UserMail($user, $validated['status']));
 
         return response()->json([
             'message' => $result['message'],

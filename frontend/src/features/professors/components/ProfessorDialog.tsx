@@ -26,7 +26,10 @@ import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
 const updateProfessorSchema = z.object({
-  name: z.string().min(3, "O nome deve conter pelo menos 3 caracteres").optional(),
+  name: z
+    .string()
+    .min(3, "O nome deve conter pelo menos 3 caracteres")
+    .optional(),
   siape: z.string().optional(),
   email: z.string().email("Email inválido").optional(),
   orcid: z.string().optional(),
@@ -90,9 +93,7 @@ export function ProfessorDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Editar - Docente</DialogTitle>
-          <DialogDescription>
-            Editar Informações do Docente
-          </DialogDescription>
+          <DialogDescription>Editar Informações do Docente</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
@@ -139,7 +140,11 @@ export function ProfessorDialog({
 
             <div className="grid gap-2">
               <Label htmlFor="orcid">ORCID (Opcional)</Label>
-              <Input id="orcid" {...register("orcid")} placeholder="0000-0000-0000-0000" />
+              <Input
+                id="orcid"
+                {...register("orcid")}
+                placeholder="0000-0000-0000-0000"
+              />
             </div>
 
             <div className="flex items-center space-x-2 py-4">
@@ -154,7 +159,9 @@ export function ProfessorDialog({
                   />
                 )}
               />
-              <Label htmlFor="is_admin" className="font-semibold">Administrador</Label>
+              <Label htmlFor="is_admin" className="font-semibold">
+                Administrador
+              </Label>
             </div>
 
             <div className="flex items-center space-x-2 py-4">
@@ -169,19 +176,27 @@ export function ProfessorDialog({
                   />
                 )}
               />
-              <Label htmlFor="pq" className="font-semibold">Bolsista PQ</Label>
+              <Label htmlFor="pq" className="font-semibold">
+                Bolsista PQ
+              </Label>
             </div>
           </div>
 
           <DialogFooter>
-            <Button type="button" onClick={() => onOpenChange(false)} variant="ghost">
+            <Button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              variant="ghost"
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</>
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...
+                </>
               ) : (
-                'Salvar Alterações'
+                "Salvar Alterações"
               )}
             </Button>
           </DialogFooter>
