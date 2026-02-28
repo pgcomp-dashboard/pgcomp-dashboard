@@ -92,11 +92,11 @@ export default function ProfessorsPage() {
     setSearchParams({ tab: value });
   };
 
-  if (isLoading) return <div>Carregando...</div>;
-  if (isError) return <div>Erro ao carregar professores!</div>;
-
   const { summary } = usePendingSummary();
   const pendingRequests = summary.registrations + summary.admin_requests;
+
+  if (isLoading) return <div>Carregando...</div>;
+  if (isError) return <div>Erro ao carregar professores!</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -106,7 +106,7 @@ export default function ProfessorsPage() {
           <TabsTrigger value="requests" className="flex items-center gap-2">
             Solicitações
             {pendingRequests > 0 && (
-              <Badge variant="destructive" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
+              <Badge variant="notification" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
                 {pendingRequests}
               </Badge>
             )}

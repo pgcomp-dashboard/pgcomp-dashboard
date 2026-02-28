@@ -12,14 +12,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import useAuth from "@/hooks/auth";
-import { usePendingSummary } from "@/hooks/usePendingSummary";
 
 export function AdminSidebar() {
   const auth = useAuth();
   const { pathname } = useLocation();
-  const { summary } = usePendingSummary();
-
-  const pendingDocentes = summary.registrations + summary.admin_requests;
 
   return (
     <Sidebar>
@@ -85,11 +81,6 @@ export function AdminSidebar() {
                       <BookOpen className="h-4 w-4" />
                       <span>Veículos</span>
                     </div>
-                    {summary.publishers > 0 && (
-                      <Badge variant="destructive" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
-                        {summary.publishers}
-                      </Badge>
-                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -103,11 +94,6 @@ export function AdminSidebar() {
                       <Users className="h-4 w-4" />
                       <span>Docentes</span>
                     </div>
-                    {pendingDocentes > 0 && (
-                      <Badge variant="destructive" className="h-5 px-1.5 min-w-5 flex items-center justify-center text-[10px]">
-                        {pendingDocentes}
-                      </Badge>
-                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
