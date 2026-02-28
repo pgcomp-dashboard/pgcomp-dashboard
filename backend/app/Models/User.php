@@ -239,13 +239,34 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             if ($productionData['nature'] !== "COMPLETO") {
                 continue;
             }
-            $production = Production::updateOrCreate(
-                ['doi' => $productionData['doi']],
-                $productionData
-            );
+
+            // Match production by DOI or by Title + Year
+            $doi = $productionData['doi'] ?? null;
+            if ($doi === 'http://dx.doi.org/') {
+                $doi = null;
+                $productionData['doi'] = null;
+            }
+
+            if ($doi) {
+                $production = Production::updateOrCreate(
+                    ['doi' => $doi],
+                    $productionData
+                );
+            } else {
+                // If no DOI, match by title and year to avoid overwriting all null-DOI productions
+                $production = Production::updateOrCreate(
+                    [
+                        'title' => $productionData['title'],
+                        'year' => (int) $productionData['year'],
+                        'doi' => null
+                    ],
+                    $productionData
+                );
+            }
+
             $this->writerOf()->syncWithoutDetaching([$production->id]);
         }
-        $this->lattes_updated_at = $data['lattes_updated_at'];
+        $this->lattes_xml_uploaded_at = $data['lattes_xml_uploaded_at'] ?? $data['lattes_updated_at'] ?? null;
         $this->save();
     }
 

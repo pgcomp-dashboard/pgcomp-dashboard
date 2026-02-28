@@ -61,8 +61,8 @@ class LattesZipXml
         /** @var SimpleXMLElement $item */
         foreach ($productions as $item) {
             $doi = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
-            trim($doi);
-            $doi = "http://dx.doi.org/$doi";
+            $doi = trim($doi);
+            $doi = $doi ? "http://dx.doi.org/$doi" : null;
             $title = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['ANO-DO-ARTIGO'];
             $rawHomePageData = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['HOME-PAGE-DO-TRABALHO'];
@@ -118,11 +118,13 @@ class LattesZipXml
         $productions = $xml->{'PRODUCAO-BIBLIOGRAFICA'}->{'TRABALHOS-EM-EVENTOS'}->{'TRABALHO-EM-EVENTOS'} ?? [];
         /** @var SimpleXMLElement $item */
         foreach ($productions as $item) {
+            $sequence = $item->attributes()['SEQUENCIA-PRODUCAO'];
+            //error_log($sequence);
             $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
-            trim($doi);
-            $doi = "http://dx.doi.org/$doi";
+            $doi = trim($doi);
+            $doi = $doi ? "http://dx.doi.org/$doi" : null;
             $title = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['TITULO-DO-TRABALHO'];
-            error_log($title);
+            //error_log($title);
             $year = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ANO-DO-TRABALHO'];
             $issn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISSN'];
             $isbn = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['ISBN'];
