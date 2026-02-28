@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
@@ -5,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Publisher } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
 import { ColumnDef, createColumnHelper, PaginationState, SortingState } from "@tanstack/react-table";
-import { Info, Pencil, SquarePenIcon, Trash } from "lucide-react";
+import { CheckCircle, Info, Pencil, SquarePenIcon, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 
 interface PublisherTableProps {
@@ -15,6 +16,7 @@ interface PublisherTableProps {
   isFetching: boolean;
   onEdit: (publisher: Publisher) => void;
   onDelete: (publisher: Publisher) => void;
+  onApprove: (publisher: Publisher) => void;
   onPageChange: (page: number) => void;
   sorting: SortingState;
   onSortingChange: (updater: any) => void;
@@ -67,6 +69,7 @@ export function PublisherTable({
   isFetching,
   onEdit,
   onDelete,
+  onApprove,
   onPageChange,
   sorting,
   onSortingChange,
@@ -143,6 +146,17 @@ export function PublisherTable({
         header: "Ações",
         cell: (info) => (
           <div className="flex justify-center gap-1">
+            {!info.row.original.is_approved && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={() => onApprove(info.row.original)}
+                title="Aprovar"
+              >
+                <CheckCircle className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -163,7 +177,7 @@ export function PublisherTable({
         ),
       }),
     ],
-    [onEdit, onDelete]
+    [onEdit, onDelete, onApprove]
   );
 
   const paginationState: PaginationState = useMemo(() => {
@@ -210,7 +224,19 @@ export function PublisherTable({
               : publisher.initials || "—"}
           </div>
         </div>
-        <CardFooter className="flex border-t items-stretch">
+        <CardFooter className="flex border-t items-stretch flex-wrap">
+          {!publisher.is_approved && (
+            <>
+              <Button
+                variant="ghost"
+                className="flex-1 rounded-none h-11 text-sm text-green-600 hover:text-green-700"
+                onClick={() => onApprove(publisher)}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" /> Aprovar
+              </Button>
+              <div className="w-px bg-border self-stretch hidden sm:block" />
+            </>
+          )}
           <Button
             variant="ghost"
             className="flex-1 rounded-none h-11 text-sm"

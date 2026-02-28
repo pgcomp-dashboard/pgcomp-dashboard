@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PublisherDeleteDialog } from "@/features/publishers/components/PublisherDeleteDialog";
 import { PublisherDialogs } from "@/features/publishers/components/PublisherDialogs";
 import { PublisherFilters } from "@/features/publishers/components/PublisherFilters";
@@ -26,12 +27,15 @@ export default function PublishersPage() {
     setTypeFilter,
     qualisFilter,
     setQualisFilter,
+    approvalFilter,
+    setApprovalFilter,
     sorting,
     setSorting,
     qualisOptions,
     createMutation,
     updateMutation,
     deleteMutation,
+    approveMutation,
     importMutation,
   } = usePublishers();
 
@@ -58,6 +62,10 @@ export default function PublishersPage() {
   const handleDelete = (publisher: Publisher) => {
     setPublisherToDelete(publisher);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleApprove = async (publisher: Publisher) => {
+    await approveMutation.mutateAsync(publisher.id);
   };
 
   const handleSave = async (values: any) => {
@@ -109,33 +117,41 @@ export default function PublishersPage() {
         </div>
       </header>
 
-      <div className="rounded-md border">
-        <PublisherFilters
-          search={search}
-          setSearch={setSearch}
-          typeFilter={typeFilter}
-          setTypeFilter={setTypeFilter}
-          qualisFilter={qualisFilter}
-          setQualisFilter={setQualisFilter}
-          perPage={perPage}
-          setPerPage={setPerPage}
-          qualisOptions={qualisOptions}
-        />
+      <Tabs value={approvalFilter} onValueChange={setApprovalFilter} className="w-full space-y-4">
+        <TabsList>
+          <TabsTrigger value="approved">Aprovados</TabsTrigger>
+          <TabsTrigger value="pending">Pendentes</TabsTrigger>
+        </TabsList>
 
-        <PublisherTable
-          publishers={publishers}
-          pagination={pagination}
-          isLoading={isLoading}
-          isFetching={isFetching}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onPageChange={setPage}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          perPage={perPage}
-          onPerPageChange={setPerPage}
-        />
-      </div>
+        <div className="rounded-md border">
+          <PublisherFilters
+            search={search}
+            setSearch={setSearch}
+            typeFilter={typeFilter}
+            setTypeFilter={setTypeFilter}
+            qualisFilter={qualisFilter}
+            setQualisFilter={setQualisFilter}
+            perPage={perPage}
+            setPerPage={setPerPage}
+            qualisOptions={qualisOptions}
+          />
+
+          <PublisherTable
+            publishers={publishers}
+            pagination={pagination}
+            isLoading={isLoading}
+            isFetching={isFetching}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onApprove={handleApprove}
+            onPageChange={setPage}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            perPage={perPage}
+            onPerPageChange={setPerPage}
+          />
+        </div>
+      </Tabs>
 
       <PublisherDialogs
         isOpen={isPublisherDialogOpen}

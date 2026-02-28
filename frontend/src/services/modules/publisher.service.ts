@@ -63,4 +63,11 @@ export const publisherService = {
       `/api/admin/publishers/${id}`,
     );
   },
+
+  async approvePublisher(id: number) {
+    return await apiClient.post<{ message: string }>(
+      `/api/admin/publishers/${id}/approve`,
+      {}
+    );
+  },
 };

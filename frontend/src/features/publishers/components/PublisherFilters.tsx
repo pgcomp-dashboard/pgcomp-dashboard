@@ -1,15 +1,15 @@
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Tabs,
-    TabsList,
-    TabsTrigger,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from "@/components/ui/tabs";
 import { StratumQualis } from "@/types/academic";
 import { Search } from "lucide-react";

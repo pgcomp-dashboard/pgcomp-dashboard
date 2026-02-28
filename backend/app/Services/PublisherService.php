@@ -108,7 +108,7 @@ class PublisherService
         return QueryBuilder::for(Publishers::class)
             ->with(['stratumQualis', 'issns'])
             ->allowedFilters([
-                'name', 'initials', 'publisher_type', 'stratum_qualis_id',
+                'name', 'initials', 'publisher_type', 'stratum_qualis_id', 'is_approved',
                 AllowedFilter::callback('issn', function ($query, $value) {
                     $query->whereHas('issns', function($q) use ($value) {
                         $q->where('issn', 'like', "%{$value}%");
@@ -164,7 +164,8 @@ class PublisherService
                             'initials' => $row[0],
                             'name' => $row[1],
                             'stratum_qualis_id' => $qualisId,
-                            'publisher_type' => $publisherType->value
+                            'publisher_type' => $publisherType->value,
+                            'is_approved' => true
                         ]
                     );
                 } else {
@@ -182,14 +183,16 @@ class PublisherService
                         $publisher->update([
                             'name' => $row[1],
                             'stratum_qualis_id' => $qualisId,
-                            'publisher_type' => $publisherType->value
+                            'publisher_type' => $publisherType->value,
+                            'is_approved' => true
                         ]);
                         $publisher->issns()->firstOrCreate(['issn' => $issn]);
                     } else {
                         $publisher = Publishers::create([
                             'name' => $row[1],
                             'stratum_qualis_id' => $qualisId,
-                            'publisher_type' => $publisherType->value
+                            'publisher_type' => $publisherType->value,
+                            'is_approved' => true
                         ]);
                         $publisher->issns()->create(['issn' => $issn]);
                     }
