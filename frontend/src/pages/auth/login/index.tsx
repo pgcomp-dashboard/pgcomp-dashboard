@@ -74,98 +74,100 @@ export default function LoginPage() {
           <div className="flex flex-col items-center sm:gap-4">
             <Link to="/" className="flex flex-col items-center font-medium">
               <div className="sm:mb-8 flex items-center justify-center">
-                <AppLogo className="w-35" />
+                <AppLogo />
               </div>
             </Link>
-
-            <div className="space-y-1 sm:space-y-2 text-center">
-              <h1 className="text-lg sm:text-xl font-medium">
-                Entrar na sua conta
-              </h1>
-            </div>
+            <h1 className="text-lg sm:text-xl font-medium">
+              Entrar na sua conta
+            </h1>
           </div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid gap-6">
-                <div className="grid gap-2">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>E-mail</FormLabel>
-                        <FormControl>
-                          <Input placeholder="example@example.com" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          O e-mail do seu usuário.
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Senha</FormLabel>
-                        <FormControl>
-                          <div className="relative">
+          <div className="rounded-md border p-12">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="grid gap-6">
+                  <div className="grid gap-2">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>E-mail</FormLabel>
+                          <FormControl>
                             <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="••••••••"
-                              className="pr-10"
+                              placeholder="example@example.com"
                               {...field}
                             />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="lg"
-                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent [&_svg]:size-6"
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? (
-                                <EyeOff
-                                  className="text-muted-foreground"
-                                  aria-hidden="true"
-                                />
-                              ) : (
-                                <Eye
-                                  className="text-muted-foreground"
-                                  aria-hidden="true"
-                                />
-                              )}
-                              <span className="sr-only">
-                                {showPassword
-                                  ? "Esconder senha"
-                                  : "Mostrar senha"}
-                              </span>
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormDescription>
-                          A senha do seu usuário.
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
+                          </FormControl>
+                          <FormDescription>
+                            O e-mail do seu usuário.
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Senha</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="••••••••"
+                                className="pr-10"
+                                {...field}
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="lg"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent [&_svg]:size-6"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <EyeOff
+                                    className="text-muted-foreground"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <Eye
+                                    className="text-muted-foreground"
+                                    aria-hidden="true"
+                                  />
+                                )}
+                                <span className="sr-only">
+                                  {showPassword
+                                    ? "Esconder senha"
+                                    : "Mostrar senha"}
+                                </span>
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            A senha do seu usuário.
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                    Entrar
+                  </Button>
+                  <div className="flex text-center justify-between gap-4">
+                    <Link to="/register">
+                      <u>Criar conta</u>
+                    </Link>
+                    <Link to="/forgot-password">
+                      <u>Recuperar senha</u>
+                    </Link>
+                  </div>
                 </div>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  Entrar
-                </Button>
-                <div className="flex text-center gap-4">
-                  <Link to="/register">
-                    <u>Criar conta</u>
-                  </Link>
-                  <Link to="/forgot-password">
-                    <u>Recuperar senha</u>
-                  </Link>
-                </div>
-              </div>
-            </form>
-          </Form>
+              </form>
+            </Form>
+          </div>
         </div>
       </div>
     </div>
