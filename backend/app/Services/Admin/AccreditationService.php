@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Models\Configuration;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -14,9 +15,9 @@ class AccreditationService
      */
     public function getAccreditationRanking($year1 = null, $year2 = null)
     {
-        $rules = \App\Models\Configuration::get('accreditation', 'rules', [
-            'initial_year' => date("Y") - 4,
-            'final_year' => date("Y") - 1,
+        $rules = Configuration::get('accreditation', 'rules', [
+            'initial_year' => date("Y"),
+            'final_year' => date("Y"),
             'is_pq_required' => false,
             'min_journals' => 0,
             'min_score' => 0,
@@ -60,22 +61,27 @@ class AccreditationService
                 $a1A4Count += ($breakdown[$code] ?? 0);
             }
 
-            $isAccredited = true;
+            $isAccredited = false;
             $reasons = [];
 
-            if ($isPqRequired && !$user->pq) {
-                $isAccredited = false;
-                $reasons[] = 'Não é bolsista PQ';
-            }
+            $meetsScore = $user->total_score >= $minScore;
+            $meetsJournals = $a1A4Count >= $minJournals;
+            $isPqAndRequired = $isPqRequired && $user->pq;
 
-            if ($user->total_score < $minScore) {
-                $isAccredited = false;
-                $reasons[] = "Pontuação insuficiente ({$user->total_score} < {$minScore})";
-            }
-
-            if ($a1A4Count < $minJournals) {
-                $isAccredited = false;
-                $reasons[] = "Publicações A1-A4 insuficientes ({$a1A4Count} < {$minJournals})";
+            if ($meetsScore && $meetsJournals) {
+                $isAccredited = true;
+            } elseif ($isPqAndRequired) {
+                $isAccredited = true;
+            } else {
+                if (!$meetsScore) {
+                    $reasons[] = "Pontuação insuficiente ({$user->total_score} < {$minScore})";
+                }
+                if (!$meetsJournals) {
+                    $reasons[] = "Publicações A1-A4 insuficientes ({$a1A4Count} < {$minJournals})";
+                }
+                if ($isPqRequired && !$user->pq) {
+                    $reasons[] = 'Não é bolsista PQ';
+                }
             }
 
             $user->is_accredited = $isAccredited;
@@ -108,6 +114,9 @@ class AccreditationService
 
         $year1 = $year1 ?? $rules['initial_year'];
         $year2 = $year2 ?? $rules['final_year'];
+        $isPqRequired = $rules['is_pq_required'] ?? false;
+        $minJournals = $rules['min_journals'] ?? 0;
+        $minScore = $rules['min_score'] ?? 0;
 
         $user = User::professors()
             ->with(['writerOf' => function ($query) use ($year1, $year2) {
@@ -131,22 +140,27 @@ class AccreditationService
             $a1A4Count += ($qualisBreakdown[$code] ?? 0);
         }
 
-        $isAccredited = true;
+        $isAccredited = false;
         $reasons = [];
 
-        if (($rules['is_pq_required'] ?? false) && !$user->pq) {
-            $isAccredited = false;
-            $reasons[] = 'Não é bolsista PQ';
-        }
+        $meetsScore = $totalScore >= $minScore;
+        $meetsJournals = $a1A4Count >= $minJournals;
+        $isPqAndRequired = $isPqRequired && $user->pq;
 
-        if ($totalScore < ($rules['min_score'] ?? 0)) {
-            $isAccredited = false;
-            $reasons[] = "Pontuação insuficiente ({$totalScore} < " . ($rules['min_score'] ?? 0) . ")";
-        }
-
-        if ($a1A4Count < ($rules['min_journals'] ?? 0)) {
-            $isAccredited = false;
-            $reasons[] = "Publicações A1-A4 insuficientes ({$a1A4Count} < " . ($rules['min_journals'] ?? 0) . ")";
+        if ($meetsScore && $meetsJournals) {
+            $isAccredited = true;
+        } elseif ($isPqAndRequired) {
+            $isAccredited = true;
+        } else {
+            if (!$meetsScore) {
+                $reasons[] = "Pontuação insuficiente ({$totalScore} < {$minScore})";
+            }
+            if (!$meetsJournals) {
+                $reasons[] = "Publicações A1-A4 insuficientes ({$a1A4Count} < {$minJournals})";
+            }
+            if ($isPqRequired && !$user->pq) {
+                $reasons[] = 'Não é bolsista PQ';
+            }
         }
 
         return [
