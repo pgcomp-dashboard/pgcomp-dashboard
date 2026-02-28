@@ -125,11 +125,6 @@ export function AdminHeader() {
                 <span className="text-xs sm:text-sm font-medium truncate max-w-30 lg:max-w-none">
                   {auth?.user?.name}
                 </span>
-                {summary.total > 0 && (
-                  <Badge variant="destructive" className="h-4 px-1 text-[9px] font-bold">
-                    {summary.total}
-                  </Badge>
-                )}
               </div>
               <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 opacity-50 shrink-0" />
             </Button>
