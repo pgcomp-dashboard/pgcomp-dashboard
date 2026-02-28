@@ -61,9 +61,7 @@ class LattesZipXml
         /** @var SimpleXMLElement $item */
         foreach ($productions as $item) {
             $doi = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['DOI'];
-            if (!trim($doi)) {
-                continue;
-            }
+            trim($doi);
             $doi = "http://dx.doi.org/$doi";
             $title = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['TITULO-DO-ARTIGO'];
             $year = (string)$item->{'DADOS-BASICOS-DO-ARTIGO'}->attributes()['ANO-DO-ARTIGO'];
@@ -121,9 +119,7 @@ class LattesZipXml
         /** @var SimpleXMLElement $item */
         foreach ($productions as $item) {
             $doi = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['DOI'];
-            if (!trim($doi)) {
-                continue;
-            }
+            trim($doi);
             $doi = "http://dx.doi.org/$doi";
             $title = (string)$item->{'DADOS-BASICOS-DO-TRABALHO'}->attributes()['TITULO-DO-TRABALHO'];
             error_log($title);
@@ -165,12 +161,12 @@ class LattesZipXml
                 if($conferenceInfo){
                     $acronym = $conferenceInfo['conference_acronym'];
                     $name = $conferenceInfo['conference_name'];
-                    error_log("Received from doi api:".$acronym ." - ". $name);
+                    //error_log("Received from doi api:".$acronym ." - ". $name);
                     $publisher = $acronym ? Publishers::where('initials', $acronym)->first() : null;
                     if (!$publisher) {
-                        error_log("Nao encontrei pela initials");
+                        //error_log("Nao encontrei pela initials");
                         $publisher = Publishers::where('name', $name)->first();
-                        $publisher ? error_log("encontrei pelo nome") : error_log("nao encontrei pelo nome");
+                        //$publisher ? error_log("encontrei pelo nome") : error_log("nao encontrei pelo nome");
                     }
 
                     if (!$publisher && ($name || $acronym)) {
@@ -183,7 +179,7 @@ class LattesZipXml
                     }
 
                     $publisher_id = $publisher?->id;
-                    error_log("publisher id = ".$publisher_id);
+                    //error_log("publisher id = ".$publisher_id);
                 } else if ($conferenceName) {
                     $publisher = Publishers::create([
                         'name' => $conferenceName,
