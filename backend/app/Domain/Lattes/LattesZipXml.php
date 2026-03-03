@@ -91,14 +91,29 @@ class LattesZipXml
 
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
-                $publisher = Publishers::whereHas('issns', function ($q) use ($issn) {
-                    $q->where('issn', $issn);
-                })->first();
+
+                // 1. Try to find an APPROVED publisher first (by ISSN or Name)
+                $publisher = Publishers::onlyApproved()
+                    ->whereHas('issns', function ($q) use ($issn) {
+                        $q->where('issn', $issn);
+                    })->first();
 
                 if (!$publisher && $publisher_name) {
-                    $publisher = Publishers::where('name', $publisher_name)->first();
+                    $publisher = Publishers::onlyApproved()->where('name', $publisher_name)->first();
                 }
 
+                // 2. If not found, look for ANY publisher (including pending)
+                if (!$publisher) {
+                    $publisher = Publishers::whereHas('issns', function ($q) use ($issn) {
+                        $q->where('issn', $issn);
+                    })->first();
+
+                    if (!$publisher && $publisher_name) {
+                        $publisher = Publishers::where('name', $publisher_name)->first();
+                    }
+                }
+
+                // 3. If still not found, create a new pending one
                 if (!$publisher && $publisher_name) {
                     $publisher = Publishers::create([
                         'name' => $publisher_name,
@@ -162,18 +177,26 @@ class LattesZipXml
                 $conferenceName = trim(preg_replace('/\b(international|ieee)\b/iu', '', $conferenceName));
                 $conferenceName = trim(preg_replace('/\bannual\b/iu', '', $conferenceName));
 
-                // Search with wildcards to find records that might still have "International" or "Annual"
-                $publisher_id = Publishers::whereLike('name' ,"%$conferenceName%")->first()?->id;
+                // 1. Try to find an APPROVED conference first
+                $publisher = Publishers::onlyApproved()
+                    ->where(function($query) use ($conferenceName, $conferenceAcronym) {
+                        $query->whereLike('name', "%$conferenceName%");
+                        if ($conferenceAcronym) {
+                            $query->orWhere('initials', $conferenceAcronym);
+                        }
+                    })->first();
 
-                if (!$publisher_id && $conferenceAcronym) {
-                   $publisher_id = Publishers::where('initials', $conferenceAcronym)->first()?->id;
+                // 2. If not found, look for ANY conference
+                if (!$publisher) {
+                    $publisher = Publishers::where(function($query) use ($conferenceName, $conferenceAcronym) {
+                        $query->whereLike('name', "%$conferenceName%");
+                        if ($conferenceAcronym) {
+                            $query->orWhere('initials', $conferenceAcronym);
+                        }
+                    })->first();
                 }
 
-                if (!$publisher_id) {
-                    // Try exact name match just in case
-                    $publisher_id = Publishers::where('name', $conferenceName)->first()?->id;
-                }
-                //$conferenceName === "Hawaii International Conference on System Sciences" ? error_log("Achei o havai, publisher = ". $publisher_id) : $conferenceName;
+                $publisher_id = $publisher?->id;
             }
 
             if(!$publisher_id){
@@ -183,14 +206,22 @@ class LattesZipXml
                 if($conferenceInfo){
                     $acronym = $conferenceInfo['conference_acronym'];
                     $name = $conferenceInfo['conference_name'];
-                    //error_log("Received from doi api:".$acronym ." - ". $name);
-                    $publisher = $acronym ? Publishers::where('initials', $acronym)->first() : null;
+
+                    // 1. Try to find an APPROVED publisher first
+                    $publisher = $acronym ? Publishers::onlyApproved()->where('initials', $acronym)->first() : null;
                     if (!$publisher) {
-                        //error_log("Nao encontrei pela initials");
-                        $publisher = Publishers::where('name', $name)->first();
-                        //$publisher ? error_log("encontrei pelo nome") : error_log("nao encontrei pelo nome");
+                        $publisher = Publishers::onlyApproved()->where('name', $name)->first();
                     }
 
+                    // 2. If not found, look for ANY publisher
+                    if (!$publisher) {
+                        $publisher = $acronym ? Publishers::where('initials', $acronym)->first() : null;
+                        if (!$publisher) {
+                            $publisher = Publishers::where('name', $name)->first();
+                        }
+                    }
+
+                    // 3. Create new if still not found
                     if (!$publisher && ($name || $acronym)) {
                         $publisher = Publishers::create([
                             'name' => $name ?? $conferenceName,
@@ -201,15 +232,19 @@ class LattesZipXml
                     }
 
                     $publisher_id = $publisher?->id;
-                    //error_log("publisher id = ".$publisher_id);
                 }
 
                 if (!$publisher_id && $conferenceName) {
-                    $publisher = Publishers::create([
-                        'name' => $conferenceName,
-                        'publisher_type' => PublisherType::CONFERENCE->value,
-                        'is_approved' => false
-                    ]);
+                    // Final check for ANY publisher by name before creating
+                    $publisher = Publishers::where('name', $conferenceName)->first();
+
+                    if (!$publisher) {
+                        $publisher = Publishers::create([
+                            'name' => $conferenceName,
+                            'publisher_type' => PublisherType::CONFERENCE->value,
+                            'is_approved' => false
+                        ]);
+                    }
                     $publisher_id = $publisher->id;
                 }
             }
