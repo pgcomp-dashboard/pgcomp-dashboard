@@ -66,7 +66,7 @@ export function usePublishers() {
       }
 
       if (approvalFilter !== 'all') {
-        params.filter.is_approved = approvalFilter === 'approved' ? 1 : 0;
+        params.filter.status = approvalFilter;
       }
 
       if (qualisFilter !== 'all') {
@@ -125,9 +125,12 @@ export function usePublishers() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["publishers"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "pending-summary"] });
-      toast.success("Veículo aprovado com sucesso");
+      toast.success("Veículo aprovado com sucesso!");
     },
-    onError: () => toast.error("Erro ao aprovar veículo"),
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || "Erro ao aprovar veículo";
+      toast.error(message);
+    },
   });
 
   const importMutation = useMutation({

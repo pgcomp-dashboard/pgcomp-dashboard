@@ -64,6 +64,12 @@ class PublisherService
         $publisher = Publishers::findOrFail($id);
         $publisher->update($data);
 
+        // Recalculate is_approved based on stratum_qualis_id
+        $hasQualis = !is_null($publisher->stratum_qualis_id);
+        if ($publisher->is_approved !== $hasQualis) {
+            $publisher->update(['is_approved' => $hasQualis]);
+        }
+
         if (array_key_exists('issns', $data) && is_array($data['issns'])) {
             $publisher->issns()->delete();
             $issnData = collect($data['issns'])
@@ -91,13 +97,13 @@ class PublisherService
     }
 
     /**
-     * Delete all unapproved publishers.
+     * Delete all pending (not approved) publishers.
      *
      * @return void
      */
     public function destroyAllPending(): void
     {
-        Publishers::where('is_approved', false)->delete();
+        Publishers::onlyPending()->delete();
     }
 
     public function findByInitials(string $initials): ?Publishers
@@ -119,6 +125,13 @@ class PublisherService
             ->with(['stratumQualis', 'issns'])
             ->allowedFilters([
                 'name', 'initials', 'publisher_type', 'stratum_qualis_id', 'is_approved',
+                AllowedFilter::callback('status', function ($query, $value) {
+                    if ($value === 'approved') {
+                        $query->where('is_approved', true);
+                    } elseif ($value === 'pending') {
+                        $query->where('is_approved', false);
+                    }
+                }),
                 AllowedFilter::callback('issn', function ($query, $value) {
                     $query->whereHas('issns', function($q) use ($value) {
                         $q->where('issn', 'like', "%{$value}%");

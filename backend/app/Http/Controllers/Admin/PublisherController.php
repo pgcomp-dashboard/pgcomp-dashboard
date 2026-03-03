@@ -29,7 +29,8 @@ class PublisherController extends Controller
     public function store(StorePublisherRequest $request)
     {
         $data = $request->all();
-        $data['is_approved'] = true; // Admin creations are pre-approved
+        // Only approve if has qualis classification
+        $data['is_approved'] = !empty($data['stratum_qualis_id']);
 
         $model = $this->publisherService->create($data);
 
@@ -77,9 +78,20 @@ class PublisherController extends Controller
     public function approve(int $id)
     {
         $publisher = $this->publisherService->find($id);
+
+        if (is_null($publisher->stratum_qualis_id)) {
+            return response()->json([
+                'message' => 'Não é possível aprovar um veículo sem classificação Qualis. Por favor, atribua uma classificação Qualis primeiro.',
+                'error' => 'missing_qualis',
+            ], 422);
+        }
+
         $publisher->update(['is_approved' => true]);
 
-        return response()->json(['message' => 'Publisher approved successfully']);
+        return response()->json([
+            'message' => 'Veículo aprovado com sucesso.',
+            'is_approved' => true,
+        ]);
     }
 
     public function import(ImportQualisRequest $request)
