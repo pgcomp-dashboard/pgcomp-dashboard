@@ -91,12 +91,12 @@ class LattesZipXml
 
             if ($issn) {
                 $issn = Str::of($issn)->trim()->remove('-')->value();
-                $publisher = Publishers::onlyApproved()->whereHas('issns', function ($q) use ($issn) {
+                $publisher = Publishers::whereHas('issns', function ($q) use ($issn) {
                     $q->where('issn', $issn);
                 })->first();
 
                 if (!$publisher && $publisher_name) {
-                    $publisher = Publishers::onlyApproved()->where('name', $publisher_name)->first();
+                    $publisher = Publishers::where('name', $publisher_name)->first();
                 }
 
                 if (!$publisher && $publisher_name) {
@@ -163,15 +163,15 @@ class LattesZipXml
                 $conferenceName = trim(preg_replace('/\bannual\b/iu', '', $conferenceName));
 
                 // Search with wildcards to find records that might still have "International" or "Annual"
-                $publisher_id = Publishers::onlyApproved()->whereLike('name' ,"%$conferenceName%")->first()?->id;
+                $publisher_id = Publishers::whereLike('name' ,"%$conferenceName%")->first()?->id;
 
                 if (!$publisher_id && $conferenceAcronym) {
-                   $publisher_id = Publishers::onlyApproved()->where('initials', $conferenceAcronym)->first()?->id;
+                   $publisher_id = Publishers::where('initials', $conferenceAcronym)->first()?->id;
                 }
 
                 if (!$publisher_id) {
                     // Try exact name match just in case
-                    $publisher_id = Publishers::onlyApproved()->where('name', $conferenceName)->first()?->id;
+                    $publisher_id = Publishers::where('name', $conferenceName)->first()?->id;
                 }
                 //$conferenceName === "Hawaii International Conference on System Sciences" ? error_log("Achei o havai, publisher = ". $publisher_id) : $conferenceName;
             }
@@ -184,10 +184,10 @@ class LattesZipXml
                     $acronym = $conferenceInfo['conference_acronym'];
                     $name = $conferenceInfo['conference_name'];
                     //error_log("Received from doi api:".$acronym ." - ". $name);
-                    $publisher = $acronym ? Publishers::onlyApproved()->where('initials', $acronym)->first() : null;
+                    $publisher = $acronym ? Publishers::where('initials', $acronym)->first() : null;
                     if (!$publisher) {
                         //error_log("Nao encontrei pela initials");
-                        $publisher = Publishers::onlyApproved()->where('name', $name)->first();
+                        $publisher = Publishers::where('name', $name)->first();
                         //$publisher ? error_log("encontrei pelo nome") : error_log("nao encontrei pelo nome");
                     }
 
