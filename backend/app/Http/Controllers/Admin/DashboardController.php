@@ -210,7 +210,7 @@ class DashboardController extends Controller
 
         $adminRequests = User::where('admin_status', 'pending')->count();
 
-        $publishers = \App\Models\Publishers::where('is_approved', false)->count();
+        $publishers = \App\Models\Publishers::onlyPending()->count();
 
         return response()->json([
             'registrations' => $registrations,

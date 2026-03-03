@@ -25,6 +25,7 @@ class PublisherResource extends JsonResource
             'logs' => $this->logs,
             'stratum_qualis_id' => $this->stratum_qualis_id,
             'stratum_qualis' => new StratumQualisResource($this->whenLoaded('stratumQualis')),
+            'is_approved' => $this->is_approved,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

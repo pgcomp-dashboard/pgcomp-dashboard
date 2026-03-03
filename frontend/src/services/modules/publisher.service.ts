@@ -73,7 +73,10 @@ export const publisherService = {
   },
 
   async approvePublisher(id: number) {
-    return await apiClient.post<{ message: string }>(
+    return await apiClient.post<{
+      message: string;
+      is_approved: boolean;
+    }>(
       `/api/admin/publishers/${id}/approve`,
       {}
     );

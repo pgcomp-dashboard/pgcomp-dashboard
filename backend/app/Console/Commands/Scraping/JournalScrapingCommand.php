@@ -69,6 +69,7 @@ class JournalScrapingCommand extends Command
                 'logs' => (string) $item['logs'],
                 'publisher_type' => PublisherType::JOURNAL->value,
                 'stratum_qualis_id' => $stratumQualisId,
+                'is_approved' => !is_null($stratumQualisId),
             ];
 
             if ($publisher) {
