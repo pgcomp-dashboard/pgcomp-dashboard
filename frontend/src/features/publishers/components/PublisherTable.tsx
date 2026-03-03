@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import {
   Tooltip,
   TooltipContent,
@@ -94,8 +95,10 @@ export function PublisherTable({
   const columns = useMemo<ColumnDef<Publisher, any>[]>(
     () => [
       columnHelper.accessor((row) => row, {
-        id: "issn_sigla",
-        header: "ISSN/Sigla",
+        id: "initials",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="ISSN/Sigla" />
+        ),
         cell: (info) => {
           const publisher = info.getValue();
           if (publisher.publisher_type !== "journal") {
@@ -135,7 +138,9 @@ export function PublisherTable({
         },
       }),
       columnHelper.accessor("name", {
-        header: "Nome",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Nome" />
+        ),
         cell: (info) => (
           <div className="capitalize text-justify max-w-[500px] min-w-[200px] whitespace-normal break-words mx-auto">
             {info.getValue().toLowerCase()}
@@ -143,7 +148,9 @@ export function PublisherTable({
         ),
       }),
       columnHelper.accessor("publisher_type", {
-        header: "Veículo",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Veículo" />
+        ),
         cell: (info) => (
           <div className="text-center">
             {info.getValue() === "journal"
@@ -155,8 +162,10 @@ export function PublisherTable({
         ),
       }),
       columnHelper.accessor((row) => row.stratum_qualis?.code, {
-        id: "qualis",
-        header: "Qualis",
+        id: "qualis_code",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Qualis" />
+        ),
         cell: (info) => (
           <div className="text-center">{info.getValue() || "—"}</div>
         ),
