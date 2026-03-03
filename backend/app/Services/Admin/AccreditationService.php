@@ -37,7 +37,7 @@ class AccreditationService
                 'users.lattes_url',
                 'users.pq',
                 DB::raw('SUM(COALESCE(stratum_qualis.score, 0)) as total_score'),
-                DB::raw('GROUP_CONCAT(stratum_qualis.code) as qualis_codes')
+                DB::raw('GROUP_CONCAT(CONCAT(publishers.publisher_type, ":", stratum_qualis.code)) as qualis_data')
             ])
             ->leftJoin('users_productions', 'users.id', '=', 'users_productions.users_id')
             ->leftJoin('productions', function($join) use ($year1, $year2) {
@@ -52,13 +52,20 @@ class AccreditationService
         $ranking = $query->get();
 
         return $ranking->map(function ($user) use ($isPqRequired, $minJournals, $minScore) {
-            $codesList = $user->qualis_codes ? explode(',', $user->qualis_codes) : [];
-            $breakdown = array_count_values($codesList);
+            $dataList = $user->qualis_data ? explode(',', $user->qualis_data) : [];
+            $fullBreakdown = array_count_values($dataList);
 
-            // Ensure A1-A4 count for rules
+            // Calculate A1-A4 journal-only count
             $a1A4Count = 0;
             foreach (['A1', 'A2', 'A3', 'A4'] as $code) {
-                $a1A4Count += ($breakdown[$code] ?? 0);
+                $a1A4Count += ($fullBreakdown["journal:{$code}"] ?? 0);
+            }
+
+            // Create qualis_breakdown for the response (includes everything)
+            $breakdown = [];
+            foreach ($fullBreakdown as $key => $count) {
+                $code = strpos($key, ':') !== false ? explode(':', $key)[1] : $key;
+                $breakdown[$code] = ($breakdown[$code] ?? 0) + $count;
             }
 
             $isAccredited = false;
@@ -90,7 +97,7 @@ class AccreditationService
             $user->a1_a4_count = $a1A4Count;
             $user->qualis_breakdown = $breakdown;
 
-            unset($user->qualis_codes); // No need to send the raw string
+            unset($user->qualis_data); // No need to send the raw string
 
             return $user;
         });
@@ -129,16 +136,20 @@ class AccreditationService
         $productions = $user->writerOf->map(function ($production) {
             $qualis = $production->publisher->stratumQualis ?? null;
             $production->code = $qualis->code ?? 'N/I';
+            $production->publisher_type = $production->publisher->publisher_type ?? null;
             $production->score = (float) ($qualis->score ?? 0);
             return $production;
         });
 
         $totalScore = (float) $productions->sum('score');
+
+        // qualisBreakdown for the UI (shows everything)
         $qualisBreakdown = array_count_values($productions->pluck('code')->toArray());
-        $a1A4Count = 0;
-        foreach (['A1', 'A2', 'A3', 'A4'] as $code) {
-            $a1A4Count += ($qualisBreakdown[$code] ?? 0);
-        }
+
+        // a1A4Count for the rule (only journals)
+        $a1A4Count = $productions->filter(function($p) {
+            return in_array($p->code, ['A1', 'A2', 'A3', 'A4']) && $p->publisher_type === 'journal';
+        })->count();
 
         $isAccredited = false;
         $reasons = [];
