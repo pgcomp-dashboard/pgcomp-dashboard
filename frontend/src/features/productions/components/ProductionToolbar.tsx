@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { ClearProductionsDialog } from "./ProductionDialogs";
+import { configurationService } from "@/services/modules/configuration.service";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+
 
 interface ProductionToolbarProps {
   showFilters: boolean;
@@ -49,6 +53,24 @@ export function ProductionToolbar({
   onAdd,
   onClearAll,
 }: ProductionToolbarProps) {
+
+  const { data: rulesData } = useQuery({
+    queryKey: ["rulesYears"],
+    queryFn: () => configurationService.getRulesEndAndStartYears(),
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
+  useEffect(() => {
+    if (rulesData?.startYear && rulesData?.endYear) {
+      setFilters({
+        ...filters,
+        anoInicio: rulesData.startYear.toString(),
+        anoFim: rulesData.endYear.toString()
+      });
+    }
+  }, [rulesData]);
+
   return (
     <div className="w-full">
       <div className="bg-muted/50 rounded-lg p-4">
