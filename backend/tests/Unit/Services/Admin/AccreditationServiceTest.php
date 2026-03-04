@@ -59,7 +59,13 @@ class AccreditationServiceTest extends TestCase
         $this->assertTrue($ranking->where('user_id', $user1->id)->first()->is_accredited, "User 1 should be accredited (score/journals)");
         $this->assertTrue($ranking->where('user_id', $user2->id)->first()->is_accredited, "User 2 should be accredited (is PQ)");
         $this->assertFalse($ranking->where('user_id', $user3->id)->first()->is_accredited, "User 3 should NOT be accredited");
-        $this->assertFalse($ranking->where('user_id', $user4->id)->first()->is_accredited, "User 4 should NOT be accredited (fails journals)");
+
+        $user4RankingEntry = $ranking->where('user_id', $user4->id)->first();
+        $this->assertEquals(0, $user4RankingEntry->a1_a4_count);
+        $this->assertEquals(0, $user4RankingEntry->qualis_breakdown['A1'] ?? 0);
+        $this->assertEquals(0, $user4RankingEntry->qualis_breakdown['A2'] ?? 0);
+        $this->assertEquals(1000.0, $user4RankingEntry->total_score); // 10 conferences * 100 score each
+        $this->assertFalse($user4RankingEntry->is_accredited, "User 4 should NOT be accredited (fails journals)");
     }
 
     private function createProductions($user, $count, $qualisCode, $year, $type = 'journal')

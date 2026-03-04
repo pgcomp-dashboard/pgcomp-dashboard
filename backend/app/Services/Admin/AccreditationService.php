@@ -61,11 +61,22 @@ class AccreditationService
                 $a1A4Count += ($fullBreakdown["journal:{$code}"] ?? 0);
             }
 
-            // Create qualis_breakdown for the response (includes everything)
+            // Create qualis_breakdown for the response (A1-A4 should include only journals)
             $breakdown = [];
             foreach ($fullBreakdown as $key => $count) {
-                $code = strpos($key, ':') !== false ? explode(':', $key)[1] : $key;
-                $breakdown[$code] = ($breakdown[$code] ?? 0) + $count;
+                // key is "publisher_type:code"
+                if (strpos($key, ':') !== false) {
+                    [$type, $code] = explode(':', $key);
+
+                    // If it's A1-A4, only count if it's a journal
+                    if (in_array($code, ['A1', 'A2', 'A3', 'A4']) && $type !== 'journal') {
+                        continue;
+                    }
+
+                    $breakdown[$code] = ($breakdown[$code] ?? 0) + $count;
+                } else {
+                    $breakdown[$key] = ($breakdown[$key] ?? 0) + $count;
+                }
             }
 
             $isAccredited = false;
@@ -143,8 +154,14 @@ class AccreditationService
 
         $totalScore = (float) $productions->sum('score');
 
-        // qualisBreakdown for the UI (shows everything)
-        $qualisBreakdown = array_count_values($productions->pluck('code')->toArray());
+        // qualisBreakdown for the UI (A1-A4 should include only journals)
+        $qualisBreakdown = [];
+        foreach ($productions as $p) {
+            if (in_array($p->code, ['A1', 'A2', 'A3', 'A4']) && $p->publisher_type !== 'journal') {
+                continue;
+            }
+            $qualisBreakdown[$p->code] = ($qualisBreakdown[$p->code] ?? 0) + 1;
+        }
 
         // a1A4Count for the rule (only journals)
         $a1A4Count = $productions->filter(function($p) {
