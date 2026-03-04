@@ -1,7 +1,8 @@
 import { userService } from "@/services/modules/user.service";
 import { Ranking } from "@/types/academic";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { configurationService } from "@/services/modules/configuration.service";
 
 export function useAccreditation() {
   const date = new Date();
@@ -9,6 +10,20 @@ export function useAccreditation() {
   const [categoryFilter, setCategoryFilter] = useState("permanente");
   const [startYear, setStartYear] = useState(date.getFullYear() - 4);
   const [endYear, setEndYear] = useState(date.getFullYear());
+
+  const {
+    data: rulesData
+  } = useQuery({
+    queryKey: ["rulesYears"],
+    queryFn: () => configurationService.getRulesEndAndStartYears(),
+    staleTime: 0,
+    refetchOnMount: true,
+  })
+
+  useEffect(() => {
+    if (rulesData?.startYear) setStartYear(rulesData.startYear);
+    if (rulesData?.endYear) setEndYear(rulesData.endYear);
+  }, [rulesData]);
 
   const {
     data: ranking = [],
@@ -20,6 +35,7 @@ export function useAccreditation() {
     queryKey: ["ranking", startYear, endYear],
     queryFn: () => userService.getAccreditationRanking(startYear, endYear),
     placeholderData: (prevData) => prevData,
+    enabled: !!rulesData,
   });
 
   const filteredRanking = useMemo(() => {

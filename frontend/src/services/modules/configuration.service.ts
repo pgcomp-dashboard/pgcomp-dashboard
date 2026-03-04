@@ -18,6 +18,18 @@ export const configurationService = {
     return response.data;
   },
 
+  async getRulesEndAndStartYears(){
+    const config = await this.getAll();
+    const digest_data = JSON.parse(config[0].value!);
+    const startYearConfig = digest_data.initial_year;
+    const endYearConfig = digest_data.final_year;
+
+    return {
+      startYear: startYearConfig, 
+      endYear: endYearConfig 
+    };
+  },
+
   async create(data: Omit<Configuration, 'id' | 'casted_value' | 'created_at' | 'updated_at'>): Promise<Configuration> {
     const response = await apiClient.post<{ data: Configuration }>('/api/admin/configurations', data);
     return response.data;
