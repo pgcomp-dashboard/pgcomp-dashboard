@@ -11,7 +11,7 @@ export function useProfessors() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("permanente");
   const [perPage, setPerPage] = useState(10);
-  const [sortField, setSortField] = useState<"name" | "category" | "is_admin" | "pq" | null>("name");
+  const [sortField, setSortField] = useState<"name" | "category" | "is_admin" | "pq" | "is_senior" | null>("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // Fetch all professors once — no pagination, no server-side filters
@@ -67,7 +67,7 @@ export function useProfessors() {
     return list;
   }, [allProfessors, searchTerm, categoryFilter, sortField, sortOrder]);
 
-  const handleSort = (field: "name" | "category" | "is_admin" | "pq") => {
+  const handleSort = (field: "name" | "category" | "is_admin" | "pq" | "is_senior") => {
     if (sortField === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
