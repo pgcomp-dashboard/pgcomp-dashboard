@@ -214,6 +214,7 @@ class AccreditationService
             'category' => $user->category,
             'lattes_url' => $user->lattes_url,
             'pq' => $user->pq,
+            'is_senior' => $user->is_senior,
             'total_score' => $totalScore,
             'a1_a4_count' => $a1A4Count,
             'qualis_breakdown' => $qualisBreakdown,

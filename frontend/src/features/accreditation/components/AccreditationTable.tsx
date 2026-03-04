@@ -131,6 +131,18 @@ export function AccreditationTable({
           </div>
         ),
       }),
+      columnHelper.accessor("is_senior", {
+        header: "Sênior",
+        cell: (info) => (
+          <div className="font-medium text-center">
+            {info.getValue() ? (
+              <span className="text-blue-600 font-bold">Sim</span>
+            ) : (
+              <span className="text-muted-foreground">Não</span>
+            )}
+          </div>
+        ),
+      }),
       columnHelper.accessor("total_score", {
         header: "Pontuação",
         cell: (info) => (
@@ -215,7 +227,9 @@ export function AccreditationTable({
                 {formatName(rank.name)}
               </Button>
               <span className="text-sm text-muted-foreground capitalize">
-                {rank.category} {rank.pq && <span className="text-primary font-black ml-1">• PQ</span>}
+                {rank.category}
+                {rank.pq && <span className="text-primary font-black ml-1">• PQ</span>}
+                {rank.is_senior && <span className="text-blue-600 font-black ml-1">• Sênior</span>}
               </span>
             </div>
           </div>

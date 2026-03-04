@@ -73,8 +73,7 @@ class AccreditationTest extends TestCase
         $userData = $ranking->firstWhere('user_id', $user->id);
 
         $this->assertFalse($userData->is_accredited);
-        $this->assertContains('Não é docente sênior', $userData->reasons); // Wait, if rule is inactive, reason "Não é docente sênior" should NOT be there or it should be different?
-        // Actually, the logic adds "Não é docente sênior" if $isSeniorRequired is true and user is NOT senior.
-        // Let's re-verify my logic in AccreditationService.php.
+        // "Não é docente sênior" should NOT be in reasons because the rule is inactive
+        $this->assertNotContains('Não é docente sênior', $userData->reasons);
     }
 }

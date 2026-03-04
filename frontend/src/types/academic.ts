@@ -67,6 +67,7 @@ export type Ranking = {
   name: string;
   category: string;
   pq: boolean;
+  is_senior: boolean;
   total_score: number;
   a1_a4_count: number;
   qualis_breakdown: Record<string, number>;
