@@ -19,12 +19,13 @@ class AccreditationService
             'initial_year' => date("Y"),
             'final_year' => date("Y"),
             'is_pq_required' => false,
+            'is_senior_required' => false,
             'min_journals' => 0,
             'min_score' => 0,
         ]);
 
-        $year1 = $year1 ?? $rules['initial_year'];
-        $year2 = $year2 ?? $rules['final_year'];
+        $year1 = $year1 ?? ($rules['initial_year'] ?? date("Y"));
+        $year2 = $year2 ?? ($rules['final_year'] ?? date("Y"));
         $isPqRequired = $rules['is_pq_required'] ?? false;
         $minJournals = $rules['min_journals'] ?? 0;
         $minScore = $rules['min_score'] ?? 0;
@@ -36,6 +37,7 @@ class AccreditationService
                 'users.category',
                 'users.lattes_url',
                 'users.pq',
+                'users.is_senior',
                 DB::raw('SUM(COALESCE(stratum_qualis.score, 0)) as total_score'),
                 DB::raw('GROUP_CONCAT(CONCAT(publishers.publisher_type, ":", stratum_qualis.code)) as qualis_data')
             ])
@@ -46,12 +48,13 @@ class AccreditationService
             })
             ->leftJoin('publishers', 'productions.publisher_id', '=', 'publishers.id')
             ->leftJoin('stratum_qualis', 'publishers.stratum_qualis_id', '=', 'stratum_qualis.id')
-            ->groupBy('users.id', 'users.name', 'users.category', 'users.lattes_url', 'users.pq')
+            ->groupBy('users.id', 'users.name', 'users.category', 'users.lattes_url', 'users.pq', 'users.is_senior')
             ->orderBy('total_score', 'desc');
 
         $ranking = $query->get();
+        $isSeniorRequired = $rules['is_senior_required'] ?? false;
 
-        return $ranking->map(function ($user) use ($isPqRequired, $minJournals, $minScore) {
+        return $ranking->map(function ($user) use ($isPqRequired, $isSeniorRequired, $minJournals, $minScore) {
             $dataList = $user->qualis_data ? explode(',', $user->qualis_data) : [];
             $fullBreakdown = array_count_values($dataList);
 
@@ -85,10 +88,13 @@ class AccreditationService
             $meetsScore = $user->total_score >= $minScore;
             $meetsJournals = $a1A4Count >= $minJournals;
             $isPqAndRequired = $isPqRequired && $user->pq;
+            $isSeniorAndRequired = $isSeniorRequired && $user->is_senior;
 
             if ($meetsScore && $meetsJournals) {
                 $isAccredited = true;
             } elseif ($isPqAndRequired) {
+                $isAccredited = true;
+            } elseif ($isSeniorAndRequired) {
                 $isAccredited = true;
             } else {
                 if (!$meetsScore) {
@@ -99,6 +105,9 @@ class AccreditationService
                 }
                 if ($isPqRequired && !$user->pq) {
                     $reasons[] = 'Não é bolsista PQ';
+                }
+                if ($isSeniorRequired && !$user->is_senior) {
+                    $reasons[] = 'Não é docente sênior';
                 }
             }
 
@@ -126,6 +135,7 @@ class AccreditationService
             'initial_year' => date("Y") - 4,
             'final_year' => date("Y") - 1,
             'is_pq_required' => false,
+            'is_senior_required' => false,
             'min_journals' => 0,
             'min_score' => 0,
         ]);
@@ -133,6 +143,7 @@ class AccreditationService
         $year1 = $year1 ?? $rules['initial_year'];
         $year2 = $year2 ?? $rules['final_year'];
         $isPqRequired = $rules['is_pq_required'] ?? false;
+        $isSeniorRequired = $rules['is_senior_required'] ?? false;
         $minJournals = $rules['min_journals'] ?? 0;
         $minScore = $rules['min_score'] ?? 0;
 
@@ -174,10 +185,13 @@ class AccreditationService
         $meetsScore = $totalScore >= $minScore;
         $meetsJournals = $a1A4Count >= $minJournals;
         $isPqAndRequired = $isPqRequired && $user->pq;
+        $isSeniorAndRequired = $isSeniorRequired && $user->is_senior;
 
         if ($meetsScore && $meetsJournals) {
             $isAccredited = true;
         } elseif ($isPqAndRequired) {
+            $isAccredited = true;
+        } elseif ($isSeniorAndRequired) {
             $isAccredited = true;
         } else {
             if (!$meetsScore) {
@@ -188,6 +202,9 @@ class AccreditationService
             }
             if ($isPqRequired && !$user->pq) {
                 $reasons[] = 'Não é bolsista PQ';
+            }
+            if ($isSeniorRequired && !$user->is_senior) {
+                $reasons[] = 'Não é docente sênior';
             }
         }
 

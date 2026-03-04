@@ -127,6 +127,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'orcid',
         'lattes_xml_path',
         'lattes_xml_uploaded_at',
+        'is_senior',
     ];
 
     protected $hidden = [
@@ -145,6 +146,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'course_id' => 'int',
         'pq' => 'boolean',
         'is_approved' => 'boolean',
+        'is_senior' => 'boolean',
         'lattes_xml_uploaded_at' => 'datetime',
     ];
 

@@ -20,8 +20,11 @@ class ProfessorTest extends TestCase
 
     public function test_admin_can_list_professors()
     {
-        $admin = User::factory()->admin()->create();
-        User::factory()->count(3)->create(['type' => UserType::PROFESSOR]);
+        $admin = User::factory()->admin()->create(['is_approved' => true]);
+        User::factory()->count(3)->create([
+            'type' => UserType::PROFESSOR,
+            'is_approved' => true
+        ]);
 
         $response = $this->actingAs($admin)->getJson('/api/admin/professors');
 
@@ -31,8 +34,11 @@ class ProfessorTest extends TestCase
 
     public function test_admin_can_show_professor()
     {
-        $admin = User::factory()->admin()->create();
-        $professor = User::factory()->create(['type' => UserType::PROFESSOR]);
+        $admin = User::factory()->admin()->create(['is_approved' => true]);
+        $professor = User::factory()->create([
+            'type' => UserType::PROFESSOR,
+            'is_approved' => true
+        ]);
 
         $response = $this->actingAs($admin)->getJson("/api/admin/professors/{$professor->id}");
 
@@ -42,34 +48,48 @@ class ProfessorTest extends TestCase
 
     public function test_admin_can_create_professor()
     {
-        $admin = User::factory()->admin()->create();
+        $admin = User::factory()->admin()->create(['is_approved' => true]);
         $data = [
             'name' => 'New Professor',
             'email' => 'prof@example.com',
             'password' => 'password',
             'type' => UserType::PROFESSOR,
-            // Add other required fields based on StoreProfessorRequest
+            'is_approved' => true,
+            'is_senior' => true,
         ];
 
         $response = $this->actingAs($admin)->postJson('/api/admin/professors', $data);
 
         $response->assertStatus(201);
-        $this->assertDatabaseHas('users', ['email' => 'prof@example.com', 'type' => UserType::PROFESSOR->value]);
+        $this->assertDatabaseHas('users', [
+            'email' => 'prof@example.com',
+            'type' => UserType::PROFESSOR->value,
+            'is_senior' => true
+        ]);
     }
 
     public function test_admin_can_update_professor()
     {
-        $admin = User::factory()->admin()->create();
-        $professor = User::factory()->create(['type' => UserType::PROFESSOR, 'name' => 'Old Name']);
+        $admin = User::factory()->admin()->create(['is_approved' => true]);
+        $professor = User::factory()->create([
+            'type' => UserType::PROFESSOR,
+            'name' => 'Old Name',
+            'is_approved' => true
+        ]);
 
         $response = $this->actingAs($admin)->putJson("/api/admin/professors/{$professor->id}", [
             'name' => 'Updated Name',
             'email' => $professor->email,
             'type' => UserType::PROFESSOR,
+            'is_senior' => true,
         ]);
 
         $response->assertStatus(200);
-        $this->assertDatabaseHas('users', ['id' => $professor->id, 'name' => 'Updated Name']);
+        $this->assertDatabaseHas('users', [
+            'id' => $professor->id,
+            'name' => 'Updated Name',
+            'is_senior' => true
+        ]);
     }
 
     public function test_non_admin_cannot_access_professor_endpoints()

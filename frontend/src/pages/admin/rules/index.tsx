@@ -7,13 +7,13 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -24,6 +24,7 @@ const accreditationRulesSchema = z.object({
   initial_year: z.coerce.number().min(2000).max(2100),
   final_year: z.coerce.number().min(2000).max(2100),
   is_pq_required: z.boolean(),
+  is_senior_required: z.boolean(),
   min_journals: z.coerce.number().min(0),
   min_score: z.coerce.number().min(0),
 });
@@ -48,6 +49,7 @@ export default function RulesPage() {
       initial_year: new Date().getFullYear() - 4,
       final_year: new Date().getFullYear() - 1,
       is_pq_required: false,
+      is_senior_required: false,
       min_journals: 0,
       min_score: 0,
     },
@@ -184,6 +186,27 @@ export default function RulesPage() {
                     <FormLabel className="text-base">Aprovar se Bolsa PQ?</FormLabel>
                     <FormDescription>
                       Docentes bolsistas de Produtividade em Pesquisa são credenciados diretamente.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="is_senior_required"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/30">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Aprovar se Sênior?</FormLabel>
+                    <FormDescription>
+                      Se ativado, docentes seniores são credenciados diretamente.
                     </FormDescription>
                   </div>
                   <FormControl>
