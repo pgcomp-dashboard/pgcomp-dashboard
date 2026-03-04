@@ -21,6 +21,7 @@ class ImportPublisherTest extends TestCase
     {
         $user = User::factory()->create([
             'is_admin' => true,
+            'is_approved' => true,
         ]);
         $this->actingAs($user);
         return $user;

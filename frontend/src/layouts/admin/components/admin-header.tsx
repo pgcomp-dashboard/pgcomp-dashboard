@@ -61,14 +61,6 @@ export function AdminHeader() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
-              <div className="px-4 py-3 border-b">
-                <h4 className="font-semibold text-sm">
-                  Solicitações Pendentes
-                </h4>
-                <p className="text-xs text-muted-foreground">
-                  Existem {summary.total} solicitações aguardando análise.
-                </p>
-              </div>
               <div className="flex flex-col">
                 {summary.registrations > 0 && (
                   <Link

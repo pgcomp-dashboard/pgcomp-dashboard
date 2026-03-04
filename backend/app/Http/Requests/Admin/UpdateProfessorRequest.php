@@ -38,6 +38,7 @@ class UpdateProfessorRequest extends FormRequest
             "orcid" => 'sometimes|string|nullable',
             'is_admin' => 'sometimes|boolean',
             'pq' => 'sometimes|boolean|nullable',
+            'is_senior' => 'sometimes|boolean|nullable',
         ];
     }
 }

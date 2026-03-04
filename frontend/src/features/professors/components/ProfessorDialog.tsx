@@ -42,6 +42,7 @@ const updateProfessorSchema = z.object({
   category: z.enum(["permanente", "colaborador", "visitante"]),
   is_admin: z.boolean(),
   pq: z.boolean(),
+  is_senior: z.boolean(),
 });
 
 type UpdateProfessorForm = z.infer<typeof updateProfessorSchema>;
@@ -82,6 +83,7 @@ export function ProfessorDialog({
         category: (professor.category?.toLowerCase() as any) || "permanente",
         is_admin: professor.is_admin,
         pq: professor.pq || false,
+        is_senior: professor.is_senior || false,
       });
     }
   }, [professor, reset]);
@@ -183,6 +185,23 @@ export function ProfessorDialog({
               />
               <Label htmlFor="pq" className="font-semibold">
                 Bolsista PQ
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2 py-4">
+              <Controller
+                name="is_senior"
+                control={control}
+                render={({ field }) => (
+                  <Switch
+                    id="is_senior"
+                    checked={field.value || false}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label htmlFor="is_senior" className="font-semibold">
+                Sênior
               </Label>
             </div>
           </div>

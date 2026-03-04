@@ -43,6 +43,7 @@ class UserResource extends JsonResource
                 'siape' => $this->siape,
                 'is_admin' => $this->is_admin,
                 'pq' => $this->pq,
+                'is_senior' => $this->is_senior,
             ]),
         ];
     }

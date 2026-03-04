@@ -116,17 +116,6 @@ export function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === "/admin/credenciamento"}
-                >
-                  <Link to="/admin/credenciamento">
-                    <Trophy className="h-4 w-4" />
-                    <span>Credenciamento</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
                   isActive={pathname === "/admin/rules"}
                 >
                   <Link to="/admin/rules">
@@ -160,6 +149,17 @@ export function AdminSidebar() {
               <Link to="/portal/productions">
                 <File className="h-4 w-4" />
                 <span>Produções</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/admin/credenciamento"}
+            >
+              <Link to="/admin/credenciamento">
+                <Trophy className="h-4 w-4" />
+                <span>Credenciamento</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

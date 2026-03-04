@@ -28,9 +28,9 @@ interface ProfessorTableProps {
   setSearchTerm: (term: string) => void;
   categoryFilter: string;
   setCategoryFilter: (category: string) => void;
-  sortField: "name" | "category" | "is_admin" | "pq" | null;
+  sortField: "name" | "category" | "is_admin" | "pq" | "is_senior" | null;
   sortOrder: "asc" | "desc";
-  onSort: (field: "name" | "category" | "is_admin" | "pq") => void;
+  onSort: (field: "name" | "category" | "is_admin" | "pq" | "is_senior") => void;
   onViewDetails: (professor: Professor) => void;
   onViewProductions: (id: number) => void;
   onDelete: (professor: Professor) => void;
@@ -68,9 +68,10 @@ export function ProfessorTable({
       (firstSort.id === "name" ||
         firstSort.id === "category" ||
         firstSort.id === "is_admin" ||
-        firstSort.id === "pq")
+        firstSort.id === "pq" ||
+        firstSort.id === "is_senior")
     ) {
-      onSort(firstSort.id);
+      onSort(firstSort.id as any);
     }
   };
 
@@ -124,6 +125,24 @@ export function ProfessorTable({
           <div className="text-center font-medium">
             {info.getValue() ? (
               <span className="text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs border border-green-200">
+                Sim
+              </span>
+            ) : (
+              <span className="text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full text-xs border border-muted-foreground/10">
+                Não
+              </span>
+            )}
+          </div>
+        ),
+      }),
+      columnHelper.accessor("is_senior", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Sênior" />
+        ),
+        cell: (info) => (
+          <div className="text-center font-medium">
+            {info.getValue() ? (
+              <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full text-xs border border-blue-200">
                 Sim
               </span>
             ) : (
@@ -198,6 +217,12 @@ export function ProfessorTable({
                 className={professor.pq ? "text-green-600 font-medium" : ""}
               >
                 {professor.pq ? "PQ" : "Não PQ"}
+              </span>
+              <span>•</span>
+              <span
+                className={professor.is_senior ? "text-blue-600 font-medium" : ""}
+              >
+                {professor.is_senior ? "Sênior" : "Não Sênior"}
               </span>
             </div>
           </div>

@@ -42,6 +42,7 @@ class StoreProfessorRequest extends FormRequest
                 new Enum(UserCategory::class),
             ],
             'pq' => 'sometimes|boolean|nullable',
+            'is_senior' => 'sometimes|boolean|nullable',
         ];
     }
 }
