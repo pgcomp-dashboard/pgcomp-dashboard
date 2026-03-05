@@ -92,11 +92,12 @@ export function AccreditationTable({
           const sortedKeys = Object.keys(breakdown).sort();
 
           return (
-            <div className="flex justify-center">
+            <div className="flex items-center justify-center gap-2">
+              <span className="font-bold">{row.original.a1_a4_count}</span>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors cursor-pointer" />
+                    <Info className="h-3 w-3 text-muted-foreground hover:text-primary transition-colors cursor-pointer" />
                   </TooltipTrigger>
                   <TooltipContent className="p-3">
                     <div className="space-y-1">
