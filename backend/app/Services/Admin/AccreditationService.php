@@ -2,8 +2,10 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\PublisherType;
 use App\Models\Configuration;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class AccreditationService
@@ -11,7 +13,7 @@ class AccreditationService
     /**
      * @param int|null $year1
      * @param int|null $year2
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function getAccreditationRanking($year1 = null, $year2 = null)
     {
@@ -71,14 +73,10 @@ class AccreditationService
                 if (strpos($key, ':') !== false) {
                     [$type, $code] = explode(':', $key);
 
-                    // If it's A1-A4, only count if it's a journal
-                    if (in_array($code, ['A1', 'A2', 'A3', 'A4']) && $type !== 'journal') {
-                        continue;
+                    // Only include journals with Qualis A1, A2, A3, or A4 in the breakdown
+                    if ($type === 'journal' && in_array($code, ['A1', 'A2', 'A3', 'A4'])) {
+                        $breakdown[$code] = ($breakdown[$code] ?? 0) + $count;
                     }
-
-                    $breakdown[$code] = ($breakdown[$code] ?? 0) + $count;
-                } else {
-                    $breakdown[$key] = ($breakdown[$key] ?? 0) + $count;
                 }
             }
 
@@ -131,7 +129,7 @@ class AccreditationService
      */
     public function getAccreditationUserDetails($userId, $year1 = null, $year2 = null)
     {
-        $rules = \App\Models\Configuration::get('accreditation', 'rules', [
+        $rules = Configuration::get('accreditation', 'rules', [
             'initial_year' => date("Y") - 4,
             'final_year' => date("Y") - 1,
             'is_pq_required' => false,
@@ -168,10 +166,10 @@ class AccreditationService
         // qualisBreakdown for the UI (A1-A4 should include only journals)
         $qualisBreakdown = [];
         foreach ($productions as $p) {
-            if (in_array($p->code, ['A1', 'A2', 'A3', 'A4']) && $p->publisher_type !== 'journal') {
-                continue;
+            $type = $p->publisher_type instanceof PublisherType ? $p->publisher_type->value : $p->publisher_type;
+            if ($type === 'journal' && in_array($p->code, ['A1', 'A2', 'A3', 'A4'])) {
+                $qualisBreakdown[$p->code] = ($qualisBreakdown[$p->code] ?? 0) + 1;
             }
-            $qualisBreakdown[$p->code] = ($qualisBreakdown[$p->code] ?? 0) + 1;
         }
 
         // a1A4Count for the rule (only journals)
