@@ -112,7 +112,7 @@ export default function PublishersPage() {
     if (tab && (tab === "approved" || tab === "pending")) {
       setApprovalFilter(tab);
     }
-  }, [searchParams, setApprovalFilter]);
+  }, [searchParams, approvalFilter]);
 
   const handleTabChange = (value: string) => {
     setApprovalFilter(value);
