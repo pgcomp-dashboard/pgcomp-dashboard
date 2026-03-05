@@ -1,6 +1,7 @@
 import LattesIcon from "@/components/LattesIcon";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import {
   Tooltip,
   TooltipContent,
@@ -8,9 +9,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Ranking } from "@/types/academic";
-import { ColumnDef, createColumnHelper, Row } from "@tanstack/react-table";
+import {
+  ColumnDef,
+  createColumnHelper,
+  Row,
+  SortingState,
+} from "@tanstack/react-table";
 import { BookOpenTextIcon, Info } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 interface AccreditationTableProps {
@@ -23,8 +29,7 @@ interface AccreditationTableProps {
 const columnHelper = createColumnHelper<Ranking>();
 
 // Helper for name formatting
-const formatName = (name: string) =>
-  name.replace(/ D([aeiou]s?) /g, " d$1 ");
+const formatName = (name: string) => name.replace(/ D([aeiou]s?) /g, " d$1 ");
 
 export function AccreditationTable({
   ranking,
@@ -33,16 +38,23 @@ export function AccreditationTable({
   endYear,
 }: AccreditationTableProps) {
   const navigate = useNavigate();
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "total_score", desc: true },
+  ]);
 
   const handleShowDetails = (userId: number) => {
-    navigate(`/portal/productions?professorId=${userId}&initialYear=${startYear}&finalYear=${endYear}`);
+    navigate(
+      `/portal/productions?professorId=${userId}&initialYear=${startYear}&finalYear=${endYear}`,
+    );
   };
 
   const columns = useMemo<ColumnDef<Ranking, any>[]>(
     () => [
-      columnHelper.display({
+      columnHelper.accessor("total_score", {
         id: "colocacao",
-        header: "Colocação",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Colocação" />
+        ),
         cell: ({ row }) => {
           const score = row.original.total_score;
           const index = row.index;
@@ -55,7 +67,9 @@ export function AccreditationTable({
         },
       }),
       columnHelper.accessor("name", {
-        header: "Nome",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Nome" />
+        ),
         cell: (info) => (
           <div className="font-medium text-center">
             {formatName(info.getValue())}
@@ -63,7 +77,9 @@ export function AccreditationTable({
         ),
       }),
       columnHelper.accessor("category", {
-        header: "Categoria",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Categoria" />
+        ),
         cell: (info) => (
           <div className="font-medium text-center capitalize">
             {info.getValue()}
@@ -72,6 +88,7 @@ export function AccreditationTable({
       }),
       columnHelper.accessor("productions", {
         header: "Publicações",
+        enableSorting: false,
         cell: (info) => (
           <div className="font-medium text-center">
             <Button
@@ -79,14 +96,16 @@ export function AccreditationTable({
               className="hover:bg-transparent h-full"
               onClick={() => handleShowDetails(info.row.original.user_id)}
             >
-              < BookOpenTextIcon className="size-5" />
+              <BookOpenTextIcon className="size-5" />
             </Button>
           </div>
         ),
       }),
-      columnHelper.display({
+      columnHelper.accessor("a1_a4_count", {
         id: "periodicos",
-        header: "#Periódicos",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="#Periódicos" />
+        ),
         cell: ({ row }) => {
           const breakdown = row.original.qualis_breakdown || {};
           const sortedKeys = Object.keys(breakdown).sort();
@@ -101,16 +120,20 @@ export function AccreditationTable({
                   </TooltipTrigger>
                   <TooltipContent className="p-3">
                     <div className="space-y-1">
-                      <p className="font-semibold border-b pb-1 mb-1">Detalhamento</p>
+                      <p className="font-semibold border-b pb-1 mb-1">
+                        Detalhamento
+                      </p>
                       {sortedKeys.length > 0 ? (
-                        sortedKeys.map(key => (
+                        sortedKeys.map((key) => (
                           <div key={key} className="flex justify-between gap-4">
                             <span className="font-mono">{key}:</span>
                             <span className="font-bold">{breakdown[key]}</span>
                           </div>
                         ))
                       ) : (
-                        <p className="text-xs italic">Sem publicações no período</p>
+                        <p className="text-xs italic">
+                          Sem publicações no período
+                        </p>
                       )}
                     </div>
                   </TooltipContent>
@@ -121,7 +144,9 @@ export function AccreditationTable({
         },
       }),
       columnHelper.accessor("pq", {
-        header: "PQ",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="PQ" />
+        ),
         cell: (info) => (
           <div className="font-medium text-center">
             {info.getValue() ? (
@@ -133,7 +158,9 @@ export function AccreditationTable({
         ),
       }),
       columnHelper.accessor("is_senior", {
-        header: "Sênior",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Sênior" />
+        ),
         cell: (info) => (
           <div className="font-medium text-center">
             {info.getValue() ? (
@@ -145,16 +172,20 @@ export function AccreditationTable({
         ),
       }),
       columnHelper.accessor("total_score", {
-        header: "Pontuação",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Pontuação" />
+        ),
         cell: (info) => (
           <div className="font-bold text-center">
             {info.getValue().toFixed(1)}
           </div>
         ),
       }),
-      columnHelper.display({
+      columnHelper.accessor("is_accredited", {
         id: "status",
-        header: "Status",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
         cell: ({ row }) => {
           const { is_accredited, reasons } = row.original;
           return (
@@ -229,8 +260,14 @@ export function AccreditationTable({
               </Button>
               <span className="text-sm text-muted-foreground capitalize">
                 {rank.category}
-                {rank.pq && <span className="text-primary font-black ml-1">• PQ</span>}
-                {rank.is_senior && <span className="text-blue-600 font-black ml-1">• Sênior</span>}
+                {rank.pq && (
+                  <span className="text-primary font-black ml-1">• PQ</span>
+                )}
+                {rank.is_senior && (
+                  <span className="text-blue-600 font-black ml-1">
+                    • Sênior
+                  </span>
+                )}
               </span>
             </div>
           </div>
@@ -247,21 +284,34 @@ export function AccreditationTable({
 
         <div className="grid grid-cols-1 gap-2 text-sm bg-muted/30 p-3 rounded-lg">
           <div className="flex items-center justify-between border-b pb-2 mb-1">
-            <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Pontuação Total</span>
-            <span className="text-lg font-black text-primary">{rank.total_score.toFixed(1)}</span>
+            <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
+              Pontuação Total
+            </span>
+            <span className="text-lg font-black text-primary">
+              {rank.total_score.toFixed(1)}
+            </span>
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Detalhamento Qualis</p>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">
+              Detalhamento Qualis
+            </p>
             <div className="grid grid-cols-3 gap-2">
               {sortedKeys.length > 0 ? (
-                sortedKeys.map(key => (
-                  <div key={key} className="flex flex-col items-center bg-background rounded border p-1 border-border/40">
-                    <span className="text-[10px] font-mono text-muted-foreground">{key}</span>
+                sortedKeys.map((key) => (
+                  <div
+                    key={key}
+                    className="flex flex-col items-center bg-background rounded border p-1 border-border/40"
+                  >
+                    <span className="text-[10px] font-mono text-muted-foreground">
+                      {key}
+                    </span>
                     <span className="text-xs font-bold">{breakdown[key]}</span>
                   </div>
                 ))
               ) : (
-                <span className="text-xs italic text-muted-foreground col-span-3">Nenhuma publicação</span>
+                <span className="text-xs italic text-muted-foreground col-span-3">
+                  Nenhuma publicação
+                </span>
               )}
             </div>
           </div>
@@ -286,6 +336,8 @@ export function AccreditationTable({
       columns={columns}
       data={ranking}
       isLoading={isLoading}
+      sorting={sorting}
+      onSortingChange={setSorting}
       emptyMessage="Não foram encontrados professores"
       getRowClassName={(row) =>
         row.original.is_accredited
