@@ -68,9 +68,9 @@
                             </p>
 
                             {{-- Botão --}}
-                            <table cellpadding="0" cellspacing="0" role="presentation">
+                            <table cellpadding="0" cellspacing="0" role="presentation" align="center" style="margin: 0 auto;">
                                 <tr>
-                                    <td style="border-radius: 8px; background-color: #212121;">
+                                    <td style="border-radius: 8px; background-color: #212121; text-align: center;">
                                         <a href="https://pgcomp.app.ic.ufba.br/"
                                            target="_blank"
                                            style="display: inline-block; padding: 11px 24px; font-size: 14px; font-weight: 500; color: #fafafa; text-decoration: none; border-radius: 8px; letter-spacing: 0.01em; line-height: 1.5;">
