@@ -22,7 +22,7 @@ class SendAccreditationWarningEmail extends Command
         $ranking = $accreditationService->getAccreditationRanking($year1, $year2);
 
         $atRisk = $ranking->filter(
-            fn($prof) => $prof->category === UserCategory::PERMANENTE
+            fn($prof) => $prof->category === UserCategory::PERMANENTE->value
                 && $prof->is_accredited === false
                 && ! empty($prof->email)
         );

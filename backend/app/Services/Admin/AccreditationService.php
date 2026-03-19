@@ -36,6 +36,7 @@ class AccreditationService
             ->select([
                 'users.id as user_id',
                 'users.name',
+                'users.email',
                 'users.category',
                 'users.lattes_url',
                 'users.pq',
