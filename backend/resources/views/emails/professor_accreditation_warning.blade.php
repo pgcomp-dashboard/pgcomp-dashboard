@@ -74,7 +74,7 @@
                                         <a href="https://pgcomp.app.ic.ufba.br/"
                                            target="_blank"
                                            style="display: inline-block; padding: 11px 24px; font-size: 14px; font-weight: 500; color: #fafafa; text-decoration: none; border-radius: 8px; letter-spacing: 0.01em; line-height: 1.5;">
-                                            Acessar o Painel
+                                            Acesse o Sistema de Credenciamento
                                         </a>
                                     </td>
                                 </tr>

@@ -30,7 +30,7 @@
                         <td style="padding: 32px 40px 28px;">
 
                             <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #212121; line-height: 1.3; letter-spacing: -0.01em;">
-                                Lembrete Semestral do PGCOMP
+                                Lembrete PGCOMP
                             </h2>
 
                             <p style="margin: 0 0 12px; font-size: 14px; color: #4b4b4b; line-height: 1.6;">
@@ -38,7 +38,7 @@
                             </p>
 
                             <p style="margin: 0 0 16px; font-size: 14px; color: #4b4b4b; line-height: 1.6;">
-                                Este é um lembrete semestral do Programa de Pós-Graduação em Ciência da Computação da UFBA.
+                                Este é um lembrete do Programa de Pós-Graduação em Ciência da Computação da UFBA.
                             </p>
 
                             {{-- Divisor --}}
@@ -57,10 +57,7 @@
                                     Manter seu <strong style="color: #212121;">Lattes atualizado</strong> no sistema
                                 </li>
                                 <li style="font-size: 14px; color: #4b4b4b; line-height: 1.8;">
-                                    Ficar atento às suas <strong style="color: #212121;">publicações</strong> e garantir que estejam registradas
-                                </li>
-                                <li style="font-size: 14px; color: #4b4b4b; line-height: 1.8;">
-                                    Verificar seus dados cadastrais no painel do PGCOMP
+                                    Verificar no Sistema de Credenciamento sua pontuação segundo a resolução vigente
                                 </li>
                             </ul>
 
@@ -71,7 +68,7 @@
                                         <a href="https://pgcomp.app.ic.ufba.br/"
                                            target="_blank"
                                            style="display: inline-block; padding: 11px 24px; font-size: 14px; font-weight: 500; color: #fafafa; text-decoration: none; border-radius: 8px; letter-spacing: 0.01em; line-height: 1.5;">
-                                            Acessar o Painel
+                                            Acesse o Sistema de Credenciamento
                                         </a>
                                     </td>
                                 </tr>
