@@ -471,4 +471,79 @@ class LattesZipXml
 
         return $decoded;
     }
+
+    /**
+ * @return array{
+ *     projects: array<int, array{
+ *         name: string,
+ *         home_page: string|null,
+ *         start_year: int,
+ *         end_year: int|null,
+ *         status: string|null,
+ *         nature: string|null,
+ *         workload: int|null,
+ *         role: string|null,
+ *     }>
+ * }
+ */
+public static function extractProjects(string $storagePath): array
+{
+    $loadXml = new static($storagePath);
+    $xml = $loadXml->loadFile();
+
+    $data = [
+        'lattes_id' => (string)$xml->attributes()['NUMERO-IDENTIFICADOR'],
+        'projects' => [],
+    ];
+
+    $activities = $xml->{'DADOS-GERAIS'}->{'ATUACAO-PROFISSIONAL'} ?? [];
+
+    foreach ($activities as $activity) {
+        $projectParticipations = $activity->{'ATIVIDADES-DE-PARTICIPACAO-EM-PROJETO'} ?? [];
+
+        foreach ($projectParticipations as $participation) {
+            $items = $participation->{'PARTICIPACAO-EM-PROJETO'} ?? [];
+
+            foreach ($items as $item) {
+                $project = $item->{'PROJETO-DE-PESQUISA'} ?? null;
+                if (!$project) continue;
+
+                $attrs = $project->attributes();
+                $name = $loadXml->normalizeText((string)$attrs['NOME-DO-PROJETO']);
+                if (!$name) continue;
+
+                $startYear = (int)$attrs['ANO-INICIO'];
+                $endYear = (string)$attrs['ANO-FIM'];
+                $status = (string)$attrs['SITUACAO'];
+                $nature = (string)$attrs['NATUREZA'];
+                $workload = (int)$item->attributes()['CARGA-HORARIA-SEMANAL'];
+                $homePage = (string)$attrs['HOME-PAGE-DO-PROJETO'] ?: null;
+
+                $role = null;
+                $members = $project->{'EQUIPE-DO-PROJETO'}->{'INTEGRANTES-DO-PROJETO'} ?? [];
+                foreach ($members as $member) {
+                    $memberAttrs = $member->attributes();
+                    if ((string)$memberAttrs['FLAG-RESPONSAVEL'] === 'SIM') {
+                        $role = 'Coordenador';
+                        break;
+                    }
+                }
+                $role = $role ?? 'Integrante';
+
+                $data['projects'][] = [
+                    'name' => $name,
+                    'home_page' => $homePage,
+                    'start_year' => $startYear,
+                    'end_year' => $endYear ? (int)$endYear : null,
+                    'status' => $status ?: null,
+                    'nature' => $nature ?: null,
+                    'workload' => $workload ?: null,
+                    'role' => $role,
+                ];
+            }
+        }
+    }
+
+    return $data;
+}
 }
