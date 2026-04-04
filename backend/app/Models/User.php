@@ -330,4 +330,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         return $query->where('is_approved', true);
     }
+
+    /**
+ * Projects that this user participates in.
+ */
+public function projects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+{
+    return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id')
+        ->withPivot('role')
+        ->withTimestamps();
+}
 }
