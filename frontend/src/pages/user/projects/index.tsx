@@ -1,17 +1,18 @@
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
 
-import { ProjectCreateForm } from "@/features/projects/components/ProjectCreateForm";
-import { ProjectDialogs } from "@/features/projects/components/ProjectDialogs";
-import { ProjectHeader } from "@/features/projects/components/ProjectHeader";
-import { ProjectTable } from "@/features/projects/components/ProjectTable";
-import { useProjectCrud } from "@/features/projects/hooks/useProjectCrud";
-import { useProjectData } from "@/features/projects/hooks/useProjectData";
-import { FormType } from "@/features/projects/types";
+import { ProjectCreateForm } from '@/features/projects/components/ProjectCreateForm';
+import { ProjectDialogs } from '@/features/projects/components/ProjectDialogs';
+import { ProjectHeader } from '@/features/projects/components/ProjectHeader';
+import { ProjectTable } from '@/features/projects/components/ProjectTable';
+import UploadProjectXMLForm from '@/features/projects/components/UploadXMLForm';
+import { useProjectCrud } from '@/features/projects/hooks/useProjectCrud';
+import { useProjectData } from '@/features/projects/hooks/useProjectData';
+import { FormType } from '@/features/projects/types';
 
 export default function ProjectsPage() {
-  const [chosenForm, setChosenForm] = useState<FormType>("none");
+  const [chosenForm, setChosenForm] = useState<FormType>('none');
 
   const {
     auth,
@@ -38,31 +39,40 @@ export default function ProjectsPage() {
 
       <div className="bg-background border rounded-xl shadow-sm overflow-hidden p-6">
         <div className="flex items-center gap-2 mb-6">
-          {chosenForm !== "none" && (
+          {chosenForm !== 'none' && (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setChosenForm("none")}
+              onClick={() => setChosenForm('none')}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
           )}
           <h2 className="text-xl font-semibold">
-            {chosenForm === "manual" ? "Adicionar Manualmente" : null}
+            {chosenForm === 'xml'
+              ? 'Importar XML'
+              : chosenForm === 'manual'
+                ? 'Adicionar Manualmente'
+                : null}
           </h2>
         </div>
 
-        {chosenForm === "none" ? (
+        {chosenForm === 'none' ? (
           <div className="space-y-4">
             <div className="flex justify-end gap-2">
-              <Button onClick={() => setChosenForm("manual")}>
+              {auth?.isAdmin && selectedProfessorId !== 'own' && (
+                <Button variant="outline" onClick={() => setChosenForm('xml')}>
+                  Importar XML
+                </Button>
+              )}
+              <Button onClick={() => setChosenForm('manual')}>
                 + Adicionar
               </Button>
             </div>
             <ProjectTable
               isLoading={isLoading}
               projects={projects}
-              sortConfig={{ key: "start_year", direction: "desc" }}
+              sortConfig={{ key: 'start_year', direction: 'desc' }}
               onSort={() => {}}
               onEdit={crud.openEdit}
               onDelete={crud.setSelectedProject}
@@ -71,10 +81,15 @@ export default function ProjectsPage() {
               setProjectToDelete={crud.setSelectedProject}
             />
           </div>
+        ) : chosenForm === 'xml' ? (
+          <UploadProjectXMLForm
+            professorId={selectedProfessorId === 'own' ? undefined : selectedProfessorId}
+            onSuccess={() => setChosenForm('none')}
+          />
         ) : (
           <ProjectCreateForm
-            professorId={selectedProfessorId === "own" ? undefined : selectedProfessorId}
-            onSuccess={() => setChosenForm("none")}
+            professorId={selectedProfessorId === 'own' ? undefined : selectedProfessorId}
+            onSuccess={() => setChosenForm('none')}
           />
         )}
       </div>
