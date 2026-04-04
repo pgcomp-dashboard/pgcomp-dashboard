@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
+import ProjectsPage from "@/pages/user/projects";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import AdminLayout from "@/layouts/admin/admin-layout";
 import CredenciamentoPage from "@/pages/admin/accreditation";
@@ -52,6 +53,7 @@ export function AppRoutes() {
             <Route path="portal">
               <Route index element={<Navigate to="/" replace />} />
               <Route path="productions" element={<ProductionsPage />} />
+              <Route path="projects" element={<ProjectsPage />} />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
             {/* Rotas restritas apenas para ADMIN */}
