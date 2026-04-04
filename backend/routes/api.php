@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\AdminLattesController;
 use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\Admin\AdminApprovalController;
@@ -107,6 +108,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('professors.productions', ProfessorProductionController::class);
         Route::post('professors/{professors}/productions/doi', [ProfessorProductionController::class, 'storeFromDoi']);
         Route::delete('professors/{professors}/productions-all', [ProfessorProductionController::class, 'destroyAll']);
+
+        Route::apiResource('professors.projects', ProjectController::class);
+        Route::delete('professors/{professor}/projects-all', [ProjectController::class, 'destroyAll']);
+        Route::post('professors/{professor}/projects/import-lattes', [ProjectController::class, 'importLattesFile']);
 
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
 
