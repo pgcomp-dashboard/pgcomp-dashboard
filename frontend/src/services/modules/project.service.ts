@@ -1,47 +1,61 @@
 import { Project } from '@/types/academic';
 import { apiClient } from '../http-client';
 
-export const projectService = {
+type ProjectBody = {
+  name: string;
+  home_page?: string | null;
+  start_year: number;
+  end_year?: number | null;
+  status?: string | null;
+  nature?: string | null;
+  workload?: number | null;
+  value?: number | null;
+  funding_source?: string | null;
+  role?: string;
+};
 
-  async getUserProjects(professorId: number, params: Record<string, any> = {}) {
+export const projectService = {
+  // ADMIN
+
+  async getUserProjects(professorId: number, params: Record<string, string> = {}) {
     const response = await apiClient.get<{ data: Project[] }>(
       `/api/admin/professors/${professorId}/projects`,
-      params
+      params,
     );
     return response.data;
   },
 
-  async createUserProject(professorId: number, body: Record<string, any>) {
+  async createUserProject(professorId: number, body: ProjectBody) {
     return apiClient.post<{ data: Project }>(
       `/api/admin/professors/${professorId}/projects`,
-      body
+      body,
     );
   },
 
-  async updateUserProject(professorId: number, projectId: number, body: Record<string, any>) {
+  async updateUserProject(professorId: number, projectId: number, body: ProjectBody) {
     const response = await apiClient.put<{ data: Project }>(
       `/api/admin/professors/${professorId}/projects/${projectId}`,
-      body
+      body,
     );
     return response.data;
   },
 
   async deleteUserProject(professorId: number, projectId: number) {
     return apiClient.delete<{ message: string }>(
-      `/api/admin/professors/${professorId}/projects/${projectId}`
+      `/api/admin/professors/${professorId}/projects/${projectId}`,
     );
   },
 
   async clearUserProjects(professorId: number) {
     return apiClient.delete<{ message: string }>(
-      `/api/admin/professors/${professorId}/projects-all`
+      `/api/admin/professors/${professorId}/projects-all`,
     );
   },
 
-  async importLattesFile(professorId: number, body: Record<string, any>) {
+  async importLattesFile(professorId: number, body: FormData) {
     return apiClient.post<{ data: string }>(
       `/api/admin/professors/${professorId}/projects/import-lattes`,
-      body
+      body,
     );
   },
 };
