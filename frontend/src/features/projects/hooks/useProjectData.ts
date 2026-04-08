@@ -11,14 +11,14 @@ export function useProjectData() {
   const [isPending, startTransition] = useTransition();
 
   const { data: professorsData } = useQuery({
-    queryKey: [ 'professors', 'full' ],
+    queryKey: ['professors', 'full'],
     queryFn: () => professorService.fetchProfessors({ paginate: 'false' }),
     enabled: !!auth?.isAdmin,
   });
   const professorsList = useMemo(() => professorsData?.data || [], [professorsData]);
 
   const { data: rawData, isLoading } = useQuery<Project[], Error>({
-    queryKey: [ 'projects', selectedProfessorId, auth?.isAdmin ],
+    queryKey: ['projects', selectedProfessorId, auth?.isAdmin],
     queryFn: () => {
       if (auth?.isAdmin && selectedProfessorId !== 'own') {
         return projectService.getUserProjects(Number(selectedProfessorId));
@@ -31,8 +31,8 @@ export function useProjectData() {
   const projects = useMemo(() => {
     if (!rawData) return [];
     return Object.entries(rawData)
-      .filter(([ key ]) => !isNaN(Number(key)))
-      .map(([ , value ]) => value as unknown as Project)
+      .filter(([key]) => !isNaN(Number(key)))
+      .map(([, value]) => value as unknown as Project)
       .sort((a, b) => b.start_year - a.start_year);
   }, [rawData]);
 
