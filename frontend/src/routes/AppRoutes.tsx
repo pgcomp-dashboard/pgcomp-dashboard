@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
+import ProjectDashboardPage from "@/pages/admin/projects-dashboard";
 import ProjectsPage from "@/pages/user/projects";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import AdminLayout from "@/layouts/admin/admin-layout";
@@ -62,6 +63,7 @@ export function AppRoutes() {
               <Route path="areas" element={<AreasPage />} />
               <Route path="students" element={<StudentsPage />} />
               <Route path="credenciamento" element={<CredenciamentoPage />} />
+              <Route path="projects-dashboard" element={<ProjectDashboardPage />} />
               <Route path="professors" element={<ProfessorsPage />} />
               <Route path="publishers" element={<PublishersPage />} />
               <Route path="qualis" element={<QualisPage />} />

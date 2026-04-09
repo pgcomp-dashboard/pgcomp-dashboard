@@ -1,4 +1,4 @@
-import { BookOpen, File, Settings2, Trophy, Users } from "lucide-react";
+import { BarChart2, BookOpen, File, Settings2, Trophy, Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import AppLogo from "@/components/AppLogo";
@@ -173,6 +173,18 @@ export function AdminSidebar() {
               <Link to="/admin/credenciamento">
                 <Trophy className="h-4 w-4" />
                 <span>Credenciamento</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/admin/projects-dashboard"}
+            >
+              <Link to="/admin/projects-dashboard">
+                <BarChart2 className="h-4 w-4" />
+                <span>Compilação de Projetos</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
