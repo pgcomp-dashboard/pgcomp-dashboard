@@ -9,10 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { AccreditationTable } from "@/features/accreditation/components/AccreditationTable";
 import { useAccreditation } from "@/features/accreditation/hooks/useAccreditation";
 import { cn } from "@/lib/utils";
-import { Loader2, RotateCw } from "lucide-react";
+import { EyeOff, Loader2, RotateCw } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
 
 export default function CredenciamentoPage() {
@@ -30,6 +32,8 @@ export default function CredenciamentoPage() {
     setCategoryFilter,
     years,
   } = useAccreditation();
+
+  const [blurNames, setBlurNames] = useState(true);
 
   if (isLoading) {
     return (
@@ -143,7 +147,22 @@ export default function CredenciamentoPage() {
           </Select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 border rounded-md px-3 py-2 bg-background">
+            <EyeOff className="h-4 w-4 text-muted-foreground" />
+            <Label
+              htmlFor="blur-names"
+              className="text-xs uppercase tracking-wider text-muted-foreground font-semibold cursor-pointer"
+            >
+              Ocultar nomes
+            </Label>
+            <Switch
+              id="blur-names"
+              checked={blurNames}
+              onCheckedChange={setBlurNames}
+            />
+          </div>
+
           <Button
             variant="outline"
             size="icon"
@@ -168,6 +187,7 @@ export default function CredenciamentoPage() {
         isLoading={isLoading}
         startYear={startYear}
         endYear={endYear}
+        blurNames={blurNames}
       />
     </div>
   );

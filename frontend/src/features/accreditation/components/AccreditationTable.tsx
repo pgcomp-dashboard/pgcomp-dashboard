@@ -24,6 +24,7 @@ interface AccreditationTableProps {
   isLoading: boolean;
   startYear: number;
   endYear: number;
+  blurNames?: boolean;
 }
 
 const columnHelper = createColumnHelper<Ranking>();
@@ -36,6 +37,7 @@ export function AccreditationTable({
   isLoading,
   startYear,
   endYear,
+  blurNames = true,
 }: AccreditationTableProps) {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
@@ -75,7 +77,8 @@ export function AccreditationTable({
             <Link
               to={info.row.original.lattes_url}
               target="_blank"
-              className="flex justify-center"
+              className="flex justify-center transition-all duration-300"
+              style={blurNames ? { filter: "blur(6px)", userSelect: "none", pointerEvents: "none" } : undefined}
             >
               {formatName(info.getValue())}
             </Link>
@@ -282,7 +285,7 @@ export function AccreditationTable({
       //   ),
       // }),
     ],
-    [handleShowDetails],
+    [handleShowDetails, blurNames],
   );
 
   const renderMobileCard = (row: Row<Ranking>) => {
@@ -301,7 +304,8 @@ export function AccreditationTable({
             <div className="flex flex-col">
               <Button
                 variant="ghost"
-                className="p-0 h-auto font-semibold text-left justify-start hover:underline hover:bg-transparent"
+                className="p-0 h-auto font-semibold text-left justify-start hover:underline hover:bg-transparent transition-all duration-300"
+                style={blurNames ? { filter: "blur(6px)", userSelect: "none", pointerEvents: "none" } : undefined}
                 onClick={() => handleShowDetails(rank.user_id)}
               >
                 {formatName(rank.name)}
