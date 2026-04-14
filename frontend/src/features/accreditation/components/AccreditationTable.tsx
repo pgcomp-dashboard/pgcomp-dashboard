@@ -72,7 +72,13 @@ export function AccreditationTable({
         ),
         cell: (info) => (
           <div className="font-medium text-center">
-            {formatName(info.getValue())}
+            <Link
+              to={info.row.original.lattes_url}
+              target="_blank"
+              className="flex justify-center"
+            >
+              {formatName(info.getValue())}
+            </Link>
           </div>
         ),
       }),
@@ -104,7 +110,7 @@ export function AccreditationTable({
       columnHelper.accessor("a1_a4_count", {
         id: "periodicos",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="#Periódicos" />
+          <DataTableColumnHeader column={column} title="#PA1-A4" />
         ),
         cell: ({ row }) => {
           const breakdown = row.original.qualis_breakdown || {};
@@ -113,6 +119,48 @@ export function AccreditationTable({
           return (
             <div className="flex items-center justify-center gap-2">
               <span className="font-bold">{row.original.a1_a4_count}</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3 w-3 text-muted-foreground hover:text-primary transition-colors cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent className="p-3">
+                    <div className="space-y-1">
+                      <p className="font-semibold border-b pb-1 mb-1">
+                        Detalhamento
+                      </p>
+                      {sortedKeys.length > 0 ? (
+                        sortedKeys.map((key) => (
+                          <div key={key} className="flex justify-between gap-4">
+                            <span className="font-mono">{key}:</span>
+                            <span className="font-bold">{breakdown[key]}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs italic">
+                          Sem publicações no período
+                        </p>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("a1_a2_count", {
+        id: "periodicos_a1a2",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="#PA1-A2" />
+        ),
+        cell: ({ row }) => {
+          const breakdown = row.original.qualis_breakdown_a1a2 || {};
+          const sortedKeys = Object.keys(breakdown).sort();
+
+          return (
+            <div className="flex items-center justify-center gap-2">
+              <span className="font-bold">{row.original.a1_a2_count}</span>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -219,20 +267,20 @@ export function AccreditationTable({
           );
         },
       }),
-      columnHelper.accessor("lattes_url", {
-        header: "Lattes",
-        cell: (info) => (
-          <div className="font-medium text-center">
-            <Link
-              to={info.row.original.lattes_url}
-              target="_blank"
-              className="flex justify-center"
-            >
-              <LattesIcon />
-            </Link>
-          </div>
-        ),
-      }),
+      // columnHelper.accessor("lattes_url", {
+      //   header: "Lattes",
+      //   cell: (info) => (
+      //     <div className="font-medium text-center">
+      //       <Link
+      //         to={info.row.original.lattes_url}
+      //         target="_blank"
+      //         className="flex justify-center"
+      //       >
+      //         <LattesIcon />
+      //       </Link>
+      //     </div>
+      //   ),
+      // }),
     ],
     [handleShowDetails],
   );

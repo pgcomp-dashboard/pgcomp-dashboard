@@ -26,6 +26,7 @@ const accreditationRulesSchema = z.object({
   is_pq_required: z.boolean(),
   is_senior_required: z.boolean(),
   min_journals: z.coerce.number().min(0),
+  min_journals_a1a2: z.coerce.number().min(0),
   min_score: z.coerce.number().min(0),
 });
 
@@ -51,6 +52,7 @@ export default function RulesPage() {
       is_pq_required: false,
       is_senior_required: false,
       min_journals: 0,
+      min_journals_a1a2: 0,
       min_score: 0,
     },
   });
@@ -153,6 +155,23 @@ export default function RulesPage() {
                     </FormControl>
                     <FormDescription>
                       Quantidade mínima de publicações em estratos superiores.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="min_journals_a1a2"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mínimo de Periódicos (A1 e A2)</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Quantidade mínima de publicações em estratos A1 E A2.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

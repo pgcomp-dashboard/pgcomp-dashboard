@@ -70,7 +70,9 @@ export type Ranking = {
   is_senior: boolean;
   total_score: number;
   a1_a4_count: number;
+  a1_a2_count: number;
   qualis_breakdown: Record<string, number>;
+  qualis_breakdown_a1a2: Record<string, number>;
   is_accredited: boolean;
   reasons: string[];
   lattes_url: string;

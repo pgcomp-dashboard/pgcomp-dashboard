@@ -127,9 +127,7 @@ export default function CredenciamentoPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label
-            className="text-xs uppercase tracking-wider text-muted-foreground font-semibold"
-          >
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
             Categoria
           </Label>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -171,8 +169,6 @@ export default function CredenciamentoPage() {
         startYear={startYear}
         endYear={endYear}
       />
-
-
     </div>
   );
 }
