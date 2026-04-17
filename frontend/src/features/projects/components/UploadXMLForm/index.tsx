@@ -23,9 +23,11 @@ type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 export default function UploadProjectXMLForm({
   professorId,
   onSuccess,
+  portalMode = false,
 }: {
   professorId?: string;
   onSuccess?: () => void;
+  portalMode?: boolean; 
 }) {
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
@@ -40,26 +42,24 @@ export default function UploadProjectXMLForm({
   }
 
   async function onSubmit() {
-    if (!file || !professorId) return;
+    if (!file) return;
+    if (!portalMode && !professorId) return;
     setStatus('uploading');
 
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      await projectService.importLattesFile(Number(professorId), formData);
+      if (portalMode) {
+        await projectService.importLattesFilePortal(formData);
+        await queryClient.invalidateQueries({ queryKey: ['myProjects'] });
+      } else {
+        await projectService.importLattesFile(Number(professorId), formData);
+        await queryClient.invalidateQueries({ queryKey: ['projects', professorId] });
+      }
       toast.success('Projetos cadastrados com sucesso');
       setStatus('success');
-
-      await queryClient.invalidateQueries({
-        queryKey: [ 'projects', professorId ],
-      });
-
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        navigate(`/portal/projects?professorId=${professorId}`);
-      }
+      if (onSuccess) onSuccess();
     } catch (err) {
       setStatus('error');
       toast.error('Erro no cadastro dos projetos');

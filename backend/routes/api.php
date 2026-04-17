@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\User\ProjectController as UserProjectController;
 use App\Http\Controllers\Admin\ProjectDashboardController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\AdminLattesController;
@@ -68,6 +69,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('productions/all', [ProductionController::class, 'deleteAll']);
         Route::apiResource('productions', ProductionController::class)->only(['update', 'destroy']);
         Route::post('productions/doi', [ProductionController::class, 'productionFromDoi']);
+        Route::get('projects', [UserProjectController::class, 'index']);
+        Route::post('projects/import-lattes', [UserProjectController::class, 'importLattesFile']);
         Route::post('admin-request', [AdminRequestController::class, 'store']);
         Route::get('admin-status', [AdminRequestController::class, 'getStatus']);
         Route::get('publishers', [PublisherController::class, 'index']);

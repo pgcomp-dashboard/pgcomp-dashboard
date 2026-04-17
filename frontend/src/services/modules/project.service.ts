@@ -58,4 +58,14 @@ export const projectService = {
       body,
     );
   },
+
+  async importLattesFilePortal(formData: FormData) {
+    return await apiClient.post(
+      '/api/portal/projects/import-lattes', formData);
+  },
+
+  async getMyProjects() {
+    const response = await apiClient.get<{ data: Project[] }>('/api/portal/projects');
+    return response.data;
+  },
 };

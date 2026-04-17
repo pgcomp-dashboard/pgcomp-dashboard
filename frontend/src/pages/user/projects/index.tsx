@@ -60,11 +60,9 @@ export default function ProjectsPage() {
         {chosenForm === 'none' ? (
           <div className="space-y-4">
             <div className="flex justify-end gap-2">
-              {auth?.isAdmin && selectedProfessorId !== 'own' && (
-                <Button variant="outline" onClick={() => setChosenForm('xml')}>
-                  Importar XML
-                </Button>
-              )}
+              <Button variant="outline" onClick={() => setChosenForm('xml')}>
+                Importar XML
+              </Button>
               <Button onClick={() => setChosenForm('manual')}>
                 + Adicionar
               </Button>
@@ -73,7 +71,7 @@ export default function ProjectsPage() {
               isLoading={isLoading}
               projects={projects}
               sortConfig={{ key: 'start_year', direction: 'desc' }}
-              onSort={() => {}}
+              onSort={() => { }}
               onEdit={crud.openEdit}
               onDelete={crud.setSelectedProject}
               confirmDelete={crud.deleteProject}
@@ -84,6 +82,7 @@ export default function ProjectsPage() {
         ) : chosenForm === 'xml' ? (
           <UploadProjectXMLForm
             professorId={selectedProfessorId === 'own' ? undefined : selectedProfessorId}
+            portalMode={selectedProfessorId === 'own'}
             onSuccess={() => setChosenForm('none')}
           />
         ) : (
