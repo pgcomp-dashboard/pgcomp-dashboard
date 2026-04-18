@@ -23,7 +23,7 @@ export function useProjectData() {
       if (auth?.isAdmin && selectedProfessorId !== 'own') {
         return projectService.getUserProjects(Number(selectedProfessorId));
       }
-      return Promise.resolve([]);
+       return projectService.getMyProjects();
     },
     enabled: !!auth?.isAuthenticated && (auth?.isAdmin ? selectedProfessorId !== 'own' : true),
   });

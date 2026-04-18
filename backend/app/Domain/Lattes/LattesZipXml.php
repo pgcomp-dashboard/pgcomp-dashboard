@@ -496,7 +496,7 @@ public static function extractProjects(string $storagePath): array
         'projects' => [],
     ];
 
-    $activities = $xml->{'DADOS-GERAIS'}->{'ATUACAO-PROFISSIONAL'} ?? [];
+    $activities = $xml->{'DADOS-GERAIS'}->{'ATUACOES-PROFISSIONAIS'}->{'ATUACAO-PROFISSIONAL'} ?? [];
 
     foreach ($activities as $activity) {
         $projectParticipations = $activity->{'ATIVIDADES-DE-PARTICIPACAO-EM-PROJETO'} ?? [];

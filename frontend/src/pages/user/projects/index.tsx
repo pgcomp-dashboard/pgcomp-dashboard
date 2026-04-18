@@ -60,9 +60,11 @@ export default function ProjectsPage() {
         {chosenForm === 'none' ? (
           <div className="space-y-4">
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setChosenForm('xml')}>
-                Importar XML
-              </Button>
+              {auth?.isAdmin && selectedProfessorId !== 'own' && (
+                <Button variant="outline" onClick={() => setChosenForm('xml')}>
+                  Importar XML
+                </Button>
+              )}
               <Button onClick={() => setChosenForm('manual')}>
                 + Adicionar
               </Button>
