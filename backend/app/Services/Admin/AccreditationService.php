@@ -113,11 +113,8 @@ class AccreditationService
                 if (!$meetsScore) {
                     $reasons[] = "Pontuação insuficiente ({$user->total_score} < {$minScore})";
                 }
-                if (!$meetsJournals) {
-                    $reasons[] = "Publicações A1-A4 insuficientes ({$a1A4Count} < {$minJournals})";
-                }
-                if (!$meetsJournalsA1A2) {
-                    $reasons[] = "Publicações A1-A2 insuficientes ({$a1A2Count} < {$minJournalsA1A2})";
+                if (!$meetsJournals && !$meetsJournalsA1A2) {
+                    $reasons[] = "Publicações insuficientes A1-A4 ({$a1A4Count} < {$minJournals}), A1-A2 ({$a1A2Count} < {$minJournalsA1A2})";
                 }
                 if ($isPqRequired && !$user->pq) {
                     $reasons[] = 'Não é bolsista PQ';
@@ -226,11 +223,8 @@ class AccreditationService
             if (!$meetsScore) {
                 $reasons[] = "Pontuação insuficiente ({$totalScore} < {$minScore})";
             }
-            if (!$meetsJournals) {
-                $reasons[] = "Publicações A1-A4 insuficientes ({$a1A4Count} < {$minJournals})";
-            }
-            if (!$meetsJournalsA1A2) {
-                $reasons[] = "Publicações A1-A2 insuficientes ({$a1A2Count} < {$minJournalsA1A2})";
+            if (!$meetsJournals && !$meetsJournalsA1A2) {
+                $reasons[] = "Publicações insuficientes A1-A4 ({$a1A4Count} < {$minJournals}), A1-A2 ({$a1A2Count} < {$minJournalsA1A2})";
             }
             if ($isPqRequired && !$user->pq) {
                 $reasons[] = 'Não é bolsista PQ';
