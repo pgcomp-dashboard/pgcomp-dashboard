@@ -103,7 +103,7 @@ class AccreditationService
             $isPqAndRequired = $isPqRequired && $user->pq;
             $isSeniorAndRequired = $isSeniorRequired && $user->is_senior;
 
-            if ($meetsScore && $meetsJournals && $meetsJournalsA1A2) {
+            if ($meetsScore && ($meetsJournals || $meetsJournalsA1A2)) {
                 $isAccredited = true;
             } elseif ($isPqAndRequired) {
                 $isAccredited = true;
@@ -216,7 +216,7 @@ class AccreditationService
         $isPqAndRequired = $isPqRequired && $user->pq;
         $isSeniorAndRequired = $isSeniorRequired && $user->is_senior;
 
-        if ($meetsScore && $meetsJournals && $meetsJournalsA1A2) {
+        if ($meetsScore && ($meetsJournals || $meetsJournalsA1A2)) {
             $isAccredited = true;
         } elseif ($isPqAndRequired) {
             $isAccredited = true;
