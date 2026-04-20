@@ -37,7 +37,7 @@ export function AccreditationTable({
   isLoading,
   startYear,
   endYear,
-  blurNames = true,
+  blurNames = false,
 }: AccreditationTableProps) {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
