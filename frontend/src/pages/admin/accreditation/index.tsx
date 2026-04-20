@@ -33,7 +33,7 @@ export default function CredenciamentoPage() {
     years,
   } = useAccreditation();
 
-  const [blurNames, setBlurNames] = useState(true);
+  const [blurNames, setBlurNames] = useState(false);
 
   if (isLoading) {
     return (
