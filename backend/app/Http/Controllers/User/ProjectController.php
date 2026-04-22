@@ -41,7 +41,13 @@ class ProjectController extends Controller
      */
     public function index(Request $request)
     {
-        $projects = $this->projectService->getProjectsForUser($request->user()->id);
+        //$projects = $this->projectService->getProjectsForUser($request->user()->id);
+        //return response()->json([ 'data' => $projects ]);
+        try {
+        $projects = $request->user()->projects; 
         return response()->json([ 'data' => $projects ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
     }
 }

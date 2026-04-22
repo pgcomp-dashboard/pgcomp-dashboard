@@ -13,7 +13,7 @@ export function useProjectData() {
   const { data: professorsData } = useQuery({
     queryKey: ['professors', 'full'],
     queryFn: () => professorService.fetchProfessors({ paginate: 'false' }),
-    enabled: !!auth?.isAdmin,
+    enabled: !!auth && auth.isAdmin === true,
   });
   const professorsList = useMemo(() => professorsData?.data || [], [professorsData]);
 
@@ -23,7 +23,7 @@ export function useProjectData() {
       if (auth?.isAdmin && selectedProfessorId !== 'own') {
         return projectService.getUserProjects(Number(selectedProfessorId));
       }
-       return projectService.getMyProjects();
+      return projectService.getMyProjects();
     },
     enabled: !!auth?.isAuthenticated && (auth?.isAdmin ? selectedProfessorId !== 'own' : true),
   });
