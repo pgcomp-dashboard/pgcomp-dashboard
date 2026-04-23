@@ -70,7 +70,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('productions', ProductionController::class)->only(['update', 'destroy']);
         Route::post('productions/doi', [ProductionController::class, 'productionFromDoi']);
         Route::get('projects', [UserProjectController::class, 'index']);
-        Route::post('projects/import-lattes', [UserProjectController::class, 'importLattesFile']);
         Route::post('admin-request', [AdminRequestController::class, 'store']);
         Route::get('admin-status', [AdminRequestController::class, 'getStatus']);
         Route::get('publishers', [PublisherController::class, 'index']);
