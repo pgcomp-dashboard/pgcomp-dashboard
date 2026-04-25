@@ -35,8 +35,8 @@ class ProjectDashboardService
 
         return [
             'total' => $projects->count(),
-            'total_nacional' => $projects->where('nature', 'PESQUISA')->count() +
-                $projects->filter(fn($p) => str_contains(strtoupper($p->nature ?? ''), 'NACION'))->count(),
+            'total_nacional' => $projects->filter(
+            fn($p) => !str_contains(strtoupper($p->nature ?? ''), 'INTERN'))->count(),
             'total_internacional' => $projects->filter(fn($p) => str_contains(strtoupper($p->nature ?? ''), 'INTERN'))->count(),
             'total_abertos' => $projects->filter(fn($p) => str_contains(strtoupper($p->status ?? ''), 'EM_ANDAMENTO') || str_contains(strtoupper($p->status ?? ''), 'ANDAMENTO'))->count(),
             'total_concluidos' => $projects->filter(fn($p) => str_contains(strtoupper($p->status ?? ''), 'CONCLU'))->count(),
