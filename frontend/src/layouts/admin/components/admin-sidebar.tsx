@@ -160,7 +160,7 @@ export function AdminSidebar() {
             >
               <Link to="/portal/projects">
                 <File className="h-4 w-4" />
-                <span>Projetos</span>
+                <span>Projetos Individuais</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -184,7 +184,7 @@ export function AdminSidebar() {
             >
               <Link to="/admin/projects-dashboard">
                 <BarChart2 className="h-4 w-4" />
-                <span>Compilação de Projetos</span>
+                <span>Projetos PGCOMP</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
