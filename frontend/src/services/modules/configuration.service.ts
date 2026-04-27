@@ -30,6 +30,11 @@ export const configurationService = {
     };
   },
 
+  async getResolutionLink(): Promise<string> {
+    const response = await apiClient.get<{ url: string }>('/api/admin/accreditation/resolution-link');
+    return response.url;
+  },
+
   async create(data: Omit<Configuration, 'id' | 'casted_value' | 'created_at' | 'updated_at'>): Promise<Configuration> {
     const response = await apiClient.post<{ data: Configuration }>('/api/admin/configurations', data);
     return response.data;
@@ -44,3 +49,4 @@ export const configurationService = {
     return apiClient.delete(`/api/admin/configurations/${id}`);
   },
 };
+

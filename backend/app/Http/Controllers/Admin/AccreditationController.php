@@ -6,15 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\AccreditationDetailResource;
 use App\Http\Resources\Admin\AccreditationRankingResource;
 use App\Services\Admin\AccreditationService;
+use App\Services\ConfigurationService;
 use Illuminate\Http\Request;
 
 class AccreditationController extends Controller
 {
     protected AccreditationService $accreditationService;
+    protected ConfigurationService $configurationService;
 
-    public function __construct(AccreditationService $accreditationService)
+    public function __construct(AccreditationService $accreditationService, ConfigurationService $configurationService)
     {
         $this->accreditationService = $accreditationService;
+        $this->configurationService = $configurationService;
     }
 
     public function index(Request $request)
@@ -35,5 +38,14 @@ class AccreditationController extends Controller
         $details = $this->accreditationService->getAccreditationUserDetails($id, $year1, $year2);
 
         return new AccreditationDetailResource((object) $details);
+    }
+
+    public function getResolutionLink()
+    {
+        $defaultLink = 'https://pgcomp.ufba.br/';
+
+        $link = $this->configurationService->get('accreditation', 'resolution_link', $defaultLink);
+
+        return response()->json(['url' => $link ?? $defaultLink]);
     }
 }

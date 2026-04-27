@@ -108,6 +108,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('professors/{professors}/productions/doi', [ProfessorProductionController::class, 'storeFromDoi']);
         Route::delete('professors/{professors}/productions-all', [ProfessorProductionController::class, 'destroyAll']);
 
+        Route::get('accreditation/resolution-link', [AccreditationController::class, 'getResolutionLink']);
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
 
         Route::get('approval-requests', [ApprovalRequestController::class, 'index']);
