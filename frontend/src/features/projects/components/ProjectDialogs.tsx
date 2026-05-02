@@ -44,7 +44,6 @@ export function ProjectDialogs({
   setIsEditOpen,
   onEditSubmit,
   editForm,
-  onClearAll,
 }: ProjectDialogsProps) {
   useFormErrorToast(editForm.formState.errors);
 
