@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\ProjectService;
 use App\Domain\Lattes\LattesZipXml;
 use App\Enums\ProductionSource;
 use App\Enums\PublisherType;
@@ -125,15 +126,19 @@ class ProductionService
     }
 
     /**
-     * Import productions from Lattes ZIP file.
-     */
+    * Import productions from Lattes ZIP file.
+    */
     public function importFromLattes(User $user, $filePath)
     {
-        $data = LattesZipXml::extractProductions($filePath);
-        $this->deleteAllUserProductions($user);
-        $user->updateLattes($data);
-        return $data;
-    }
+    $data = LattesZipXml::extractProductions($filePath);
+    $this->deleteAllUserProductions($user);
+    $user->updateLattes($data);
+
+    // Also import projects from the same file
+    app(ProjectService::class)->importFromLattes($user, $filePath);
+
+     return $data;
+     }
 
     /**
      * Get type counts for a specific user (professor).

@@ -1,6 +1,8 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
+import ProjectDashboardPage from "@/pages/admin/projects-dashboard";
+import ProjectsPage from "@/pages/user/projects";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import AdminLayout from "@/layouts/admin/admin-layout";
 import CredenciamentoPage from "@/pages/admin/accreditation";
@@ -52,6 +54,7 @@ export function AppRoutes() {
             <Route path="portal">
               <Route index element={<Navigate to="/" replace />} />
               <Route path="productions" element={<ProductionsPage />} />
+              <Route path="projects" element={<ProjectsPage />} />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
             {/* Rotas restritas apenas para ADMIN */}
@@ -60,6 +63,7 @@ export function AppRoutes() {
               <Route path="areas" element={<AreasPage />} />
               <Route path="students" element={<StudentsPage />} />
               <Route path="credenciamento" element={<CredenciamentoPage />} />
+              <Route path="projects-dashboard" element={<ProjectDashboardPage />} />
               <Route path="professors" element={<ProfessorsPage />} />
               <Route path="publishers" element={<PublishersPage />} />
               <Route path="qualis" element={<QualisPage />} />

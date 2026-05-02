@@ -78,3 +78,20 @@ export type Ranking = {
   lattes_url: string;
   productions: RankingProduction[];
 };
+export interface Project {
+  id: number;
+  name: string;
+  home_page: string | null;
+  start_year: number;
+  end_year: number | null;
+  status: string | null;
+  nature: string | null;
+  workload: number | null;
+  value: number | null;
+  funding_source: string | null;
+  created_at: string;
+  updated_at: string;
+  pivot?: {
+    role: string | null;
+  };
+}
