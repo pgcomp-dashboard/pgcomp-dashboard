@@ -18,16 +18,24 @@ export const configurationService = {
     return response.data;
   },
 
-  async getRulesEndAndStartYears(){
-    const config = await this.getAll();
-    const digest_data = JSON.parse(config[0].value!);
-    const startYearConfig = digest_data.initial_year;
-    const endYearConfig = digest_data.final_year;
+  async getRulesEndAndStartYears(): Promise<{ startYear: number; endYear: number }> {
+    const currentYear = new Date().getFullYear();
+    const defaults = { startYear: currentYear - 4, endYear: currentYear };
 
-    return {
-      startYear: startYearConfig, 
-      endYear: endYearConfig 
-    };
+    const config = await this.getAll();
+    const rulesConfig = config.find((c) => c.group === 'accreditation' && c.key === 'rules');
+
+    if (!rulesConfig || !rulesConfig.value) return defaults;
+
+    try {
+      const digest_data = JSON.parse(rulesConfig.value);
+      return {
+        startYear: digest_data.initial_year ?? defaults.startYear,
+        endYear: digest_data.final_year ?? defaults.endYear,
+      };
+    } catch {
+      return defaults;
+    }
   },
 
   async getResolutionLink(): Promise<string> {

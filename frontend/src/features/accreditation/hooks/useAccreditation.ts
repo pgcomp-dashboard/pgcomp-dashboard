@@ -35,7 +35,6 @@ export function useAccreditation() {
     queryKey: ["ranking", startYear, endYear],
     queryFn: () => userService.getAccreditationRanking(startYear, endYear),
     placeholderData: (prevData) => prevData,
-    enabled: !!rulesData,
   });
 
   const filteredRanking = useMemo(() => {
