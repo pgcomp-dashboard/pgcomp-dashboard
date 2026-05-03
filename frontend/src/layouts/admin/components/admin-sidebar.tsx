@@ -189,17 +189,7 @@ export function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/admin/projects-dashboard"}
-            >
-              <Link to="/admin/projects-dashboard">
-                <BarChart2 className="h-4 w-4" />
-                <span>Projetos PGCOMP</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
