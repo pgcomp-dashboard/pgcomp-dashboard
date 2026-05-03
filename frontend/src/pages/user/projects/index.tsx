@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 
+import { ClearProjectsDialog } from '@/features/projects/components/ProjectDialogs';
 import { ProjectCreateForm } from '@/features/projects/components/ProjectCreateForm';
 import { ProjectDialogs } from '@/features/projects/components/ProjectDialogs';
 import { ProjectHeader } from '@/features/projects/components/ProjectHeader';
@@ -65,6 +66,7 @@ export default function ProjectsPage() {
                   Importar XML
                 </Button>
               )}
+              <ClearProjectsDialog onConfirm={crud.fullDelete} /> 
               <Button onClick={() => setChosenForm('manual')}>
                 + Adicionar
               </Button>
