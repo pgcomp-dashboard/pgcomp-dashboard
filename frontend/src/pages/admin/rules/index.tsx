@@ -28,6 +28,7 @@ const accreditationRulesSchema = z.object({
   min_journals: z.coerce.number().min(0),
   min_journals_a1a2: z.coerce.number().min(0),
   min_score: z.coerce.number().min(0),
+  is_maintenance_mode: z.boolean(),
 });
 
 const resolutionLinkSchema = z.object({
@@ -65,6 +66,7 @@ export default function RulesPage() {
       min_journals: 0,
       min_journals_a1a2: 0,
       min_score: 0,
+      is_maintenance_mode: false,
     },
   });
 
@@ -278,6 +280,27 @@ export default function RulesPage() {
                     <FormLabel className="text-base">Aprovar se Sênior?</FormLabel>
                     <FormDescription>
                       Se ativado, docentes seniores são credenciados diretamente.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="is_maintenance_mode"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-destructive/10 border-destructive/20">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base text-destructive font-bold">Modo Manutenção</FormLabel>
+                    <FormDescription>
+                      Ativa um aviso de manutenção na página inicial para todos os usuários.
                     </FormDescription>
                   </div>
                   <FormControl>
