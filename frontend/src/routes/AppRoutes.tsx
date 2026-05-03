@@ -74,16 +74,14 @@ export function AppRoutes() {
               </Route>
             </Route>
           </Route>
-          <Route path="admin" element={<EnsureAdmin />}>
-            <Route
-              path="dashboard"
-              element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  <DashboardPage />
-                </Suspense>
-              }
-            />
-          </Route>
+          <Route
+            path="admin/dashboard"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <DashboardPage />
+              </Suspense>
+            }
+          />
         </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />

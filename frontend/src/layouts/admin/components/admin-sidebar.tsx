@@ -168,6 +168,18 @@ export function AdminSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
+              isActive={pathname === '/admin/dashboard'}
+            >
+              <Link to="/admin/dashboard">
+                <BarChart2 className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
               isActive={pathname === "/admin/credenciamento"}
             >
               <Link to="/admin/credenciamento">
