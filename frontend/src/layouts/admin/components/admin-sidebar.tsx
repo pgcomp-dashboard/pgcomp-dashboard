@@ -42,7 +42,7 @@ export function AdminSidebar() {
                   asChild
                   isActive={pathname === "/admin/dashboard"}
                 >
-                  <Link to="/admin/dashboard" data-cy="link-areas">
+                {/*  <Link to="/admin/dashboard" data-cy="link-areas">
                     <Users className="h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
@@ -59,6 +59,17 @@ export function AdminSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem> */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === '/admin/dashboard'}
+                >
+                  <Link to="/admin/dashboard">
+                    <BarChart2 className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
@@ -164,19 +175,6 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === '/admin/dashboard'}
-            >
-              <Link to="/admin/dashboard">
-                <BarChart2 className="h-4 w-4" />
-                <span>Dashboard</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
@@ -199,7 +197,7 @@ export function AdminSidebar() {
                 <span>Projetos PGCOMP</span>
               </Link>
             </SidebarMenuButton>
-          </SidebarMenuItem> 
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
