@@ -20,12 +20,12 @@ import EnrollmentsPerYearChart from '@/features/dashboard/components/charts/Enro
 import ProductionsPerYearChart from '@/features/dashboard/components/charts/ProductionsPerYear';
 import ProfessorProductionPerYear from '@/features/dashboard/components/charts/ProfessorProductionPerYear';
 import StudentCountCard from '@/features/dashboard/components/StudentCountCard';
-import { scrapingService } from '@/services/modules/scraping.service';
-import { useEffect, useState } from 'react';
+//import { scrapingService } from '@/services/modules/scraping.service';
+//import { useEffect, useState } from 'react';
 
 
 export default function Dashboard() {
-  const [ lastExecution, setLastExecution ] = useState<string | null>(null);
+  //const [ lastExecution, setLastExecution ] = useState<string | null>(null);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -34,6 +34,7 @@ export default function Dashboard() {
     }
   };
 
+  /*
   async function fetchLastExecution() {
     try {
       const response = await scrapingService.getScrapingExecutions();
@@ -47,7 +48,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchLastExecution();
-  }, []);
+  }, []);*/
 
   return (
     <div className="w-full flex min-h-screen flex-col items-center">
@@ -186,9 +187,9 @@ export default function Dashboard() {
         <section id="student_count" className="space-y-3 sm:space-y-4">
 
           {/* Última execução do script */}
-          <div className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium px-1">
+          {/*<div className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium px-1">
             Última execução do script: {lastExecution ? new Date(lastExecution).toLocaleString('pt-BR') : 'Carregando...'}
-          </div>
+          </div> */}
 
           {/* Container dos grupos - Mobile First: Stack verticalmente, Desktop: lado a lado */}
           <div className="flex flex-col md:flex-row gap-4 sm:gap-6">

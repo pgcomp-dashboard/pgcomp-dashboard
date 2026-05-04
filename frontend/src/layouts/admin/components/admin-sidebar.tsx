@@ -35,39 +35,14 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/portal/projects"}
-            >
-              <Link to="/portal/projects">
-                <File className="h-4 w-4" />
-                <span>Projetos Individuais</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
           {auth?.isAdmin && (
             <>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/admin/projects-dashboard"}
-                >
-                  <Link to="/admin/projects-dashboard">
-                    <BarChart2 className="h-4 w-4" />
-                    <span>Projetos PGCOMP</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
               {/* <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === "/admin/dashboard"}
                 >
-                  <Link to="/admin/dashboard" data-cy="link-areas">
+                {/*  <Link to="/admin/dashboard" data-cy="link-areas">
                     <Users className="h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
@@ -84,6 +59,17 @@ export function AdminSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem> */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === '/admin/dashboard'}
+                >
+                  <Link to="/admin/dashboard">
+                    <BarChart2 className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
@@ -181,6 +167,17 @@ export function AdminSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
+              isActive={pathname === "/portal/projects"}
+            >
+              <Link to="/portal/projects">
+                <File className="h-4 w-4" />
+                <span>Projetos Individuais</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
               isActive={pathname === "/admin/credenciamento"}
             >
               <Link to="/admin/credenciamento">
@@ -190,6 +187,17 @@ export function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
 
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/admin/projects-dashboard"}
+            >
+              <Link to="/admin/projects-dashboard">
+                <BarChart2 className="h-4 w-4" />
+                <span>Projetos PGCOMP</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
