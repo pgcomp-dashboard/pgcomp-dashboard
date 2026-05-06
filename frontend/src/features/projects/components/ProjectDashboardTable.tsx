@@ -25,7 +25,7 @@ const statusLabel = (status: string | null) => {
 };
 
 export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTableProps) {
-  const [ sorting, setSorting ] = useState<SortingState>([
+  const [sorting, setSorting] = useState<SortingState>([
     { id: 'start_year', desc: true },
   ]);
 
@@ -36,7 +36,7 @@ export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTable
           <DataTableColumnHeader column={column} title="Projeto" />
         ),
         cell: (info) => (
-          <div className="font-medium text-left max-w-xs truncate" title={info.getValue()}>
+          <div className="text-left">
             {info.getValue()}
           </div>
         ),
