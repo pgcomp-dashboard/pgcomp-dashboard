@@ -1,16 +1,30 @@
 import { projectDashboardService } from '@/services/modules/project-dashboard.service';
+import { configurationService } from '@/services/modules/configuration.service';
 import { ProjectDashboardFilters } from '@/features/projects/types';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 export function useProjectDashboard() {
   const date = new Date();
 
   const [ filters, setFilters ] = useState<ProjectDashboardFilters>({
     professorId: null,
-    year: null,
+    startYear: null,
+    endYear: null,
     status: null,
   });
+
+  const { data: rulesData } = useQuery({
+    queryKey: [ 'rulesYears' ],
+    queryFn: () => configurationService.getRulesEndAndStartYears(),
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
+  useEffect(() => {
+    if (rulesData?.startYear) setFilters((prev) => ({ ...prev, startYear: rulesData.startYear }));
+    if (rulesData?.endYear) setFilters((prev) => ({ ...prev, endYear: rulesData.endYear }));
+  }, [ rulesData ]);
 
   const years = useMemo(() => {
     return Array.from(
@@ -22,7 +36,8 @@ export function useProjectDashboard() {
   const queryParams = useMemo(() => {
     const params: Record<string, any> = {};
     if (filters.professorId) params.professor_id = filters.professorId;
-    if (filters.year) params.year = filters.year;
+    if (filters.startYear) params.start_year = filters.startYear;
+    if (filters.endYear) params.end_year = filters.endYear;
     if (filters.status) params.status = filters.status;
     return params;
   }, [ filters ]);

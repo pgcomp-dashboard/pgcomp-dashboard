@@ -77,14 +77,41 @@ export default function ProjectDashboardPage() {
 
         <div className="flex flex-col gap-2">
           <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-            Ano
+            Início
           </Label>
           <Select
-            value={filters.year?.toString() ?? 'all'}
+            value={filters.startYear?.toString() ?? 'all'}
             onValueChange={(value) =>
               setFilters((prev) => ({
                 ...prev,
-                year: value === 'all' ? null : parseInt(value),
+                startYear: value === 'all' ? null : parseInt(value),
+              }))
+            }
+          >
+            <SelectTrigger className="w-32 bg-background">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {years.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            Fim
+          </Label>
+          <Select
+            value={filters.endYear?.toString() ?? 'all'}
+            onValueChange={(value) =>
+              setFilters((prev) => ({
+                ...prev,
+                endYear: value === 'all' ? null : parseInt(value),
               }))
             }
           >

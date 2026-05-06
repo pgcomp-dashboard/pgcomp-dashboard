@@ -43,7 +43,8 @@ export interface ProjectDashboardProfessor {
 
 export interface ProjectDashboardFilters {
   professorId: number | null;
-  year: number | null;
+  startYear: number | null;
+  endYear: number | null;
   status: string | null;
 }
 
