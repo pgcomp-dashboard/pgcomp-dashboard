@@ -33,7 +33,7 @@ export interface ProjectDashboardRow {
   end_year: number | null;
   value: number | null;
   funding_source: string | null;
-  participants: { id: number; name: string }[];
+  participants: { id: number; name: string; pivot?: {  role: string } }[];
 }
 
 export interface ProjectDashboardProfessor {

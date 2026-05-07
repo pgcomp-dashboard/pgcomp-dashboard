@@ -108,6 +108,23 @@ export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTable
         ),
       }),
       columnHelper.accessor('participants', {
+        id: 'roles',
+        header: 'Função',
+        enableSorting: false,
+        cell: (info) => {
+          const roles = [...new Set(
+            info.getValue()
+              .map((p: { pivot?: { role: string } }) => p.pivot?.role)
+              .filter(Boolean)
+          )];
+          return (
+            <div className="text-center text-xs">
+              {roles.join(', ') || '--'}
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor('participants', {
         header: 'Docentes',
         enableSorting: false,
         cell: (info) => {
