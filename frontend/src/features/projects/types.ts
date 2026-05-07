@@ -27,6 +27,7 @@ export interface ProjectDashboardSummary {
 export interface ProjectDashboardRow {
   id: number;
   name: string;
+  home_page: string | null;
   nature: string | null;
   status: string | null;
   start_year: number | null;
