@@ -36,7 +36,7 @@ export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTable
           <DataTableColumnHeader column={column} title="Projeto" />
         ),
         cell: (info) => (
-          <div className="text-left">
+          <div className="text-left break-words min-w-[200px] max-w-[400px] whitespace-normal">
             {info.getValue()}
           </div>
         ),
@@ -45,9 +45,15 @@ export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTable
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Natureza" />
         ),
-        cell: (info) => (
-          <div className="text-center capitalize">{info.getValue() ?? '--'}</div>
-        ),
+        cell: (info) => {
+          const val = info.getValue();
+          if (!val) return <div className="text-center">--</div>;
+          return (
+            <div className="text-center">
+              {val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()}
+            </div>
+          );
+        },
       }),
       columnHelper.accessor('status', {
         header: ({ column }) => (
