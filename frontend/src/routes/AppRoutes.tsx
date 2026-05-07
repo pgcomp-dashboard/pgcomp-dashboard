@@ -69,20 +69,11 @@ export function AppRoutes() {
               <Route path="qualis" element={<QualisPage />} />
               <Route path="rules" element={<RulesPage />} />
               <Route path="system-config" element={<SystemConfigPage />} />
+              <Route path="dashboard" element={<Suspense fallback={<LoadingSpinner />}><DashboardPage /></Suspense> } />
               <Route element={<EnsureManager />}>
                 <Route path="lattes-uploads" element={<LattesUploadsPage />} />
               </Route>
             </Route>
-          </Route>
-          <Route path="admin" element={<EnsureAdmin />}>
-            <Route
-              path="dashboard"
-              element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  <DashboardPage />
-                </Suspense>
-              }
-            />
           </Route>
         </Route>
       </Route>

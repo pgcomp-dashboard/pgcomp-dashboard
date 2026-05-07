@@ -1,3 +1,4 @@
+import { configurationService } from '@/services/modules/configuration.service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer } from '@/components/ui/chart';
@@ -60,13 +61,13 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function ProfessorProductionPerYear() {
   const auth = useAuth();
-  const [ currentProfessorId, setCurrentProfessorId ] = useState<number | null>(null);
-  const [ period, setPeriod ] = useState<{
+  const [currentProfessorId, setCurrentProfessorId] = useState<number | null>(null);
+  const [period, setPeriod] = useState<{
     from?: number,
     to?: number,
   }>({
-    from: new Date().getFullYear() - 5,
-    to: new Date().getFullYear(),
+    from: undefined,
+    to: undefined,
   });
 
   const { data: professors, error: professorsError } = useQuery({
@@ -75,8 +76,14 @@ export default function ProfessorProductionPerYear() {
     enabled: !!auth?.isAdmin,
   });
 
+  const { data: rulesData } = useQuery({
+    queryKey: ['configuration', 'rules'],
+    queryFn: () => configurationService.getRulesEndAndStartYears(),
+    enabled: !!auth?.isAdmin,
+  });
+
   const { data: productions, error } = useQuery({
-    queryKey: [ 'professorProductionPerYear', currentProfessorId, period.from, period.to ],
+    queryKey: ['professorProductionPerYear', currentProfessorId, period.from, period.to],
     queryFn: () => dashboardService.professorProductionPerYear(currentProfessorId as number, period.from, period.to),
     enabled: currentProfessorId !== null,
   });
@@ -97,10 +104,23 @@ export default function ProfessorProductionPerYear() {
   }
 
   useEffect(() => {
+    if (rulesData) {
+      setPeriod({
+        from: rulesData.startYear,
+        to: rulesData.endYear,
+      });
+      periodForm.reset({
+        from: rulesData.startYear,
+        to: rulesData.endYear,
+      });
+    }
+  }, [rulesData, periodForm]);
+
+  useEffect(() => {
     if (professors && professors.length > 0) {
       setCurrentProfessorId(professors[0].id);
     }
-  }, [ professors ]);
+  }, [professors]);
 
   if (professorsError) return <>Falha ao carregar professores!</>;
   if (!professors) return <>Carregando professores...</>;
@@ -109,7 +129,7 @@ export default function ProfessorProductionPerYear() {
   if (!productions) return <>Carregando...</>;
   if (error) return <>Erro ao carregar o gráfico</>;
 
-  const chartData = Object.entries(productions ?? {}).map(([ year, amount ]) => ({
+  const chartData = Object.entries(productions ?? {}).map(([year, amount]) => ({
     year,
     amount: amount as number, // Garante que amount é um número
   }));
@@ -198,7 +218,7 @@ export default function ProfessorProductionPerYear() {
 // Novo componente para o gráfico com rolagem e expansão
 function InternalProductionChartWithScroll({ chartData }: { chartData: { year: string, amount: number }[] }) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const [ , setChartHeight ] = useState<number>(0);
+  const [, setChartHeight] = useState<number>(0);
 
   useEffect(() => {
     if (chartRef.current) {
