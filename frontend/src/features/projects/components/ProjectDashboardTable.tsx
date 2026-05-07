@@ -25,7 +25,7 @@ const statusLabel = (status: string | null) => {
 };
 
 export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTableProps) {
-  const [ sorting, setSorting ] = useState<SortingState>([
+  const [sorting, setSorting] = useState<SortingState>([
     { id: 'start_year', desc: true },
   ]);
 
@@ -35,19 +35,40 @@ export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTable
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Projeto" />
         ),
-        cell: (info) => (
-          <div className="font-medium text-left max-w-xs truncate" title={info.getValue()}>
-            {info.getValue()}
-          </div>
-        ),
+        cell: (info) => {
+          const homePage = info.row.original.home_page;
+          const name = info.getValue();
+          return (
+            <div className="text-left break-words min-w-[200px] max-w-[400px] whitespace-normal font-normal">
+              {homePage ? (
+                <a
+                  href={homePage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline underline-offset-4 hover:opacity-80 transition-opacity"
+                >
+                  {name}
+                </a>
+              ) : (
+                name
+              )}
+            </div>
+          );
+        },
       }),
       columnHelper.accessor('nature', {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Natureza" />
         ),
-        cell: (info) => (
-          <div className="text-center capitalize">{info.getValue() ?? '--'}</div>
-        ),
+        cell: (info) => {
+          const val = info.getValue();
+          if (!val) return <div className="text-center">--</div>;
+          return (
+            <div className="text-center">
+              {val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()}
+            </div>
+          );
+        },
       }),
       columnHelper.accessor('status', {
         header: ({ column }) => (
@@ -79,17 +100,13 @@ export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTable
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Início" />
         ),
-        cell: (info) => (
-          <div className="text-center">{info.getValue() ?? '--'}</div>
-        ),
+        cell: (info) => <div className="text-center">{info.getValue() ?? '--'}</div>,
       }),
       columnHelper.accessor('end_year', {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Fim" />
         ),
-        cell: (info) => (
-          <div className="text-center">{info.getValue() ?? '--'}</div>
-        ),
+        cell: (info) => <div className="text-center">{info.getValue() ?? '--'}</div>,
       }),
       columnHelper.accessor('value', {
         header: ({ column }) => (
@@ -103,9 +120,23 @@ export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTable
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Financiador" />
         ),
-        cell: (info) => (
-          <div className="text-center">{info.getValue() ?? '--'}</div>
-        ),
+        cell: (info) => <div className="text-center">{info.getValue() ?? '--'}</div>,
+      }),
+      columnHelper.accessor('participants', {
+        id: 'roles',
+        header: 'Função',
+        enableSorting: false,
+        cell: (info) => {
+          const roles = [
+            ...new Set(
+              info
+                .getValue()
+                .map((p: { pivot?: { role: string } }) => p.pivot?.role)
+                .filter(Boolean)
+            ),
+          ];
+          return <div className="text-center text-xs">{roles.join(', ') || '--'}</div>;
+        },
       }),
       columnHelper.accessor('participants', {
         header: 'Docentes',
@@ -123,7 +154,7 @@ export function ProjectDashboardTable({ data, isLoading }: ProjectDashboardTable
         },
       }),
     ],
-    [],
+    []
   );
 
   return (

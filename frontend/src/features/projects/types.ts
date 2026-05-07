@@ -27,13 +27,14 @@ export interface ProjectDashboardSummary {
 export interface ProjectDashboardRow {
   id: number;
   name: string;
+  home_page: string | null;
   nature: string | null;
   status: string | null;
   start_year: number | null;
   end_year: number | null;
   value: number | null;
   funding_source: string | null;
-  participants: { id: number; name: string }[];
+  participants: { id: number; name: string; pivot?: {  role: string } }[];
 }
 
 export interface ProjectDashboardProfessor {
@@ -43,7 +44,8 @@ export interface ProjectDashboardProfessor {
 
 export interface ProjectDashboardFilters {
   professorId: number | null;
-  year: number | null;
+  startYear: number | null;
+  endYear: number | null;
   status: string | null;
 }
 
