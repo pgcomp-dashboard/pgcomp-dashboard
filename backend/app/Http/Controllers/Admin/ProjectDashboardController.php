@@ -22,13 +22,15 @@ class ProjectDashboardController extends Controller
     {
         $validated = $request->validate([
             'professor_id' => 'nullable|integer|exists:users,id',
-            'year' => 'nullable|integer|min:1900',
+            'start_year' => 'nullable|integer|min:1900',
+            'end_year' => 'nullable|integer|min:1900',
             'status' => 'nullable|string',
         ]);
 
         $data = $this->service->getProjectsSummary(
             professorId: $validated['professor_id'] ?? null,
-            year: $validated['year'] ?? null,
+            startYear: $validated['start_year'] ?? null,
+            endYear: $validated['end_year'] ?? null,
             status: $validated['status'] ?? null,
         );
 
@@ -42,13 +44,15 @@ class ProjectDashboardController extends Controller
     {
         $validated = $request->validate([
             'professor_id' => 'nullable|integer|exists:users,id',
-            'year' => 'nullable|integer|min:1900',
+            'start_year' => 'nullable|integer|min:1900',
+            'end_year' => 'nullable|integer|min:1900',
             'status' => 'nullable|string',
         ]);
 
         $data = $this->service->getProjectsTable(
             professorId: $validated['professor_id'] ?? null,
-            year: $validated['year'] ?? null,
+            startYear: $validated['start_year'] ?? null,
+            endYear: $validated['end_year'] ?? null,
             status: $validated['status'] ?? null,
         );
 
