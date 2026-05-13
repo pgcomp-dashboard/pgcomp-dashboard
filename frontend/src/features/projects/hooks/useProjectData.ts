@@ -27,14 +27,24 @@ export function useProjectData() {
     },
     enabled: !!auth?.isAuthenticated && (auth?.isAdmin ? selectedProfessorId !== 'own' : true),
   });
+  const [startYear, setStartYear] = useState<number | null>(null);
+  const [endYear, setEndYear] = useState<number | null>(null);
 
   const projects = useMemo(() => {
     if (!rawData) return [];
     return Object.entries(rawData)
       .filter(([key]) => !isNaN(Number(key)))
       .map(([, value]) => value as unknown as Project)
+      .filter((p) => {
+        if (startYear && endYear) {
+          return p.start_year <= endYear && (p.end_year == null || p.end_year >= startYear);
+        }
+        if (startYear) return p.end_year == null || p.end_year >= startYear;
+        if (endYear) return p.start_year <= endYear;
+        return true;
+      })
       .sort((a, b) => b.start_year - a.start_year);
-  }, [rawData]);
+  },  [rawData, startYear, endYear]);
 
   const handleProfessorChange = (value: string) => {
     startTransition(() => {
@@ -50,5 +60,9 @@ export function useProjectData() {
     professorsList,
     selectedProfessorId,
     handleProfessorChange,
+    startYear, 
+    setStartYear, 
+    endYear, 
+    setEndYear,
   };
 }

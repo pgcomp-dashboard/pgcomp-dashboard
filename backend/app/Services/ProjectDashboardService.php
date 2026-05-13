@@ -20,15 +20,21 @@ class ProjectDashboardService
                     $q->where('users.id', $professorId);
                 });
             })
-             $query = Project::query()
-            ->when($startYear, function ($q) use ($startYear) {
-            $q->where('start_year', '>=', $startYear);
-            })
-           ->when($endYear, function ($q) use ($endYear) {
-            $q->where(function ($q) use ($endYear) {
-                $q->where('end_year', '<=', $endYear)->orWhereNull('end_year');
-            });
-            })
+         ->when($startYear || $endYear, function ($q) use ($startYear, $endYear) {
+         $q->where(function ($q) use ($startYear, $endYear) {
+        
+             if ($endYear) {
+               $q->where('start_year', '<=', $endYear);
+              }
+        
+             if ($startYear) {
+                $q->where(function ($q) use ($startYear) {
+                $q->where('end_year', '>=', $startYear)
+                  ->orWhereNull('end_year');
+                 });
+               }
+             });
+           })
             ->when($status, function ($q) use ($status) {
                 $q->where('status', $status);
             });
@@ -49,7 +55,7 @@ class ProjectDashboardService
     /**
      * Get projects list for table with filters.
      */
-    public function getProjectsSummary(?int $professorId = null, ?int $startYear = null, ?int $endYear = null, ?string $status = null)
+    public function getProjectsTable(?int $professorId = null, ?int $startYear = null, ?int $endYear = null, ?string $status = null)
     {
         return Project::with('participants:id,name')
             ->when($professorId, function ($q) use ($professorId) {
@@ -57,15 +63,21 @@ class ProjectDashboardService
                     $q->where('users.id', $professorId);
                 });
             })
-            $query = Project::query()
-           ->when($startYear, function ($q) use ($startYear) {
-            $q->where('start_year', '>=', $startYear);
-            })
-           ->when($endYear, function ($q) use ($endYear) {
-            $q->where(function ($q) use ($endYear) {
-                $q->where('end_year', '<=', $endYear)->orWhereNull('end_year');
-            });
-            })
+            ->when($startYear || $endYear, function ($q) use ($startYear, $endYear) {
+         $q->where(function ($q) use ($startYear, $endYear) {
+        
+             if ($endYear) {
+               $q->where('start_year', '<=', $endYear);
+              }
+        
+             if ($startYear) {
+                $q->where(function ($q) use ($startYear) {
+                $q->where('end_year', '>=', $startYear)
+                  ->orWhereNull('end_year');
+                 });
+               }
+             });
+           })
             ->when($status, function ($q) use ($status) {
                 $q->where('status', $status);
             })

@@ -23,6 +23,10 @@ export default function ProjectsPage() {
     professorsList,
     selectedProfessorId,
     handleProfessorChange,
+    startYear,
+    setStartYear,
+    endYear,
+    setEndYear,
   } = useProjectData();
 
   const crud = useProjectCrud(selectedProfessorId);
@@ -36,8 +40,12 @@ export default function ProjectsPage() {
         selectedProfessorId={selectedProfessorId}
         onProfessorChange={handleProfessorChange}
         professorsList={professorsList}
-      />
+        startYear={startYear}
+        endYear={endYear}
+        onStartYearChange={setStartYear}
+        onEndYearChange={setEndYear}
 
+      />
       <div className="bg-background border rounded-xl shadow-sm overflow-hidden p-6">
         <div className="flex items-center gap-2 mb-6">
           {chosenForm !== 'none' && (
@@ -66,7 +74,7 @@ export default function ProjectsPage() {
                   Importar XML
                 </Button>
               )}
-              <ClearProjectsDialog onConfirm={crud.fullDelete} /> 
+              <ClearProjectsDialog onConfirm={crud.fullDelete} />
               <Button onClick={() => setChosenForm('manual')}>
                 + Adicionar
               </Button>
