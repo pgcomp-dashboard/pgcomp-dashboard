@@ -118,7 +118,7 @@ export default function ProductionPerQualisChart() {
                 }))}
               />
               <Tooltip />
-              {allQualis.reverse().map((qualis) => (
+              {[...allQualis].reverse().map((qualis) => (
                 <Bar
                   key={qualis}
                   dataKey={qualis}
