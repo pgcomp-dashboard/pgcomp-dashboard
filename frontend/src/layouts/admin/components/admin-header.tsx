@@ -4,6 +4,7 @@ import {
   ChevronRight,
   LogOut,
   ShieldPlus,
+  Star,
   User,
   UserPlus,
 } from "lucide-react";
@@ -46,6 +47,15 @@ export function AdminHeader() {
         Menu Lateral
       </div>
       <div className="ml-auto flex items-center gap-2 sm:gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          className="hidden sm:flex items-center gap-1.5 text-xs sm:text-sm font-medium border-amber-400 text-amber-600 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+          onClick={() => window.open("https://forms.gle/9J4WJZsocEK3VnHT9", "_blank", "noopener,noreferrer")}
+        >
+          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+          Avalie o Sistema
+        </Button>
         {summary.total > 0 && (
           <Popover>
             <PopoverTrigger asChild>

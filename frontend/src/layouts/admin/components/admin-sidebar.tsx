@@ -42,7 +42,7 @@ export function AdminSidebar() {
                   asChild
                   isActive={pathname === "/admin/dashboard"}
                 >
-                  <Link to="/admin/dashboard" data-cy="link-areas">
+                {/*  <Link to="/admin/dashboard" data-cy="link-areas">
                     <Users className="h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
@@ -85,7 +85,7 @@ export function AdminSidebar() {
                   <Link to="/admin/qualis">
                     <BookOpen className="h-4 w-4" />
                     <span>Qualis</span>
-                  </Link>=
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {/* <SidebarMenuItem>
@@ -149,9 +149,11 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/admin/credenciamento'}>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === '/admin/credenciamento'}
+            >
               <Link to="/admin/credenciamento">
                 <Trophy className="h-4 w-4" />
                 <span>Credenciamento</span>

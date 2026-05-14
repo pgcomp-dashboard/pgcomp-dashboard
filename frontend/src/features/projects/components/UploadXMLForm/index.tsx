@@ -15,7 +15,6 @@ import { queryClient } from '@/lib/query-client';
 import { projectService } from '@/services/modules/project.service';
 import { FileText, Loader2, Upload, X } from 'lucide-react';
 import { ChangeEvent, useState } from 'react';
-import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
@@ -27,9 +26,8 @@ export default function UploadProjectXMLForm({
 }: {
   professorId?: string;
   onSuccess?: () => void;
-  portalMode?: boolean; 
+  portalMode?: boolean;
 }) {
-  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>('idle');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);

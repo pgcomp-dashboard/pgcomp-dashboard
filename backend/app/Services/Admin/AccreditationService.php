@@ -22,6 +22,7 @@ class AccreditationService
             'final_year' => date("Y"),
             'is_pq_required' => false,
             'is_senior_required' => false,
+            'min_journals_a1a2' => 0,
             'min_journals' => 0,
             'min_score' => 0,
         ]);
@@ -30,7 +31,9 @@ class AccreditationService
         $year2 = $year2 ?? ($rules['final_year'] ?? date("Y"));
         $isPqRequired = $rules['is_pq_required'] ?? false;
         $minJournals = $rules['min_journals'] ?? 0;
+        $minJournalsA1A2 = $rules['min_journals_a1a2'] ?? 0;
         $minScore = $rules['min_score'] ?? 0;
+        $isSeniorRequired = $rules['is_senior_required'] ?? false;
 
         $query = User::professors()
             ->select([
@@ -55,9 +58,8 @@ class AccreditationService
             ->orderBy('total_score', 'desc');
 
         $ranking = $query->get();
-        $isSeniorRequired = $rules['is_senior_required'] ?? false;
 
-        return $ranking->map(function ($user) use ($isPqRequired, $isSeniorRequired, $minJournals, $minScore) {
+        return $ranking->map(function ($user) use ($isPqRequired, $isSeniorRequired, $minJournalsA1A2, $minJournals, $minScore) {
             $dataList = $user->qualis_data ? explode(',', $user->qualis_data) : [];
             $fullBreakdown = array_count_values($dataList);
 
@@ -67,8 +69,16 @@ class AccreditationService
                 $a1A4Count += ($fullBreakdown["journal:{$code}"] ?? 0);
             }
 
+            // Calculate A1-A2 journal-only count
+            $a1A2Count = 0;
+            foreach (['A1', 'A2'] as $code) {
+                $a1A2Count += ($fullBreakdown["journal:{$code}"] ?? 0);
+            }
+
+
             // Create qualis_breakdown for the response (A1-A4 should include only journals)
             $breakdown = [];
+            $breakdown_a1a2 = [];
             foreach ($fullBreakdown as $key => $count) {
                 // key is "publisher_type:code"
                 if (strpos($key, ':') !== false) {
@@ -77,6 +87,9 @@ class AccreditationService
                     // Only include journals with Qualis A1, A2, A3, or A4 in the breakdown
                     if ($type === 'journal' && in_array($code, ['A1', 'A2', 'A3', 'A4'])) {
                         $breakdown[$code] = ($breakdown[$code] ?? 0) + $count;
+                        if(in_array($code, ['A1', 'A2'])){
+                            $breakdown_a1a2[$code] = ($breakdown_a1a2[$code] ?? 0) + $count;
+                        }
                     }
                 }
             }
@@ -86,10 +99,11 @@ class AccreditationService
 
             $meetsScore = $user->total_score >= $minScore;
             $meetsJournals = $a1A4Count >= $minJournals;
+            $meetsJournalsA1A2 = $a1A2Count >= $minJournalsA1A2;
             $isPqAndRequired = $isPqRequired && $user->pq;
             $isSeniorAndRequired = $isSeniorRequired && $user->is_senior;
 
-            if ($meetsScore && $meetsJournals) {
+            if ($meetsScore && ($meetsJournals || $meetsJournalsA1A2)) {
                 $isAccredited = true;
             } elseif ($isPqAndRequired) {
                 $isAccredited = true;
@@ -99,8 +113,8 @@ class AccreditationService
                 if (!$meetsScore) {
                     $reasons[] = "Pontuação insuficiente ({$user->total_score} < {$minScore})";
                 }
-                if (!$meetsJournals) {
-                    $reasons[] = "Publicações A1-A4 insuficientes ({$a1A4Count} < {$minJournals})";
+                if (!$meetsJournals && !$meetsJournalsA1A2) {
+                    $reasons[] = "Publicações insuficientes A1-A4 ({$a1A4Count} < {$minJournals}), A1-A2 ({$a1A2Count} < {$minJournalsA1A2})";
                 }
                 if ($isPqRequired && !$user->pq) {
                     $reasons[] = 'Não é bolsista PQ';
@@ -114,7 +128,9 @@ class AccreditationService
             $user->reasons = $reasons;
             $user->total_score = (float) $user->total_score;
             $user->a1_a4_count = $a1A4Count;
+            $user->a1_a2_count = $a1A2Count;
             $user->qualis_breakdown = $breakdown;
+            $user->qualis_breakdown_a1a2 = $breakdown_a1a2;
 
             unset($user->qualis_data); // No need to send the raw string
 
@@ -135,6 +151,7 @@ class AccreditationService
             'final_year' => date("Y") - 1,
             'is_pq_required' => false,
             'is_senior_required' => false,
+            'min_journals_a1a2' => 0,
             'min_journals' => 0,
             'min_score' => 0,
         ]);
@@ -144,6 +161,7 @@ class AccreditationService
         $isPqRequired = $rules['is_pq_required'] ?? false;
         $isSeniorRequired = $rules['is_senior_required'] ?? false;
         $minJournals = $rules['min_journals'] ?? 0;
+        $minJournalsA1A2 = $rules['min_journals_a1a2'] ?? 0;
         $minScore = $rules['min_score'] ?? 0;
 
         $user = User::professors()
@@ -165,11 +183,15 @@ class AccreditationService
         $totalScore = (float) $productions->sum('score');
 
         // qualisBreakdown for the UI (A1-A4 should include only journals)
-        $qualisBreakdown = [];
+        $qualisBreakdownA1A4 = [];
+        $qualisBreakdownA1A2 = [];
         foreach ($productions as $p) {
             $type = $p->publisher_type instanceof PublisherType ? $p->publisher_type->value : $p->publisher_type;
             if ($type === 'journal' && in_array($p->code, ['A1', 'A2', 'A3', 'A4'])) {
-                $qualisBreakdown[$p->code] = ($qualisBreakdown[$p->code] ?? 0) + 1;
+                $qualisBreakdownA1A4[$p->code] = ($qualisBreakdownA1A4[$p->code] ?? 0) + 1;
+                if ($type === 'journal' && in_array($p->code, ['A1', 'A2'])) {
+                $qualisBreakdownA1A2[$p->code] = ($qualisBreakdownA1A2[$p->code] ?? 0) + 1;
+            }
             }
         }
 
@@ -178,15 +200,20 @@ class AccreditationService
             return in_array($p->code, ['A1', 'A2', 'A3', 'A4']) && $p->publisher_type === 'journal';
         })->count();
 
+        $a1A2Count = $productions->filter(function($p) {
+            return in_array($p->code, ['A1', 'A2']) && $p->publisher_type === 'journal';
+        })->count();
+
         $isAccredited = false;
         $reasons = [];
 
         $meetsScore = $totalScore >= $minScore;
         $meetsJournals = $a1A4Count >= $minJournals;
+        $meetsJournalsA1A2 = $a1A2Count >= $minJournalsA1A2;
         $isPqAndRequired = $isPqRequired && $user->pq;
         $isSeniorAndRequired = $isSeniorRequired && $user->is_senior;
 
-        if ($meetsScore && $meetsJournals) {
+        if ($meetsScore && ($meetsJournals || $meetsJournalsA1A2)) {
             $isAccredited = true;
         } elseif ($isPqAndRequired) {
             $isAccredited = true;
@@ -196,8 +223,8 @@ class AccreditationService
             if (!$meetsScore) {
                 $reasons[] = "Pontuação insuficiente ({$totalScore} < {$minScore})";
             }
-            if (!$meetsJournals) {
-                $reasons[] = "Publicações A1-A4 insuficientes ({$a1A4Count} < {$minJournals})";
+            if (!$meetsJournals && !$meetsJournalsA1A2) {
+                $reasons[] = "Publicações insuficientes A1-A4 ({$a1A4Count} < {$minJournals}), A1-A2 ({$a1A2Count} < {$minJournalsA1A2})";
             }
             if ($isPqRequired && !$user->pq) {
                 $reasons[] = 'Não é bolsista PQ';
@@ -216,7 +243,9 @@ class AccreditationService
             'is_senior' => $user->is_senior,
             'total_score' => $totalScore,
             'a1_a4_count' => $a1A4Count,
-            'qualis_breakdown' => $qualisBreakdown,
+            'a1_a2_count' => $a1A2Count,
+            'qualis_breakdown' => 1,
+            'qualis_breakdown_a1a2' => 1,
             'is_accredited' => $isAccredited,
             'reasons' => $reasons,
             'productions' => $productions,

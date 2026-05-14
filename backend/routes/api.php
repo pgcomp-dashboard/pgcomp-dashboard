@@ -122,6 +122,17 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             Route::get('professors', [ProjectDashboardController::class, 'professors']);
         });
 
+        Route::apiResource('professors.projects', ProjectController::class);
+        Route::delete('professors/{professor}/projects-all', [ProjectController::class, 'destroyAll']);
+        Route::post('professors/{professor}/projects/import-lattes', [ProjectController::class, 'importLattesFile']);
+
+        Route::prefix('projects-dashboard')->group(function () {
+            Route::get('summary', [ProjectDashboardController::class, 'summary']);
+            Route::get('table', [ProjectDashboardController::class, 'table']);
+            Route::get('professors', [ProjectDashboardController::class, 'professors']);
+        });
+
+        Route::get('accreditation/resolution-link', [AccreditationController::class, 'getResolutionLink']);
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
 
         Route::get('approval-requests', [ApprovalRequestController::class, 'index']);

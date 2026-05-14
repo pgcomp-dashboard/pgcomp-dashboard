@@ -9,11 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { AccreditationTable } from "@/features/accreditation/components/AccreditationTable";
 import { useAccreditation } from "@/features/accreditation/hooks/useAccreditation";
 import { cn } from "@/lib/utils";
-import { Loader2, RotateCw } from "lucide-react";
+import { configurationService } from "@/services/modules/configuration.service";
+import { useQuery } from "@tanstack/react-query";
+import { EyeOff, Loader2, RotateCw } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
+
+const DEFAULT_RESOLUTION_LINK =
+  "https://pgcomp.ufba.br/";
+
 
 export default function CredenciamentoPage() {
   const {
@@ -30,6 +38,13 @@ export default function CredenciamentoPage() {
     setCategoryFilter,
     years,
   } = useAccreditation();
+
+  const { data: resolutionLink } = useQuery({
+    queryKey: ["accreditation-resolution-link"],
+    queryFn: () => configurationService.getResolutionLink(),
+  });
+
+  const [blurNames, setBlurNames] = useState(false);
 
   if (isLoading) {
     return (
@@ -58,7 +73,7 @@ export default function CredenciamentoPage() {
           <p className="text-muted-foreground mt-1">
             Ranking de docentes de acordo com a{" "}
             <Link
-              to="https://pgcomp.ufba.br/sites/pgcomp.ufba.br/files/2022_resolucao_05_-_credenciamento_de_docentes.pdf"
+              to={resolutionLink ?? DEFAULT_RESOLUTION_LINK}
               target="_blank"
               className="font-medium underline underline-offset-4 hover:text-primary transition-colors italic"
             >
@@ -127,9 +142,7 @@ export default function CredenciamentoPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label
-            className="text-xs uppercase tracking-wider text-muted-foreground font-semibold"
-          >
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
             Categoria
           </Label>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -145,7 +158,22 @@ export default function CredenciamentoPage() {
           </Select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 border rounded-md px-3 py-2 bg-background">
+            <EyeOff className="h-4 w-4 text-muted-foreground" />
+            <Label
+              htmlFor="blur-names"
+              className="text-xs uppercase tracking-wider text-muted-foreground font-semibold cursor-pointer"
+            >
+              Ocultar nomes
+            </Label>
+            <Switch
+              id="blur-names"
+              checked={blurNames}
+              onCheckedChange={setBlurNames}
+            />
+          </div>
+
           <Button
             variant="outline"
             size="icon"
@@ -170,9 +198,8 @@ export default function CredenciamentoPage() {
         isLoading={isLoading}
         startYear={startYear}
         endYear={endYear}
+        blurNames={blurNames}
       />
-
-
     </div>
   );
 }
