@@ -20,22 +20,9 @@ class ProjectDashboardService
                     $q->where('users.id', $professorId);
                 });
             })
-         ->when($startYear || $endYear, function ($q) use ($startYear, $endYear) {
-         $q->where(function ($q) use ($startYear, $endYear) {
-        
-             if ($endYear) {
-               $q->where('start_year', '<=', $endYear);
-              }
-        
-             if ($startYear) {
-                $q->where(function ($q) use ($startYear) {
-                $q->where('end_year', '>=', $startYear)
-                  ->orWhereNull('end_year');
-                 });
-               }
-             });
-           })
-            ->when($status, function ($q) use ($status) {
+         ->when($startYear, fn($q) => $q->where('start_year', '>=', $startYear))
+         ->when($endYear, fn($q) => $q->where('start_year', '<=', $endYear))
+         ->when($status, function ($q) use ($status) {
                 $q->where('status', $status);
             });
 

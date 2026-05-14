@@ -36,15 +36,12 @@ export function useProjectData() {
       .filter(([key]) => !isNaN(Number(key)))
       .map(([, value]) => value as unknown as Project)
       .filter((p) => {
-        if (startYear && endYear) {
-          return p.start_year <= endYear && (p.end_year == null || p.end_year >= startYear);
-        }
-        if (startYear) return p.end_year == null || p.end_year >= startYear;
-        if (endYear) return p.start_year <= endYear;
+        if (startYear && p.start_year < startYear) return false;
+        if (endYear && p.start_year > endYear) return false;
         return true;
       })
       .sort((a, b) => b.start_year - a.start_year);
-  },  [rawData, startYear, endYear]);
+  }, [rawData, startYear, endYear]);
 
   const handleProfessorChange = (value: string) => {
     startTransition(() => {
@@ -60,9 +57,9 @@ export function useProjectData() {
     professorsList,
     selectedProfessorId,
     handleProfessorChange,
-    startYear, 
-    setStartYear, 
-    endYear, 
+    startYear,
+    setStartYear,
+    endYear,
     setEndYear,
   };
 }
