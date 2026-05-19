@@ -1,4 +1,5 @@
 import { Label } from '@/components/ui/label';
+import { Clock } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -18,6 +19,7 @@ interface ProductionHeaderProps {
   selectedProfessorId: string;
   onProfessorChange: (value: string) => void;
   professorsList: Professor[];
+  lastXmlUpdate?: string;
 }
 
 export function ProductionHeader({
@@ -29,16 +31,36 @@ export function ProductionHeader({
   selectedProfessorId,
   onProfessorChange,
   professorsList,
+  lastXmlUpdate,
 }: ProductionHeaderProps) {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formattedDate = formatDate(lastXmlUpdate);
+
   return (
     <div className="flex flex-col items-center gap-4 w-full">
-      <div className="flex flex-col items-center gap-1 text-center">
+      <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
           Produções
         </h1>
         <p className="text-sm text-muted-foreground">
           Visualize, crie e edite produções.
         </p>
+        {formattedDate && (
+          <div className="flex items-center gap-1.5 text-xs font-medium bg-primary/10 px-3 py-1 rounded-full mt-1">
+            <Clock className="w-3.5 h-3.5" />
+            Última atualização: {formattedDate}
+          </div>
+        )}
       </div>
       <div className='w-full flex flex-row items-center'>
       {isAdmin && (

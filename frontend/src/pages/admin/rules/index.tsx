@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Link as LinkIcon, Loader2, Save, Settings2 } from "lucide-react";
+import { ExternalLink, Link as LinkIcon, Loader2, Save, Settings2, CalendarDays } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -38,8 +38,16 @@ const resolutionLinkSchema = z.object({
     .min(1, "O link não pode ser vazio"),
 });
 
+const importantDatesSchema = z.object({
+  lattes_deadline: z.string().optional(),
+  adjustment_period_start: z.string().optional(),
+  adjustment_period_end: z.string().optional(),
+  final_result_deadline: z.string().optional(),
+});
+
 type AccreditationRulesValues = z.infer<typeof accreditationRulesSchema>;
 type ResolutionLinkValues = z.infer<typeof resolutionLinkSchema>;
+type ImportantDatesValues = z.infer<typeof importantDatesSchema>;
 
 const DEFAULT_RESOLUTION_LINK =
   "https://pgcomp.ufba.br/";
@@ -138,6 +146,48 @@ export default function RulesPage() {
 
   function onLinkSubmit(values: ResolutionLinkValues) {
     linkMutation.mutate(values);
+  }
+
+  const importantDatesConfig = configurations?.find(
+    (c) => c.group === "accreditation" && c.key === "important_dates"
+  );
+
+  const datesForm = useForm<ImportantDatesValues>({
+    resolver: zodResolver(importantDatesSchema),
+    defaultValues: {
+      lattes_deadline: "",
+      adjustment_period_start: "",
+      adjustment_period_end: "",
+      final_result_deadline: "",
+    },
+  });
+
+  useEffect(() => {
+    if (importantDatesConfig?.casted_value) {
+      datesForm.reset(importantDatesConfig.casted_value);
+    }
+  }, [importantDatesConfig, datesForm]);
+
+  const datesMutation = useMutation({
+    mutationFn: (values: ImportantDatesValues) =>
+      configurationService.create({
+        group: "accreditation",
+        key: "important_dates",
+        value: JSON.stringify(values),
+        type: "json",
+        description: "Datas importantes do processo de credenciamento",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["configurations"] });
+      toast.success("Datas importantes atualizadas com sucesso");
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao atualizar datas: " + error.message);
+    },
+  });
+
+  function onDatesSubmit(values: ImportantDatesValues) {
+    datesMutation.mutate(values);
   }
 
   if (isLoading || isLinkLoading) {
@@ -383,6 +433,91 @@ export default function RulesPage() {
                   <Save className="mr-2 h-4 w-4" />
                 )}
                 Salvar Link
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+
+      <div className="grid gap-6 p-8 border rounded-xl bg-card shadow-sm">
+        <div>
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <CalendarDays className="h-5 w-5 text-primary" />
+            Datas Importantes
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Defina o cronograma do processo de credenciamento. Estas datas serão exibidas na página inicial.
+          </p>
+        </div>
+
+        <Form {...datesForm}>
+          <form onSubmit={datesForm.handleSubmit(onDatesSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={datesForm.control}
+                name="lattes_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Limite para envio do XML Lattes</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={datesForm.control}
+                name="final_result_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Data de resultado final</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={datesForm.control}
+                name="adjustment_period_start"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Início do ajuste de pontuação</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={datesForm.control}
+                name="adjustment_period_end"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fim do ajuste de pontuação</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex justify-end pt-2 border-t">
+              <Button type="submit" size="lg" disabled={datesMutation.isPending}>
+                {datesMutation.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Salvar Datas
               </Button>
             </div>
           </form>
