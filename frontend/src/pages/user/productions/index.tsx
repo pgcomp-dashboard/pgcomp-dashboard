@@ -37,6 +37,13 @@ export default function ProductionsPage() {
 
   const crud = useProductionCrud(selectedProfessorId);
 
+  const currentProf =
+    selectedProfessorId !== "own"
+      ? professorsList.find((p) => p.id.toString() === selectedProfessorId)
+      : auth?.user;
+
+  const lastXmlUpdate = (currentProf as any)?.lattes_xml_uploaded_at;
+
   return (
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto px-4 py-8">
       <ProductionHeader
@@ -48,6 +55,7 @@ export default function ProductionsPage() {
         selectedProfessorId={selectedProfessorId}
         onProfessorChange={handleProfessorChange}
         professorsList={professorsList}
+        lastXmlUpdate={lastXmlUpdate}
       />
 
       <div className="bg-background border rounded-xl shadow-sm overflow-hidden p-6">

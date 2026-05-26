@@ -29,6 +29,8 @@ class UserResource extends JsonResource
             'orcid' => $this->orcid,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'lattes_updated_at' => $this->lattes_updated_at,
+            'lattes_xml_uploaded_at' => $this->lattes_xml_uploaded_at,
 
             // Student specific fields
             $this->mergeWhen($this->type === UserType::STUDENT, [
