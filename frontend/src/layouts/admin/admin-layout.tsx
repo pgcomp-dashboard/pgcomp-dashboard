@@ -9,8 +9,11 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
   }) {
+
+  const isDesktop = window.innerWidth >= 768;
+
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={isDesktop}>
       <div className="flex min-h-screen w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0">
