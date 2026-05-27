@@ -1,3 +1,7 @@
+
+import { Button } from '@/components/ui/button';
+import { RotateCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { ChartContainer } from '@/components/ui/chart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
@@ -46,10 +50,10 @@ const CustomTooltip = ({
 
 export default function AllProductionsPerYear() {
   const auth = useAuth();
-  const [ publisherType, setPublisherType ] = useState<'journal' | 'conference' | undefined>(undefined);
+  const [publisherType, setPublisherType] = useState<'journal' | 'conference' | undefined>(undefined);
 
-  const { data: productions, error, isLoading } = useQuery({
-    queryKey: [ 'totalProductionsPerYear', publisherType ],
+  const { data: productions, error, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ['totalProductionsPerYear', publisherType],
     queryFn: () => dashboardService.totalProductionsPerYear(publisherType),
     enabled: !!auth?.isAdmin,
   });
@@ -57,13 +61,13 @@ export default function AllProductionsPerYear() {
   if (isLoading) return <>Carregando...</>;
   if (error) return <>Erro ao carregar o gráfico</>;
 
-  const chartData = Object.entries(productions ?? {}).map(([ year, amount ]) => ({
+  const chartData = Object.entries(productions ?? {}).map(([year, amount]) => ({
     year,
     amount: amount as number, // Garante que amount é um número
   }));
 
   return (
-    <div>
+    <div className="p-4">
       <div className="mb-4 flex gap-2 items-center">
         <label htmlFor="publisherType">Tipo de produção:</label>
         <select
@@ -76,7 +80,17 @@ export default function AllProductionsPerYear() {
           <option value="journal">Periódico</option>
           <option value="conference">Conferência</option>
         </select>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          title="Atualizar"
+        >
+          <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+        </Button>
       </div>
+
       <InternalProductionChartWithScroll chartData={chartData} />
     </div>
   );
@@ -84,7 +98,7 @@ export default function AllProductionsPerYear() {
 
 function InternalProductionChartWithScroll({ chartData }: { chartData: { year: string, amount: number }[] }) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const [ , setChartHeight ] = useState<number>(0);
+  const [, setChartHeight] = useState<number>(0);
 
   useEffect(() => {
     if (chartRef.current) {
