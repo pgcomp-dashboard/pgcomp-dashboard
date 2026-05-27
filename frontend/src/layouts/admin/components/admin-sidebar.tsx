@@ -40,17 +40,6 @@ export function AdminSidebar() {
           {/* <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === "/admin/dashboard"}
-                >
-                {/*  <Link to="/admin/dashboard" data-cy="link-areas">
-                    <Users className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem> */}
-          {/* <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
                   isActive={pathname === "/admin/areas"}
                 >
                   <Link to="/admin/areas" data-cy="link-areas">
@@ -123,6 +112,15 @@ export function AdminSidebar() {
                   <Link to="/admin/rules">
                     <Settings2 className="h-4 w-4" />
                     <span>Regras</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {/* Dashboard */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === "/admin/dashboard"}>
+                  <Link to="/admin/dashboard">
+                    <BarChart2 className="h-4 w-4" />
+                    <span>Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
