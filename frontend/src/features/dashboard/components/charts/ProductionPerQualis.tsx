@@ -72,28 +72,16 @@ export default function ProductionPerQualisChart() {
     return entry;
   });
 
-  const qualisOrder = [
-    "A1",
-    "A2",
-    "A3",
-    "A4",
-    "B1",
-    "B2",
-    "B3",
-    "B4",
-    "C",
-    "NI",
-  ];
+  const qualisOrder = ["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C", "NI"];
   const allQualis = qualisOrder.filter((q) => data.some((d) => d.label === q));
+  const qualisForBars = [...allQualis].reverse(); // NI primeiro, A1 por cima
 
   return (
     <>
-      {/* Mostrar botão apenas se houver mais do que o máximo visível */}
       {years.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
 
-      {/* Div com scroll horizontal e largura mínima dinâmica */}
       <ChartScrollWrapper
         minWidth={chartWidth}
         isScrollable={isScrollable}
@@ -108,17 +96,17 @@ export default function ProductionPerQualisChart() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="year" tick={{ fontSize }} />
               <YAxis tick={{ fontSize }} />
+              <Tooltip />
               <Legend
                 wrapperStyle={{ fontSize: legendFontSize }}
-                payload={[...allQualis].map((qualis) => ({
+                payload={allQualis.map((qualis) => ({
                   value: qualis,
                   type: "square",
                   color: colorFromName(qualis),
                   id: qualis,
                 }))}
               />
-              <Tooltip />
-              {[...allQualis].reverse().map((qualis) => (
+              {qualisForBars.map((qualis) => (
                 <Bar
                   key={qualis}
                   dataKey={qualis}
@@ -126,7 +114,6 @@ export default function ProductionPerQualisChart() {
                   fill={colorFromName(qualis)}
                   stroke="#ffffff"
                 >
-                  {/* Exibir valor de cada qualis no centro da barra */}
                   <LabelList
                     dataKey={qualis}
                     position="center"
@@ -135,7 +122,7 @@ export default function ProductionPerQualisChart() {
                       const numY = Number(y);
                       const numWidth = Number(width);
                       const numHeight = Number(height);
-
+                      if (!value || Number(value) === 0) return null;
                       return (
                         <text
                           x={numX + numWidth / 2}
