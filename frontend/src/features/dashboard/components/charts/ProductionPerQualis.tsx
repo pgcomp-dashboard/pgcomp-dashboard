@@ -96,7 +96,24 @@ export default function ProductionPerQualisChart() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="year" tick={{ fontSize }} />
               <YAxis tick={{ fontSize }} />
-              <Tooltip />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  if (active && payload?.length) {
+                    const sorted = [...payload].reverse(); // A1 no topo
+                    return (
+                      <div className="bg-white p-3 border rounded text-sm">
+                        <b>{label}</b>
+                        {sorted.map((entry, i) => (
+                          <div key={i} style={{ color: entry.fill }}>
+                            {entry.dataKey} : {entry.value}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
               <Legend
                 wrapperStyle={{ fontSize: legendFontSize }}
                 payload={allQualis.map((qualis) => ({
