@@ -1,3 +1,5 @@
+import { RotateCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { configurationService } from '@/services/modules/configuration.service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,7 +84,7 @@ export default function ProfessorProductionPerYear() {
     enabled: !!auth?.isAdmin,
   });
 
-  const { data: productions, error } = useQuery({
+  const { data: productions, error, isFetching, refetch } = useQuery({
     queryKey: ['professorProductionPerYear', currentProfessorId, period.from, period.to],
     queryFn: () => dashboardService.professorProductionPerYear(currentProfessorId as number, period.from, period.to),
     enabled: currentProfessorId !== null,
@@ -186,7 +188,7 @@ export default function ProfessorProductionPerYear() {
                     />
                     <div className="border-t-1 w-full h-1 my-2" />
                     <br className="w-full" />
-                    <div className="w-full flex justify-end space-x-2">
+                    <div className="w-full flex justify-start space-x-2">
                       <DialogClose asChild><Button variant='outline'>Voltar</Button></DialogClose>
                       <DialogClose asChild><Button type='submit'>Salvar</Button></DialogClose>
                     </div>
@@ -195,6 +197,9 @@ export default function ProfessorProductionPerYear() {
               </Form>
             </DialogContent>
           </Dialog>
+          <Button variant='outline' size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
+            <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+          </Button>
           <Select value={currentProfessorId?.toString()} onValueChange={v => setCurrentProfessorId(parseInt(v))}>
             <SelectTrigger className="w-[280px]">
               <SelectValue placeholder="Selecione um professor" />

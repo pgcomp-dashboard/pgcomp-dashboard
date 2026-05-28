@@ -1,3 +1,6 @@
+import { Button } from '@/components/ui/button';
+import { RotateCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { ChartContainer } from '@/components/ui/chart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
@@ -43,11 +46,11 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' | 'todos' }) {
   const auth = useAuth();
-  const { data, isLoading, error } = useQuery({
-    queryKey: [ 'enrollments_per_year' ],
+  const { data, isLoading, error, isFetching, refetch } = useQuery({
+    queryKey: ['enrollments_per_year'],
     queryFn: async () => {
       const response = await dashboardService.enrollmentsPerYear();
-      return Array.isArray(response) ? response : [ response ];
+      return Array.isArray(response) ? response : [response];
     },
     enabled: !!auth?.isAdmin,
   });
@@ -75,7 +78,11 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
       {data && data.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-
+      <div className="flex justify-end mb-2">
+        <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
+          <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+        </Button>
+      </div>
       <ChartScrollWrapper
         minWidth={chartWidth}
         isScrollable={isScrollable}
