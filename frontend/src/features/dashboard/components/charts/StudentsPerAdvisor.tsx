@@ -1,3 +1,5 @@
+import { RotateCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { ChartContainer } from '@/components/ui/chart';
 import { colorFromName } from '@/utils/color';
 import { useQuery } from '@tanstack/react-query';
@@ -64,7 +66,7 @@ export default function StudentsPerAdvisorChart() {
   const [ filter, setFilter ] = useState<StudentsPerAdvisorFilter>(undefined);
   const [ visibleProfessors, setVisibleProfessors ] = useState(new Map<number, boolean>());
 
-  const query = useQuery({
+  const { data: queryData, error: queryError, isLoading: queryIsLoading, isFetching, refetch } = useQuery({
     queryKey: [ 'totalStudentsPerAdvisor', filter ],
     queryFn: async () => {
       return dashboardService.totalStudentsPerAdvisor(filter);
@@ -78,7 +80,7 @@ export default function StudentsPerAdvisorChart() {
     enabled: !!auth?.isAdmin,
   });
 
-  const chartData = Object.entries(query.data ?? {})
+  const chartData = Object.entries(queryData ?? {})
     .map(([, advisor_info ]) => ({
       id: advisor_info.id,
       name: advisor_info.name,
@@ -111,11 +113,11 @@ export default function StudentsPerAdvisorChart() {
     return <>Carregando professores...</>;
   }
 
-  if (query.error) {
+  if (queryError) {
     return <>Falha ao carregar gráfico!</>;
   }
 
-  if (query.isLoading) {
+  if (queryIsLoading) {
     return <>Carregando...</>;
   }
 
@@ -154,6 +156,15 @@ export default function StudentsPerAdvisorChart() {
             {chartData.length > MAX_VISIBLE_BARS && (
               <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
             )}
+            <Button 
+              variant='outline' 
+              size="icon" 
+              onClick={() => refetch()} 
+              disabled={isFetching} 
+              title="Atualizar"
+            >
+              <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+            </Button>
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant='outline'><User /></Button>
