@@ -184,7 +184,7 @@ export default function Dashboard() {
       {/* Main Content - Mobile First */}
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 sm:space-y-8 lg:space-y-12 max-w-7xl mx-auto">
 
-        <section id="student_count" className="space-y-3 sm:space-y-4">
+        <section id="student_count" className="space-y-2">
 
           {/* Última execução do script */}
           {/*<div className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium px-1">
@@ -192,57 +192,39 @@ export default function Dashboard() {
           </div> */}
 
           {/* Container dos grupos - Mobile First: Stack verticalmente, Desktop: lado a lado */}
-          <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row gap-3">
 
             {/* Grupo Mestrado */}
-            <div className="flex flex-1 flex-col bg-green-50 dark:bg-green-900/20 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-sm border border-green-200 dark:border-green-800 space-y-3">
-              <h2 className="text-green-800 dark:text-green-300 font-semibold text-sm sm:text-base lg:text-lg">
+            <div className="flex items-center gap-3 bg-green-50 dark:bg-green-900/20 px-4 py-3 rounded-lg border border-green-200 dark:border-green-800">
+              <span className="text-green-800 dark:text-green-300 font-semibold text-sm whitespace-nowrap">
                 Alunos do Mestrado
-              </h2>
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                <Card className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800">
-                  <CardHeader className="p-3 sm:p-4">
-                    <CardTitle className="text-green-900 dark:text-green-200 text-xs sm:text-sm">Atuais</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 sm:p-4 pt-0">
-                    <StudentCountCard studentFilter="Mestrado - Alunos atuais" />
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800">
-                  <CardHeader className="p-3 sm:p-4">
-                    <CardTitle className="text-green-900 dark:text-green-200 text-xs sm:text-sm">Concluídos</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 sm:p-4 pt-0">
-                    <StudentCountCard studentFilter="Mestrado - Alunos concluídos" />
-                  </CardContent>
-                </Card>
+              </span>
+              <div className="flex gap-4">
+                <div className="text-center">
+                  <div className="text-xs text-green-700 dark:text-green-400">Atuais</div>
+                  <StudentCountCard studentFilter="Mestrado - Alunos atuais" />
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-green-700 dark:text-green-400">Concluídos</div>
+                  <StudentCountCard studentFilter="Mestrado - Alunos concluídos" />
+                </div>
               </div>
             </div>
 
             {/* Grupo Doutorado */}
-            <div className="flex flex-1 flex-col bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-sm border border-blue-200 dark:border-blue-800 space-y-3">
-              <h2 className="text-blue-800 dark:text-blue-300 font-semibold text-sm sm:text-base lg:text-lg">
+            <div className="flex items-center gap-3 bg-blue-50 dark:bg-blue-900/20 px-4 py-3 rounded-lg border border-blue-200 dark:border-blue-800">
+              <span className="text-blue-800 dark:text-blue-300 font-semibold text-sm whitespace-nowrap">
                 Alunos do Doutorado
-              </h2>
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                <Card className="bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800">
-                  <CardHeader className="p-3 sm:p-4">
-                    <CardTitle className="text-blue-900 dark:text-blue-200 text-xs sm:text-sm">Atuais</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 sm:p-4 pt-0">
-                    <StudentCountCard studentFilter="Doutorado - Alunos atuais" />
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800">
-                  <CardHeader className="p-3 sm:p-4">
-                    <CardTitle className="text-blue-900 dark:text-blue-200 text-xs sm:text-sm">Concluídos</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 sm:p-4 pt-0">
-                    <StudentCountCard studentFilter="Doutorado - Alunos concluídos" />
-                  </CardContent>
-                </Card>
+              </span>
+              <div className="flex gap-4">
+                <div className="text-center">
+                  <div className="text-xs text-blue-700 dark:text-blue-400">Atuais</div>
+                  <StudentCountCard studentFilter="Doutorado - Alunos atuais" />
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-blue-700 dark:text-blue-400">Concluídos</div>
+                  <StudentCountCard studentFilter="Doutorado - Alunos concluídos" />
+                </div>
               </div>
             </div>
 
