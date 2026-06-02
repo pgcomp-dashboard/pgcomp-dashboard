@@ -45,7 +45,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' | 'todos' }) {
   const auth = useAuth();
-  const { data, isLoading, error, isFetching, refetch } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['defenses_per_year'],
     queryFn: async () => {
       const response = await dashboardService.defensesPerYear();
