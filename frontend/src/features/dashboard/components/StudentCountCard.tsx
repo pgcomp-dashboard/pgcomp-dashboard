@@ -4,8 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 
 export default function StudentCountCard({
   studentFilter,
+  className,
 }: {
   studentFilter: string;
+  className?: string;
 }) {
   const auth = useAuth();
   const { data, isLoading, error } = useQuery({
@@ -21,7 +23,7 @@ export default function StudentCountCard({
   const filteredData = data?.filter((d) => d.category == studentFilter);
 
   return (
-    <div className="w-full h-full text-4xl sm:text-5xl font-semibold text-gray-800 dark:text-gray-100 flex-1 flex items-center justify-center mt-1">
+    <div className={`w-full h-full text-5xl font-bold flex-1 flex items-center justify-center ${className ?? ''}`}>
       {filteredData?.length ? filteredData[0].amount : 0}
     </div>
   );
