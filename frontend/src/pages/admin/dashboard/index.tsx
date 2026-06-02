@@ -1,4 +1,4 @@
-import { Menu } from 'lucide-react';
+import { GraduationCap, Menu, RotateCw, Users } from 'lucide-react';
 import { NavLink } from 'react-router';
 
 import { Button } from '@/components/ui/button';
@@ -22,10 +22,21 @@ import ProfessorProductionPerYear from '@/features/dashboard/components/charts/P
 import StudentCountCard from '@/features/dashboard/components/StudentCountCard';
 //import { scrapingService } from '@/services/modules/scraping.service';
 //import { useEffect, useState } from 'react';
-
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Dashboard() {
   //const [ lastExecution, setLastExecution ] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [isRefetchingQualis, setIsRefetchingQualis] = useState(false);
+  const [isRefetchingDefenses, setIsRefetchingDefenses] = useState(false);
+
+  async function refetchQuery(key: string, setLoading: (v: boolean) => void) {
+    setLoading(true);
+    await queryClient.invalidateQueries({ queryKey: [key] });
+    setLoading(false);
+  }
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -192,38 +203,48 @@ export default function Dashboard() {
           </div> */}
 
           {/* Container dos grupos - Mobile First: Stack verticalmente, Desktop: lado a lado */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-4">
 
             {/* Grupo Mestrado */}
-            <div className="flex items-center gap-3 bg-green-50 dark:bg-green-900/20 px-4 py-3 rounded-lg border border-green-200 dark:border-green-800">
-              <span className="text-green-800 dark:text-green-300 font-semibold text-sm whitespace-nowrap">
-                Alunos do Mestrado
-              </span>
-              <div className="flex gap-4">
-                <div className="text-center">
-                  <div className="text-xs text-green-700 dark:text-green-400">Atuais</div>
-                  <StudentCountCard studentFilter="Mestrado - Alunos atuais" />
+            <div className="flex-1 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800 p-5 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-800 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-green-600 dark:text-green-300" />
                 </div>
-                <div className="text-center">
-                  <div className="text-xs text-green-700 dark:text-green-400">Concluídos</div>
-                  <StudentCountCard studentFilter="Mestrado - Alunos concluídos" />
+                <span className="text-green-800 dark:text-green-300 font-bold text-lg">Alunos do Mestrado</span>
+              </div>
+              <div className="border-t border-green-200 dark:border-green-700" />
+              <div className="flex gap-4">
+                <div className="flex-1 text-center space-y-1">
+                  <div className="text-sm font-semibold text-green-700 dark:text-green-400">Atuais</div>
+                  <StudentCountCard studentFilter="Mestrado - Alunos atuais" className="text-green-600" />
+                </div>
+                <div className="w-px bg-green-200 dark:bg-green-700" />
+                <div className="flex-1 text-center space-y-1">
+                  <div className="text-sm font-semibold text-green-700 dark:text-green-400">Concluídos</div>
+                  <StudentCountCard studentFilter="Mestrado - Alunos concluídos" className="text-green-600" />
                 </div>
               </div>
             </div>
 
             {/* Grupo Doutorado */}
-            <div className="flex items-center gap-3 bg-blue-50 dark:bg-blue-900/20 px-4 py-3 rounded-lg border border-blue-200 dark:border-blue-800">
-              <span className="text-blue-800 dark:text-blue-300 font-semibold text-sm whitespace-nowrap">
-                Alunos do Doutorado
-              </span>
-              <div className="flex gap-4">
-                <div className="text-center">
-                  <div className="text-xs text-blue-700 dark:text-blue-400">Atuais</div>
-                  <StudentCountCard studentFilter="Doutorado - Alunos atuais" />
+            <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-5 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
+                  <GraduationCap className="h-6 w-6 text-blue-600 dark:text-blue-300" />
                 </div>
-                <div className="text-center">
-                  <div className="text-xs text-blue-700 dark:text-blue-400">Concluídos</div>
-                  <StudentCountCard studentFilter="Doutorado - Alunos concluídos" />
+                <span className="text-blue-800 dark:text-blue-300 font-bold text-lg">Alunos do Doutorado</span>
+              </div>
+              <div className="border-t border-blue-200 dark:border-blue-700" />
+              <div className="flex gap-4">
+                <div className="flex-1 text-center space-y-1">
+                  <div className="text-sm font-semibold text-blue-700 dark:text-blue-400">Atuais</div>
+                  <StudentCountCard studentFilter="Doutorado - Alunos atuais" className="text-blue-600" />
+                </div>
+                <div className="w-px bg-blue-200 dark:bg-blue-700" />
+                <div className="flex-1 text-center space-y-1">
+                  <div className="text-sm font-semibold text-blue-700 dark:text-blue-400">Concluídos</div>
+                  <StudentCountCard studentFilter="Doutorado - Alunos concluídos" className="text-blue-600" />
                 </div>
               </div>
             </div>
@@ -255,16 +276,12 @@ export default function Dashboard() {
         <section id="quality" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-              <CardTitle className="text-base sm:text-lg lg:text-xl">Produções por qualis</CardTitle>
-              {/*
-              <Tabs defaultValue="all">
-                <TabsList>
-                  <TabsTrigger value="all">Todas</TabsTrigger>
-                  <TabsTrigger value="journals">Em periódicos</TabsTrigger>
-                  <TabsTrigger value="conferences">Em conferências</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              */}
+              <div className="flex items-center gap-3">
+                <CardTitle className="text-base sm:text-lg lg:text-xl">Produções por qualis</CardTitle>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => refetchQuery('productionPerQualis', setIsRefetchingQualis)} disabled={isRefetchingQualis} title="Atualizar">
+                  <RotateCw className={cn('h-4 w-4', isRefetchingQualis && 'animate-spin')} />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <ProductionPerQualisChart />
@@ -307,11 +324,18 @@ export default function Dashboard() {
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                 <CardTitle className="text-base sm:text-lg lg:text-xl">Defesas por ano</CardTitle>
-                <TabsList className="grid grid-cols-3 w-full sm:w-auto">
-                  <TabsTrigger value="all" className="text-xs sm:text-sm">Todas</TabsTrigger>
-                  <TabsTrigger value="mestrado" className="text-xs sm:text-sm">Mestrado</TabsTrigger>
-                  <TabsTrigger value="doutorado" className="text-xs sm:text-sm">Doutorado</TabsTrigger>
-                </TabsList>
+
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => refetchQuery('defenses_per_year', setIsRefetchingDefenses)} disabled={isRefetchingDefenses} title="Atualizar">
+                    <RotateCw className={cn('h-4 w-4', isRefetchingDefenses && 'animate-spin')} />
+                  </Button>
+
+                  <TabsList className="grid grid-cols-3 w-full sm:w-auto">
+                    <TabsTrigger value="all" className="text-xs sm:text-sm">Todas</TabsTrigger>
+                    <TabsTrigger value="mestrado" className="text-xs sm:text-sm">Mestrado</TabsTrigger>
+                    <TabsTrigger value="doutorado" className="text-xs sm:text-sm">Doutorado</TabsTrigger>
+                  </TabsList>
+                </div>
               </CardHeader>
               <CardContent className="p-2 sm:p-4 lg:p-6">
                 <TabsContent value='all'><DefensesPerYearChart filter='todos' /></TabsContent>
@@ -344,7 +368,7 @@ export default function Dashboard() {
 
       </main>
 
-      {/* Footer - Mobile First */}
+      {/* Footer - Mobile First 
       <footer className="w-full border-t py-6 sm:py-8 lg:py-10 bg-neutral-900 dark:bg-neutral-950 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
@@ -377,7 +401,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
