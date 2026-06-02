@@ -22,11 +22,15 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                if ($request->wantsJson()) {
-                    return redirect('/api/user');
+                if ($request->is('login') || $request->is('api/login')) {
+                    return $next($request);
                 }
 
-                return redirect(RouteServiceProvider::HOME);
+                if ($request->is('api/*')) {
+                    return response()->json(['message' => 'Already authenticated.'], 200);
+                }
+
+                return redirect(config('app.front_url', '/'));
             }
         }
 

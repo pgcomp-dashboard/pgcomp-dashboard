@@ -17,7 +17,7 @@ class GetQualisTest extends TestCase
         $user = User::factory()->create([
             'email' => 'admin+'.uniqid().'@example.com',
             'password' => Hash::make($password),
-            'type' => 'guest',
+            'type' => 'manager',
             'is_admin' => true,
         ]);
 

@@ -13,4 +13,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/test', function () {});
+Route::get('/', function () {
+    return response()->json([
+        'app' => config('app.name'),
+        'version' => '1.0.0',
+        'status' => 'Healthy',
+        'environment' => app()->environment(),
+        'message' => 'This is the API backend. Please visit https://pgcomp.app.ic.ufba.br for the application.'
+    ]);
+});

@@ -1,0 +1,93 @@
+<?php
+
+namespace Tests\Unit\Services\Admin;
+
+use App\Enums\UserType;
+use App\Models\Configuration;
+use App\Models\User;
+use App\Models\Production;
+use App\Models\Publishers;
+use App\Models\StratumQualis;
+use App\Services\Admin\AccreditationService;
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class AccreditationServiceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected AccreditationService $service;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->service = new AccreditationService();
+    }
+
+    public function test_accreditation_logic_or_condition()
+    {
+        // Setup rules
+        Configuration::updateOrCreate(
+            ['group' => 'accreditation', 'key' => 'rules'],
+            ['value' => json_encode([
+                'initial_year' => 2020,
+                'final_year' => 2024,
+                'is_pq_required' => true,
+                'min_journals' => 2,
+                'min_score' => 100,
+            ]), 'type' => 'json']
+        );
+
+        // Case 1: Meets score and journals -> Accredited
+        $user1 = User::factory()->create(['type' => UserType::PROFESSOR, 'pq' => false]);
+        $this->createProductions($user1, 2, 'A1', 2022); // 2 * 100 = 200 score
+
+        // Case 2: Is PQ and is_pq_required is true -> Accredited (even if failing score/journals)
+        $user2 = User::factory()->create(['type' => UserType::PROFESSOR, 'pq' => true]);
+        $this->createProductions($user2, 1, 'A1', 2022); // 1 * 100 = 100 score, but only 1 journal
+
+        // Case 3: Failing everything -> Not Accredited
+        $user3 = User::factory()->create(['type' => UserType::PROFESSOR, 'pq' => false]);
+        $this->createProductions($user3, 1, 'B1', 2022); // 1 * 40 = 40 score, 0 A1-A4
+
+        // Case 4: Meets score but fails journals (they are conferences)
+        $user4 = User::factory()->create(['type' => UserType::PROFESSOR, 'pq' => false]);
+        $this->createProductions($user4, 10, 'A1', 2022, 'conference'); // 10 * 100 = 1000 score, but 0 journals
+
+        $ranking = $this->service->getAccreditationRanking(2020, 2024);
+
+        $this->assertTrue($ranking->where('user_id', $user1->id)->first()->is_accredited, "User 1 should be accredited (score/journals)");
+        $this->assertTrue($ranking->where('user_id', $user2->id)->first()->is_accredited, "User 2 should be accredited (is PQ)");
+        $this->assertFalse($ranking->where('user_id', $user3->id)->first()->is_accredited, "User 3 should NOT be accredited");
+
+        $user4RankingEntry = $ranking->where('user_id', $user4->id)->first();
+        $this->assertEquals(0, $user4RankingEntry->a1_a4_count);
+        $this->assertEquals(0, $user4RankingEntry->qualis_breakdown['A1'] ?? 0);
+        $this->assertEquals(0, $user4RankingEntry->qualis_breakdown['A2'] ?? 0);
+        $this->assertEquals(1000.0, $user4RankingEntry->total_score); // 10 conferences * 100 score each
+        $this->assertFalse($user4RankingEntry->is_accredited, "User 4 should NOT be accredited (fails journals)");
+    }
+
+    private function createProductions($user, $count, $qualisCode, $year, $type = 'journal')
+    {
+        $qualis = StratumQualis::where('code', $qualisCode)->first();
+        if (!$qualis) {
+            $qualis = StratumQualis::create([
+                'code' => $qualisCode,
+                'score' => $qualisCode === 'A1' ? 100 : 40,
+            ]);
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $publisher = Publishers::factory()->create([
+                'stratum_qualis_id' => $qualis->id,
+                'publisher_type' => $type
+            ]);
+            $production = Production::factory()->create([
+                'publisher_id' => $publisher->id,
+                'year' => $year
+            ]);
+            $user->writerOf()->attach($production->id);
+        }
+    }
+}

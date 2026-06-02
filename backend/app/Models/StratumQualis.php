@@ -2,18 +2,21 @@
 
 namespace App\Models;
 
+use App\Enums\PublisherType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * App\Models\StratumQualis
  *
  * @property int $id
  * @property string $code
- * @property int $score
+ * @property float $score
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  *
@@ -28,47 +31,27 @@ use Illuminate\Support\Carbon;
  *
  * @mixin Eloquent
  */
-class StratumQualis extends BaseModel
+class StratumQualis extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'type',
         'code',
         'score',
     ];
 
     /**
-     * @return array creation rules to validate attributes.
-     */
-    public static function creationRules(): array
-    {
-        return [
-            'code' => 'required|string|max:2',
-            'score' => 'required|int',
-        ];
-    }
-
-    /**
-     * finds a certain stratuns qualis from a code
+     * finds a certain stratum qualis from a code
      *
      * @param string code
      * @param array columns
      * @return self stratumQualis by code
      */
-    public static function findByCode(string $code, array $columns = ['*']): self
+    public static function findByCode(string $code, string $type, array $columns = ['*']): self
     {
-        return self::where('code', $code)->firstOrFail($columns);
-    }
-
-    /**
-     * @return array update rules to validate attributes.
-     */
-    public function updateRules(): array
-    {
-        return [
-            'code' => 'string|max:2',
-            'score' => 'int',
-        ];
+        return self::where('type', $type)
+        ->where('code', $code)->firstOrFail($columns);
     }
 
     /**
@@ -82,33 +65,60 @@ class StratumQualis extends BaseModel
     public function totalProductionsPerQualis($user_type, $course_id, $publisher_type): array
     {
         $years = range(2014, Carbon::now()->year);
-        $stratumQualis = StratumQualis::orderByDesc('score')->get();
-        $data = [];
-        /** @var StratumQualis $qualis */
-        foreach ($stratumQualis as $qualis) {
-            $qualisData = ['label' => $qualis->code, 'data' => []];
+
+        // Define the desired Qualis order
+        $qualisOrder = ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C', 'NI'];
+
+        // Fetch counts grouped by year and stratum_qualis_id
+        $counts = Production::query()
+            ->select('year', 'stratum_qualis_id', DB::raw('count(*) as total'))
+            ->whereIn('year', $years)
+            ->when($publisher_type, function (Builder $q, $publisherType) {
+                $q->whereHas('publisher', function (Builder $pq) use ($publisherType) {
+                    $pq->where('publisher_type', $publisherType);
+                });
+            })
+            ->when($user_type, function (Builder $q, $userType) {
+                $q->whereHas('isWroteBy', function (Builder $uq) use ($userType) {
+                    $uq->where('type', $userType);
+                });
+            })
+            ->when($course_id, function (Builder $q, $courseId) {
+                $q->whereHas('isWroteBy', function (Builder $uq) use ($courseId) {
+                    $uq->where('course_id', $courseId);
+                });
+            })
+            ->groupBy('year', 'stratum_qualis_id')
+            ->get();
+
+        // Get Qualis codes mapping
+        $qualisMap = StratumQualis::pluck('code', 'id');
+
+        // Aggregate by code and year
+        $aggregated = [];
+        foreach ($counts as $count) {
+            $code = $qualisMap[$count->stratum_qualis_id] ?? 'NI';
             foreach ($years as $year) {
-                $qualisData['data'][] = Production::whereStratumQualisId($qualis->id)
-                    ->where('year', $year)
-                    ->when($publisher_type, function (Builder $builder, $publisherType) {
-                        $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
-                            $q->where('publisher_type', $publisherType);
-                        });
-                    })
-                    ->when($user_type, function (Builder $builder, $userType) {
-                        $builder->whereHas('isWroteBy', function (Builder $builder) use ($userType) {
-                            $builder->where('type', $userType);
-                        });
-                    })
-                    ->when($course_id, function (Builder $builder, $courseId) {
-                        $builder->whereHas('isWroteBy', function (Builder $builder) use ($courseId) {
-                            $builder->where('course_id', $courseId);
-                        });
-                    })
-                    ->distinct()
-                    ->count();
+                if (!isset($aggregated[$code][$year])) {
+                    $aggregated[$code][$year] = 0;
+                }
             }
-            $data[] = $qualisData;
+            $aggregated[$code][$count->year] += $count->total;
+        }
+
+        $data = [];
+        foreach ($qualisOrder as $code) {
+            $yearData = [];
+            foreach ($years as $year) {
+                $yearData[] = $aggregated[$code][$year] ?? 0;
+            }
+            // Só adiciona se houver algum valor maior que zero em algum ano para esse qualis
+            // OU se for um dos principais que sempre queremos mostrar na legenda?
+            // O componente original filtrava se existia no retorno do banco.
+            // Vamos manter a lógica de mostrar apenas os que tem dados pra não poluir.
+            if (array_sum($yearData) > 0) {
+                $data[] = ['label' => $code, 'data' => $yearData];
+            }
         }
 
         return compact('years', 'data');

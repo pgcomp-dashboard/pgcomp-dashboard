@@ -2,41 +2,44 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserType;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
+            'type' => UserType::STUDENT,
+            'is_admin' => false, // Default to a regular user
+            'admin_status' => null,
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
-     *
-     * @return static
+     * State for Admin Users
      */
-    public function unverified()
+    public function admin(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'email_verified_at' => null,
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => true,
+        ]);
+    }
+
+    /**
+     * State for Users awaiting approval
+     */
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'admin_status' => 'pending',
+        ]);
     }
 }

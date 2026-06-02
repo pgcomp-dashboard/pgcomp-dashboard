@@ -10,14 +10,14 @@ enum UserType: string
 
     case STUDENT = 'student';
     case PROFESSOR = 'professor';
-    case GUEST = 'guest';
+    case MANAGER = 'manager';
 
     public function label(): string
     {
         return match ($this) {
             self::PROFESSOR => 'doscente',
             self::STUDENT => 'discente',
-            self::GUEST => 'visitante',
+            self::MANAGER => 'administrador',
         };
     }
 }

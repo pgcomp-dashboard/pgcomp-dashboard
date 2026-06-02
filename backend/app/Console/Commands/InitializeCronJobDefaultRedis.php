@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
+//use Illuminate\Support\Facades\Redis;
 
 class InitializeCronJobDefaultRedis extends Command
 {
@@ -15,8 +16,8 @@ class InitializeCronJobDefaultRedis extends Command
     {
         $key = 'scraping:run';
 
-        if (!Redis::exists($key)) {
-            Redis::set($key, 7);
+        if (!Cache::has($key)) {
+            Cache::set($key, 7);
             $this->info("Key '{$key}' created with 7 days");
         } else {
             $this->info("Key '{$key}' already exists");
