@@ -1,6 +1,3 @@
-import { Button } from '@/components/ui/button';
-import { RotateCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { colorFromName } from "@/utils/color.ts";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -36,7 +33,7 @@ export default function ProductionPerQualisChart() {
     }
   }, []);
 
-  const { data: response, isLoading, error, isFetching, refetch } = useQuery({
+  const { data: response, isLoading, error } = useQuery({
     queryKey: ["productionPerQualis"],
     queryFn: () => dashboardService.productionPerQualis(),
     enabled: !!auth?.isAdmin,
@@ -80,12 +77,6 @@ export default function ProductionPerQualisChart() {
       {years.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-
-      <div className="flex justify-end mb-2">
-        <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
-          <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
-        </Button>
-      </div>
 
       <ChartScrollWrapper
         minWidth={chartWidth}

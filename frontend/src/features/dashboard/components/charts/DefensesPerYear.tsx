@@ -1,6 +1,3 @@
-import { Button } from '@/components/ui/button';
-import { RotateCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { ChartContainer } from '@/components/ui/chart';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -80,11 +77,6 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
       {data && data.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-      <div className="flex justify-end mb-2">
-        <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
-          <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
-        </Button>
-      </div>
       <ChartScrollWrapper
         minWidth={chartWidth}
         isScrollable={isScrollable}
