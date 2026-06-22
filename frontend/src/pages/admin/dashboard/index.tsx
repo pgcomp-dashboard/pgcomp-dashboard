@@ -29,6 +29,11 @@ import { useQueryClient } from '@tanstack/react-query';
 export default function Dashboard() {
   //const [ lastExecution, setLastExecution ] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  
+  // 👇 Novos estados adicionados
+  const [ productionType, setProductionType ] = useState<'journal' | 'conference' | undefined>(undefined);
+  const [ isRefetchingProductions, setIsRefetchingProductions ] = useState(false);
+  
   const [isRefetchingQualis, setIsRefetchingQualis] = useState(false);
   const [isRefetchingDefenses, setIsRefetchingDefenses] = useState(false);
 
@@ -252,21 +257,28 @@ export default function Dashboard() {
           </div>
         </section>
 
-
+        {/* 👇 Seção de publicações atualizada com os novos controles */}
         <section id="publications" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <CardTitle className="text-base sm:text-lg lg:text-xl">Produções científicas por ano</CardTitle>
-              <Tabs defaultValue="all">
-                <TabsList>
-                  <TabsTrigger value="all">Todas</TabsTrigger>
-                  <TabsTrigger value="journals">Em periódicos</TabsTrigger>
-                  <TabsTrigger value="conferences">Em conferências</TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="flex items-center gap-2">
+                <select
+                  value={productionType ?? ''}
+                  onChange={e => setProductionType(e.target.value === '' ? undefined : e.target.value as 'journal' | 'conference')}
+                  className="border rounded px-2 py-1 text-sm bg-background h-8"
+                >
+                  <option value="">Todos</option>
+                  <option value="journal">Periódicos</option>
+                  <option value="conference">Conferências</option>
+                </select>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => refetchQuery('totalProductionsPerYear', setIsRefetchingProductions)} disabled={isRefetchingProductions} title="Atualizar">
+                  <RotateCw className={cn('h-4 w-4', isRefetchingProductions && 'animate-spin')} />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
-              <ProductionsPerYearChart />
+              <ProductionsPerYearChart publisherType={productionType} />
             </CardContent>
           </Card>
         </section>
@@ -402,4 +414,4 @@ export default function Dashboard() {
       </footer> */}
     </div>
   );
-}
+} 
