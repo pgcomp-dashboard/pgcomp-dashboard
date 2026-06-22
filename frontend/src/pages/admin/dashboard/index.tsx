@@ -257,7 +257,6 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <CardTitle className="text-base sm:text-lg lg:text-xl">Produções científicas por ano</CardTitle>
-              {/*
               <Tabs defaultValue="all">
                 <TabsList>
                   <TabsTrigger value="all">Todas</TabsTrigger>
@@ -265,7 +264,6 @@ export default function Dashboard() {
                   <TabsTrigger value="conferences">Em conferências</TabsTrigger>
                 </TabsList>
               </Tabs>
-              */}
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <ProductionsPerYearChart />
