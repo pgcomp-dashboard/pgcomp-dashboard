@@ -71,6 +71,7 @@ export default function ProfessorProductionPerYear() {
     from: undefined,
     to: undefined,
   });
+  const [ publisherType, setPublisherType ] = useState<'journal' | 'conference' | undefined>(undefined);
 
   const { data: professors, error: professorsError } = useQuery({
     queryKey: ['professors', 'dashboard'],
@@ -85,8 +86,13 @@ export default function ProfessorProductionPerYear() {
   });
 
   const { data: productions, error, isFetching, refetch } = useQuery({
-    queryKey: ['professorProductionPerYear', currentProfessorId, period.from, period.to],
-    queryFn: () => dashboardService.professorProductionPerYear(currentProfessorId as number, period.from, period.to),
+    queryKey: [ 'professorProductionPerYear', currentProfessorId, period.from, period.to, publisherType ],
+    queryFn: () => dashboardService.professorProductionPerYear(
+      currentProfessorId as number,
+      period.from,
+      period.to,
+      publisherType
+    ),
     enabled: currentProfessorId !== null,
   });
 
@@ -140,7 +146,7 @@ export default function ProfessorProductionPerYear() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Produções de um professor por ano</CardTitle>
-        <div className='flex flex-row space-x-2'>
+        <div className='flex flex-row items-center space-x-2'>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant='outline'><Settings2 /></Button>
@@ -197,9 +203,22 @@ export default function ProfessorProductionPerYear() {
               </Form>
             </DialogContent>
           </Dialog>
+          
           <Button variant='outline' size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
             <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
           </Button>
+
+          {/* NOVO SELECT DE TIPO DE PUBLICAÇÃO */}
+          <select
+            value={publisherType ?? ''}
+            onChange={e => setPublisherType(e.target.value === '' ? undefined : e.target.value as 'journal' | 'conference')}
+            className="border rounded px-2 py-1 text-sm h-10 bg-background"
+          >
+            <option value="">Todos</option>
+            <option value="journal">Periódicos</option>
+            <option value="conference">Conferências</option>
+          </select>
+
           <Select value={currentProfessorId?.toString()} onValueChange={v => setCurrentProfessorId(parseInt(v))}>
             <SelectTrigger className="w-[280px]">
               <SelectValue placeholder="Selecione um professor" />
