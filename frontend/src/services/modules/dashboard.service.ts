@@ -35,13 +35,13 @@ export const dashboardService = {
     return response.data;
   },
 
-  async professorProductionPerYear(professorId: number, startYear?: number, endYear?: number) {
+  async professorProductionPerYear(professorId: number, startYear?: number, endYear?: number, publisherType?: 'journal' | 'conference') {
     const year = new Date().getFullYear();
     const from = startYear ?? year - 2;
     const to = endYear ?? year;
     const response = await apiClient.get<{ productions: { [key: string]: number } }>(
       `/api/admin/dashboard/professor/${professorId}/productions`,
-      { anoInicial: from, anoFinal: to },
+      { anoInicial: from, anoFinal: to, publisher_type: publisherType },
     );
     return response.productions;
   },

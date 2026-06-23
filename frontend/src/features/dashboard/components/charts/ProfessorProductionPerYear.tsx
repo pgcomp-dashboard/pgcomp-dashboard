@@ -1,4 +1,4 @@
-import { RotateCw } from 'lucide-react';
+import { RotateCw, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { configurationService } from '@/services/modules/configuration.service';
 import { Button } from '@/components/ui/button';
@@ -11,14 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { colorFromName } from '@/utils/color';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { Settings2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react'; // Importado useRef
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   TooltipProps,
@@ -29,15 +29,13 @@ import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipCont
 import { z } from 'zod';
 import './chart.css';
 
-// Importando suporte à expansão com scroll
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
 import useAuth from '@/hooks/auth';
 import { dashboardService } from '@/services/modules/dashboard.service';
 import ChartScrollWrapper from './ChartScrollWrapper';
 
-// Definir o número máximo de barras visíveis antes de ativar a rolagem
-const MAX_VISIBLE_BARS = 15; // Ajuste este valor conforme necessário
+const MAX_VISIBLE_BARS = 15;
 
 const periodFormSchema = z.object({
   from: z.coerce.number().min(2014, 'Ano não pode ser antes de 2014'),
@@ -71,6 +69,7 @@ export default function ProfessorProductionPerYear() {
     from: undefined,
     to: undefined,
   });
+  const [ publisherType, setPublisherType ] = useState<'journal' | 'conference' | undefined>(undefined);
 
   const { data: professors, error: professorsError } = useQuery({
     queryKey: ['professors', 'dashboard'],
@@ -85,8 +84,13 @@ export default function ProfessorProductionPerYear() {
   });
 
   const { data: productions, error, isFetching, refetch } = useQuery({
-    queryKey: ['professorProductionPerYear', currentProfessorId, period.from, period.to],
-    queryFn: () => dashboardService.professorProductionPerYear(currentProfessorId as number, period.from, period.to),
+    queryKey: [ 'professorProductionPerYear', currentProfessorId, period.from, period.to, publisherType ],
+    queryFn: () => dashboardService.professorProductionPerYear(
+      currentProfessorId as number,
+      period.from,
+      period.to,
+      publisherType
+    ),
     enabled: currentProfessorId !== null,
   });
 
@@ -133,14 +137,14 @@ export default function ProfessorProductionPerYear() {
 
   const chartData = Object.entries(productions ?? {}).map(([year, amount]) => ({
     year,
-    amount: amount as number, // Garante que amount é um número
+    amount: amount as number,
   }));
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <CardTitle>Produções de um professor por ano</CardTitle>
-        <div className='flex flex-row space-x-2'>
+        <div className='flex flex-wrap items-center gap-2'>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant='outline'><Settings2 /></Button>
@@ -197,9 +201,21 @@ export default function ProfessorProductionPerYear() {
               </Form>
             </DialogContent>
           </Dialog>
+          
           <Button variant='outline' size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
             <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
           </Button>
+
+          <select
+            value={publisherType ?? ''}
+            onChange={e => setPublisherType(e.target.value === '' ? undefined : e.target.value as 'journal' | 'conference')}
+            className="border rounded px-2 py-1 text-sm h-10 bg-background"
+          >
+            <option value="">Todos</option>
+            <option value="journal">Periódicos</option>
+            <option value="conference">Conferências</option>
+          </select>
+
           <Select value={currentProfessorId?.toString()} onValueChange={v => setCurrentProfessorId(parseInt(v))}>
             <SelectTrigger className="w-[280px]">
               <SelectValue placeholder="Selecione um professor" />
@@ -213,14 +229,13 @@ export default function ProfessorProductionPerYear() {
         </div>
       </CardHeader>
       <CardContent>
-        {/* Renderiza o novo componente com suporte a rolagem */}
         <InternalProductionChartWithScroll chartData={chartData} />
       </CardContent>
     </Card>
   );
 }
 
-// Novo componente para o gráfico com rolagem e expansão
+// Componente interno para o gráfico com rolagem, expansão e a linha de média
 function InternalProductionChartWithScroll({ chartData }: { chartData: { year: string, amount: number }[] }) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [, setChartHeight] = useState<number>(0);
@@ -232,11 +247,15 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
   }, []);
 
   const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(
-    chartData.length, // Usamos chartData.length para determinar o número de barras
+    chartData.length,
     MAX_VISIBLE_BARS,
   );
 
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
+
+  // Cálculos para a linha de média que você havia adicionado
+  const totalProductions = chartData.reduce((sum, entry) => sum + entry.amount, 0);
+  const mediaProducoes = chartData.length ? totalProductions / chartData.length : 0;
 
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
@@ -244,12 +263,10 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
 
   return (
     <>
-      {/* Mostrar botão apenas se houver mais do que o máximo visível */}
       {chartData.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
 
-      {/* Div com scroll horizontal e largura mínima dinâmica */}
       <ChartScrollWrapper
         minWidth={chartWidth}
         isScrollable={isScrollable}
@@ -276,7 +293,7 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                   dataKey="year"
                   interval={0}
                   tickFormatter={(name) =>
-                    name.length > 15 ? name.slice(0, 15) + '...' : name
+                    String(name).length > 15 ? String(name).slice(0, 15) + '...' : String(name)
                   }
                   style={{ fontSize }}
                 />
@@ -284,9 +301,24 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                 <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
                 <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: labelFontSize } }}>
                   {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colorFromName(entry.year)} />
+                    <Cell key={`cell-${index}`} fill={colorFromName((parseInt(entry.year, 10) + 1).toString())} />
                   ))}
                 </Bar>
+                
+                {/* Linha de média restaurada aqui */}
+                <ReferenceLine 
+                  y={mediaProducoes} 
+                  stroke="#212121" 
+                  strokeDasharray="3 3" 
+                  label={{ 
+                    value: `Média: ${mediaProducoes.toFixed(1)}`, 
+                    position: 'top', 
+                    fontSize: isMobile ? 14 : 16, 
+                    fontWeight: 'bold', 
+                    fill: '#212121' 
+                  }} 
+                />
+                
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>

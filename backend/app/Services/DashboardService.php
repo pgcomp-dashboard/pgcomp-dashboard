@@ -118,11 +118,14 @@ class DashboardService
         });
     }
 
-    public function getProfessorProduction($professorId, $anoInicial, $anoFinal)
+    public function getProfessorProduction($professorId, $anoInicial, $anoFinal, ?string $publisherType = null)
     {
         $producoes = Production::join('users_productions', 'productions.id', '=', 'users_productions.productions_id')
             ->where('users_productions.users_id', $professorId)
             ->whereBetween('productions.year', [$anoInicial, $anoFinal])
+            ->when($publisherType, function ($q) use ($publisherType) {
+                $q->where('publisher_type', $publisherType);
+            })
             ->selectRaw('productions.year as ano, COUNT(*) as total')
             ->groupBy('productions.year')
             ->orderBy('productions.year')
@@ -207,5 +210,4 @@ class DashboardService
 
         return ['years' => $yearsRange, 'data' => $data];
     }
-
 }

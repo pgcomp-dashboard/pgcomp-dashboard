@@ -133,7 +133,7 @@ class DashboardController extends Controller
     public function studentCountPerArea(Request $request): array
     {
         // return ['fields' => ['CG', 'Análise de Dados', 'I.A',],
-        //        'data' => [12, 3, 5,]];
+        //         'data' => [12, 3, 5,]];
 
         $data = $request->validate([
             'selectedFilter' => 'nullable|string|in:mestrando,doutorando,completed',
@@ -165,26 +165,32 @@ class DashboardController extends Controller
     public function professorProduction(Request $request, $professorId)
     {
         $validated = $request->validate([
-            'anoInicial' => 'nullable|int',
-            'anoFinal' => 'nullable|int',
+            'anoInicial'    => 'nullable|int',
+            'anoFinal'      => 'nullable|int',
+            'publisher_type' => 'nullable|string|in:journal,conference',
         ]);
 
-        $anoAtual = (int) date('Y');
+        $anoAtual   = (int) date('Y');
         $anoInicial = $validated['anoInicial'] ?? $anoAtual - 2;
-        $anoFinal = $validated['anoFinal'] ?? $anoAtual;
+        $anoFinal   = $validated['anoFinal'] ?? $anoAtual;
 
         if ($anoInicial >= $anoFinal) {
-            throw ValidationException::withMessages(['anoInicial não pode ser maior ou igual ao ano final!']);
+            throw ValidationException::withMessages(['anoInicial' => 'Ano inicial não pode ser maior ou igual ao ano final!']);
         }
 
         $professor = User::where('id', $professorId)
             ->where('type', UserType::PROFESSOR)
             ->firstOrFail();
 
-        $resultado = $this->dashboardService->getProfessorProduction($professorId, $anoInicial, $anoFinal);
+        $resultado = $this->dashboardService->getProfessorProduction(
+            $professorId,
+            $anoInicial,
+            $anoFinal,
+            $validated['publisher_type'] ?? null,
+        );
 
         return response()->json([
-            'professor' => $professor->name,
+            'professor'   => $professor->name,
             'productions' => $resultado,
         ]);
     }

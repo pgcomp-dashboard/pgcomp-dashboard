@@ -134,28 +134,29 @@ export default function StudentsPerAdvisorChart() {
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <CardTitle>Quantidade de Alunos por Orientador</CardTitle>
-          <Tabs defaultValue="all" onValueChange={e => {
-            if (e == 'all') {
-              setFilter(undefined);
-            } else {
-              setFilter(e as StudentsPerAdvisorFilter);
-            }
-          }}>
-            <TabsList>
-              <TabsTrigger value="all">Atuais</TabsTrigger>
-              <TabsTrigger value="mestrando">Mestrando</TabsTrigger>
-              <TabsTrigger value="doutorando">Doutorando</TabsTrigger>
-              <TabsTrigger value="completed">Concluídos</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <div className="flex w-full space-x-4 items-center justify-end">
+          
+          <div className="flex flex-wrap items-center gap-2">
             {chartData.length > MAX_VISIBLE_BARS && (
               <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
             )}
+            
+            <Tabs defaultValue="all" onValueChange={e => {
+              if (e == 'all') {
+                setFilter(undefined);
+              } else {
+                setFilter(e as StudentsPerAdvisorFilter);
+              }
+            }}>
+              <TabsList>
+                <TabsTrigger value="all">Atuais</TabsTrigger>
+                <TabsTrigger value="mestrando">Mestrando</TabsTrigger>
+                <TabsTrigger value="doutorando">Doutorando</TabsTrigger>
+                <TabsTrigger value="completed">Concluídos</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
             <Button 
               variant='outline' 
               size="icon" 
@@ -165,6 +166,7 @@ export default function StudentsPerAdvisorChart() {
             >
               <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
             </Button>
+
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant='outline'><User /></Button>
@@ -178,7 +180,7 @@ export default function StudentsPerAdvisorChart() {
                 <div className="max-h-120 overflow-y-scroll flex flex-col space-y-5">
                   {
                     professors.map(p => (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3" key={p.id}>
                         <Checkbox onCheckedChange={() => toggleProfessorVisibility(p.id)} checked={isProfessorVisible(p.id)} />
                         <span>{p.name}</span>
                       </div>
@@ -195,7 +197,9 @@ export default function StudentsPerAdvisorChart() {
               </DialogContent>
             </Dialog>
           </div>
-
+        </CardHeader>
+        
+        <CardContent>
           {/* 👇 Scroll horizontal com largura mínima dinâmica */}
           <ChartScrollWrapper
             minWidth={chartWidth}

@@ -1,7 +1,3 @@
-
-import { Button } from '@/components/ui/button';
-import { RotateCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { ChartContainer } from '@/components/ui/chart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
@@ -11,36 +7,20 @@ import { colorFromName } from '@/utils/color';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Bar,
-  BarChart, CartesianGrid,
-  Cell,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis, YAxis,
+  Bar, BarChart, CartesianGrid, Cell,
+  ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 15;
 
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: Array<{ value: number }>;
-  label?: string;
-}) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white p-3 border-2 rounded">
         <b>{label}</b>
-        <br />
         {payload.map((ele, index) => (
-          <div key={index}>
-            Produções em {label} : {ele.value}
-          </div>
+          <div key={index}>Produções em {label} : {ele.value}</div>
         ))}
       </div>
     );
@@ -48,12 +28,15 @@ const CustomTooltip = ({
   return null;
 };
 
-export default function AllProductionsPerYear() {
-  const auth = useAuth();
-  const [publisherType, setPublisherType] = useState<'journal' | 'conference' | undefined>(undefined);
+interface AllProductionsPerYearProps {
+  publisherType?: 'journal' | 'conference';
+}
 
-  const { data: productions, error, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ['totalProductionsPerYear', publisherType],
+export default function AllProductionsPerYear({ publisherType }: AllProductionsPerYearProps) {
+  const auth = useAuth();
+
+  const { data: productions, error, isLoading } = useQuery({
+    queryKey: [ 'totalProductionsPerYear', publisherType ],
     queryFn: () => dashboardService.totalProductionsPerYear(publisherType),
     enabled: !!auth?.isAdmin,
   });
@@ -61,62 +44,26 @@ export default function AllProductionsPerYear() {
   if (isLoading) return <>Carregando...</>;
   if (error) return <>Erro ao carregar o gráfico</>;
 
-  const chartData = Object.entries(productions ?? {}).map(([year, amount]) => ({
+  const chartData = Object.entries(productions ?? {}).map(([ year, amount ]) => ({
     year,
-    amount: amount as number, // Garante que amount é um número
+    amount: amount as number,
   }));
 
-  return (
-    <div className="p-4">
-      <div className="mb-4 flex gap-2 items-center">
-        <label htmlFor="publisherType">Tipo de produção:</label>
-        <select
-          id="publisherType"
-          value={publisherType ?? ''}
-          onChange={e => setPublisherType(e.target.value === '' ? undefined : (e.target.value as 'journal' | 'conference'))}
-          className="border rounded px-2 py-1"
-        >
-          <option value="">Todos</option>
-          <option value="journal">Periódico</option>
-          <option value="conference">Conferência</option>
-        </select>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => refetch()}
-          disabled={isFetching}
-          title="Atualizar"
-        >
-          <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
-        </Button>
-      </div>
-
-      <InternalProductionChartWithScroll chartData={chartData} />
-    </div>
-  );
+  return <InternalProductionChartWithScroll chartData={chartData} />;
 }
 
-function InternalProductionChartWithScroll({ chartData }: { chartData: { year: string, amount: number }[] }) {
+function InternalProductionChartWithScroll({ chartData }: { chartData: { year: string; amount: number }[] }) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const [, setChartHeight] = useState<number>(0);
+  const [, setChartHeight ] = useState<number>(0);
 
   useEffect(() => {
-    if (chartRef.current) {
-      setChartHeight(chartRef.current.clientHeight);
-    }
+    if (chartRef.current) setChartHeight(chartRef.current.clientHeight);
   }, []);
 
-  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(
-    chartData.length,
-    MAX_VISIBLE_BARS,
-  );
-
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(chartData.length, MAX_VISIBLE_BARS);
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
-
-  const totalProductions = chartData.reduce((sum, entry) => sum + entry.amount, 0);
-  const mediaProducoes = chartData.length ? totalProductions / chartData.length : 0;
-
-  // Tamanhos de fonte responsivos
+  {/* const totalProductions = chartData.reduce((sum, entry) => sum + entry.amount, 0);
+  const mediaProducoes = chartData.length ? totalProductions / chartData.length : 0; */}
   const fontSize = isMobile ? 11 : 18;
   const labelFontSize = isMobile ? 12 : 18;
 
@@ -125,56 +72,24 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
       {chartData.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-      <ChartScrollWrapper
-        minWidth={chartWidth}
-        isScrollable={isScrollable}
-        className={marginBottom}
-      >
+      <ChartScrollWrapper minWidth={chartWidth} isScrollable={isScrollable} className={marginBottom}>
         <div ref={chartRef}>
           <ChartContainer
-            config={{
-              year: { label: 'Ano', color: 'hsl(var(--chart-2))' },
-              amount: { label: 'Número', color: 'hsl(var(--chart-3))' },
-            }}
+            config={{ year: { label: 'Ano', color: 'hsl(var(--chart-2))' }, amount: { label: 'Número', color: 'hsl(var(--chart-3))' } }}
             className="w-full h-[400px]"
           >
             <ResponsiveContainer width="100%" height={400}>
               <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="year"
-                  interval={0}
-                  tickFormatter={(name) =>
-                    String(name).length > 15 ? String(name).slice(0, 15) + '...' : String(name)
-                  }
-                  style={{ fontSize }}
-                />
+                <XAxis dataKey="year" interval={0} tickFormatter={(name) => String(name).length > 15 ? String(name).slice(0, 15) + '...' : String(name)} style={{ fontSize }} />
                 <YAxis style={{ fontSize }} />
-                <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-                <Bar
-                  dataKey="amount"
-                  fill="#8884d8"
-                  label={{ position: 'top', style: { fontSize: labelFontSize } }}
-                >
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: labelFontSize } }}>
                   {chartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colorFromName((parseInt(entry.year, 10) + 1).toString())}
-                    />
+                    <Cell key={`cell-${index}`} fill={colorFromName((parseInt(entry.year, 10) + 1).toString())} />
                   ))}
                 </Bar>
-                <ReferenceLine
-                  y={mediaProducoes}
-                  stroke="#212121"
-                  strokeDasharray="3 3"
-                  label={{
-                    value: `Média: ${mediaProducoes.toFixed(1)}`,
-                    position: 'top',
-                    fontSize: isMobile ? 14 : 16,
-                    fontWeight: 'bold',
-                    fill: '#212121',
-                  }}
-                />
+                {/* <ReferenceLine y={mediaProducoes} stroke="#212121" strokeDasharray="3 3" label={{ value: `Média: ${mediaProducoes.toFixed(1)}`, position: 'top', fontSize: isMobile ? 14 : 16, fontWeight: 'bold', fill: '#212121' }} /> */}
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
