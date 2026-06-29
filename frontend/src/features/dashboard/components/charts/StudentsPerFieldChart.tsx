@@ -40,7 +40,6 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
   const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(chartData.length, MAX_VISIBLE_BARS);
 
   const totalEstudantes = chartData.reduce((acc, curr) => acc + curr.value, 0);
-  const mediaPorArea = chartData.length ? totalEstudantes / chartData.length : 0;
 
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;

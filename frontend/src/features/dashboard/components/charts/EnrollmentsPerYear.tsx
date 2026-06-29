@@ -53,12 +53,6 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
 
   const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart((data ?? []).length, MAX_VISIBLE_BARS);
 
-  const totalDefesas = (data ?? []).reduce((sum, item) => {
-    if (filter === 'mestrado') return sum + item.mestrado;
-    if (filter === 'doutorado') return sum + item.doutorado;
-    return sum + item.mestrado + item.doutorado;
-  }, 0);
-
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
   const labelFontSize = isMobile ? 12 : 18;
