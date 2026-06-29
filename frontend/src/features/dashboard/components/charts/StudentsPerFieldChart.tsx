@@ -4,7 +4,7 @@ import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChar
 import { dashboardService } from '@/services/modules/dashboard.service';
 import { colorFromName } from '@/utils/color.ts';
 import { useQuery } from '@tanstack/react-query';
-import { Bar, BarChart, CartesianGrid, Cell, ReferenceLine, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import './chart.css';
 import ChartScrollWrapper from './ChartScrollWrapper';
@@ -104,18 +104,6 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
                   <Cell key={`cell-${index}`} fill={colorFromName(entry.name)} />
                 ))}
               </Bar>
-              <ReferenceLine
-                y={mediaPorArea}
-                stroke="#212121"
-                strokeDasharray="3 3"
-                label={{
-                  value: `Média: ${mediaPorArea.toFixed(1)}`,
-                  position: 'top',
-                  fontSize: isMobile ? 14 : 16,
-                  fontWeight: 'bold',
-                  fill: '#212121',
-                }}
-              />
             </BarChart>
           </ChartContainer>
         </div>

@@ -18,7 +18,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   TooltipProps,
@@ -253,10 +252,6 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
 
   const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
 
-  // Cálculos para a linha de média que você havia adicionado
-  const totalProductions = chartData.reduce((sum, entry) => sum + entry.amount, 0);
-  const mediaProducoes = chartData.length ? totalProductions / chartData.length : 0;
-
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
   const labelFontSize = isMobile ? 12 : 18;
@@ -304,20 +299,6 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                     <Cell key={`cell-${index}`} fill={colorFromName((parseInt(entry.year, 10) + 1).toString())} />
                   ))}
                 </Bar>
-                
-                {/* Linha de média restaurada aqui */}
-                <ReferenceLine 
-                  y={mediaProducoes} 
-                  stroke="#212121" 
-                  strokeDasharray="3 3" 
-                  label={{ 
-                    value: `Média: ${mediaProducoes.toFixed(1)}`, 
-                    position: 'top', 
-                    fontSize: isMobile ? 14 : 16, 
-                    fontWeight: 'bold', 
-                    fill: '#212121' 
-                  }} 
-                />
                 
               </BarChart>
             </ResponsiveContainer>

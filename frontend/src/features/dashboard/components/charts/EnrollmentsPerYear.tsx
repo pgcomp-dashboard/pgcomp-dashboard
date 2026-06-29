@@ -1,6 +1,3 @@
-import { Button } from '@/components/ui/button';
-import { RotateCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { ChartContainer } from '@/components/ui/chart';
 import ExpandChartButton from '@/components/ui/ExpandChartButton';
 import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
@@ -13,7 +10,6 @@ import {
   CartesianGrid,
   LabelList,
   Legend,
-  ReferenceLine,
   Tooltip,
   TooltipProps,
   XAxis,
@@ -46,7 +42,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado' | 'doutorado' | 'todos' }) {
   const auth = useAuth();
-  const { data, isLoading, error, isFetching, refetch } = useQuery({
+  const { data, isLoading, error} = useQuery({
     queryKey: ['enrollments_per_year'],
     queryFn: async () => {
       const response = await dashboardService.enrollmentsPerYear();
@@ -63,8 +59,6 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
     return sum + item.mestrado + item.doutorado;
   }, 0);
 
-  const mediaPorAno = data?.length ? totalDefesas / data.length : 0;
-
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
   const labelFontSize = isMobile ? 12 : 18;
@@ -78,11 +72,6 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
       {data && data.length > MAX_VISIBLE_BARS && (
         <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
       )}
-      <div className="flex justify-end mb-2">
-        <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
-          <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
-        </Button>
-      </div>
       <ChartScrollWrapper
         minWidth={chartWidth}
         isScrollable={isScrollable}
@@ -129,18 +118,7 @@ export default function EnrollmentsPerYearChart({ filter }: { filter?: 'mestrado
               formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
               wrapperStyle={{ fontSize: `${legendFontSize}px` }}
             />
-            <ReferenceLine
-              y={mediaPorAno}
-              stroke="red"
-              strokeDasharray="3 3"
-              label={{
-                value: `Média: ${mediaPorAno.toFixed(2)}`,
-                position: 'top',
-                fontSize: isMobile ? 14 : 16,
-                fontWeight: 'bold',
-                fill: 'red',
-              }}
-            />
+      
           </BarChart>
         </ChartContainer>
       </ChartScrollWrapper>

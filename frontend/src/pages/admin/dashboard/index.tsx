@@ -36,6 +36,7 @@ export default function Dashboard() {
   
   const [isRefetchingQualis, setIsRefetchingQualis] = useState(false);
   const [isRefetchingDefenses, setIsRefetchingDefenses] = useState(false);
+  const [ isRefetchingEnrollments, setIsRefetchingEnrollments ] = useState(false);
 
   async function refetchQuery(key: string, setLoading: (v: boolean) => void) {
     setLoading(true);
@@ -257,7 +258,6 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* 👇 Seção de publicações atualizada com os novos controles */}
         <section id="publications" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
@@ -361,11 +361,16 @@ export default function Dashboard() {
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                 <CardTitle className="text-base sm:text-lg lg:text-xl">Matrículas por ano</CardTitle>
-                <TabsList className="grid grid-cols-3 w-full sm:w-auto">
-                  <TabsTrigger value="all" className="text-xs sm:text-sm">Todas</TabsTrigger>
-                  <TabsTrigger value="mestrado" className="text-xs sm:text-sm">Mestrado</TabsTrigger>
-                  <TabsTrigger value="doutorado" className="text-xs sm:text-sm">Doutorado</TabsTrigger>
-                </TabsList>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => refetchQuery('enrollments_per_year', setIsRefetchingEnrollments)} disabled={isRefetchingEnrollments} title="Atualizar">
+                    <RotateCw className={cn('h-4 w-4', isRefetchingEnrollments && 'animate-spin')} />
+                  </Button>
+                  <TabsList className="grid grid-cols-3 w-full sm:w-auto">
+                    <TabsTrigger value="all" className="text-xs sm:text-sm">Todas</TabsTrigger>
+                    <TabsTrigger value="mestrado" className="text-xs sm:text-sm">Mestrado</TabsTrigger>
+                    <TabsTrigger value="doutorado" className="text-xs sm:text-sm">Doutorado</TabsTrigger>
+                  </TabsList>
+                </div>
               </CardHeader>
               <CardContent className="p-2 sm:p-4 lg:p-6">
                 <TabsContent value='all'><EnrollmentsPerYearChart filter='todos' /></TabsContent>
@@ -414,4 +419,4 @@ export default function Dashboard() {
       </footer> */}
     </div>
   );
-} 
+}
