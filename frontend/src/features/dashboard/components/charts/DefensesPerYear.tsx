@@ -6,7 +6,6 @@ import {
   CartesianGrid,
   LabelList,
   Legend,
-  ReferenceLine,
   Tooltip,
   TooltipProps,
   XAxis,
@@ -62,7 +61,6 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
     return sum + item.mestrado + item.doutorado;
   }, 0);
 
-  const mediaPorAno = data?.length ? totalDefesas / data.length : 0;
 
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
@@ -123,18 +121,7 @@ export default function DefensesPerYearChart({ filter }: { filter?: 'mestrado' |
               formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
               wrapperStyle={{ fontSize: `${legendFontSize}px` }}
             />
-            <ReferenceLine
-              y={mediaPorAno}
-              stroke="red"
-              strokeDasharray="3 3"
-              label={{
-                value: `Média: ${mediaPorAno.toFixed(2)}`,
-                position: 'top',
-                fontSize: isMobile ? 14 : 16,
-                fontWeight: 'bold',
-                fill: 'red',
-              }}
-            />
+      
           </BarChart>
         </ChartContainer>
       </ChartScrollWrapper>
