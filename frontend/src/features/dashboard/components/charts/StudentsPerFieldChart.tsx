@@ -39,8 +39,6 @@ export default function StudentsPerFieldChart({ filter }: { filter?: 'mestrando'
   // 👇 Hook sempre será chamado, mesmo com chartData vazio
   const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(chartData.length, MAX_VISIBLE_BARS);
 
-  const totalEstudantes = chartData.reduce((acc, curr) => acc + curr.value, 0);
-
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
   const labelFontSize = isMobile ? 12 : 18;
