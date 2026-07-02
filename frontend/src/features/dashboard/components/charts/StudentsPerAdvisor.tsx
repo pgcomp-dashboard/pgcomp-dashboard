@@ -63,15 +63,17 @@ type StudentsPerAdvisorFilter = 'mestrando' | 'doutorando' | 'completed' | undef
 
 export default function StudentsPerAdvisorChart() {
   const auth = useAuth();
-  const [ filter, setFilter ] = useState<StudentsPerAdvisorFilter>(undefined);
-  const [ visibleProfessors, setVisibleProfessors ] = useState(new Map<number, boolean>());
+  const [filter, setFilter] = useState<StudentsPerAdvisorFilter>(undefined);
+  const [visibleProfessors, setVisibleProfessors] = useState(new Map<number, boolean>());
 
   const { data: queryData, error: queryError, isLoading: queryIsLoading, isFetching, refetch } = useQuery({
-    queryKey: [ 'totalStudentsPerAdvisor', filter ],
+    queryKey: ['totalStudentsPerAdvisor', filter],
     queryFn: async () => {
       return dashboardService.totalStudentsPerAdvisor(filter);
     },
     enabled: !!auth?.isAdmin,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: professors, error: professorsError } = useQuery({
@@ -81,7 +83,7 @@ export default function StudentsPerAdvisorChart() {
   });
 
   const chartData = Object.entries(queryData ?? {})
-    .map(([, advisor_info ]) => ({
+    .map(([, advisor_info]) => ({
       id: advisor_info.id,
       name: advisor_info.name,
       quantity: advisor_info.advisedes_count,
@@ -100,10 +102,10 @@ export default function StudentsPerAdvisorChart() {
 
   useEffect(() => {
     if (professors) {
-      const map = new Map(professors.map(p => [ p.id, true ]));
+      const map = new Map(professors.map(p => [p.id, true]));
       setVisibleProfessors(map);
     }
-  }, [ professors ]);
+  }, [professors]);
 
   if (professorsError) {
     return <>Falha ao carregar professores!</>;
@@ -136,12 +138,12 @@ export default function StudentsPerAdvisorChart() {
       <Card>
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <CardTitle>Quantidade de Alunos por Orientador</CardTitle>
-          
+
           <div className="flex flex-wrap items-center gap-2">
             {chartData.length > MAX_VISIBLE_BARS && (
               <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
             )}
-            
+
             <Tabs defaultValue="all" onValueChange={e => {
               if (e == 'all') {
                 setFilter(undefined);
@@ -157,11 +159,11 @@ export default function StudentsPerAdvisorChart() {
               </TabsList>
             </Tabs>
 
-            <Button 
-              variant='outline' 
-              size="icon" 
-              onClick={() => refetch()} 
-              disabled={isFetching} 
+            <Button
+              variant='outline'
+              size="icon"
+              onClick={() => refetch()}
+              disabled={isFetching}
               title="Atualizar"
             >
               <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
@@ -198,7 +200,7 @@ export default function StudentsPerAdvisorChart() {
             </Dialog>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           {/* 👇 Scroll horizontal com largura mínima dinâmica */}
           <ChartScrollWrapper
