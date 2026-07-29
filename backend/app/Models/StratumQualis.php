@@ -60,9 +60,10 @@ class StratumQualis extends Model
      * @param  string  $user_type  indicating whether you are a teacher or student
      * @param  int  $course_id  id do course.
      * @param  string  $publichser_type  can be conference or journal
+     * @param  array|null  $qualis_codes  array of qualis codes to filter
      * @return array array with productions separated by qualis
      */
-    public function totalProductionsPerQualis($user_type, $course_id, $publisher_type): array
+    public function totalProductionsPerQualis($user_type, $course_id, $publisher_type, ?array $qualis_codes = null): array
     {
         $years = range(2014, Carbon::now()->year);
 
@@ -87,6 +88,10 @@ class StratumQualis extends Model
                 $q->whereHas('isWroteBy', function (Builder $uq) use ($courseId) {
                     $uq->where('course_id', $courseId);
                 });
+            })
+            ->when($qualis_codes, function (Builder $q, $codes) {
+                $ids = StratumQualis::whereIn('code', $codes)->pluck('id');
+                $q->whereIn('stratum_qualis_id', $ids);
             })
             ->groupBy('year', 'stratum_qualis_id')
             ->get();

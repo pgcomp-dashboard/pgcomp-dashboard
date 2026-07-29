@@ -1,6 +1,5 @@
-import { colorFromName } from "@/utils/color.ts";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { RotateCw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -11,21 +10,40 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
+} from 'recharts';
+import { useQuery } from '@tanstack/react-query';
 
-// 👇 Importando suporte à expansão com scroll
-import ExpandChartButton from "@/components/ui/ExpandChartButton";
-import { useExpandableChart } from "@/features/dashboard/hooks/useExpandableChart";
-import useAuth from "@/hooks/auth";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ExpandChartButton from '@/components/ui/ExpandChartButton';
+import { MultiSelect } from '@/components/ui/multi-select';
+import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
+import useAuth from '@/hooks/auth';
+import { cn } from '@/lib/utils';
 import { dashboardService } from '@/services/modules/dashboard.service';
-import ChartScrollWrapper from "./ChartScrollWrapper";
+import { colorFromName } from '@/utils/color';
+import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 15;
+
+const QUALIS_OPTIONS = [
+  { label: 'A1', value: 'A1' },
+  { label: 'A2', value: 'A2' },
+  { label: 'A3', value: 'A3' },
+  { label: 'A4', value: 'A4' },
+  { label: 'B1', value: 'B1' },
+  { label: 'B2', value: 'B2' },
+  { label: 'B3', value: 'B3' },
+  { label: 'B4', value: 'B4' },
+];
 
 export default function ProductionPerQualisChart() {
   const auth = useAuth();
   const chartRef = useRef<HTMLDivElement>(null);
-  const [, setChartHeight] = useState<number>(0);
+  const [ , setChartHeight ] = useState<number>(0);
+
+  const [ selectedQualis, setSelectedQualis ] = useState<string[]>(QUALIS_OPTIONS.map((o) => o.value));
+  const [ publisherType, setPublisherType ] = useState<'journal' | 'conference' | undefined>(undefined);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -33,130 +51,144 @@ export default function ProductionPerQualisChart() {
     }
   }, []);
 
-  const { data: response, isLoading, error } = useQuery({
-    queryKey: ["productionPerQualis"],
-    queryFn: () => dashboardService.productionPerQualis(),
+  // todos selecionados = sem filtro (comportamento igual ao anterior)
+  const qualisFilter = selectedQualis.length === QUALIS_OPTIONS.length ? undefined : selectedQualis;
+
+  const { data: response, isLoading, error, refetch, isFetching } = useQuery({
+    queryKey: [ 'productionPerQualis', publisherType, qualisFilter ],
+    queryFn: () => dashboardService.productionPerQualis(publisherType, undefined, qualisFilter),
     enabled: !!auth?.isAdmin,
   });
 
   const years: number[] = Array.isArray(response?.years) ? response.years : [];
-  const data: { label: string; data: number[] }[] = Array.isArray(
-    response?.data,
-  )
-    ? response.data
-    : [];
+  const data: { label: string; data: number[] }[] = Array.isArray(response?.data) ? response.data : [];
 
-  // Hook de controle de expansão (antes do return)
-  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } =
-    useExpandableChart(years.length, MAX_VISIBLE_BARS);
-  const marginBottom = isScrollable ? "mb-24" : "mb-16";
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(years.length, MAX_VISIBLE_BARS);
+  const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
 
-  // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
   const legendFontSize = isMobile ? 13 : 18;
   const labelFontSize = isMobile ? 10 : 16;
 
-  if (isLoading) return <>Carregando...</>;
-  if (error) return <>Erro ao carregar o gráfico</>;
-
-  // Organize data for each year
   const chartData = years.map((year, index) => {
     const entry: Record<string, unknown> = { year };
-    data.forEach(({ label, data }) => {
-      entry[label] = data[index];
+    data.forEach(({ label, data: values }) => {
+      entry[label] = values[index];
     });
     return entry;
   });
 
-  const qualisOrder = ["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C", "NI"];
+  const qualisOrder = [ 'A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C', 'NI' ];
   const allQualis = qualisOrder.filter((q) => data.some((d) => d.label === q));
-  const qualisForBars = [...allQualis].reverse(); // NI primeiro, A1 por cima
+  const qualisForBars = [ ...allQualis ].reverse();
 
   return (
-    <>
-      {years.length > MAX_VISIBLE_BARS && (
-        <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
-      )}
+    <Card>
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <CardTitle>Produções por qualis</CardTitle>
+        <div className="flex flex-wrap items-center gap-2">
+          <MultiSelect
+            options={QUALIS_OPTIONS}
+            selected={selectedQualis}
+            onChange={setSelectedQualis}
+            placeholder="Qualis"
+          />
 
-      <ChartScrollWrapper
-        minWidth={chartWidth}
-        isScrollable={isScrollable}
-        className={marginBottom}
-      >
-        <div ref={chartRef}>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={chartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" tick={{ fontSize }} />
-              <YAxis tick={{ fontSize }} />
-              <Tooltip
-                content={({ active, payload, label }) => {
-                  if (active && payload?.length) {
-                    const sorted = [...payload].reverse(); // A1 no topo
-                    return (
-                      <div className="bg-white p-3 border rounded text-sm">
-                        <b>{label}</b>
-                        {sorted.map((entry, i) => (
-                          <div key={i} style={{ color: entry.fill }}>
-                            {entry.dataKey} : {entry.value}
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Legend
-                wrapperStyle={{ fontSize: legendFontSize }}
-                payload={allQualis.map((qualis) => ({
-                  value: qualis,
-                  type: "square",
-                  color: colorFromName(qualis),
-                  id: qualis,
-                }))}
-              />
-              {qualisForBars.map((qualis) => (
-                <Bar
-                  key={qualis}
-                  dataKey={qualis}
-                  stackId="a"
-                  fill={colorFromName(qualis)}
-                  stroke="#ffffff"
-                >
-                  <LabelList
-                    dataKey={qualis}
-                    position="center"
-                    content={({ x, y, width, height, value }) => {
-                      const numX = Number(x);
-                      const numY = Number(y);
-                      const numWidth = Number(width);
-                      const numHeight = Number(height);
-                      if (!value || Number(value) === 0) return null;
-                      return (
-                        <text
-                          x={numX + numWidth / 2}
-                          y={numY + numHeight / 2}
-                          fill="#fff"
-                          fontSize={labelFontSize}
-                          fontWeight="bold"
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          {value}
-                        </text>
-                      );
-                    }}
-                  />
-                </Bar>
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
+          <select
+            value={publisherType ?? ''}
+            onChange={(e) => setPublisherType(e.target.value === '' ? undefined : e.target.value as 'journal' | 'conference')}
+            className="border rounded px-2 py-1 text-sm h-10 bg-background"
+          >
+            <option value="">Todos</option>
+            <option value="journal">Periódicos</option>
+            <option value="conference">Conferências</option>
+          </select>
+
+          <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
+            <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+          </Button>
         </div>
-      </ChartScrollWrapper>
-    </>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <>Carregando...</>
+        ) : error ? (
+          <>Erro ao carregar o gráfico</>
+        ) : (
+          <>
+            {years.length > MAX_VISIBLE_BARS && (
+              <ExpandChartButton expanded={expanded} toggleExpand={toggleExpand} />
+            )}
+
+            <ChartScrollWrapper minWidth={chartWidth} isScrollable={isScrollable} className={marginBottom}>
+              <div ref={chartRef}>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="year" tick={{ fontSize }} />
+                    <YAxis tick={{ fontSize }} />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload?.length) {
+                          const sorted = [ ...payload ].reverse();
+                          return (
+                            <div className="bg-white p-3 border rounded text-sm">
+                              <b>{label}</b>
+                              {sorted.map((entry, i) => (
+                                <div key={i} style={{ color: entry.fill }}>
+                                  {entry.dataKey} : {entry.value}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: legendFontSize }}
+                      payload={allQualis.map((qualis) => ({
+                        value: qualis,
+                        type: 'square',
+                        color: colorFromName(qualis),
+                        id: qualis,
+                      }))}
+                    />
+                    {qualisForBars.map((qualis) => (
+                      <Bar key={qualis} dataKey={qualis} stackId="a" fill={colorFromName(qualis)} stroke="#ffffff">
+                        <LabelList
+                          dataKey={qualis}
+                          position="center"
+                          content={({ x, y, width, height, value }) => {
+                            const numX = Number(x);
+                            const numY = Number(y);
+                            const numWidth = Number(width);
+                            const numHeight = Number(height);
+                            if (!value || Number(value) === 0) return null;
+                            return (
+                              <text
+                                x={numX + numWidth / 2}
+                                y={numY + numHeight / 2}
+                                fill="#fff"
+                                fontSize={labelFontSize}
+                                fontWeight="bold"
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                              >
+                                {value}
+                              </text>
+                            );
+                          }}
+                        />
+                      </Bar>
+                    ))}
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartScrollWrapper>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
