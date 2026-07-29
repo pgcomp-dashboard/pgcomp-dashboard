@@ -18,8 +18,15 @@ export const dashboardService = {
     return apiClient.get<{ [key: string]: number }>('/api/admin/dashboard/subfields', { selectedFilter: filter });
   },
 
-  async productionPerQualis() {
-    return apiClient.get<{ [key: string]: number }>('/api/admin/dashboard/production_per_qualis');
+  async productionPerQualis(publisherType?: 'journal' | 'conference', userType?: 'docente' | 'mestrando' | 'doutorando', qualis?: string[]) {
+    return apiClient.get<{ years: number[]; data: { label: string; data: number[] }[] }>(
+      '/api/admin/dashboard/production_per_qualis',
+      {
+        publisher_type: publisherType,
+        user_type: userType,
+        qualis: qualis && qualis.length > 0 ? qualis.join(',') : undefined,
+      },
+    );
   },
 
   async defensesPerYear(filter?: 'mestrado' | 'doutorado') {
@@ -60,6 +67,7 @@ export const dashboardService = {
       { category: `${course} - Alunos concluídos`, amount: students.completed },
     ]).flat();
   },
+  
   async getPendingSummary() {
     return apiClient.get<{
       registrations: number;

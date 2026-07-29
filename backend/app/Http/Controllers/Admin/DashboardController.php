@@ -19,6 +19,7 @@ class DashboardController extends Controller
     {
         $this->dashboardService = $dashboardService;
     }
+    
     public function advisors(Request $request)
     {
         $userType = $request->input('user_type');
@@ -115,7 +116,6 @@ class DashboardController extends Controller
 
     public function productionPerQualis(Request $request)
     {
-
         $publisher_type = $request->input('publisher_type');
 
         $filter = match ($request->input('user_type')) {
@@ -125,9 +125,17 @@ class DashboardController extends Controller
             default => [null, null]
         };
 
+        $qualisInput = $request->input('qualis');
+        $qualis_codes = $qualisInput ? explode(',', $qualisInput) : null;
+
         $qualis = new StratumQualis;
 
-        return $qualis->totalProductionsPerQualis(user_type: $filter[0], course_id: $filter[1], publisher_type: $publisher_type);
+        return $qualis->totalProductionsPerQualis(
+            user_type: $filter[0],
+            course_id: $filter[1],
+            publisher_type: $publisher_type,
+            qualis_codes: $qualis_codes
+        );
     }
 
     public function studentCountPerArea(Request $request): array
