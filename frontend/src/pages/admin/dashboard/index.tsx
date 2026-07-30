@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 import StudentsPerAdvisorChart from '@/features/dashboard/components/charts/StudentsPerAdvisor';
 // import StudentsPerFieldChart from '@/components/charts/StudentsPerFieldChart.tsx';
@@ -26,6 +27,17 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
+const QUALIS_OPTIONS = [
+  { label: 'A1', value: 'A1' },
+  { label: 'A2', value: 'A2' },
+  { label: 'A3', value: 'A3' },
+  { label: 'A4', value: 'A4' },
+  { label: 'B1', value: 'B1' },
+  { label: 'B2', value: 'B2' },
+  { label: 'B3', value: 'B3' },
+  { label: 'B4', value: 'B4' },
+];
+
 export default function Dashboard() {
   //const [ lastExecution, setLastExecution ] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -33,6 +45,9 @@ export default function Dashboard() {
   // 👇 Novos estados adicionados
   const [ productionType, setProductionType ] = useState<'journal' | 'conference' | undefined>(undefined);
   const [ isRefetchingProductions, setIsRefetchingProductions ] = useState(false);
+  
+  const [selectedQualis, setSelectedQualis] = useState<string[]>(['A1','A2','A3','A4','B1','B2','B3','B4']);
+  const [qualisPublisherType, setQualisPublisherType] = useState<'journal' | 'conference' | undefined>(undefined);
   
   const [isRefetchingQualis, setIsRefetchingQualis] = useState(false);
   const [isRefetchingDefenses, setIsRefetchingDefenses] = useState(false);
@@ -286,15 +301,33 @@ export default function Dashboard() {
         <section id="quality" className="space-y-4 sm:space-y-6 min-h-100 sm:min-h-125">
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-              <div className="flex items-center gap-3">
-                <CardTitle className="text-base sm:text-lg lg:text-xl">Produções por qualis</CardTitle>
+              <CardTitle className="text-base sm:text-lg lg:text-xl">Produções por qualis</CardTitle>
+              <div className="flex flex-wrap items-center gap-2">
+                <MultiSelect
+                  options={QUALIS_OPTIONS}
+                  selected={selectedQualis}
+                  onChange={setSelectedQualis}
+                  placeholder="Qualis"
+                />
+                <select
+                  value={qualisPublisherType ?? ''}
+                  onChange={e => setQualisPublisherType(e.target.value === '' ? undefined : e.target.value as 'journal' | 'conference')}
+                  className="border rounded px-2 py-1 text-sm bg-background h-8"
+                >
+                  <option value="">Todos</option>
+                  <option value="journal">Periódicos</option>
+                  <option value="conference">Conferências</option>
+                </select>
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => refetchQuery('productionPerQualis', setIsRefetchingQualis)} disabled={isRefetchingQualis} title="Atualizar">
                   <RotateCw className={cn('h-4 w-4', isRefetchingQualis && 'animate-spin')} />
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
-              <ProductionPerQualisChart />
+              <ProductionPerQualisChart
+                publisherType={qualisPublisherType}
+                selectedQualis={selectedQualis}
+              />
             </CardContent>
           </Card>
         </section>
