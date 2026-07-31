@@ -33,6 +33,7 @@ import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChar
 import useAuth from '@/hooks/auth';
 import { dashboardService } from '@/services/modules/dashboard.service';
 import ChartScrollWrapper from './ChartScrollWrapper';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 const MAX_VISIBLE_BARS = 15;
 
@@ -40,6 +41,13 @@ const periodFormSchema = z.object({
   from: z.coerce.number().min(2014, 'Ano não pode ser antes de 2014'),
   to: z.coerce.number().max(new Date().getFullYear(), 'Ano não pode ser maior que o atual'),
 });
+
+const QUALIS_OPTIONS = [
+  { label: 'A1', value: 'A1' }, { label: 'A2', value: 'A2' },
+  { label: 'A3', value: 'A3' }, { label: 'A4', value: 'A4' },
+  { label: 'B1', value: 'B1' }, { label: 'B2', value: 'B2' },
+  { label: 'B3', value: 'B3' }, { label: 'B4', value: 'B4' },
+];
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload?.length) {
@@ -68,7 +76,8 @@ export default function ProfessorProductionPerYear() {
     from: undefined,
     to: undefined,
   });
-  const [ publisherType, setPublisherType ] = useState<'journal' | 'conference' | undefined>(undefined);
+  const [publisherType, setPublisherType] = useState<'journal' | 'conference' | undefined>(undefined);
+  const [selectedQualis, setSelectedQualis] = useState<string[]>(QUALIS_OPTIONS.map(o => o.value));
 
   const { data: professors, error: professorsError } = useQuery({
     queryKey: ['professors', 'dashboard'],
@@ -82,13 +91,16 @@ export default function ProfessorProductionPerYear() {
     enabled: !!auth?.isAdmin,
   });
 
+  const qualisFilter = selectedQualis.length === QUALIS_OPTIONS.length ? undefined : selectedQualis;
+
   const { data: productions, error, isFetching, refetch } = useQuery({
-    queryKey: [ 'professorProductionPerYear', currentProfessorId, period.from, period.to, publisherType ],
+    queryKey: ['professorProductionPerYear', currentProfessorId, period.from, period.to, publisherType, qualisFilter],
     queryFn: () => dashboardService.professorProductionPerYear(
       currentProfessorId as number,
       period.from,
       period.to,
-      publisherType
+      publisherType,
+      qualisFilter
     ),
     enabled: currentProfessorId !== null,
   });
@@ -200,10 +212,17 @@ export default function ProfessorProductionPerYear() {
               </Form>
             </DialogContent>
           </Dialog>
-          
+
           <Button variant='outline' size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
             <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
           </Button>
+
+          <MultiSelect
+            options={QUALIS_OPTIONS}
+            selected={selectedQualis}
+            onChange={setSelectedQualis}
+            placeholder="Qualis"
+          />
 
           <select
             value={publisherType ?? ''}
@@ -299,7 +318,7 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
                     <Cell key={`cell-${index}`} fill={colorFromName((parseInt(entry.year, 10) + 1).toString())} />
                   ))}
                 </Bar>
-                
+
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
