@@ -118,13 +118,17 @@ class DashboardService
         });
     }
 
-    public function getProfessorProduction($professorId, $anoInicial, $anoFinal, ?string $publisherType = null)
+    public function getProfessorProduction($professorId, $anoInicial, $anoFinal, ?string $publisherType = null, ?array $qualis_codes = null)
     {
         $producoes = Production::join('users_productions', 'productions.id', '=', 'users_productions.productions_id')
             ->where('users_productions.users_id', $professorId)
             ->whereBetween('productions.year', [$anoInicial, $anoFinal])
             ->when($publisherType, function ($q) use ($publisherType) {
                 $q->where('publisher_type', $publisherType);
+            })
+            ->when($qualis_codes, function ($q) use ($qualis_codes) {
+                $ids = StratumQualis::whereIn('code', $qualis_codes)->pluck('id');
+                $q->whereIn('productions.stratum_qualis_id', $ids);
             })
             ->selectRaw('productions.year as ano, COUNT(*) as total')
             ->groupBy('productions.year')
