@@ -42,13 +42,24 @@ export const dashboardService = {
     return response.data;
   },
 
-  async professorProductionPerYear(professorId: number, startYear?: number, endYear?: number, publisherType?: 'journal' | 'conference') {
+  async professorProductionPerYear(
+    professorId: number,
+    startYear?: number,
+    endYear?: number,
+    publisherType?: 'journal' | 'conference',
+    qualis?: string[]
+  ) {
     const year = new Date().getFullYear();
     const from = startYear ?? year - 2;
     const to = endYear ?? year;
     const response = await apiClient.get<{ productions: { [key: string]: number } }>(
       `/api/admin/dashboard/professor/${professorId}/productions`,
-      { anoInicial: from, anoFinal: to, publisher_type: publisherType },
+      {
+        anoInicial: from,
+        anoFinal: to,
+        publisher_type: publisherType,
+        qualis: qualis && qualis.length > 0 ? qualis.join(',') : undefined,
+      },
     );
     return response.productions;
   },
@@ -62,12 +73,12 @@ export const dashboardService = {
       }
     >;
 
-    return Object.entries(response).map(([ course, students ]) => [
+    return Object.entries(response).map(([course, students]) => [
       { category: `${course} - Alunos atuais`, amount: students.in_progress },
       { category: `${course} - Alunos concluídos`, amount: students.completed },
     ]).flat();
   },
-  
+
   async getPendingSummary() {
     return apiClient.get<{
       registrations: number;
