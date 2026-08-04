@@ -375,9 +375,9 @@ class LattesZipXml
         // --- <sigla>/<sigla-alt> - <nome> OU <sigla> - <nome> OU <sigla>: <nome> ---
         // Procura algo no começo seguido de '/', '-', ou ':' e depois o nome
         // Ex: "IEEE/ACM - International Conference" ou "ICML - Conference" ou "SBC: Simpósio"
-        if (preg_match('/^([A-Z0-9\/\-]+)(?:\s*[\-\:]\s*)(.+)$/i', $texto, $matches)) {
+        if (preg_match('/^([A-Z0-9]+)(?:\/[A-Z0-9]+)*\s*[\-\:]\s*(.+)$/i', $texto, $matches)) {
             $siglaExtraida = trim($matches[1]);
-        } 
+        }
 
         return $siglaExtraida ? mb_strtoupper($siglaExtraida) : null;
     }
