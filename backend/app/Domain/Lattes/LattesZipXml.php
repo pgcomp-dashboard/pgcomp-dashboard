@@ -349,14 +349,14 @@ class LattesZipXml
     }
 
     // remove números ordinais do texto, como "1st", "2nd", "3rd", "4th", etc.
-    public function removeOrdinalNumbers($text)
+    public static function removeOrdinalNumbers($text)
     {
         $pattern = '/^\d+(?:º|ª|°|st|nd|rd|th)\.?\s*/ui';
         return preg_replace($pattern, '', $text);
     }
 
     // corrige espaçamento antes e depois de pontuações
-    public function correctText($text)
+    public static function correctText($text)
     {
         $texto = preg_replace('/\s+([,\.\?!])/', '$1', $text);
         
@@ -367,7 +367,7 @@ class LattesZipXml
         return trim($texto);
     }
 
-    public function getConferenceAcronym(string $textoSujo) {
+    public static function getConferenceAcronym(string $textoSujo) {
         $texto = trim($textoSujo);
         
         $siglaExtraida = null;
@@ -382,7 +382,7 @@ class LattesZipXml
         return $siglaExtraida ? mb_strtoupper($siglaExtraida) : null;
     }
 
-    function removerNumerosExtenso($texto) {
+    public function removerNumerosExtenso($texto) {
 
     // CARDINAIS - Português
     $cardinais_pt = [
