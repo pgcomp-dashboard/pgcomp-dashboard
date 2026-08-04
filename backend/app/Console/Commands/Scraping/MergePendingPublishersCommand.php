@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\Publishers;
+use App\Models\Production;
+use App\Services\PublisherService; // Ajuste para o namespace real do seu service
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+
+class MergePendingPublishers extends Command
+{
+    protected $signature = 'publishers:merge-pending';
+    protected $description = 'Busca publishers não aprovados, encontra um correspondente aprovado, migra as productions preenchendo o original_publisher_id';
+
+    public function handle(PublisherService $publisherService)
+    {
+        $this->info('Iniciando a busca por publishers não aprovados...');
+        $pendingPublishers = Publishers::onlyPending()->get();
+
+        if ($pendingPublishers->isEmpty()) {
+            $this->info('Nenhum publisher pendente encontrado.');
+            return 0;
+        }
+
+        $bar = $this->output->createProgressBar($pendingPublishers->count());
+        $bar->start();
+
+        $migratedCount = 0;
+
+        foreach ($pendingPublishers as $pending) {
+
+            $approvedPublisher = $publisherService->findPublisherByConferenceName($pending->name, true);
+
+            if ($approvedPublisher && $approvedPublisher->id !== $pending->id) {
+                
+                DB::transaction(function () use ($pending, $approvedPublisher) {
+                    // Atualiza as productions ligadas ao pendente, movendo para o aprovado 
+                    // e gravando o publisher original na coluna 'original_publisher_id'
+                    Production::where('publisher_id', $pending->id)->update([
+                        'original_publisher_id' => $pending->id,
+                        'publisher_id' => $approvedPublisher->id
+                    ]);
+                    
+                    // $pending->delete(); 
+                });
+
+                $migratedCount++;
+            }
+
+            $bar->advance();
+        }
+
+        $bar->finish();
+        $this->newLine();
+        $this->info("Processo concluído! Total de publishers pendentes mesclados com sucesso: {$migratedCount}");
+
+        return 0;
+    }
+}

@@ -234,4 +234,197 @@ class PublisherService
             "message" => "Erro ao processar a planilha"
         ];
     }
+
+    public function findPublisherByConferenceName(string $conferenceName, $onlyApproved = false): ?Publishers
+    {
+        $conferenceName = $this->prepareConferenceName($conferenceName);
+        $conferenceAcronym = $this->getConferenceAcronym($conferenceName);
+        
+
+        // 1. Tenta encontrar um aprovado primeiro
+        $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, true)->first();
+
+        if(!$publisher) {
+            // Se não encontrar, tenta extrair a sigla do nome da conferência e buscar novamente
+             if (preg_match('/\(([^)]+)\)/', $conferenceName, $match)) {
+                $conferenceAcronym = $match[1];
+                $conferenceName = trim(preg_replace('/\(([^)]+)\)/', '', $conferenceName));
+            }
+            $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, true)->first();
+        }
+
+        // 2. Se não achar, busca em QUALQUER publisher (incluindo pendentes) com o LOCATE bidirecional
+        if (!$publisher && !$onlyApproved) {
+            $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, false)->first();
+        }
+
+        return $publisher;
+    }
+
+    /**
+     * Prepara e limpa o nome da conferência removendo ruídos.
+     */
+    private function prepareConferenceName(string $text): string
+    {
+        $text = $this->removeYear($text);
+        
+        $text = trim(preg_replace('/\b(international|ieee|annual)\b/iu', '', $text));
+
+        $text = $this->removeOrdinalNumbers($text);
+
+        $text = $this->removerNumerosExtenso($text);
+        
+        return $this->correctText($text);
+    }
+
+    /**
+     * Constrói a query base de busca para evitar código duplicado.
+     */
+    private function queryPublisherSearch(string $conferenceName, ?string $conferenceAcronym, bool $onlyApproved)
+    {
+        $query = Publishers::query();
+
+        if ($onlyApproved) {
+            $query->onlyApproved();
+        }
+
+        return $query->where(function ($q) use ($conferenceName, $conferenceAcronym, $onlyApproved) {
+            // O nome do Lattes está contido no nome do banco
+            $q->whereLike('name', "%$conferenceName%");
+
+            // procuramos com nome contido apenas se estivermos buscando apenas aprovados, para evitar falsos positivos
+            if ($onlyApproved) {
+                // O nome do banco está contido no nome do Lattes (LOCATE)
+                $q->orWhereRaw('LOCATE(name, ?) > 0', [$conferenceName]);
+            }
+
+            if ($conferenceAcronym) {
+                $q->orWhere('initials', $conferenceAcronym);
+            }
+
+            // Trata casos em que o nome da conferência é apenas a sigla (ex: "SBC", "IEEE")
+            $q->orWhere('initials', strtoupper($conferenceName));
+        });
+    }
+
+    private function removeYear(?string $text): ?string
+    {
+        if (!$text) {
+            return null;
+        }
+
+        // Remove 4-digit years (e.g., 2020)
+        $text = preg_replace('/(?<!\d)(19|20)\d{2}(?!\d)/', '', $text);
+
+        // Remove shortened years like '20
+        $text = preg_replace("/'\d{2}\b/", '', $text);
+
+        return trim(preg_replace('/\s+/', ' ', $text));
+    }
+
+    private function removeOrdinalNumbers(string $text): string
+    {
+        $pattern = '/^\d+(?:º|ª|°|st|nd|rd|th)\.?\s*/ui';
+        return preg_replace($pattern, '', $text);
+    }
+
+    private function correctText(string $text): string
+    {
+        // Corrige espaçamento antes de pontuações
+        $text = preg_replace('/\s+([,\.\?!])/', '$1', $text);
+        
+        // Corrige espaçamento depois de pontuações
+        $text = preg_replace('/([,\.\?!])(?!\s|$)/', '$1 ', $text);
+        
+        // Remove espaços duplos gerados
+        return trim(preg_replace('/\s+/', ' ', $text));
+    }
+
+    private function getConferenceAcronym(string $textoSujo): ?string
+    {
+        $texto = trim($textoSujo);
+        $siglaExtraida = null;
+
+        if (preg_match('/^([A-Z0-9]+)(?:\/[A-Z0-9]+)*\s*[\-\:]\s*(.+)$/i', $texto, $matches)) {
+            $siglaExtraida = trim($matches[1]);
+        }
+
+        return $siglaExtraida ? mb_strtoupper($siglaExtraida) : null;
+    }
+
+
+    private function removerNumerosExtenso($texto) {
+        // CARDINAIS - Português
+        $cardinais_pt = [
+            "zero","um","uma","dois","duas","tres","três","quatro","cinco","seis","sete",
+            "oito","nove","dez","onze","doze","treze","catorze","quatorze","quinze",
+            "dezesseis","dezasseis","dezessete","dezoito","dezenove",
+            "vinte","trinta","quarenta","cinquenta","sessenta",
+            "setenta","oitenta","noventa","cem","cento","duzentos",
+            "trezentos","quatrocentos","quinhentos","seiscentos",
+            "setecentos","oitocentos","novecentos","mil","milhao","milhão",
+            "milhoes","milhões","bilhao","bilhão","bilhoes","bilhões"
+        ];
+
+        // ORDINAIS - Português
+        $ordinais_pt = [
+            "primeiro","primeira","segundo","segunda","terceiro","terceira",
+            "quarto","quarta","quinto","quinta","sexto","sexta",
+            "setimo","sétimo","setima","sétima","oitavo","oitava",
+            "nono","nona","decimo","décimo","decima","décima",
+            "vigesimo","vigésimo","vigesima","vigésima",
+            "trigesimo","trigésimo","centesimo","centésimo",
+            "milesimo","milésimo"
+        ];
+
+        // CARDINAIS - Inglês
+        $cardinais_en = [
+            "zero","one","two","three","four","five","six","seven","eight","nine",
+            "ten","eleven","twelve","thirteen","fourteen","fifteen",
+            "sixteen","seventeen","eighteen","nineteen",
+            "twenty","thirty","forty","fifty","sixty",
+            "seventy","eighty","ninety",
+            "hundred","thousand","million","billion"
+        ];
+
+        // ORDINAIS - Inglês
+        $ordinais_en = [
+            "first","second","third","fourth","fifth","sixth","seventh",
+            "eighth","ninth","tenth","eleventh","twelfth","thirteenth",
+            "fourteenth","fifteenth","sixteenth","seventeenth",
+            "eighteenth","nineteenth",
+            "twentieth","thirtieth","fortieth","fiftieth",
+            "sixtieth","seventieth","eightieth","ninetieth",
+            "hundredth","thousandth","millionth","billionth"
+        ];
+
+        $periods = [
+            "annual",
+            "monthly",
+            "estendido",
+            "companion",
+        ];
+
+        //Ordinais numeros
+
+        // Junta tudo
+        $todos = array_merge(
+            $cardinais_pt,
+            $ordinais_pt,
+            $cardinais_en,
+            $ordinais_en,
+            $periods
+        );
+        // Cria regex dinâmica
+        $padrao = '/\b(' . implode('|', $todos) . ')\b/iu';
+
+        // Remove do texto
+        $texto = preg_replace($padrao, '', $texto);
+        $texto = preg_replace('/\b\d+(?:st|nd|rd|th)\b/', '', $texto);
+        $texto = preg_replace('/\b(?=[MDCLXVI])M{0,4}(CM|CD|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})\b/iu', '', $texto);
+
+        // Remove espaços duplicados
+        return trim(preg_replace('/\s+/', ' ', $texto));
+    }
+
 }
