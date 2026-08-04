@@ -177,6 +177,13 @@ class LattesZipXml
                 $conferenceName = trim(preg_replace('/\b(international|ieee)\b/iu', '', $conferenceName));
                 $conferenceName = trim(preg_replace('/\bannual\b/iu', '', $conferenceName));
 
+                $conferenceName = $loadXml->removeOrdinalNumbers($conferenceName);
+                $conferenceName = $loadXml->correctText($conferenceName);
+
+                if (!$conferenceAcronym) {
+                    $conferenceAcronym = $loadXml->getConferenceAcronym($conferenceName);
+                }
+
                 // 1. Try to find an APPROVED conference first
                 $publisher = Publishers::onlyApproved()
                     ->where(function($query) use ($conferenceName, $conferenceAcronym) {
@@ -184,6 +191,8 @@ class LattesZipXml
                         if ($conferenceAcronym) {
                             $query->orWhere('initials', $conferenceAcronym);
                         }
+                        // trata casos em que o nome da conferência é apenas a sigla, como "SBC" ou "IEEE"
+                        $query->orWhere('initials', strtoupper($conferenceName));
                     })->first();
 
                 // 2. If not found, look for ANY conference
@@ -193,6 +202,8 @@ class LattesZipXml
                         if ($conferenceAcronym) {
                             $query->orWhere('initials', $conferenceAcronym);
                         }
+                        // trata casos em que o nome da conferência é apenas a sigla, como "SBC" ou "IEEE"
+                        $query->orWhere('initials', strtoupper($conferenceName));
                     })->first();
                 }
 
@@ -335,6 +346,40 @@ class LattesZipXml
 
         // Clean extra spaces
         return trim(preg_replace('/\s+/', ' ', $text));
+    }
+
+    // remove números ordinais do texto, como "1st", "2nd", "3rd", "4th", etc.
+    public function removeOrdinalNumbers($text)
+    {
+        $pattern = '/^\d+(?:º|ª|°|st|nd|rd|th)\.?\s*/ui';
+        return preg_replace($pattern, '', $text);
+    }
+
+    // corrige espaçamento antes e depois de pontuações
+    public function correctText($text)
+    {
+        $texto = preg_replace('/\s+([,\.\?!])/', '$1', $text);
+        
+        $texto = preg_replace('/([,\.\?!])(?!\s|$)/', '$1 ', $text);
+        
+        $texto = preg_replace('/\s+/', ' ', $text);
+        
+        return trim($texto);
+    }
+
+    public function getConferenceAcronym(string $textoSujo) {
+        $texto = trim($textoSujo);
+        
+        $siglaExtraida = null;
+
+        // --- <sigla>/<sigla-alt> - <nome> OU <sigla> - <nome> OU <sigla>: <nome> ---
+        // Procura algo no começo seguido de '/', '-', ou ':' e depois o nome
+        // Ex: "IEEE/ACM - International Conference" ou "ICML - Conference" ou "SBC: Simpósio"
+        if (preg_match('/^([A-Z0-9\/\-]+)(?:\s*[\-\:]\s*)(.+)$/i', $texto, $matches)) {
+            $siglaExtraida = trim($matches[1]);
+        } 
+
+        return $siglaExtraida ? mb_strtoupper($siglaExtraida) : null;
     }
 
     function removerNumerosExtenso($texto) {
