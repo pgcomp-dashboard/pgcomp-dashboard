@@ -238,8 +238,9 @@ class PublisherService
     public function findPublisherByConferenceName(string $conferenceName, $onlyApproved = false): ?Publishers
     {
         $conferenceName = $this->prepareConferenceName($conferenceName);
-        $conferenceAcronym = $this->getConferenceAcronym($conferenceName);
-        
+        $conferenceData = $this->getConferenceData($conferenceName);
+        $conferenceAcronym = $conferenceData?->sigla;
+        $conferenceName = $conferenceData?->conferenceName ?? mb_strtoupper($conferenceName);
 
         // 1. Tenta encontrar um aprovado primeiro
         $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, true)->first();
@@ -249,6 +250,7 @@ class PublisherService
              if (preg_match('/\(([^)]+)\)/', $conferenceName, $match)) {
                 $conferenceAcronym = $match[1];
                 $conferenceName = trim(preg_replace('/\(([^)]+)\)/', '', $conferenceName));
+                $conferenceName = $this->prepareConferenceName($conferenceName);
             }
             $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, true)->first();
         }
@@ -273,37 +275,111 @@ class PublisherService
         $text = $this->removeOrdinalNumbers($text);
 
         $text = $this->removerNumerosExtenso($text);
+
+        $text = $this->correctText($text);
         
-        return $this->correctText($text);
+        return $this->normalizeText($text);
     }
 
+
     /**
-     * Constrói a query base de busca para evitar código duplicado.
+     * Remove acentos e converte para maiúsculas no PHP.
      */
-    private function queryPublisherSearch(string $conferenceName, ?string $conferenceAcronym, bool $onlyApproved)
+    private function normalizeText(?string $text): string
     {
+        if (empty($text)) {
+            return '';
+        }
+
+        // Remove acentos (requer extensão ext-intl ativa)
+        $semAcento = transliterator_transliterate('Any-Latin; Latin-ASCII;', $text);
+
+        return mb_strtoupper(trim($semAcento));
+    }
+
+    private const EXCLUDED_CONFERENCE_TERMS = [
+        'WORKSHOP',
+        'ANAIS',
+        'CONCURSO',
+        'TUTORIAL',
+        'MINICURSO',
+        'MINI-CURSO',
+        'HACKATHON',
+        'COMPETICAO',
+        'COMPETIÇÃO',
+    ];
+
+    private function queryPublisherSearch(
+        string $conferenceName,
+        ?string $conferenceAcronym,
+        bool $onlyApproved
+    ) {
         $query = Publishers::query();
 
         if ($onlyApproved) {
             $query->onlyApproved();
         }
 
-        return $query->where(function ($q) use ($conferenceName, $conferenceAcronym, $onlyApproved) {
-            // O nome do Lattes está contido no nome do banco
-            $q->whereLike('name', "%$conferenceName%");
+        /*
+        * Se o nome contém algum termo que caracteriza um evento
+        * derivado/associado, não usamos a sigla para encontrar
+        * o publisher.
+        *
+        * Ex:
+        * "WORKSHOP DE COMPUTAÇÃO EM CLOUDS"
+        * + sigla "SBRC"
+        *
+        * Nesse caso, "SBRC" não pode encontrar o publisher
+        * "Simpósio Brasileiro de Redes de Computadores".
+        */
+        $hasExcludedTerm = preg_match(
+            '/\b(' . implode('|', array_map('preg_quote', self::EXCLUDED_CONFERENCE_TERMS)) . ')\b/iu',
+            $conferenceName
+        );
 
-            // procuramos com nome contido apenas se estivermos buscando apenas aprovados, para evitar falsos positivos
-            if ($onlyApproved) {
-                // O nome do banco está contido no nome do Lattes (LOCATE)
-                $q->orWhereRaw('LOCATE(name, ?) > 0', [$conferenceName]);
+        return $query->where(function ($q) use (
+            $conferenceName,
+            $conferenceAcronym,
+            $hasExcludedTerm
+        ) {
+            /*
+            * Nome OU sigla:
+            *
+            * Só usa a sigla quando o nome NÃO contém
+            * um termo excluído.
+            */
+            if ($conferenceAcronym && !$hasExcludedTerm) {
+                $q->where(function ($q) use ($conferenceName, $conferenceAcronym) {
+                    $q->whereRaw(
+                        'name COLLATE utf8mb4_0900_ai_ci = ? COLLATE utf8mb4_0900_ai_ci',
+                        [$conferenceName]
+                    )->orWhereRaw(
+                        'initials COLLATE utf8mb4_0900_ai_ci = ? COLLATE utf8mb4_0900_ai_ci',
+                        [$conferenceAcronym]
+                    );
+                });
+            } else {
+                /*
+                * Se contém WORKSHOP, ANAIS, CONCURSO etc.,
+                * compara SOMENTE o nome.
+                */
+                $q->whereRaw(
+                    'name COLLATE utf8mb4_0900_ai_ci = ? COLLATE utf8mb4_0900_ai_ci',
+                    [$conferenceName]
+                );
             }
 
-            if ($conferenceAcronym) {
-                $q->orWhere('initials', $conferenceAcronym);
+            /*
+            * Se não temos termo excluído, mantém também
+            * a regra de quando o próprio nome da conferência
+            * é uma sigla.
+            */
+            if (!$hasExcludedTerm) {
+                $q->orWhereRaw(
+                    'initials COLLATE utf8mb4_0900_ai_ci = ? COLLATE utf8mb4_0900_ai_ci',
+                    [$conferenceName]
+                );
             }
-
-            // Trata casos em que o nome da conferência é apenas a sigla (ex: "SBC", "IEEE")
-            $q->orWhere('initials', strtoupper($conferenceName));
         });
     }
 
@@ -340,16 +416,56 @@ class PublisherService
         return trim(preg_replace('/\s+/', ' ', $text));
     }
 
-    private function getConferenceAcronym(string $textoSujo): ?string
+    private function getConferenceData($textoSujo)
     {
-        $texto = trim($textoSujo);
-        $siglaExtraida = null;
-
-        if (preg_match('/^([A-Z0-9]+)(?:\/[A-Z0-9]+)*\s*[\-\:]\s*(.+)$/i', $texto, $matches)) {
-            $siglaExtraida = trim($matches[1]);
+        if (empty($textoSujo) || trim($textoSujo) === '') {
+            return null;
         }
 
-        return $siglaExtraida ? mb_strtoupper($siglaExtraida) : null;
+        $texto = trim($textoSujo);
+
+        $resultado = new \stdClass();
+
+        /*
+        * Formato:
+        * SBRC/COURB - XXXVI Simpósio Brasileiro de Redes de Computadores
+        * SBRC - Brazilian Symposium on Information Systems
+        * SBISI : Brazilian Symposium on Information Systems
+        */
+        if (preg_match(
+            '/^([A-Z0-9]+(?:\/[A-Z0-9]+)*)\s*[-:]\s*(.+)$/i',
+            $texto,
+            $matches
+        )) {
+            // Se for "SBRC/COURB", pega somente "SBRC"
+            $siglaExtraida = explode('/', $matches[1])[0];
+
+            $resultado->sigla = mb_strtoupper(trim($siglaExtraida));
+            $resultado->conferenceName = mb_strtoupper(trim($matches[2]));
+
+            return $resultado;
+        }
+
+        /*
+        * Formato:
+        * Brazilian Symposium on Information Systems - SBISI
+        * Brazilian Symposium on Information Systems : SBISI
+        */
+        if (preg_match(
+            '/^(.+?)\s*[-:]\s*([A-Z0-9]+(?:\/[A-Z0-9]+)*)$/i',
+            $texto,
+            $matches
+        )) {
+            // Se for "SBRC/COURB", pega somente "SBRC"
+            $siglaExtraida = explode('/', $matches[2])[0];
+
+            $resultado->conferenceName = mb_strtoupper(trim($matches[1]));
+            $resultado->sigla = mb_strtoupper(trim($siglaExtraida));
+
+            return $resultado;
+        }
+
+        return null;
     }
 
 
