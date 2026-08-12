@@ -6,8 +6,14 @@ export const dashboardService = {
     return apiClient.get<{ [key: string]: Advisor }>('/api/admin/dashboard/total_students_per_advisor', { user_type: filter });
   },
 
-  async totalProductionsPerYear(filter?: 'journal' | 'conference') {
-    return apiClient.get<{ [key: string]: number }>('/api/admin/dashboard/all_production', { publisher_type: filter });
+  async totalProductionsPerYear(filter?: 'journal' | 'conference', qualis?: string[]) {
+    return apiClient.get<{ [key: string]: number }>(
+      '/api/admin/dashboard/all_production',
+      {
+        publisher_type: filter,
+        qualis: qualis && qualis.length > 0 ? qualis.join(',') : undefined,
+      }
+    );
   },
 
   async studentsPerField(filter?: 'mestrando' | 'doutorando' | 'completed') {

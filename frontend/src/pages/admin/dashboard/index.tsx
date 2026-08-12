@@ -45,6 +45,7 @@ export default function Dashboard() {
   // 👇 Novos estados adicionados
   const [ productionType, setProductionType ] = useState<'journal' | 'conference' | undefined>(undefined);
   const [ isRefetchingProductions, setIsRefetchingProductions ] = useState(false);
+  const [ productionQualis, setProductionQualis ] = useState<string[]>(['A1','A2','A3','A4','B1','B2','B3','B4']);
   
   const [selectedQualis, setSelectedQualis] = useState<string[]>(['A1','A2','A3','A4','B1','B2','B3','B4']);
   const [qualisPublisherType, setQualisPublisherType] = useState<'journal' | 'conference' | undefined>(undefined);
@@ -277,7 +278,13 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <CardTitle className="text-base sm:text-lg lg:text-xl">Produções científicas por ano</CardTitle>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <MultiSelect
+                  options={QUALIS_OPTIONS}
+                  selected={productionQualis}
+                  onChange={setProductionQualis}
+                  placeholder="Qualis"
+                />
                 <select
                   value={productionType ?? ''}
                   onChange={e => setProductionType(e.target.value === '' ? undefined : e.target.value as 'journal' | 'conference')}
@@ -293,7 +300,10 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
-              <ProductionsPerYearChart publisherType={productionType} />
+              <ProductionsPerYearChart 
+                publisherType={productionType} 
+                qualis={productionQualis} 
+              />
             </CardContent>
           </Card>
         </section>
