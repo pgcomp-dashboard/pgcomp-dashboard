@@ -30,14 +30,17 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 
 interface AllProductionsPerYearProps {
   publisherType?: 'journal' | 'conference';
+  qualis?: string[];
 }
 
-export default function AllProductionsPerYear({ publisherType }: AllProductionsPerYearProps) {
+export default function AllProductionsPerYear({ publisherType, qualis }: AllProductionsPerYearProps) {
   const auth = useAuth();
 
+  const qualisFilter = qualis && qualis.length < 8 ? qualis : undefined;
+
   const { data: productions, error, isLoading } = useQuery({
-    queryKey: [ 'totalProductionsPerYear', publisherType ],
-    queryFn: () => dashboardService.totalProductionsPerYear(publisherType),
+    queryKey: [ 'totalProductionsPerYear', publisherType, qualisFilter ],
+    queryFn: () => dashboardService.totalProductionsPerYear(publisherType, qualisFilter),
     enabled: !!auth?.isAdmin,
   });
 

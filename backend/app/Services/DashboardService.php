@@ -148,9 +148,10 @@ class DashboardService
      * @param  ?string  $user_type  the type of the user, if he is a student or a teacher
      * @param  ?string  $course_id  course_id
      * @param  ?string  $publisher_type  type of publisher
+     * @param  ?array  $qualis_codes  array of qualis codes
      * @return array returns an array containing the amount by total production separated by year
      */
-    public function getTotalProductionsPerYear(?string $user_type, ?string $course_id, ?string $publisher_type): array
+    public function getTotalProductionsPerYear(?string $user_type, ?string $course_id, ?string $publisher_type, ?array $qualis_codes = null): array
     {
         $yearsRange = range(2014, Carbon::now()->year);
 
@@ -170,6 +171,10 @@ class DashboardService
                 $builder->whereHas('isWroteBy', function ($builder) use ($courseId) {
                     $builder->where('course_id', $courseId);
                 });
+            })
+            ->when($qualis_codes, function ($builder, $codes) {
+                $ids = StratumQualis::whereIn('code', $codes)->pluck('id');
+                $builder->whereIn('stratum_qualis_id', $ids);
             })
             ->groupBy('year')
             ->pluck('total', 'year');

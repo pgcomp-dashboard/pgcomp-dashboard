@@ -62,10 +62,14 @@ class DashboardController extends Controller
             default => [null, null]
         };
 
+        $qualisInput = $request->input('qualis');
+        $qualis_codes = $qualisInput ? explode(',', $qualisInput) : null;
+
         $result = $this->dashboardService->getTotalProductionsPerYear(
             user_type: $filter[0],
             course_id: $filter[1],
-            publisher_type: $publisher_type
+            publisher_type: $publisher_type,
+            qualis_codes: $qualis_codes
         );
 
         $years = $result['years'] ?? [];
