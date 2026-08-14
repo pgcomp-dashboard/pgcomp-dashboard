@@ -8,7 +8,7 @@ use App\Services\PublisherService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class MergePendingPublishers extends Command
+class MergePendingPublishersCommand extends Command
 {
     protected $signature = 'publishers:merge-pending';
     protected $description = 'Busca publishers de conferência pendentes, encontra o correspondente aprovado e migra as productions preenchendo o original_publisher_id';
