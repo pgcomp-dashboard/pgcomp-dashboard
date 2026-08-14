@@ -4,19 +4,19 @@ namespace App\Console\Commands;
 
 use App\Models\Publishers;
 use App\Models\Production;
-use App\Services\PublisherService; // Ajuste para o namespace real do seu service
+use App\Services\PublisherService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class MergePendingPublishers extends Command
 {
     protected $signature = 'publishers:merge-pending';
-    protected $description = 'Busca publishers não aprovados, encontra um correspondente aprovado, migra as productions preenchendo o original_publisher_id';
+    protected $description = 'Busca publishers de conferência pendentes, encontra o correspondente aprovado e migra as productions preenchendo o original_publisher_id';
 
     public function handle(PublisherService $publisherService)
     {
-        $this->info('Iniciando a busca por publishers não aprovados...');
-        $pendingPublishers = Publishers::onlyPending()->get();
+        $this->info('Iniciando a busca por publishers de conferência pendentes...');
+        $pendingPublishers = Publishers::onlyPending()->onlyConferences()->get();
 
         if ($pendingPublishers->isEmpty()) {
             $this->info('Nenhum publisher pendente encontrado.');
@@ -33,16 +33,16 @@ class MergePendingPublishers extends Command
             $approvedPublisher = $publisherService->findPublisherByConferenceName($pending->name, true);
 
             if ($approvedPublisher && $approvedPublisher->id !== $pending->id) {
-                
+
                 DB::transaction(function () use ($pending, $approvedPublisher) {
-                    // Atualiza as productions ligadas ao pendente, movendo para o aprovado 
+                    // Atualiza as productions ligadas ao pendente, movendo para o aprovado
                     // e gravando o publisher original na coluna 'original_publisher_id'
                     Production::where('publisher_id', $pending->id)->update([
                         'original_publisher_id' => $pending->id,
                         'publisher_id' => $approvedPublisher->id
                     ]);
-                    
-                    // $pending->delete(); 
+
+                    // $pending->delete();
                 });
 
                 $migratedCount++;
