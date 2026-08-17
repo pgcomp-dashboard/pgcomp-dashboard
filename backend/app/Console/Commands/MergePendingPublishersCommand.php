@@ -16,41 +16,44 @@ class MergePendingPublishersCommand extends Command
     public function handle(PublisherService $publisherService)
     {
         $this->info('Iniciando a busca por publishers de conferência pendentes...');
-        $pendingPublishers = Publishers::onlyPending()->onlyConferences()->get();
 
-        if ($pendingPublishers->isEmpty()) {
+        $query = Publishers::onlyPending()->onlyConferences();
+        $totalPending = $query->count();
+
+        if ($totalPending === 0) {
             $this->info('Nenhum publisher pendente encontrado.');
             return 0;
         }
 
-        $bar = $this->output->createProgressBar($pendingPublishers->count());
+        $bar = $this->output->createProgressBar($totalPending);
         $bar->start();
 
         $migratedCount = 0;
 
-        foreach ($pendingPublishers as $pending) {
+        $query->chunkById(100, function ($pendingPublishers) use ($publisherService, $bar, &$migratedCount) {
+            foreach ($pendingPublishers as $pending) {
 
-            $approvedPublisher = $publisherService->findPublisherByConferenceName($pending->name, true);
+                $approvedPublisher = $publisherService->findPublisherByConferenceName($pending->name, true);
 
-            if ($approvedPublisher && $approvedPublisher->id !== $pending->id) {
+                if ($approvedPublisher && $approvedPublisher->id !== $pending->id) {
 
-                DB::transaction(function () use ($pending, $approvedPublisher) {
-                    // Atualiza as productions ligadas ao pendente, movendo para o aprovado
-                    Production::where('publisher_id', $pending->id)->update([
-                        'publisher_id' => $approvedPublisher->id
-                    ]);
+                    DB::transaction(function () use ($pending, $approvedPublisher) {
+                        // Atualiza as productions ligadas ao pendente, movendo para o aprovado
+                        Production::where('publisher_id', $pending->id)->update([
+                            'publisher_id' => $approvedPublisher->id
+                        ]);
 
-                    // $pending->delete();
-                });
+                        // $pending->delete();
+                    });
 
-                // Exibe diretamente no console quem foi mesclado com quem
-                $this->info("\n[{$pending->id}] {$pending->name} ===> [{$approvedPublisher->id}] {$approvedPublisher->name}");
+                    $this->info("\n[{$pending->id}] {$pending->name} ===> [{$approvedPublisher->id}] {$approvedPublisher->name}");
 
-                $migratedCount++;
+                    $migratedCount++;
+                }
+
+                $bar->advance();
             }
-
-            $bar->advance();
-        }
+        });
 
         $bar->finish();
         $this->newLine();
