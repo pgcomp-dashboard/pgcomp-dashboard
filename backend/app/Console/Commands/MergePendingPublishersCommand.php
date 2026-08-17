@@ -43,7 +43,8 @@ class MergePendingPublishersCommand extends Command
                             'publisher_id' => $approvedPublisher->id
                         ]);
 
-                        // $pending->delete();
+                        // Deletamos o veículo pendente
+                        $pending->delete();
                     });
 
                     $this->info("\n[{$pending->id}] {$pending->name} ===> [{$approvedPublisher->id}] {$approvedPublisher->name}");
