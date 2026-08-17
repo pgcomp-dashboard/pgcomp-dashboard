@@ -291,8 +291,7 @@ class PublisherService
             return '';
         }
 
-        // Remove acentos (requer extensão ext-intl ativa)
-        $semAcento = transliterator_transliterate('Any-Latin; Latin-ASCII;', $text);
+        $semAcento = Str::ascii('Any-Latin; Latin-ASCII;', $text);
 
         return mb_strtoupper(trim($semAcento));
     }
