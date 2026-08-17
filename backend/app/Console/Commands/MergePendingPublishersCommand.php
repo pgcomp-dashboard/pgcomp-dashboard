@@ -43,6 +43,9 @@ class MergePendingPublishersCommand extends Command
                     // $pending->delete();
                 });
 
+                // Exibe diretamente no console quem foi mesclado com quem
+                $this->info("\n[{$pending->id}] {$pending->name} ===> [{$approvedPublisher->id}] {$approvedPublisher->name}");
+
                 $migratedCount++;
             }
 
