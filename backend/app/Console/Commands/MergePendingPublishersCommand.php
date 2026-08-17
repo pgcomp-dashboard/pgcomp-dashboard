@@ -36,9 +36,7 @@ class MergePendingPublishersCommand extends Command
 
                 DB::transaction(function () use ($pending, $approvedPublisher) {
                     // Atualiza as productions ligadas ao pendente, movendo para o aprovado
-                    // e gravando o publisher original na coluna 'original_publisher_id'
                     Production::where('publisher_id', $pending->id)->update([
-                        'original_publisher_id' => $pending->id,
                         'publisher_id' => $approvedPublisher->id
                     ]);
 

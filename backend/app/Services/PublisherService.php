@@ -255,7 +255,7 @@ class PublisherService
             $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, true)->first();
         }
 
-        // 2. Se não achar, busca em QUALQUER publisher (incluindo pendentes) com o LOCATE bidirecional
+        // 2. Se não achar, busca em QUALQUER publisher (incluindo pendentes)
         if (!$publisher && !$onlyApproved) {
             $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, false)->first();
         }
@@ -269,7 +269,7 @@ class PublisherService
     private function prepareConferenceName(string $text): string
     {
         $text = $this->removeYear($text);
-        
+
         $text = trim(preg_replace('/\b(international|ieee|annual)\b/iu', '', $text));
 
         $text = $this->removeOrdinalNumbers($text);
@@ -277,7 +277,7 @@ class PublisherService
         $text = $this->removerNumerosExtenso($text);
 
         $text = $this->correctText($text);
-        
+
         return $this->normalizeText($text);
     }
 
@@ -408,10 +408,10 @@ class PublisherService
     {
         // Corrige espaçamento antes de pontuações
         $text = preg_replace('/\s+([,\.\?!])/', '$1', $text);
-        
+
         // Corrige espaçamento depois de pontuações
         $text = preg_replace('/([,\.\?!])(?!\s|$)/', '$1 ', $text);
-        
+
         // Remove espaços duplos gerados
         return trim(preg_replace('/\s+/', ' ', $text));
     }
