@@ -234,4 +234,313 @@ class PublisherService
             "message" => "Erro ao processar a planilha"
         ];
     }
+
+    public function findPublisherByConferenceName(string $conferenceName, $onlyApproved = false): ?Publishers
+    {
+        $conferenceName = $this->prepareConferenceName($conferenceName);
+        $conferenceData = $this->getConferenceData($conferenceName);
+        $conferenceAcronym = $conferenceData?->sigla;
+        $conferenceName = $conferenceData?->conferenceName ?? mb_strtoupper($conferenceName);
+
+        // 1. Tenta encontrar um aprovado primeiro
+        $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, true)->first();
+
+        if(!$publisher) {
+            // Se não encontrar, tenta extrair a sigla do nome da conferência e buscar novamente
+             if (preg_match('/\(([^)]+)\)/', $conferenceName, $match)) {
+                $conferenceAcronym = $match[1];
+                $conferenceName = trim(preg_replace('/\(([^)]+)\)/', '', $conferenceName));
+                $conferenceName = $this->prepareConferenceName($conferenceName);
+            }
+            $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, true)->first();
+        }
+
+        // 2. Se não achar, busca em QUALQUER publisher (incluindo pendentes)
+        if (!$publisher && !$onlyApproved) {
+            $publisher = $this->queryPublisherSearch($conferenceName, $conferenceAcronym, false)->first();
+        }
+
+        return $publisher;
+    }
+
+    /**
+     * Prepara e limpa o nome da conferência removendo ruídos.
+     */
+    private function prepareConferenceName(string $text): string
+    {
+        $text = $this->removeYear($text);
+
+        $text = trim(preg_replace('/\b(international|ieee|annual)\b/iu', '', $text));
+
+        $text = $this->removeOrdinalNumbers($text);
+
+        $text = $this->removerNumerosExtenso($text);
+
+        $text = $this->correctText($text);
+
+        return $this->normalizeText($text);
+    }
+
+
+    /**
+     * Remove acentos e converte para maiúsculas no PHP.
+     */
+    private function normalizeText(?string $text): string
+    {
+        if (empty($text)) {
+            return '';
+        }
+
+        // Remove acentos (requer extensão ext-intl ativa)
+        $semAcento = transliterator_transliterate('Any-Latin; Latin-ASCII;', $text);
+
+        return mb_strtoupper(trim($semAcento));
+    }
+
+    private const EXCLUDED_CONFERENCE_TERMS = [
+        'WORKSHOP',
+        'ANAIS',
+        'CONCURSO',
+        'TUTORIAL',
+        'MINICURSO',
+        'MINI-CURSO',
+        'HACKATHON',
+        'COMPETICAO',
+        'COMPETIÇÃO',
+    ];
+
+    private function queryPublisherSearch(
+        string $conferenceName,
+        ?string $conferenceAcronym,
+        bool $onlyApproved
+    ) {
+        $query = Publishers::query();
+
+        if ($onlyApproved) {
+            $query->onlyApproved();
+        }
+
+        /*
+        * Se o nome contém algum termo que caracteriza um evento
+        * derivado/associado, não usamos a sigla para encontrar
+        * o publisher.
+        *
+        * Ex:
+        * "WORKSHOP DE COMPUTAÇÃO EM CLOUDS"
+        * + sigla "SBRC"
+        *
+        * Nesse caso, "SBRC" não pode encontrar o publisher
+        * "Simpósio Brasileiro de Redes de Computadores".
+        */
+        $hasExcludedTerm = preg_match(
+            '/\b(' . implode('|', array_map('preg_quote', self::EXCLUDED_CONFERENCE_TERMS)) . ')\b/iu',
+            $conferenceName
+        );
+
+        return $query->where(function ($q) use (
+            $conferenceName,
+            $conferenceAcronym,
+            $hasExcludedTerm
+        ) {
+            /*
+            * Nome OU sigla:
+            *
+            * Só usa a sigla quando o nome NÃO contém
+            * um termo excluído.
+            */
+            if ($conferenceAcronym && !$hasExcludedTerm) {
+                $q->where(function ($q) use ($conferenceName, $conferenceAcronym) {
+                    $q->whereRaw(
+                        'name COLLATE utf8mb4_0900_ai_ci = ? COLLATE utf8mb4_0900_ai_ci',
+                        [$conferenceName]
+                    )->orWhereRaw(
+                        'initials COLLATE utf8mb4_0900_ai_ci = ? COLLATE utf8mb4_0900_ai_ci',
+                        [$conferenceAcronym]
+                    );
+                });
+            } else {
+                /*
+                * Se contém WORKSHOP, ANAIS, CONCURSO etc.,
+                * compara SOMENTE o nome.
+                */
+                $q->whereRaw(
+                    'name COLLATE utf8mb4_0900_ai_ci = ? COLLATE utf8mb4_0900_ai_ci',
+                    [$conferenceName]
+                );
+            }
+
+            /*
+            * Se não temos termo excluído, mantém também
+            * a regra de quando o próprio nome da conferência
+            * é uma sigla.
+            */
+            if (!$hasExcludedTerm) {
+                $q->orWhereRaw(
+                    'initials COLLATE utf8mb4_0900_ai_ci = ? COLLATE utf8mb4_0900_ai_ci',
+                    [$conferenceName]
+                );
+            }
+        });
+    }
+
+    private function removeYear(?string $text): ?string
+    {
+        if (!$text) {
+            return null;
+        }
+
+        // Remove 4-digit years (e.g., 2020)
+        $text = preg_replace('/(?<!\d)(19|20)\d{2}(?!\d)/', '', $text);
+
+        // Remove shortened years like '20
+        $text = preg_replace("/'\d{2}\b/", '', $text);
+
+        return trim(preg_replace('/\s+/', ' ', $text));
+    }
+
+    private function removeOrdinalNumbers(string $text): string
+    {
+        $pattern = '/^\d+(?:º|ª|°|st|nd|rd|th)\.?\s*/ui';
+        return preg_replace($pattern, '', $text);
+    }
+
+    private function correctText(string $text): string
+    {
+        // Corrige espaçamento antes de pontuações
+        $text = preg_replace('/\s+([,\.\?!])/', '$1', $text);
+
+        // Corrige espaçamento depois de pontuações
+        $text = preg_replace('/([,\.\?!])(?!\s|$)/', '$1 ', $text);
+
+        // Remove espaços duplos gerados
+        return trim(preg_replace('/\s+/', ' ', $text));
+    }
+
+    private function getConferenceData($textoSujo)
+    {
+        if (empty($textoSujo) || trim($textoSujo) === '') {
+            return null;
+        }
+
+        $texto = trim($textoSujo);
+
+        $resultado = new \stdClass();
+
+        /*
+        * Formato:
+        * SBRC/COURB - XXXVI Simpósio Brasileiro de Redes de Computadores
+        * SBRC - Brazilian Symposium on Information Systems
+        * SBISI : Brazilian Symposium on Information Systems
+        */
+        if (preg_match(
+            '/^([A-Z0-9]+(?:\/[A-Z0-9]+)*)\s*[-:]\s*(.+)$/i',
+            $texto,
+            $matches
+        )) {
+            // Se for "SBRC/COURB", pega somente "SBRC"
+            $siglaExtraida = explode('/', $matches[1])[0];
+
+            $resultado->sigla = mb_strtoupper(trim($siglaExtraida));
+            $resultado->conferenceName = mb_strtoupper(trim($matches[2]));
+
+            return $resultado;
+        }
+
+        /*
+        * Formato:
+        * Brazilian Symposium on Information Systems - SBISI
+        * Brazilian Symposium on Information Systems : SBISI
+        */
+        if (preg_match(
+            '/^(.+?)\s*[-:]\s*([A-Z0-9]+(?:\/[A-Z0-9]+)*)$/i',
+            $texto,
+            $matches
+        )) {
+            // Se for "SBRC/COURB", pega somente "SBRC"
+            $siglaExtraida = explode('/', $matches[2])[0];
+
+            $resultado->conferenceName = mb_strtoupper(trim($matches[1]));
+            $resultado->sigla = mb_strtoupper(trim($siglaExtraida));
+
+            return $resultado;
+        }
+
+        return null;
+    }
+
+
+    private function removerNumerosExtenso($texto) {
+        // CARDINAIS - Português
+        $cardinais_pt = [
+            "zero","um","uma","dois","duas","tres","três","quatro","cinco","seis","sete",
+            "oito","nove","dez","onze","doze","treze","catorze","quatorze","quinze",
+            "dezesseis","dezasseis","dezessete","dezoito","dezenove",
+            "vinte","trinta","quarenta","cinquenta","sessenta",
+            "setenta","oitenta","noventa","cem","cento","duzentos",
+            "trezentos","quatrocentos","quinhentos","seiscentos",
+            "setecentos","oitocentos","novecentos","mil","milhao","milhão",
+            "milhoes","milhões","bilhao","bilhão","bilhoes","bilhões"
+        ];
+
+        // ORDINAIS - Português
+        $ordinais_pt = [
+            "primeiro","primeira","segundo","segunda","terceiro","terceira",
+            "quarto","quarta","quinto","quinta","sexto","sexta",
+            "setimo","sétimo","setima","sétima","oitavo","oitava",
+            "nono","nona","decimo","décimo","decima","décima",
+            "vigesimo","vigésimo","vigesima","vigésima",
+            "trigesimo","trigésimo","centesimo","centésimo",
+            "milesimo","milésimo"
+        ];
+
+        // CARDINAIS - Inglês
+        $cardinais_en = [
+            "zero","one","two","three","four","five","six","seven","eight","nine",
+            "ten","eleven","twelve","thirteen","fourteen","fifteen",
+            "sixteen","seventeen","eighteen","nineteen",
+            "twenty","thirty","forty","fifty","sixty",
+            "seventy","eighty","ninety",
+            "hundred","thousand","million","billion"
+        ];
+
+        // ORDINAIS - Inglês
+        $ordinais_en = [
+            "first","second","third","fourth","fifth","sixth","seventh",
+            "eighth","ninth","tenth","eleventh","twelfth","thirteenth",
+            "fourteenth","fifteenth","sixteenth","seventeenth",
+            "eighteenth","nineteenth",
+            "twentieth","thirtieth","fortieth","fiftieth",
+            "sixtieth","seventieth","eightieth","ninetieth",
+            "hundredth","thousandth","millionth","billionth"
+        ];
+
+        $periods = [
+            "annual",
+            "monthly",
+            "estendido",
+            "companion",
+        ];
+
+        //Ordinais numeros
+
+        // Junta tudo
+        $todos = array_merge(
+            $cardinais_pt,
+            $ordinais_pt,
+            $cardinais_en,
+            $ordinais_en,
+            $periods
+        );
+        // Cria regex dinâmica
+        $padrao = '/\b(' . implode('|', $todos) . ')\b/iu';
+
+        // Remove do texto
+        $texto = preg_replace($padrao, '', $texto);
+        $texto = preg_replace('/\b\d+(?:st|nd|rd|th)\b/', '', $texto);
+        $texto = preg_replace('/\b(?=[MDCLXVI])M{0,4}(CM|CD|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})\b/iu', '', $texto);
+
+        // Remove espaços duplicados
+        return trim(preg_replace('/\s+/', ' ', $texto));
+    }
+
 }

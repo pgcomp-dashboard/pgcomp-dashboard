@@ -5,11 +5,8 @@ namespace App\Domain\Lattes;
 use App\Domain\Lattes\Exceptions\InvalidXml;
 use App\Enums\ProductionSource;
 use App\Enums\PublisherType;
-use App\Models\Conference;
-use App\Models\Journal;
 use App\Models\Publishers;
-use App\Models\StratumQualis;
-use App\Services\ProductionService;
+use App\Services\PublisherService;
 use DOMDocument;
 use Exception;
 use GuzzleHttp\Client;
@@ -23,9 +20,10 @@ class LattesZipXml
 {
     protected $clientHttp;
 
-    protected function __construct(protected string $storagePath)
+    protected function __construct(protected string $storagePath, protected PublisherService $publisherService)
     {
         $this->clientHttp = new Client;
+        $this->publisherService = $publisherService;
     }
 
     /**
@@ -47,7 +45,7 @@ class LattesZipXml
      */
     public static function extractProductions(string $storagePath): array
     {
-        $loadXml = new static($storagePath);
+        $loadXml = new static($storagePath, app(PublisherService::class));
         $xml = $loadXml->loadFile();
         $lattesUpdatedAt = "{$xml->attributes()['DATA-ATUALIZACAO']}{$xml->attributes()['HORA-ATUALIZACAO']}";
         $data = [
@@ -167,35 +165,7 @@ class LattesZipXml
             $source = ProductionSource::XML->value;
 
             if ($conferenceName) {
-                $conferenceName = $loadXml->removeYear($conferenceName);
-                $conferenceName = $loadXml->removerNumerosExtenso($conferenceName);
-                $conferenceAcronym = null;
-                if (preg_match('/\(([^)]+)\)/', $conferenceName, $match)) {
-                        $conferenceAcronym = $match[1];
-                        $conferenceName = preg_replace('/\(([^)]+)\)/', '', $conferenceName);
-                }
-                $conferenceName = trim(preg_replace('/\b(international|ieee)\b/iu', '', $conferenceName));
-                $conferenceName = trim(preg_replace('/\bannual\b/iu', '', $conferenceName));
-
-                // 1. Try to find an APPROVED conference first
-                $publisher = Publishers::onlyApproved()
-                    ->where(function($query) use ($conferenceName, $conferenceAcronym) {
-                        $query->whereLike('name', "%$conferenceName%");
-                        if ($conferenceAcronym) {
-                            $query->orWhere('initials', $conferenceAcronym);
-                        }
-                    })->first();
-
-                // 2. If not found, look for ANY conference
-                if (!$publisher) {
-                    $publisher = Publishers::where(function($query) use ($conferenceName, $conferenceAcronym) {
-                        $query->whereLike('name', "%$conferenceName%");
-                        if ($conferenceAcronym) {
-                            $query->orWhere('initials', $conferenceAcronym);
-                        }
-                    })->first();
-                }
-
+                $publisher = $loadXml->publisherService->findPublisherByConferenceName($conferenceName);
                 $publisher_id = $publisher?->id;
             }
 
@@ -337,7 +307,7 @@ class LattesZipXml
         return trim(preg_replace('/\s+/', ' ', $text));
     }
 
-    function removerNumerosExtenso($texto) {
+    private function removerNumerosExtenso($texto) {
 
     // CARDINAIS - Português
     $cardinais_pt = [
@@ -488,7 +458,7 @@ class LattesZipXml
  */
 public static function extractProjects(string $storagePath): array
 {
-    $loadXml = new static($storagePath);
+    $loadXml = new static($storagePath, app(PublisherService::class));
     $xml = $loadXml->loadFile();
 
     $data = [
