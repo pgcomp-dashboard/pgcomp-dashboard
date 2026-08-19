@@ -57,4 +57,9 @@ class Publishers extends Model
     public function scopeOnlyPending($query){
         return $query->where('is_approved', false);
     }
+
+    public function productions(): HasMany
+    {
+        return $this->hasMany(Production::class, 'publisher_id');
+    }
 }
