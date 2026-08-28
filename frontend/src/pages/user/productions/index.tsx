@@ -59,7 +59,7 @@ export default function ProductionsPage() {
       );
     },
     onError: (err) => {
-      const err = error as unknown as {
+      const erro = error as unknown as {
         errors: { description: string }[];
         code: number;
       };
