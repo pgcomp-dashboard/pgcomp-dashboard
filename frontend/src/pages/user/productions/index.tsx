@@ -45,8 +45,6 @@ export default function ProductionsPage() {
 
   const podeFavoritar = favoritos < 4;
 
-  console.log("podeFavoritar", podeFavoritar);
-
   const crud = useProductionCrud(selectedProfessorId);
   const featuredMutation = useMutation({
     mutationFn: (productionId: number) =>

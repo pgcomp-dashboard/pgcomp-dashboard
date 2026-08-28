@@ -1,14 +1,14 @@
-import { queryClient } from '@/lib/query-client';
-import { productionService } from '@/services/modules/production.service';
-import { Production } from '@/types/academic';
-import { normalizeDoi } from '@/utils/doi';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
-import { RequestBodyType, updateProductionFormSchema } from '../types';
-import { usePublisherSearch } from './usePublisherSearch';
+import { queryClient } from "@/lib/query-client";
+import { productionService } from "@/services/modules/production.service";
+import { Production } from "@/types/academic";
+import { normalizeDoi } from "@/utils/doi";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { RequestBodyType, updateProductionFormSchema } from "../types";
+import { usePublisherSearch } from "./usePublisherSearch";
 
 export function useProductionCrud(selectedProfessorId: string) {
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -24,18 +24,20 @@ export function useProductionCrud(selectedProfessorId: string) {
     editForm.reset({
       title: production.title,
       year: production.year,
-      doi: production.doi || '',
-      nature: production.nature || '',
+      doi: production.doi || "",
+      nature: production.nature || "",
     });
     publisherSearch.reset(
       production.publisher || null,
-      production.publisher_type || 'conference',
-      production.publisher?.name || '',
+      production.publisher_type || "conference",
+      production.publisher?.name || "",
     );
     setIsEditOpen(true);
   };
 
-  async function onEditSubmit(values: z.infer<typeof updateProductionFormSchema>) {
+  async function onEditSubmit(
+    values: z.infer<typeof updateProductionFormSchema>,
+  ) {
     const parsedYear = parseFloat(values.year.toString());
     if (isNaN(parsedYear) || !selectedProduction) return;
 
@@ -50,44 +52,65 @@ export function useProductionCrud(selectedProfessorId: string) {
     };
 
     try {
-      if (selectedProfessorId && selectedProfessorId !== 'own') {
-        await productionService.updateUserProduction(Number(selectedProfessorId), selectedProduction.id, payload);
+      if (selectedProfessorId && selectedProfessorId !== "own") {
+        await productionService.updateUserProduction(
+          Number(selectedProfessorId),
+          selectedProduction.id,
+          payload,
+        );
       } else {
-        await productionService.updateProduction(selectedProduction.id, payload);
+        await productionService.updateProduction(
+          selectedProduction.id,
+          payload,
+        );
       }
-      toast.success('Atualizado com sucesso');
+      toast.success("Atualizado com sucesso");
       setIsEditOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['productions', selectedProfessorId] });
+      queryClient.invalidateQueries({
+        queryKey: ["productions", selectedProfessorId],
+      });
     } catch {
-      toast.error('Erro ao editar publicação.');
+      toast.error("Erro ao editar publicação.");
     }
   }
 
   async function deleteProduction(id: number) {
     try {
-      const response = selectedProfessorId && selectedProfessorId !== 'own'
-        ? await productionService.deleteUserProduction(Number(selectedProfessorId), id)
-        : await productionService.deleteProduction(id);
+      const response =
+        selectedProfessorId && selectedProfessorId !== "own"
+          ? await productionService.deleteUserProduction(
+              Number(selectedProfessorId),
+              id,
+            )
+          : await productionService.deleteProduction(id);
+      console.log(response);
       if (Number(response.status) === 200) {
-        toast.success('Produção deletada com sucesso.');
-        queryClient.invalidateQueries({ queryKey: ['productions', selectedProfessorId] });
+        toast.success("Produção deletada com sucesso.");
+        queryClient.invalidateQueries({
+          queryKey: ["productions", selectedProfessorId],
+        });
       }
     } catch {
-      toast.error('Erro ao deletar a produção.');
+      toast.error("Erro ao deletar a produção.");
     }
   }
 
   async function fullDelete() {
     try {
-      const response = selectedProfessorId && selectedProfessorId !== 'own'
-        ? await productionService.clearUserProductions(Number(selectedProfessorId))
-        : await productionService.clearProductions();
+      const response =
+        selectedProfessorId && selectedProfessorId !== "own"
+          ? await productionService.clearUserProductions(
+              Number(selectedProfessorId),
+            )
+          : await productionService.clearProductions();
       if (Number(response.status) === 200) {
-        toast.success('Produções deletadas com sucesso.');
-        queryClient.invalidateQueries({ queryKey: ['productions', selectedProfessorId] });
+        toast.success("Produções deletadas com sucesso.");
+        queryClient.invalidateQueries({
+          queryKey: ["productions", selectedProfessorId],
+        });
       }
     } catch {
-      toast.error('Erro ao deletar produções.');
+      toast.error("Erro ao deletar produções.");
     }
   }
 
