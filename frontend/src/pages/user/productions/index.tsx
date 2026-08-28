@@ -59,7 +59,10 @@ export default function ProductionsPage() {
       );
     },
     onError: (err) => {
-      const erro = err as { errors: { description: string }[]; code: number };
+      const err = error as unknown as {
+        errors: { description: string }[];
+        code: number;
+      };
       if (erro.code === 422) {
         erro.errors?.map((e) => {
           toast.error(e.description);
