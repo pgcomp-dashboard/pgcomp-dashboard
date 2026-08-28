@@ -14,12 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
-import { ClearProductionsDialog } from "./ProductionDialogs";
 import { configurationService } from "@/services/modules/configuration.service";
-import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-
+import { Plus } from "lucide-react";
+import { useEffect } from "react";
+import { ClearProductionsDialog } from "./ProductionDialogs";
 
 interface ProductionToolbarProps {
   showFilters: boolean;
@@ -32,6 +31,7 @@ interface ProductionToolbarProps {
     tipo: string;
     origem: string;
     qualis: string;
+    isFeatured: string;
   };
   setFilters: (filters: any) => void;
   clearFilters: () => void;
@@ -53,7 +53,6 @@ export function ProductionToolbar({
   onAdd,
   onClearAll,
 }: ProductionToolbarProps) {
-
   const { data: rulesData } = useQuery({
     queryKey: ["rulesYears"],
     queryFn: () => configurationService.getRulesEndAndStartYears(),
@@ -66,7 +65,7 @@ export function ProductionToolbar({
       setFilters({
         ...filters,
         anoInicio: rulesData.startYear.toString(),
-        anoFim: rulesData.endYear.toString()
+        anoFim: rulesData.endYear.toString(),
       });
     }
   }, [rulesData]);
@@ -183,6 +182,24 @@ export function ProductionToolbar({
                     </SelectItem>
                   ),
                 )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-xs mb-1.5 block">Favorito</Label>
+            <Select
+              value={filters.isFeatured}
+              onValueChange={(value) =>
+                setFilters({ ...filters, isFeatured: value })
+              }
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="featured">Favoritados</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -12,10 +12,14 @@ import { useProductionCrud } from "@/features/productions/hooks/useProductionCru
 import { useProductionData } from "@/features/productions/hooks/useProductionData";
 import { useProductionFilters } from "@/features/productions/hooks/useProductionFilters";
 import { FormType } from "@/features/productions/types";
+import { productionService } from "@/services/modules/production.service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ProductionsPage() {
   const [chosenForm, setChosenForm] = useState<FormType>("none");
+  const queryClient = useQueryClient();
 
   const filterState = useProductionFilters();
 
@@ -35,7 +39,35 @@ export default function ProductionsPage() {
     sortConfig: filterState.sortConfig,
   });
 
+  const favoritos = filteredAndSortedProductions?.reduce((acc, p) => {
+    return acc + Number(p.is_featured);
+  }, 0);
+
+  const podeFavoritar = favoritos < 4;
+
+  console.log("podeFavoritar", podeFavoritar);
+
   const crud = useProductionCrud(selectedProfessorId);
+  const featuredMutation = useMutation({
+    mutationFn: (productionId: number) =>
+      productionService.toggleFeatured(productionId),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["productions", "own"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-productions"] });
+      toast.success(
+        response.is_featured ? "Produção favoritada" : "Favorito removido",
+      );
+    },
+    onError: (err) => {
+      const erro = err as { errors: { description: string }[]; code: number };
+      if (erro.code === 422) {
+        erro.errors?.map((e) => {
+          toast.error(e.description);
+        });
+        return;
+      }
+    },
+  });
 
   const currentProf =
     selectedProfessorId !== "own"
@@ -57,7 +89,6 @@ export default function ProductionsPage() {
         professorsList={professorsList}
         lastXmlUpdate={lastXmlUpdate}
       />
-
       <div className="bg-background border rounded-xl shadow-sm overflow-hidden p-6">
         <div className="flex items-center gap-2 mb-6">
           {chosenForm !== "none" && (
@@ -107,6 +138,13 @@ export default function ProductionsPage() {
               confirmDelete={crud.deleteProduction}
               selectedProduction={crud.selectedProduction}
               setProductionToDelete={crud.setSelectedProduction}
+              podeFavoritar={podeFavoritar}
+              onToggleFeatured={
+                selectedProfessorId === "own"
+                  ? (production) => featuredMutation.mutate(production.id)
+                  : undefined
+              }
+              isTogglingFeatured={featuredMutation.isPending}
             />
           </div>
         ) : chosenForm === "xml" ? (
@@ -132,7 +170,6 @@ export default function ProductionsPage() {
           />
         )}
       </div>
-
       <ProductionDialogs
         isEditOpen={crud.isEditOpen}
         setIsEditOpen={crud.setIsEditOpen}

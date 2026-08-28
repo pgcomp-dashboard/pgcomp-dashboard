@@ -166,7 +166,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function writerOf(): BelongsToMany
     {
-        return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
+        return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id')
+            ->withPivot('is_featured');
     }
 
     /**

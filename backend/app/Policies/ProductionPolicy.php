@@ -33,4 +33,12 @@ class ProductionPolicy
     {
         return $user->is_admin || $production->isWroteBy()->where('users.id', $user->id)->exists();
     }
+
+    /**
+     * Determine whether the user can feature the production.
+     */
+    public function feature(User $user, Production $production): bool
+    {
+        return $production->isWroteBy()->where('users.id', $user->id)->exists();
+    }
 }

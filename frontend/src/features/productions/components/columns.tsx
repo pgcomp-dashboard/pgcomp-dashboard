@@ -11,9 +11,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Production } from "@/types/academic";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { SquarePenIcon, Trash } from "lucide-react";
+import { SquarePenIcon, Star, Trash } from "lucide-react";
 import { Link } from "react-router";
 
 const columnHelper = createColumnHelper<Production>();
@@ -24,6 +30,9 @@ interface GetProductionColumnsProps {
   confirmDelete: (id: number) => void;
   selectedProduction?: Production;
   setProductionToDelete: (production: Production | undefined) => void;
+  onToggleFeatured?: (production: Production) => void;
+  isTogglingFeatured?: boolean;
+  podeFavoritar?: boolean;
 }
 
 export const getProductionColumns = ({
@@ -32,6 +41,9 @@ export const getProductionColumns = ({
   confirmDelete,
   selectedProduction,
   setProductionToDelete,
+  onToggleFeatured,
+  isTogglingFeatured,
+  podeFavoritar,
 }: GetProductionColumnsProps): ColumnDef<Production, any>[] => [
   columnHelper.accessor("title", {
     id: "titulo",
@@ -172,6 +184,38 @@ export const getProductionColumns = ({
       const production = row.original;
       return (
         <div className="flex justify-center">
+          {onToggleFeatured && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onToggleFeatured(production)}
+                    disabled={
+                      isTogglingFeatured ||
+                      (!production.is_featured && !podeFavoritar)
+                    }
+                    title={
+                      production.is_featured ? "Remover favorito" : "Favoritar"
+                    }
+                  >
+                    <Star
+                      className={`h-5 w-5 ${production.is_featured ? "fill-amber-400 text-amber-500" : ""}`}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                {!podeFavoritar && !production.is_featured && (
+                  <TooltipContent>
+                    <span>
+                      Você já atingiu o limite de 4 produções favoritas, remova
+                      uma para favoritar outra
+                    </span>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          )}
           <Button
             variant="ghost"
             size="icon"

@@ -26,6 +26,7 @@ class ProductionResource extends JsonResource
             'home_page' =>$this->home_page,
             'nature' => $this->nature,
             'publisher' => $this->whenLoaded('publisher'),
+            'is_featured' => (bool) ($this->is_featured ?? $this->pivot?->is_featured ?? false),
         ];
     }
 }
