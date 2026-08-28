@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ProductionSource;
+use App\Enums\PublisherType;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 /**
@@ -27,6 +28,9 @@ use Illuminate\Validation\Rule;
  * @property int|null $stratum_qualis_id
  * @property int|null $sequence_number
  * @property string|null $doi
+ * @property string|null $source
+ * @property string|null $home_page
+ * @property string|null $nature
  * @property-read Collection|User[] $isWroteBy
  * @property-read int|null $is_wrote_by_count
  * @property-read Model|Eloquent $publisher
@@ -45,10 +49,12 @@ use Illuminate\Validation\Rule;
  * @method static Builder|Production whereTitle($value)
  * @method static Builder|Production whereUpdatedAt($value)
  * @method static Builder|Production whereYear($value)
+ * @method static void saveInterTable()
+ * @method static void removeInterTable()
  *
  * @mixin Eloquent
  */
-class Production extends BaseModel
+class Production extends Model
 {
     use HasFactory;
 
@@ -58,22 +64,16 @@ class Production extends BaseModel
         'publisher_type',
         'publisher_id',
         'doi',
+        'source',
+        'stratum_qualis_id',
+        'home_page',
+        'nature'
     ];
 
-    /**
-     * @return array creation rules to validate attributes.
-     */
-    public static function creationRules(): array
-    {
-        return [
-            'title' => ['required', 'string', 'max:255', Rule::unique(Production::class, 'title')->whereNull('doi')],
-            'year' => 'required|int|date_format:Y',
-            'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255'],
-            'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
-            'doi' => ['nullable', 'string', 'max:255', Rule::unique(Production::class, 'doi')],
-            'sequence_number' => 'nullable|int',
-        ];
-    }
+    protected $casts = [
+        'publisher_type' => PublisherType::class,
+        'source' => ProductionSource::class
+    ];
 
     /**
      * boot the model by setting the production qualis
@@ -85,15 +85,20 @@ class Production extends BaseModel
         static::creating(function (self $production) {
             $production->setQualis();
         });
+
         static::updating(function (self $production) {
             $production->setQualis();
+        });
+
+        static::deleting(function (self $production) {
+            $production->isWroteBy()->detach();
         });
     }
 
     /**
      * Establishes a relationship of belonging-to-many with the user model. When the user write the production.
      *
-     * @return BelongsTo a user can have several products
+     * @return BelongsToMany a user can have several products
      */
     public function isWroteBy(): BelongsToMany
     {
@@ -111,17 +116,31 @@ class Production extends BaseModel
     }
 
     /**
-     * @return array update rules to validate attributes.
+     * Scope a query to include only productions of a specific user.
      */
-    public function updateRules(): array
+    public function scopeOfUser($query, $userId)
     {
-        return [
-            'title' => 'string|max:255',
-            'year' => 'int|date_format:Y',
-            'publisher_type' => ['nullable', 'required_with:publisher_id', 'string', 'max:255'],
-            'publisher_id' => ['nullable', 'int', 'exists:publishers,id'],
-            'sequence_number' => 'nullable|int',
-        ];
+        return $query->whereHas('isWroteBy', function ($q) use ($userId) {
+            $q->where('users.id', $userId);
+        });
+    }
+
+    /**
+     * Scope a query to include only productions written by users of a specific type.
+     */
+    public function scopeOfUserType($query, $type)
+    {
+        return $query->whereHas('isWroteBy', function ($q) use ($type) {
+            $q->where('users.type', $type);
+        });
+    }
+
+    /**
+     * Scope a query to eager load publisher and its stratum qualis.
+     */
+    public function scopeWithPublisherAndQualis($query)
+    {
+        return $query->with(['publisher', 'publisher.stratumQualis']);
     }
 
     /**
@@ -129,92 +148,9 @@ class Production extends BaseModel
      *
      * @param int id to create the relationship between production and user
      */
-    public function saveInterTable($users_id)// : void
+    public function saveInterTable($users_id): void
     {
         $this->isWroteBy()->attach($users_id);
-    }
-
-    /**
-     * @param  ?string  $user_type  the type of the user, if he is a student or a teacher
-     * @param  ?string  $course_id  course_id
-     * @param  ?string  $publisher_type  type of publisher
-     * @return array returns an array containing the amount by total production separated by year
-     */
-    public static function totalProductionsPerYear(?string $user_type, ?string $course_id, ?string $publisher_type): array
-    {
-        $years = range(2014, Carbon::now()->year);
-        $data = [];
-        foreach ($years as $year) {
-            $data[] = Production::where('year', $year)
-                ->when($publisher_type, function (Builder $builder, $publisherType) {
-                    $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
-                        $q->where('publisher_type', $publisherType);
-                    });
-                })
-                ->when($user_type, function (Builder $builder, $userType) {
-                    $builder->whereHas('isWroteBy', function (Builder $builder) use ($userType) {
-                        $builder->where('type', $userType);
-                    });
-                })
-                ->when($course_id, function (Builder $builder, $courseId) {
-                    $builder->whereHas('isWroteBy', function (Builder $builder) use ($courseId) {
-                        $builder->where('course_id', $courseId);
-                    });
-                })
-                ->distinct()
-                ->count();
-        }
-
-        return compact('years', 'data');
-    }
-
-    /**
-     * @param string the type and publication (journal or conference)
-     * @return array returns an array containing publications of the desired type separated by course
-     */
-    public function totalProductionsPerCourse($publisherType): array
-    {
-        $years = range(2014, Carbon::now()->year);
-        $courses = Course::all();
-        $data = [];
-        /** @var Course $course */
-        foreach ($courses as $course) {
-            $courseData = ['label' => $course->name, 'data' => []];
-            foreach ($years as $year) {
-                $courseData['data'][] = Production::where('year', $year)
-                    ->when($publisherType, function (Builder $builder, $publisherType) {
-                        $builder->whereHas('publisher', function (Builder $q) use ($publisherType) {
-                            $q->where('publisher_type', $publisherType);
-                        });
-                    })
-                    ->whereHas('isWroteBy', function (Builder $builder) use ($course) {
-                        $builder->where('course_id', $course->id);
-                    })
-                    ->distinct()
-                    ->count();
-            }
-            $data[] = $courseData;
-        }
-
-        return compact('years', 'data');
-    }
-
-    /**
-     * @param int id of user
-     * @param int id of production
-     * @return stdClass production of a given user
-     */
-    public function findAllUserProductions($user, $production)
-    {
-        $data = DB::table('productions')
-            ->select('productions.id')
-            ->join('users_productions', 'productions.id',
-                '=', 'users_productions.productions_id')
-            ->join('users', 'users.id', '=', 'users_productions.users_id')
-            ->where('users.id', '-', $user)
-            ->where('productions.id', '=', $production);
-
-        return $data;
     }
 
     /**

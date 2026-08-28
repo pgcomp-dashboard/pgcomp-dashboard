@@ -1,58 +1,85 @@
-import React, { createContext, useEffect, useState } from 'react';
-import api from '@/services/api';
+import { useUser } from "@/hooks/use-user";
+import { queryClient } from "@/lib/query-client";
+import { apiClient } from "@/services/http-client";
+import { normalizeUser } from "@/utils/auth-utils";
+import React, { createContext, useEffect, useState } from "react";
 
-const AUTH_TOKEN_STORAGE_KEY = 'auth-token';
+const AUTH_TOKEN_STORAGE_KEY = "auth-token";
+const USER_INFO_STORAGE_KEY = "user-info";
 
-export interface AuthContextType {
-  isLoading: boolean,
-  isAuthenticated: boolean,
-  login(token: string): void,
-  logout(): void,
+export interface User {
+  name: string;
+  role: string;
+  is_approved: boolean;
+  type?: string;
+  productions_count?: number;
 }
 
-export const AuthContext = createContext<AuthContextType>({
-  isLoading: true,
-  isAuthenticated: false,
-  login: () => {},
-  logout: () => {},
-});
+export interface AuthContextType {
+  user: User | undefined;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  isManager: boolean;
+  login(token: string, userData: User): void;
+  logout(): void;
+}
+
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
 export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
-  const [ loading, setLoading ] = useState<boolean>(true);
-  const [ token, setToken ] = useState<string | undefined>(undefined);
+  const [token, setToken] = useState<string | undefined>(() => {
+    return localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) || undefined;
+  });
+  const { data: user, isLoading, error } = useUser(!!token);
 
-  // Load the initial token
+  // Load the initial infos
   useEffect(() => {
-    const storedToken = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-
-    if (storedToken) {
-      setToken(storedToken);
-    }
-
-    setLoading(false);
-  }, []);
-
-  // Run every time that the token updates
-  useEffect(() => {
-    api.setAuthToken(token);
     if (token) {
+      apiClient.setAuthToken(token);
       localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
     } else {
+      apiClient.setAuthToken(undefined);
       localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+      localStorage.removeItem(USER_INFO_STORAGE_KEY);
     }
-  }, [ token ]);
+  }, [token]);
 
-  function login(token: string) {
-    setToken(token);
+  useEffect(() => {
+    if (error) {
+      logout();
+    }
+  }, [error]);
+
+  function login(newToken: string, userData: User) {
+    const cleanUser = normalizeUser(userData);
+
+    apiClient.setAuthToken(newToken);
+
+    localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, newToken);
+    localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(cleanUser));
+
+    setToken(newToken);
   }
 
   function logout() {
     setToken(undefined);
+    queryClient.clear();
   }
 
+  const contextValue: AuthContextType = {
+    user,
+    isLoading,
+    isAuthenticated: !!token && !!user,
+    isAdmin: user?.role === "admin",
+    isManager: user?.type === "manager",
+    login,
+    logout,
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!token, login, logout, isLoading: loading }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };

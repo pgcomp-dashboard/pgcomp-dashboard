@@ -28,7 +28,7 @@ class IsAdmin
             throw new AuthenticationException;
         }
         if (! $user->is_admin) {
-            throw new AuthorizationException('Unauthorized.');
+            return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
         return $next($request);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserCategory;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use App\Exceptions\IsProtectedException;
@@ -17,6 +18,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\Access\Authorizable;
@@ -57,6 +59,8 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property string|null $defended_at
  * @property string|null $lattes_id
  * @property string|null $lattes_updated_at
+ * @property string|null $admin_status
+ * @property UserCategory $category
  * @property-read Collection|User[] $advisedes
  * @property-read int|null $advisedes_count
  * @property-read Collection|User[] $advisors
@@ -101,7 +105,7 @@ use Laravel\Sanctum\PersonalAccessToken;
  *
  * @mixin Eloquent
  */
-class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
+class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
     use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;
     use HasApiTokens, HasFactory, Notifiable;
@@ -111,14 +115,19 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'siape',
         'name',
         'type',
+        'category',
         'area_id',
         'email',
         'password',
         'course_id',
         'lattes_url',
-        'is_admin',
-        'is_protected',
+        'admin_status',
         'defended_at',
+        'pq',
+        'orcid',
+        'lattes_xml_path',
+        'lattes_xml_uploaded_at',
+        'is_senior',
     ];
 
     protected $hidden = [
@@ -135,6 +144,10 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'type' => UserType::class,
         'siape' => 'int',
         'course_id' => 'int',
+        'pq' => 'boolean',
+        'is_approved' => 'boolean',
+        'is_senior' => 'boolean',
+        'lattes_xml_uploaded_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -142,90 +155,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'is_protected' => true,
     ];
 
-    /**
-     * @return array creation rules to validate attributes.
-     */
-    public static function creationRules(): array
-    {
-        return [
-            'registration' => 'nullable|int|required_if:type,'.UserType::STUDENT->value,
-            'siape' => 'nullable|int|required_if:type,'.UserType::PROFESSOR->value,
-            'name' => 'required|string|max:255',
-            'type' => ['required', new Enum(UserType::class)],
-            'area_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Area::class, 'id'),
-            ],
-            'email' => [
-                'nullable',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique(User::class),
-            ],
-            'password' => ['required', 'string', new Password, 'confirmed'],
-            'course_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Course::class, 'id'),
-                'required_if:type,'.UserType::STUDENT->value,
-            ],
-            'lattes_url' => 'nullable|string|max:255',
-            'is_admin' => 'nullable|bool',
-            'is_protected' => 'nullable|bool',
-        ];
-    }
-
-    /**
-     * Create or update a user of type student
-     *
-     * @param array array with user data
-     * @return User instance of user model
-     */
-    public static function createOrUpdateStudent(array $data): User
-    {
-        $data['type'] = UserType::STUDENT->value;
-        $password = Hash::make(Str::random(12));
-        // TODO: Will this override the password????
-        $data['password'] = $password;
-        $data['password_confirmation'] = $password;
-
-        return User::updateOrCreate(
-            Arr::only($data, ['registration']),
-            $data
-        );
-    }
-
-    /**
-     * Create or update a user of type professor
-     *
-     * @param array array with user data
-     * @return User instance of user model
-     */
-    public static function createOrUpdateTeacherByScraping(array $data): User
-    {
-        $data['type'] = UserType::PROFESSOR->value;
-        $password = Hash::make(Str::random(12));
-        // TODO: Will this override the password? Reuse?
-        $userIsProtected = isset($data['siape']) ?
-            User::where('siape', $data['siape'])
-                ->where('is_protected', true)
-                ->exists()
-            : null;
-
-        if ($userIsProtected) {
-            throw new IsProtectedException('Ação não permitida em usuarios protegidos');
-        }
-        $data['password'] = $password;
-        $data['password_confirmation'] = $password;
-        $data['is_protected'] = false;
-
-        return User::updateOrCreate(
-            Arr::only($data, ['siape']),
-            $data
-        );
-    }
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
 
     /**
      * Establishes a relationship of belongsToMany with the production model
@@ -234,65 +166,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
      */
     public function writerOf(): BelongsToMany
     {
-        return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id');
-    }
-
-    /**
-     * Find a user based on a given name
-     *
-     * @param  string  $UserName,  a string of user`name
-     * @return User instance of user model.
-     */
-    public function findUserByName($UserName): User
-    {
-        return User::where('name', $UserName)->firstOrFail();
-    }
-
-    /**
-     * Find a user with type professor based on your siape
-     *
-     * @param  int  $siape  teacher's siape
-     * @return User instance of user model.
-     */
-    public function findProfessorBySiape(int $siape): User
-    {
-        return User::where('siape', $siape)->firstOrFail();
-    }
-
-    /**
-     * Find a user with type student  based on your registration
-     *
-     * @param  int  $registration  of user
-     * @return User instance of user model.
-     */
-    public function findStudentByRegistration($registration): User
-    {
-        return User::where('registration', $registration)->firstOrFail();
-    }
-
-    /**
-     * @return array update rules to validate attributes.
-     */
-    public function updateRules(): array
-    {
-        $courseIdRules = [
-            'int',
-            Rule::exists(Course::class, 'id'),
-        ];
-        if ($this->type === UserType::PROFESSOR) {
-            $courseIdRules[] = 'nullable';
-        }
-
-        return [
-            'name' => 'string|max:255',
-            'area_id' => [
-                'nullable',
-                'int',
-                Rule::exists(Area::class, 'id'),
-            ],
-            'course_id' => $courseIdRules,
-            'lattes_url' => 'nullable|string|max:255',
-        ];
+        return $this->belongsToMany(Production::class, 'users_productions', 'users_id', 'productions_id')
+            ->withPivot('is_featured');
     }
 
     /**
@@ -350,41 +225,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             ->toArray();
     }
 
-    public static function countAdvisedStudentsByProfessorAndCourse(int $professorId, ?string $courseType = null): array
-    {
-        $query = DB::table('user_user as uu')
-            ->join('users as students', 'uu.student_user_id', '=', 'students.id')
-            ->join('courses as c', 'students.course_id', '=', 'c.id')
-            ->where('uu.professor_user_id', $professorId)
-            ->where('uu.relation_type', UserRelationType::ADVISOR)
-            ->whereNull('students.defended_at'); // Apenas conta alunos orientados ativos
 
-        if ($courseType) {
-            $query->where('c.name', $courseType);
-        }
-
-        return $query->groupBy('c.name')
-            ->selectRaw('c.name, COUNT(students.id) AS total')
-            ->pluck('total', 'name')
-            ->toArray();
-    }
-
-    public static function countDefendedAdvisedStudentsByProfessor(int $professorId, ?string $courseType = null): int
-    {
-        $query = DB::table('user_user as uu')
-            ->join('users as students', 'uu.student_user_id', '=', 'students.id')
-            ->join('courses as c', 'students.course_id', '=', 'c.id')
-            ->where('uu.professor_user_id', $professorId)
-            ->where('uu.relation_type', UserRelationType::ADVISOR)
-            ->whereNotNull('students.defended_at'); // Contar apenas defendidos
-
-        if ($courseType) {
-            $query->where('c.name', $courseType);
-        }
-
-        return $query->count('students.id');
-    }
-    
     public function sendPasswordResetNotification($token)
     {
         ResetPasswordNotification::createUrlUsing(function (User $user, string $token) {
@@ -397,29 +238,41 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public function updateLattes(array $data): void
     {
-        foreach ($data['productions'] as $production) {
-            if (! $production['doi']) {
+        foreach ($data['productions'] as $productionData) {
+            if ($productionData['nature'] !== "COMPLETO") {
                 continue;
             }
-            $this->writerOf()->updateOrCreate(Arr::only($production, ['doi']), $production);
+
+            // Match production by DOI or by Title + Year
+            $doi = $productionData['doi'] ?? null;
+            if ($doi === 'http://dx.doi.org/') {
+                $doi = null;
+                $productionData['doi'] = null;
+            }
+
+            if ($doi) {
+                $production = Production::updateOrCreate(
+                    ['doi' => $doi],
+                    $productionData
+                );
+            } else {
+                // If no DOI, match by title and year to avoid overwriting all null-DOI productions
+                $production = Production::updateOrCreate(
+                    [
+                        'title' => $productionData['title'],
+                        'year' => (int) $productionData['year'],
+                        'doi' => null
+                    ],
+                    $productionData
+                );
+            }
+
+            $this->writerOf()->syncWithoutDetaching([$production->id]);
         }
-        $this->lattes_updated_at = $data['lattes_updated_at'];
+        $this->lattes_xml_uploaded_at = $data['lattes_xml_uploaded_at'] ?? $data['lattes_updated_at'] ?? null;
         $this->save();
     }
 
-    protected function checkIfUserAlreadyExist($sigaaId)
-    {
-        return User::find($sigaaId);
-    }
-
-    protected function checkIfUserWasFound($user)
-    {
-        if (is_null($user)) {
-            return 'error';
-        }
-
-        return $user;
-    }
 
     public function programs(): BelongsToMany
     {
@@ -433,39 +286,67 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public static function mestrandos(): Builder
     {
-        return static::query()
-            ->join('courses', 'courses.id', '=', 'users.course_id')
-            ->where('courses.name', 'Mestrado');
+        return static::query()->whereHas('course', function ($query) {
+            $query->where('name', 'Mestrado');
+        });
+
+        //return static::query()
+        //    ->join('courses', 'courses.id', '=', 'users.course_id')
+        //    ->where('courses.name', 'Mestrado');
     }
 
     public static function doutorandos(): Builder
     {
-        return static::query()
-            ->join('courses', 'courses.id', '=', 'users.course_id')
-            ->where('courses.name', 'Doutorado');
+        return static::query()->whereHas('course', function ($query) {
+            $query->where('name', 'Doutorado');
+        });
+
+        //return static::query()
+        //    ->join('courses', 'courses.id', '=', 'users.course_id')
+        //    ->where('courses.name', 'Doutorado');
     }
 
-    public static function createOrUpdateStudentByScraping(array $data): User
+    public function scopeOnlyPendingAdminRequest($query)
     {
-        $data['type'] = UserType::STUDENT->value;
-        $password = Hash::make(Str::random(12));
-        // TODO: Will this override the password????
-        $data['password'] = $password;
-        $data['password_confirmation'] = $password;
-        $userIsProtected = isset($data['registration']) ?
-            User::where('registration', $data['registration'])
-                ->where('is_protected', true)
-                ->first()
-            : null;
+        return $query->where('admin_status', 'pending');
+    }
 
-        if ($userIsProtected) {
-            throw new IsProtectedException('Ação não permitida em usuarios protegidos');
-        }
-        $data['is_protected'] = false;
+    public function scopeAnyAdminRequest($query)
+    {
+        return $query->whereNotNull('admin_status')
+                ->where('admin_status', '<>', '');
+    }
 
-        return User::updateOrCreate(
-            Arr::only($data, ['registration']),
-            $data
-        );
+    public function scopeProfessors($query)
+    {
+        return $query->where('users.type', UserType::PROFESSOR);
+    }
+
+    public function scopeStudents($query)
+    {
+        return $query->where('users.type', UserType::STUDENT);
+    }
+
+    public function scopeOnlyApproved($query)
+    {
+        return $query->where('is_approved', true);
+    }
+
+      /**
+    * Productions that this user belongs to.
+    */
+    public function productions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+      return $this->belongsToMany(Production::class, 'production_user', 'user_id', 'production_id')
+        ->withTimestamps();
+    }
+     /**
+    * Projects that this user participates in.
+    */
+    public function projects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+      return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id')
+        ->withPivot('role')
+        ->withTimestamps();
     }
 }

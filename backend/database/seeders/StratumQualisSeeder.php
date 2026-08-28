@@ -16,19 +16,30 @@ class StratumQualisSeeder extends Seeder
     public function run()
     {
         $data = [
-            ['code' => 'A1', 'score' => 100],
-            ['code' => 'A2', 'score' => 90],
-            ['code' => 'A3', 'score' => 80],
-            ['code' => 'A4', 'score' => 70],
-            ['code' => 'B1', 'score' => 40],
-            ['code' => 'B2', 'score' => 30],
-            ['code' => 'B3', 'score' => 20],
-            ['code' => 'B4', 'score' => 10],
-            ['code' => '-', 'score' => 0],
+            ['type' => 'journal', 'code' => 'A1', 'score' => 100],
+            ['type' => 'journal', 'code' => 'A2', 'score' => 87.5],
+            ['type' => 'journal', 'code' => 'A3', 'score' => 75],
+            ['type' => 'journal', 'code' => 'A4', 'score' => 62.5],
+            ['type' => 'journal', 'code' => 'B1', 'score' => 0],
+            ['type' => 'journal', 'code' => 'B2', 'score' => 0],
+            ['type' => 'journal', 'code' => 'B3', 'score' => 0],
+            ['type' => 'journal', 'code' => 'B4', 'score' => 0],
+            ['type' => 'journal', 'code' => 'C', 'score' => 0],
+            ['type' => 'journal', 'code' => 'NI', 'score' => 0],
+            ['type' => 'conference', 'code' => 'A1', 'score' => 50],
+            ['type' => 'conference', 'code' => 'A2', 'score' => 43.75],
+            ['type' => 'conference', 'code' => 'A3', 'score' => 37.5],
+            ['type' => 'conference', 'code' => 'A4', 'score' => 31.25],
+            ['type' => 'conference', 'code' => 'B1', 'score' => 0],
+            ['type' => 'conference', 'code' => 'B2', 'score' => 0],
+            ['type' => 'conference', 'code' => 'B3', 'score' => 0],
+            ['type' => 'conference', 'code' => 'B4', 'score' => 0],
+            ['type' => 'conference', 'code' => 'C', 'score' => 0],
+            ['type' => 'conference', 'code' => 'NI', 'score' => 0],
         ];
 
         foreach ($data as $item) {
-            StratumQualis::updateOrCreate(Arr::only($item, ['code']), $item);
+            StratumQualis::updateOrCreate(Arr::only($item, ['type', 'code']), $item);
         }
     }
 }

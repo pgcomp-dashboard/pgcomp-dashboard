@@ -9,6 +9,7 @@ use InvalidArgumentException;
 
 class Kernel extends ConsoleKernel
 {
+
     /**
      * Define the application's command schedule.
      *
@@ -17,9 +18,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $day = Redis::get('scraping:run');
-        $schedule->command('telescope:prune --hours=48')->daily();
-        $schedule->command('scraping:run')->cron("0 0 */$day * *");
+        // $day = Redis::get('scraping:run');
+        // $schedule->command('telescope:prune --hours=48')->daily();
+        // $schedule->command('scraping:run')->cron("0 0 */$day * *");
+        $schedule->command('mail:send-accreditation-warning')->yearlyOn(7, 1, '08:00');
+        $schedule->command('mail:send-lattes-reminder')->cron('0 8 1 4,10 *');
+
     }
 
     /**
