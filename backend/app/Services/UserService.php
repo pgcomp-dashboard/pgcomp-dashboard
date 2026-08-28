@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Enums\UserType;
 use App\Models\User;
+use App\Models\Production;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\QueryBuilder\QueryBuilder;
+use Illuminate\Validation\ValidationException;
 
 class UserService
 {
@@ -199,5 +201,42 @@ class UserService
     public function findStudent(int $id): User
     {
         return User::students()->findOrFail($id);
+    }
+
+    /**
+     * Alterna o status de destaque (is_featured) de uma produção para um usuário específico na pivot.
+     *
+     * @throws ValidationException
+     */
+    public function toggleFeatured(User $user, Production $production): bool
+    {
+        $associatedProduction = $user->writerOf()->where('productions_id', $production->id)->first();
+
+        if (!$associatedProduction) {
+            throw ValidationException::withMessages([
+                'production' => 'Esta produção não está vinculada a este autor.',
+            ]);
+        }
+
+        $currentStatus = (bool) $associatedProduction->pivot->is_featured;
+        $newStatus = !$currentStatus;
+
+        if ($newStatus) {
+            $totalFeatured = $user->writerOf()
+                ->wherePivot('is_featured', true)
+                ->count();
+
+            if ($totalFeatured >= 4) {
+                throw ValidationException::withMessages([
+                    'is_featured' => 'Você já atingiu o limite máximo de 4 produções em destaque.',
+                ]);
+            }
+        }
+
+        $user->writerOf()->updateExistingPivot($production->id, [
+            'is_featured' => $newStatus,
+        ]);
+
+        return $newStatus;
     }
 }

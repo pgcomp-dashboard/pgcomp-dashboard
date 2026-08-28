@@ -23,7 +23,7 @@ class ProfessorProductionController extends Controller
     {
         $typeCounts = $this->productionService->getTypeCounts($professors);
 
-        $productions = $this->productionService->getProductionsForUser($professors);
+        $productions = $this->productionService->getProductionsForUser($professors, $request->all());
 
         return response()->json([
             'data' => $productions->toArray(),

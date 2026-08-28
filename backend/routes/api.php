@@ -23,6 +23,7 @@ use App\Http\Controllers\User\AdminRequestController;
 use App\Http\Controllers\User\ProductionController;
 use App\Http\Controllers\Admin\ProductionController as ProductionAdminController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\UsersProductionsController;
 use App\Http\Controllers\User\PublisherController as UserPublisherController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
@@ -65,6 +66,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::put('user/password', [UserController::class, 'changePassword']);
         Route::post('lattes-update', [ProductionController::class, 'importLattesFile']);
         Route::get('productions', [ProductionController::class, 'userProductions']);
+        Route::post('productions/{production}/featured', [UsersProductionsController::class, 'toggleFeatured']);
         Route::post('productions', [ProductionController::class, 'userCreateProduction']);
         Route::delete('productions/all', [ProductionController::class, 'deleteAll']);
         Route::apiResource('productions', ProductionController::class)->only(['update', 'destroy']);
@@ -108,6 +110,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('students.productions', StudentProductionController::class)
             ->except(['destroy']);
         Route::apiResource('professors', ProfessorController::class);
+        Route::get('productions/featured', [UsersProductionsController::class, 'getFeatured']);
         Route::apiResource('professors.productions', ProfessorProductionController::class);
         Route::post('professors/{professors}/productions/doi', [ProfessorProductionController::class, 'storeFromDoi']);
         Route::delete('professors/{professors}/productions-all', [ProfessorProductionController::class, 'destroyAll']);

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 
 export interface ProductionFilters {
   titulo: string;
@@ -9,24 +9,26 @@ export interface ProductionFilters {
   tipo: string;
   origem: string;
   qualis: string;
+  isFeatured: string;
 }
 
 const defaultFilters: ProductionFilters = {
-  titulo: '',
-  local: '',
-  anoInicio: 'all',
-  anoFim: 'all',
-  tipo: 'all',
-  origem: 'all',
-  qualis: 'all',
+  titulo: "",
+  local: "",
+  anoInicio: "all",
+  anoFim: "all",
+  tipo: "all",
+  origem: "all",
+  qualis: "all",
+  isFeatured: "all",
 };
 
-type SortKey = 'titulo' | 'local' | 'year' | 'tipo' | 'origem' | 'pontuacao';
+type SortKey = "titulo" | "local" | "year" | "tipo" | "origem" | "pontuacao";
 
 export function useProductionFilters() {
   const [searchParams] = useSearchParams();
-  const initialYearParam = searchParams.get('initialYear');
-  const finalYearParam = searchParams.get('finalYear');
+  const initialYearParam = searchParams.get("initialYear");
+  const finalYearParam = searchParams.get("finalYear");
 
   const [filters, setFilters] = useState<ProductionFilters>({
     ...defaultFilters,
@@ -35,8 +37,8 @@ export function useProductionFilters() {
   });
   const [sortConfig, setSortConfig] = useState<{
     key: SortKey;
-    direction: 'asc' | 'desc';
-  }>({ key: 'year', direction: 'desc' });
+    direction: "asc" | "desc";
+  }>({ key: "year", direction: "desc" });
   const [showFilters, setShowFilters] = useState(false);
 
   const clearFilters = () => setFilters(defaultFilters);
@@ -44,15 +46,16 @@ export function useProductionFilters() {
   const handleSort = (key: SortKey) => {
     setSortConfig((prev) => ({
       key,
-      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
+      direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
     }));
   };
 
   const hasActiveFilters = useMemo(
-    () => Object.entries(filters).some(([key, value]) => {
-      if (key === 'titulo' || key === 'local') return value.trim() !== '';
-      return value !== 'all';
-    }),
+    () =>
+      Object.entries(filters).some(([key, value]) => {
+        if (key === "titulo" || key === "local") return value.trim() !== "";
+        return value !== "all";
+      }),
     [filters],
   );
 

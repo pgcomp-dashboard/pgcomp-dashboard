@@ -1,14 +1,14 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
-import ProjectDashboardPage from "@/pages/admin/projects-dashboard";
-import ProjectsPage from "@/pages/user/projects";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import AdminLayout from "@/layouts/admin/admin-layout";
 import CredenciamentoPage from "@/pages/admin/accreditation";
 import AreasPage from "@/pages/admin/areas";
+import FeaturedProductionsPage from "@/pages/admin/featured-productions";
 import LattesUploadsPage from "@/pages/admin/lattes-uploads";
 import ProfessorsPage from "@/pages/admin/professors";
+import ProjectDashboardPage from "@/pages/admin/projects-dashboard";
 import PublishersPage from "@/pages/admin/publishers";
 import QualisPage from "@/pages/admin/qualis/index";
 import StudentsPage from "@/pages/admin/students";
@@ -21,6 +21,7 @@ import WaitingApprovalPage from "@/pages/auth/waiting-approval";
 import NotFoundPage from "@/pages/not-found";
 import ProductionsPage from "@/pages/user/productions";
 import ProfilePage from "@/pages/user/profile";
+import ProjectsPage from "@/pages/user/projects";
 import WelcomePage from "@/pages/user/welcome";
 
 import RulesPage from "@/pages/admin/rules";
@@ -63,13 +64,27 @@ export function AppRoutes() {
               <Route path="areas" element={<AreasPage />} />
               <Route path="students" element={<StudentsPage />} />
               <Route path="credenciamento" element={<CredenciamentoPage />} />
-              <Route path="projects-dashboard" element={<ProjectDashboardPage />} />
+              <Route
+                path="projects-dashboard"
+                element={<ProjectDashboardPage />}
+              />
               <Route path="professors" element={<ProfessorsPage />} />
+              <Route
+                path="featured-productions"
+                element={<FeaturedProductionsPage />}
+              />
               <Route path="publishers" element={<PublishersPage />} />
               <Route path="qualis" element={<QualisPage />} />
               <Route path="rules" element={<RulesPage />} />
               <Route path="system-config" element={<SystemConfigPage />} />
-              <Route path="dashboard" element={<Suspense fallback={<LoadingSpinner />}><DashboardPage /></Suspense> } />
+              <Route
+                path="dashboard"
+                element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <DashboardPage />
+                  </Suspense>
+                }
+              />
               <Route element={<EnsureManager />}>
                 <Route path="lattes-uploads" element={<LattesUploadsPage />} />
               </Route>

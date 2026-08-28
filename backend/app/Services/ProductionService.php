@@ -12,6 +12,7 @@ use App\Models\User;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -208,6 +209,13 @@ class ProductionService
     public function getProductionsForUser(int $userId, array $params = [])
     {
         return QueryBuilder::for(Production::ofUser($userId))
+            ->addSelect([
+                'is_featured' => DB::table('users_productions')
+                    ->select('is_featured')
+                    ->whereColumn('users_productions.productions_id', 'productions.id')
+                    ->where('users_id', $userId)
+                    ->limit(1),
+            ])
             ->withPublisherAndQualis()
             ->allowedFilters([
                 AllowedFilter::partial('title'),
@@ -218,6 +226,17 @@ class ProductionService
                 AllowedFilter::exact('tipo', 'publisher_type'), // Alias
                 AllowedFilter::exact('source'),
                 AllowedFilter::exact('origem', 'source'), // Alias
+                AllowedFilter::callback('is_featured', function ($query, $value) use ($userId) {
+                    if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                        $query->whereExists(function ($subQuery) use ($userId) {
+                            $subQuery->select(DB::raw(1))
+                                ->from('users_productions')
+                                ->whereColumn('users_productions.productions_id', 'productions.id')
+                                ->where('users_id', $userId)
+                                ->where('is_featured', true);
+                        });
+                    }
+                }),
             ])
             ->allowedSorts(['title', 'year', 'created_at'])
             ->get();

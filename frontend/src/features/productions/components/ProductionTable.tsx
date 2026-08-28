@@ -14,7 +14,7 @@ import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { Production } from "@/types/academic";
 import { OnChangeFn, Row, SortingState } from "@tanstack/react-table";
-import { SquarePenIcon, Trash } from "lucide-react";
+import { SquarePenIcon, Star, Trash } from "lucide-react";
 import { useMemo } from "react";
 import { getProductionColumns } from "./columns";
 
@@ -32,6 +32,9 @@ interface ProductionTableProps {
   confirmDelete: (id: number) => void;
   selectedProduction?: Production;
   setProductionToDelete: (production: Production | undefined) => void;
+  onToggleFeatured?: (production: Production) => void;
+  isTogglingFeatured?: boolean;
+  podeFavoritar?: boolean;
 }
 
 export function ProductionTable({
@@ -45,6 +48,9 @@ export function ProductionTable({
   confirmDelete,
   selectedProduction,
   setProductionToDelete,
+  onToggleFeatured,
+  isTogglingFeatured,
+  podeFavoritar,
 }: ProductionTableProps) {
   const columns = useMemo(
     () =>
@@ -54,6 +60,9 @@ export function ProductionTable({
         confirmDelete,
         selectedProduction,
         setProductionToDelete,
+        onToggleFeatured,
+        isTogglingFeatured,
+        podeFavoritar,
       }),
     [
       onEdit,
@@ -61,6 +70,9 @@ export function ProductionTable({
       confirmDelete,
       selectedProduction,
       setProductionToDelete,
+      onToggleFeatured,
+      isTogglingFeatured,
+      podeFavoritar,
     ],
   );
 
@@ -137,6 +149,20 @@ export function ProductionTable({
         </div>
 
         <CardFooter className="flex border-t mt-auto items-stretch p-0">
+          {onToggleFeatured && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-none h-11 px-4"
+              onClick={() => onToggleFeatured(production)}
+              disabled={isTogglingFeatured || !podeFavoritar}
+              title={production.is_featured ? "Remover favorito" : "Favoritar"}
+            >
+              <Star
+                className={`h-4 w-4 ${production.is_featured ? "fill-amber-400 text-amber-500" : ""}`}
+              />
+            </Button>
+          )}
           <Button
             variant="ghost"
             className="flex-1 rounded-none h-11 text-sm bg-transparent hover:bg-accent"

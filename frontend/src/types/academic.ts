@@ -51,6 +51,7 @@ export interface Production {
   nature: string | null;
   publisher: Publisher | null;
   source: string;
+  is_featured?: boolean;
 }
 
 export type RankingProduction = Pick<
