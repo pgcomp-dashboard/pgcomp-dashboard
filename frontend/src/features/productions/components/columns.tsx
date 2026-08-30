@@ -188,22 +188,26 @@ export const getProductionColumns = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onToggleFeatured(production)}
-                    disabled={
-                      isTogglingFeatured ||
-                      (!production.is_featured && !podeFavoritar)
-                    }
-                    title={
-                      production.is_featured ? "Remover favorito" : "Favoritar"
-                    }
-                  >
-                    <Star
-                      className={`h-5 w-5 ${production.is_featured ? "fill-amber-400 text-amber-500" : ""}`}
-                    />
-                  </Button>
+                  <span className="inline-block">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onToggleFeatured(production)}
+                      disabled={
+                        isTogglingFeatured ||
+                        (!production.is_featured && !podeFavoritar)
+                      }
+                      title={
+                        production.is_featured
+                          ? "Remover favorito"
+                          : "Favoritar"
+                      }
+                    >
+                      <Star
+                        className={`h-5 w-5 ${production.is_featured ? "fill-amber-400 text-amber-500" : ""}`}
+                      />
+                    </Button>
+                  </span>
                 </TooltipTrigger>
                 {!podeFavoritar && !production.is_featured && (
                   <TooltipContent>
