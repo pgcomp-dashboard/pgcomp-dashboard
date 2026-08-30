@@ -41,6 +41,11 @@ export default function FeaturedProductionsPage() {
   const groups = data?.data ?? [];
   const meta = data?.meta;
 
+  const tipoPublicacaoMapper = {
+    journal: "Periódico",
+    conference: "Conferência",
+  };
+
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div>
@@ -101,12 +106,22 @@ export default function FeaturedProductionsPage() {
                 </TableHeader>
                 <TableBody>
                   {group.productions.map((favorite) => (
-                    <TableRow key={favorite.id}>
+                    <TableRow
+                      key={`${favorite.production.id}-${group.professor.id}`}
+                    >
                       <TableCell className="font-medium">
                         {favorite.production.title}
                       </TableCell>
                       <TableCell>{favorite.production.year}</TableCell>
-                      <TableCell>{favorite.production.type}</TableCell>
+                      <TableCell>
+                        {
+                          tipoPublicacaoMapper?.[
+                            favorite.production.type?.toLowerCase() as
+                              | "journal"
+                              | "conference"
+                          ]
+                        }
+                      </TableCell>
                       <TableCell>
                         {favorite.production.publisher || "N/A"}
                       </TableCell>

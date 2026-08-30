@@ -23,7 +23,7 @@ class UsersProductionsController extends Controller
         $perPage = max((int) $request->query('per_page', 15), 1);
         $professorId = $request->integer('professor_id');
 
-        $professors = UsersProductions::with('user')
+        $professors = UsersProductions::with(['user', 'production.publisher'])
             ->where('is_featured', true)
             ->when($professorId, fn ($query) => $query->where('users_id', $professorId))
             ->select('users_id')

@@ -28,7 +28,7 @@ class UserFeaturedProductionResource extends JsonResource
                     'id' => $this->production->id,
                     'title' => $this->production->title,
                     'year' => $this->production->year,
-                    'type' => $this->production->type,
+                    'type' => $this->production->publisher_type,
                     'publisher' => $this->production->publisher?->name,
                 ];
             }),
