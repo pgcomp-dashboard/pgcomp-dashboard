@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Course;
+use App\Models\Defense;
 use App\Models\Production;
 use App\Models\StratumQualis;
 use App\Models\User;
@@ -25,9 +26,9 @@ class DashboardService
         $query = User::where('type', UserType::PROFESSOR)
             ->withCount(['advisedes as advisedes_count' => function ($query) use ($userType, $courseNameForCount) {
                 if ($userType === 'completed') {
-                    $query->whereNotNull('defended_at');
+                    $query->whereHas('defenses');
                 } else {
-                    $query->whereNull('defended_at');
+                    $query->whereDoesntHave('defenses');
                 }
 
                 if ($courseNameForCount) {
@@ -44,25 +45,21 @@ class DashboardService
 
     public function getDefensesPerYear()
     {
-        $mestrado = User::mestrandos()
-            ->whereNotNull('defended_at')
-            ->selectRaw('YEAR(defended_at) AS year, COUNT(*) AS total')
-            ->groupBy('year')
-            ->pluck('total', 'year');
+        $totals = Defense::selectRaw('YEAR(defended_at) AS year, type, COUNT(*) AS total')
+            ->whereIn('type', [Defense::TYPE_MESTRADO, Defense::TYPE_DOUTORADO])
+            ->groupBy('year', 'type')
+            ->get();
 
-        $doutorado = User::doutorandos()
-            ->whereNotNull('defended_at')
-            ->selectRaw('YEAR(defended_at) AS year, COUNT(*) AS total')
-            ->groupBy('year')
-            ->pluck('total', 'year');
+        $mestrado = $totals->where('type', Defense::TYPE_MESTRADO)->pluck('total', 'year');
+        $doutorado = $totals->where('type', Defense::TYPE_DOUTORADO)->pluck('total', 'year');
 
         $allYears = collect($mestrado->keys())->merge($doutorado->keys())->unique()->sort();
 
         return $allYears->map(function ($year) use ($mestrado, $doutorado) {
             return [
                 'year' => $year,
-                'mestrado' => $mestrado[$year] ?? 0,
-                'doutorado' => $doutorado[$year] ?? 0,
+                'mestrado' => (int) ($mestrado[$year] ?? 0),
+                'doutorado' => (int) ($doutorado[$year] ?? 0),
             ];
         })->values();
     }
