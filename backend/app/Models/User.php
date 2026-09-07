@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
@@ -69,6 +70,8 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property-read int|null $coadviseees_count
  * @property-read Collection|User[] $coadvisors
  * @property-read int|null $coadvisors_count
+ * @property-read Collection|Defense[] $defenses
+ * @property-read int|null $defenses_count
  * @property-read Collection|User[] $isAdvisoredBy
  * @property-read int|null $is_advisored_by_count
  * @property-read DatabaseNotificationCollection|DatabaseNotification[] $notifications
@@ -282,6 +285,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public function defenses(): HasMany
+    {
+        return $this->hasMany(Defense::class);
     }
 
     public static function mestrandos(): Builder
