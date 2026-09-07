@@ -49,6 +49,10 @@ Route::get('healthcheck', function (Request $request) {
     return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
 });
 
+// Public auth routes
+Route::post('student-registration/request', [UserController::class, 'requestStudentRegistration']);
+Route::post('student-registration/confirm', [UserController::class, 'confirmStudentRegistration']);
+
 // Middleware
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

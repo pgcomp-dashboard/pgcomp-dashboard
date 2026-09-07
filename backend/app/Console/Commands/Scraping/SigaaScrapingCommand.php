@@ -88,9 +88,11 @@ class SigaaScrapingCommand extends Command
 
     private function createOrUpdateTeachers(array $teachers): void
     {
+        $service = app(\App\Services\UserService::class);
+
         foreach ($teachers as $teacher) {
             try {
-                $user = User::createOrUpdateTeacherByScraping($teacher);
+                $user = $service->createOrUpdateTeacherByScraping($teacher);
                 $this->info("Docente {$user->name} cadastrado/atualizado com sucesso");
             } catch (IsProtectedException $exception) {
                 $msg = "Erro ao cadastrar/atualizar docente {$teacher['name']}: {$exception->getMessage()}";
@@ -106,10 +108,12 @@ class SigaaScrapingCommand extends Command
 
     private function createOrUpdateStudents(array $students): void
     {
+        $service = app(\App\Services\UserService::class);
+
         foreach ($students as $student) {
             try {
-                $user = DB::transaction(function () use ($student) {
-                    $user = User::createOrUpdateStudentByScraping($student);
+                $user = DB::transaction(function () use ($student, $service) {
+                    $user = $service->createOrUpdateStudent($student);
                     $allTeachers = $this->getAdvisorIds($student['teachers']);
 
                     $advisors = Arr::where($allTeachers, function ($i) {
@@ -145,7 +149,9 @@ class SigaaScrapingCommand extends Command
 
     private function getAdvisorIds(array $teachers): array
     {
+        $service = app(\App\Services\UserService::class);
         $advisorIds = [];
+
         foreach ($teachers as $teacher) {
             if (empty($teacher['siape'])) {
                 continue;
@@ -155,7 +161,7 @@ class SigaaScrapingCommand extends Command
                 $this->warn(
                     "Docente {$teacher['name']} ({$teacher['relation_type']} - {$teacher['siape']}) não encontrado!"
                 );
-                $teacherModel = User::createOrUpdateTeacherByScraping($teacher);
+                $teacherModel = $service->createOrUpdateTeacherByScraping($teacher);
             }
             $advisorIds[$teacherModel->id] = ['relation_type' => $teacher['relation_type']];
         }
@@ -211,7 +217,7 @@ class SigaaScrapingCommand extends Command
                 ->whereNotNull(['id', 'area_id'])
                 ->first(['area_id'])?->area_id;
 
-            $userCreated = User::createOrUpdateStudentByScraping([
+            $userCreated = app(\App\Services\UserService::class)->createOrUpdateStudent([
                 'id' => $user?->id ?? null,
                 'registration' => $user?->registration ?? $registration - 1,
                 'name' => $item['student'],

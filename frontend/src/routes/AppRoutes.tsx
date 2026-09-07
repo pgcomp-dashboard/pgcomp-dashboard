@@ -17,6 +17,7 @@ import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
 import ResetPasswordPage from "@/pages/auth/reset-password";
+import StudentSetPasswordPage from "@/pages/auth/student-set-password";
 import WaitingApprovalPage from "@/pages/auth/waiting-approval";
 import NotFoundPage from "@/pages/not-found";
 import ProductionsPage from "@/pages/user/productions";
@@ -39,6 +40,7 @@ export function AppRoutes() {
       <Route path="login" element={<LoginPage />} />
       <Route path="forgot-password" element={<ForgotPasswordPage />} />
       <Route path="reset-password" element={<ResetPasswordPage />} />
+      <Route path="student-set-password" element={<StudentSetPasswordPage />} />
       <Route path="register" element={<RegisterPage />} />
       {/* Rotas Protegidas (Geral) */}
       <Route element={<EnsureAuthenticated />}>

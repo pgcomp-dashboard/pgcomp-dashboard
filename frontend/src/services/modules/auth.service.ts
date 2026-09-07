@@ -35,4 +35,12 @@ export const authService = {
   async register(body: RequestBodyType) {
     return apiClient.post("/api/register", body);
   },
+
+  async requestStudentRegistration(body: RequestBodyType) {
+    return apiClient.post("/api/student-registration/request", body);
+  },
+
+  async confirmStudentRegistration(body: RequestBodyType) {
+    return apiClient.post("/api/student-registration/confirm", body);
+  },
 };
