@@ -68,7 +68,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function ProfessorProductionPerYear() {
   const auth = useAuth();
-  const isProfessor = !auth?.isAdmin;
+  // Linha removida: const isProfessor = !auth?.isAdmin;
   const [currentProfessorId, setCurrentProfessorId] = useState<number | null>(null);
   const [period, setPeriod] = useState<{
     from?: number,
