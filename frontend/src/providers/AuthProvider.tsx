@@ -8,6 +8,7 @@ const AUTH_TOKEN_STORAGE_KEY = "auth-token";
 const USER_INFO_STORAGE_KEY = "user-info";
 
 export interface User {
+  id?: number;
   name: string;
   role: string;
   is_approved: boolean;
