@@ -68,6 +68,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function ProfessorProductionPerYear() {
   const auth = useAuth();
+  const isProfessor = !auth?.isAdmin;
   const [currentProfessorId, setCurrentProfessorId] = useState<number | null>(null);
   const [period, setPeriod] = useState<{
     from?: number,
@@ -134,17 +135,25 @@ export default function ProfessorProductionPerYear() {
   }, [rulesData, periodForm]);
 
   useEffect(() => {
-    if (professors && professors.length > 0) {
-      setCurrentProfessorId(professors[0].id);
+    if (professors && professors.length > 0 && auth?.user?.id) {
+      // Verifica se o usuário logado está na lista de docentes
+      const loggedProfessor = professors.find((p) => p.id === auth?.user?.id);
+
+      if (loggedProfessor) {
+        // Se achou na lista, seleciona o próprio usuário automaticamente
+        setCurrentProfessorId(loggedProfessor.id);
+      } else {
+        // Se não achou (ex: é apenas admin), deixa como null para forçar a seleção manual
+        setCurrentProfessorId(null);
+      }
     }
-  }, [professors]);
+  }, [professors, auth?.user?.id]);
 
-  if (professorsError) return <>Falha ao carregar professores!</>;
-  if (!professors) return <>Carregando professores...</>;
-  if (professors.length === 0) return <>Não existem professores cadastrados!</>;
-
-  if (!productions) return <>Carregando...</>;
-  if (error) return <>Erro ao carregar o gráfico</>;
+  if (auth?.isAdmin) {
+    if (professorsError) return <>Falha ao carregar professores!</>;
+    if (!professors) return <>Carregando professores...</>;
+    if (professors.length === 0) return <>Não existem professores cadastrados!</>;
+  }
 
   const chartData = Object.entries(productions ?? {}).map(([year, amount]) => ({
     year,
@@ -234,20 +243,41 @@ export default function ProfessorProductionPerYear() {
             <option value="conference">Conferências</option>
           </select>
 
-          <Select value={currentProfessorId?.toString()} onValueChange={v => setCurrentProfessorId(parseInt(v))}>
-            <SelectTrigger className="w-[280px]">
-              <SelectValue placeholder="Selecione um professor" />
-            </SelectTrigger>
-            <SelectContent>
-              {professors.map(p => (
-                <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* O Select de professor agora só aparece para admin */}
+          {auth?.isAdmin && (
+            <Select
+              value={currentProfessorId?.toString() || "none"}
+              onValueChange={v => setCurrentProfessorId(v === "none" ? null : parseInt(v))}
+            >
+              <SelectTrigger className="w-[280px]">
+                <SelectValue placeholder="Selecione um professor" />
+              </SelectTrigger>
+              <SelectContent>
+                {/* Opção para limpar a busca */}
+                <SelectItem value="none" className="text-muted-foreground italic">
+                  Selecione um professor...
+                </SelectItem>
+
+                {professors?.map(p => (
+                  <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </CardHeader>
       <CardContent>
-        <InternalProductionChartWithScroll chartData={chartData} />
+        {currentProfessorId === null ? (
+          <p className="text-sm text-muted-foreground text-center py-8">Selecione um professor para visualizar.</p>
+        ) : error ? (
+          <p className="text-sm text-muted-foreground text-center py-8">Erro ao carregar o gráfico.</p>
+        ) : !productions || isFetching ? (
+          <p className="text-sm text-muted-foreground text-center py-8">Carregando...</p>
+        ) : chartData.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">Nenhuma produção encontrada.</p>
+        ) : (
+          <InternalProductionChartWithScroll chartData={chartData} />
+        )}
       </CardContent>
     </Card>
   );

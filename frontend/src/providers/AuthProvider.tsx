@@ -8,6 +8,7 @@ const AUTH_TOKEN_STORAGE_KEY = "auth-token";
 const USER_INFO_STORAGE_KEY = "user-info";
 
 export interface User {
+  id?: number;
   name: string;
   role: string;
   is_approved: boolean;
@@ -79,6 +80,7 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
     logout,
   };
 
+  console.log('user completo:', user);
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );

@@ -4,6 +4,7 @@ export const normalizeUser = (data: any): User => {
   if (!data) return {} as User;
 
   return {
+    id: data.id,
     // Tenta pegar 'name', se não existir, usa string vazia
     name: data.name || "",
     // Lógica para unificar 'role':
