@@ -80,7 +80,6 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
     logout,
   };
 
-  console.log('user completo:', user);
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );

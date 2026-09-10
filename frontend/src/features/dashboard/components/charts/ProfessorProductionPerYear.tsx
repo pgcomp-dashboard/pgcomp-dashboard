@@ -245,8 +245,8 @@ export default function ProfessorProductionPerYear() {
 
           {/* O Select de professor agora só aparece para admin */}
           {auth?.isAdmin && (
-            <Select
-              value={currentProfessorId?.toString() || "none"}
+            <Select 
+              value={currentProfessorId?.toString() || "none"} 
               onValueChange={v => setCurrentProfessorId(v === "none" ? null : parseInt(v))}
             >
               <SelectTrigger className="w-[280px]">
@@ -257,7 +257,7 @@ export default function ProfessorProductionPerYear() {
                 <SelectItem value="none" className="text-muted-foreground italic">
                   Selecione um professor...
                 </SelectItem>
-
+                
                 {professors?.map(p => (
                   <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
                 ))}
