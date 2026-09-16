@@ -1,6 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Link as LinkIcon, Loader2, Save, Settings2, CalendarDays } from "lucide-react";
+import {
+  ExternalLink,
+  Link as LinkIcon,
+  Loader2,
+  Save,
+  Settings2,
+  CalendarDays,
+} from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -31,6 +38,14 @@ const accreditationRulesSchema = z.object({
   is_maintenance_mode: z.boolean(),
 });
 
+const studentRankingRulesSchema = z.object({
+  initial_year: z.coerce.number().min(2000).max(2100),
+  final_year: z.coerce.number().min(2000).max(2100),
+  min_journals: z.coerce.number().min(0),
+  min_journals_a1a2: z.coerce.number().min(0),
+  min_score: z.coerce.number().min(0),
+});
+
 const resolutionLinkSchema = z.object({
   resolution_link: z
     .string()
@@ -46,11 +61,11 @@ const importantDatesSchema = z.object({
 });
 
 type AccreditationRulesValues = z.infer<typeof accreditationRulesSchema>;
+type StudentRankingRulesValues = z.infer<typeof studentRankingRulesSchema>;
 type ResolutionLinkValues = z.infer<typeof resolutionLinkSchema>;
 type ImportantDatesValues = z.infer<typeof importantDatesSchema>;
 
-const DEFAULT_RESOLUTION_LINK =
-  "https://pgcomp.ufba.br/";
+const DEFAULT_RESOLUTION_LINK = "https://pgcomp.ufba.br/";
 
 export default function RulesPage() {
   const queryClient = useQueryClient();
@@ -61,7 +76,11 @@ export default function RulesPage() {
   });
 
   const accreditationConfig = configurations?.find(
-    (c) => c.group === "accreditation" && c.key === "rules"
+    (c) => c.group === "accreditation" && c.key === "rules",
+  );
+
+  const studentRankingConfig = configurations?.find(
+    (c) => c.group === "student_ranking" && c.key === "rules",
   );
 
   const form = useForm<AccreditationRulesValues>({
@@ -78,11 +97,28 @@ export default function RulesPage() {
     },
   });
 
+  const studentRankingForm = useForm<StudentRankingRulesValues>({
+    resolver: zodResolver(studentRankingRulesSchema),
+    defaultValues: {
+      initial_year: new Date().getFullYear() - 4,
+      final_year: new Date().getFullYear(),
+      min_journals: 0,
+      min_journals_a1a2: 0,
+      min_score: 0,
+    },
+  });
+
   useEffect(() => {
     if (accreditationConfig?.casted_value) {
       form.reset(accreditationConfig.casted_value);
     }
   }, [accreditationConfig, form]);
+
+  useEffect(() => {
+    if (studentRankingConfig?.casted_value) {
+      studentRankingForm.reset(studentRankingConfig.casted_value);
+    }
+  }, [studentRankingConfig, studentRankingForm]);
 
   const updateMutation = useMutation({
     mutationFn: (values: AccreditationRulesValues) =>
@@ -103,8 +139,31 @@ export default function RulesPage() {
     },
   });
 
+  const studentRankingMutation = useMutation({
+    mutationFn: (values: StudentRankingRulesValues) =>
+      configurationService.create({
+        group: "student_ranking",
+        key: "rules",
+        value: JSON.stringify(values),
+        type: "json",
+        description: "Regras para o ranking de discentes",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["configurations"] });
+      queryClient.invalidateQueries({ queryKey: ["student-ranking"] });
+      toast.success("Regras do ranking de discentes atualizadas com sucesso");
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao atualizar regras dos discentes: " + error.message);
+    },
+  });
+
   function onSubmit(values: AccreditationRulesValues) {
     updateMutation.mutate(values);
+  }
+
+  function onStudentRankingSubmit(values: StudentRankingRulesValues) {
+    studentRankingMutation.mutate(values);
   }
 
   const { data: resolutionLink, isLoading: isLinkLoading } = useQuery({
@@ -132,11 +191,14 @@ export default function RulesPage() {
         key: "resolution_link",
         value: values.resolution_link,
         type: "string",
-        description: "Link para o documento da Resolução PGCOMP de Credenciamento",
+        description:
+          "Link para o documento da Resolução PGCOMP de Credenciamento",
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["configurations"] });
-      queryClient.invalidateQueries({ queryKey: ["accreditation-resolution-link"] });
+      queryClient.invalidateQueries({
+        queryKey: ["accreditation-resolution-link"],
+      });
       toast.success("Link da resolução atualizado com sucesso");
     },
     onError: (error: any) => {
@@ -149,7 +211,7 @@ export default function RulesPage() {
   }
 
   const importantDatesConfig = configurations?.find(
-    (c) => c.group === "accreditation" && c.key === "important_dates"
+    (c) => c.group === "accreditation" && c.key === "important_dates",
   );
 
   const datesForm = useForm<ImportantDatesValues>({
@@ -306,9 +368,12 @@ export default function RulesPage() {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/30">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Aprovar se Bolsa PQ?</FormLabel>
+                    <FormLabel className="text-base">
+                      Aprovar se Bolsa PQ?
+                    </FormLabel>
                     <FormDescription>
-                      Docentes bolsistas de Produtividade em Pesquisa são credenciados diretamente.
+                      Docentes bolsistas de Produtividade em Pesquisa são
+                      credenciados diretamente.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -327,9 +392,12 @@ export default function RulesPage() {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/30">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Aprovar se Sênior?</FormLabel>
+                    <FormLabel className="text-base">
+                      Aprovar se Sênior?
+                    </FormLabel>
                     <FormDescription>
-                      Se ativado, docentes seniores são credenciados diretamente.
+                      Se ativado, docentes seniores são credenciados
+                      diretamente.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -348,9 +416,12 @@ export default function RulesPage() {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-destructive/10 border-destructive/20">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base text-destructive font-bold">Modo Manutenção</FormLabel>
+                    <FormLabel className="text-base text-destructive font-bold">
+                      Modo Manutenção
+                    </FormLabel>
                     <FormDescription>
-                      Ativa um aviso de manutenção na página inicial para todos os usuários.
+                      Ativa um aviso de manutenção na página inicial para todos
+                      os usuários.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -364,13 +435,93 @@ export default function RulesPage() {
             />
 
             <div className="flex justify-end pt-4 border-t">
-              <Button type="submit" size="lg" disabled={updateMutation.isPending}>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={updateMutation.isPending}
+              >
                 {updateMutation.isPending ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
                 Salvar Configurações
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+
+      <div className="grid gap-8 rounded-xl border bg-card p-8 shadow-sm">
+        <div>
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Settings2 className="h-5 w-5 text-primary" />
+            Regras do Ranking de Discentes
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Configure o período e os critérios usados para classificar e marcar
+            os discentes como aptos.
+          </p>
+        </div>
+
+        <Form {...studentRankingForm}>
+          <form
+            onSubmit={studentRankingForm.handleSubmit(onStudentRankingSubmit)}
+            className="space-y-8"
+          >
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              {(
+                [
+                  "initial_year",
+                  "final_year",
+                  "min_journals",
+                  "min_journals_a1a2",
+                  "min_score",
+                ] as const
+              ).map((name) => {
+                const labels = {
+                  initial_year: "Ano Inicial",
+                  final_year: "Ano Final",
+                  min_journals: "Mínimo de Periódicos A1-A4",
+                  min_journals_a1a2: "Mínimo de Periódicos A1-A2",
+                  min_score: "Pontuação Mínima",
+                };
+
+                return (
+                  <FormField
+                    key={name}
+                    control={studentRankingForm.control}
+                    name={name}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{labels[name]}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step={name === "min_score" ? "0.1" : "1"}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end border-t pt-4">
+              <Button
+                type="submit"
+                size="lg"
+                disabled={studentRankingMutation.isPending}
+              >
+                {studentRankingMutation.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Salvar Regras dos Discentes
               </Button>
             </div>
           </form>
@@ -384,12 +535,16 @@ export default function RulesPage() {
             Link da Resolução de Credenciamento
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            URL do documento oficial da Resolução PGCOMP exibido como link na página de credenciamento.
+            URL do documento oficial da Resolução PGCOMP exibido como link na
+            página de credenciamento.
           </p>
         </div>
 
         <Form {...linkForm}>
-          <form onSubmit={linkForm.handleSubmit(onLinkSubmit)} className="space-y-4">
+          <form
+            onSubmit={linkForm.handleSubmit(onLinkSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={linkForm.control}
               name="resolution_link"
@@ -418,7 +573,8 @@ export default function RulesPage() {
                     )}
                   </div>
                   <FormDescription>
-                    Link exibido como "Resolução PGCOMP de Credenciamento" na página de credenciamento.
+                    Link exibido como "Resolução PGCOMP de Credenciamento" na
+                    página de credenciamento.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -446,12 +602,16 @@ export default function RulesPage() {
             Datas Importantes
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Defina o cronograma do processo de credenciamento. Estas datas serão exibidas na página inicial.
+            Defina o cronograma do processo de credenciamento. Estas datas serão
+            exibidas na página inicial.
           </p>
         </div>
 
         <Form {...datesForm}>
-          <form onSubmit={datesForm.handleSubmit(onDatesSubmit)} className="space-y-6">
+          <form
+            onSubmit={datesForm.handleSubmit(onDatesSubmit)}
+            className="space-y-6"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={datesForm.control}
@@ -511,7 +671,11 @@ export default function RulesPage() {
             </div>
 
             <div className="flex justify-end pt-2 border-t">
-              <Button type="submit" size="lg" disabled={datesMutation.isPending}>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={datesMutation.isPending}
+              >
                 {datesMutation.isPending ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (

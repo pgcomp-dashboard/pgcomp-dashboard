@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PublisherController;
 use App\Http\Controllers\Admin\ScrapingExecutionController;
 use App\Http\Controllers\Admin\StratumQualisController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\StudentRankingController;
 use App\Http\Controllers\Admin\StudentProductionController;
 use App\Http\Controllers\Admin\UserController as UserAdminController;
 use App\Http\Controllers\User\AdminRequestController;
@@ -111,6 +112,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
         Route::apiResource('students', StudentController::class);
+        Route::get('student-ranking', [StudentRankingController::class, 'index']);
         Route::apiResource('students.productions', StudentProductionController::class)
             ->except(['destroy']);
         Route::apiResource('professors', ProfessorController::class);

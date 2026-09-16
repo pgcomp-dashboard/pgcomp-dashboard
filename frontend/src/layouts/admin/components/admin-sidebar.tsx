@@ -3,6 +3,7 @@ import {
   BookOpen,
   File,
   Heart,
+  Medal,
   Settings2,
   Trophy,
   Users,
@@ -192,17 +193,32 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/admin/credenciamento"}
-            >
-              <Link to="/admin/credenciamento">
-                <Trophy className="h-4 w-4" />
-                <span>Credenciamento</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {auth?.isAdmin && (
+            <>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/credenciamento"}
+                >
+                  <Link to="/admin/credenciamento">
+                    <Trophy className="h-4 w-4" />
+                    <span>Credenciamento</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/student-ranking"}
+                >
+                  <Link to="/admin/student-ranking">
+                    <Medal className="h-4 w-4" />
+                    <span>Ranking de discentes</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </>
+          )}
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
