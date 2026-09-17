@@ -287,6 +287,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return $this->belongsTo(Course::class, 'course_id');
     }
 
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(Area::class, 'area_id');
+    }
+
     public function defenses(): HasMany
     {
         return $this->hasMany(Defense::class);
