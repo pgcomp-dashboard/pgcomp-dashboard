@@ -35,6 +35,7 @@ interface ProductionTableProps {
   onToggleFeatured?: (production: Production) => void;
   isTogglingFeatured?: boolean;
   podeFavoritar?: boolean;
+  readOnly?: boolean;
 }
 
 export function ProductionTable({
@@ -51,6 +52,7 @@ export function ProductionTable({
   onToggleFeatured,
   isTogglingFeatured,
   podeFavoritar,
+  readOnly = false,
 }: ProductionTableProps) {
   const columns = useMemo(
     () =>
@@ -63,6 +65,7 @@ export function ProductionTable({
         onToggleFeatured,
         isTogglingFeatured,
         podeFavoritar,
+        readOnly,
       }),
     [
       onEdit,
@@ -73,6 +76,7 @@ export function ProductionTable({
       onToggleFeatured,
       isTogglingFeatured,
       podeFavoritar,
+      readOnly,
     ],
   );
 

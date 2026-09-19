@@ -113,6 +113,17 @@ export const productionService = {
     return response.data;
   },
 
+  async getStudentProductions(
+    studentId: number,
+    params: Record<string, any> = {},
+  ) {
+    const response = await apiClient.get<{ data: Production[] }>(
+      `/api/admin/students/${studentId}/productions`,
+      params,
+    );
+    return response.data;
+  },
+
   async updateUserProduction(
     professorId: number,
     productionId: number,
