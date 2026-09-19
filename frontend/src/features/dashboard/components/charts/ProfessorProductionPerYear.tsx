@@ -1,18 +1,40 @@
-import { RotateCw, Settings2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { configurationService } from '@/services/modules/configuration.service';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer } from '@/components/ui/chart';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { colorFromName } from '@/utils/color';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer } from "@/components/ui/chart";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { configurationService } from "@/services/modules/configuration.service";
+import { colorFromName } from "@/utils/color";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
+import { RotateCw, Settings2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   Bar,
   BarChart,
@@ -23,33 +45,46 @@ import {
   TooltipProps,
   XAxis,
   YAxis,
-} from 'recharts';
-import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { z } from 'zod';
-import './chart.css';
+} from "recharts";
+import {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
+import { z } from "zod";
+import "./chart.css";
 
-import ExpandChartButton from '@/components/ui/ExpandChartButton';
-import { useExpandableChart } from '@/features/dashboard/hooks/useExpandableChart';
-import useAuth from '@/hooks/auth';
-import { dashboardService } from '@/services/modules/dashboard.service';
-import ChartScrollWrapper from './ChartScrollWrapper';
-import { MultiSelect } from '@/components/ui/multi-select';
+import ExpandChartButton from "@/components/ui/ExpandChartButton";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { useExpandableChart } from "@/features/dashboard/hooks/useExpandableChart";
+import useAuth from "@/hooks/auth";
+import { dashboardService } from "@/services/modules/dashboard.service";
+import ChartScrollWrapper from "./ChartScrollWrapper";
 
 const MAX_VISIBLE_BARS = 15;
 
 const periodFormSchema = z.object({
-  from: z.coerce.number().min(2014, 'Ano não pode ser antes de 2014'),
-  to: z.coerce.number().max(new Date().getFullYear(), 'Ano não pode ser maior que o atual'),
+  from: z.coerce.number().min(2014, "Ano não pode ser antes de 2014"),
+  to: z.coerce
+    .number()
+    .max(new Date().getFullYear(), "Ano não pode ser maior que o atual"),
 });
 
 const QUALIS_OPTIONS = [
-  { label: 'A1', value: 'A1' }, { label: 'A2', value: 'A2' },
-  { label: 'A3', value: 'A3' }, { label: 'A4', value: 'A4' },
-  { label: 'B1', value: 'B1' }, { label: 'B2', value: 'B2' },
-  { label: 'B3', value: 'B3' }, { label: 'B4', value: 'B4' },
+  { label: "A1", value: "A1" },
+  { label: "A2", value: "A2" },
+  { label: "A3", value: "A3" },
+  { label: "A4", value: "A4" },
+  { label: "B1", value: "B1" },
+  { label: "B2", value: "B2" },
+  { label: "B3", value: "B3" },
+  { label: "B4", value: "B4" },
 ];
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: TooltipProps<ValueType, NameType>) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white p-3 border-2 rounded">
@@ -68,41 +103,62 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function ProfessorProductionPerYear() {
   const auth = useAuth();
-  const isProfessor = !auth?.isAdmin;
-  const [currentProfessorId, setCurrentProfessorId] = useState<number | null>(null);
+  const [currentProfessorId, setCurrentProfessorId] = useState<number | null>(
+    null,
+  );
   const [period, setPeriod] = useState<{
-    from?: number,
-    to?: number,
+    from?: number;
+    to?: number;
   }>({
     from: undefined,
     to: undefined,
   });
-  const [publisherType, setPublisherType] = useState<'journal' | 'conference' | undefined>(undefined);
-  const [selectedQualis, setSelectedQualis] = useState<string[]>(QUALIS_OPTIONS.map(o => o.value));
+  const [publisherType, setPublisherType] = useState<
+    "journal" | "conference" | undefined
+  >(undefined);
+  const [selectedQualis, setSelectedQualis] = useState<string[]>(
+    QUALIS_OPTIONS.map((o) => o.value),
+  );
 
   const { data: professors, error: professorsError } = useQuery({
-    queryKey: ['professors', 'dashboard'],
+    queryKey: ["professors", "dashboard"],
     queryFn: () => dashboardService.professors(),
     enabled: !!auth?.isAdmin,
   });
 
   const { data: rulesData } = useQuery({
-    queryKey: ['configuration', 'rules'],
+    queryKey: ["configuration", "rules"],
     queryFn: () => configurationService.getRulesEndAndStartYears(),
     enabled: !!auth?.isAdmin,
   });
 
-  const qualisFilter = selectedQualis.length === QUALIS_OPTIONS.length ? undefined : selectedQualis;
+  const qualisFilter =
+    selectedQualis.length === QUALIS_OPTIONS.length
+      ? undefined
+      : selectedQualis;
 
-  const { data: productions, error, isFetching, refetch } = useQuery({
-    queryKey: ['professorProductionPerYear', currentProfessorId, period.from, period.to, publisherType, qualisFilter],
-    queryFn: () => dashboardService.professorProductionPerYear(
-      currentProfessorId as number,
+  const {
+    data: productions,
+    error,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: [
+      "professorProductionPerYear",
+      currentProfessorId,
       period.from,
       period.to,
       publisherType,
-      qualisFilter
-    ),
+      qualisFilter,
+    ],
+    queryFn: () =>
+      dashboardService.professorProductionPerYear(
+        currentProfessorId as number,
+        period.from,
+        period.to,
+        publisherType,
+        qualisFilter,
+      ),
     enabled: currentProfessorId !== null,
   });
 
@@ -152,7 +208,8 @@ export default function ProfessorProductionPerYear() {
   if (auth?.isAdmin) {
     if (professorsError) return <>Falha ao carregar professores!</>;
     if (!professors) return <>Carregando professores...</>;
-    if (professors.length === 0) return <>Não existem professores cadastrados!</>;
+    if (professors.length === 0)
+      return <>Não existem professores cadastrados!</>;
   }
 
   const chartData = Object.entries(productions ?? {}).map(([year, amount]) => ({
@@ -164,14 +221,19 @@ export default function ProfessorProductionPerYear() {
     <Card>
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <CardTitle>Produções de um professor por ano</CardTitle>
-        <div className='flex flex-wrap items-center gap-2'>
+        <div className="flex flex-wrap items-center gap-2">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline'><Settings2 /></Button>
+              <Button variant="outline">
+                <Settings2 />
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <Form {...periodForm}>
-                <form onSubmit={periodForm.handleSubmit(onSubmitPeriodForm)} className="space-y-8">
+                <form
+                  onSubmit={periodForm.handleSubmit(onSubmitPeriodForm)}
+                  className="space-y-8"
+                >
                   <DialogHeader>
                     <DialogTitle>Selecionar período</DialogTitle>
                     <DialogDescription>
@@ -187,9 +249,7 @@ export default function ProfessorProductionPerYear() {
                           <FormControl>
                             <Input placeholder="Ano" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            Ano inicial.
-                          </FormDescription>
+                          <FormDescription>Ano inicial.</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -203,9 +263,7 @@ export default function ProfessorProductionPerYear() {
                           <FormControl>
                             <Input placeholder="Ano" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            Ano final.
-                          </FormDescription>
+                          <FormDescription>Ano final.</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -213,8 +271,12 @@ export default function ProfessorProductionPerYear() {
                     <div className="border-t-1 w-full h-1 my-2" />
                     <br className="w-full" />
                     <div className="w-full flex justify-start space-x-2">
-                      <DialogClose asChild><Button variant='outline'>Voltar</Button></DialogClose>
-                      <DialogClose asChild><Button type='submit'>Salvar</Button></DialogClose>
+                      <DialogClose asChild>
+                        <Button variant="outline">Voltar</Button>
+                      </DialogClose>
+                      <DialogClose asChild>
+                        <Button type="submit">Salvar</Button>
+                      </DialogClose>
                     </div>
                   </DialogHeader>
                 </form>
@@ -222,8 +284,14 @@ export default function ProfessorProductionPerYear() {
             </DialogContent>
           </Dialog>
 
-          <Button variant='outline' size="icon" onClick={() => refetch()} disabled={isFetching} title="Atualizar">
-            <RotateCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            title="Atualizar"
+          >
+            <RotateCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
           </Button>
 
           <MultiSelect
@@ -234,8 +302,14 @@ export default function ProfessorProductionPerYear() {
           />
 
           <select
-            value={publisherType ?? ''}
-            onChange={e => setPublisherType(e.target.value === '' ? undefined : e.target.value as 'journal' | 'conference')}
+            value={publisherType ?? ""}
+            onChange={(e) =>
+              setPublisherType(
+                e.target.value === ""
+                  ? undefined
+                  : (e.target.value as "journal" | "conference"),
+              )
+            }
             className="border rounded px-2 py-1 text-sm h-10 bg-background"
           >
             <option value="">Todos</option>
@@ -245,21 +319,28 @@ export default function ProfessorProductionPerYear() {
 
           {/* O Select de professor agora só aparece para admin */}
           {auth?.isAdmin && (
-            <Select 
-              value={currentProfessorId?.toString() || "none"} 
-              onValueChange={v => setCurrentProfessorId(v === "none" ? null : parseInt(v))}
+            <Select
+              value={currentProfessorId?.toString() || "none"}
+              onValueChange={(v) =>
+                setCurrentProfessorId(v === "none" ? null : parseInt(v))
+              }
             >
               <SelectTrigger className="w-[280px]">
                 <SelectValue placeholder="Selecione um professor" />
               </SelectTrigger>
               <SelectContent>
                 {/* Opção para limpar a busca */}
-                <SelectItem value="none" className="text-muted-foreground italic">
+                <SelectItem
+                  value="none"
+                  className="text-muted-foreground italic"
+                >
                   Selecione um professor...
                 </SelectItem>
-                
-                {professors?.map(p => (
-                  <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+
+                {professors?.map((p) => (
+                  <SelectItem key={p.id} value={p.id.toString()}>
+                    {p.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -268,13 +349,21 @@ export default function ProfessorProductionPerYear() {
       </CardHeader>
       <CardContent>
         {currentProfessorId === null ? (
-          <p className="text-sm text-muted-foreground text-center py-8">Selecione um professor para visualizar.</p>
+          <p className="text-sm text-muted-foreground text-center py-8">
+            Selecione um professor para visualizar.
+          </p>
         ) : error ? (
-          <p className="text-sm text-muted-foreground text-center py-8">Erro ao carregar o gráfico.</p>
+          <p className="text-sm text-muted-foreground text-center py-8">
+            Erro ao carregar o gráfico.
+          </p>
         ) : !productions || isFetching ? (
-          <p className="text-sm text-muted-foreground text-center py-8">Carregando...</p>
+          <p className="text-sm text-muted-foreground text-center py-8">
+            Carregando...
+          </p>
         ) : chartData.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">Nenhuma produção encontrada.</p>
+          <p className="text-sm text-muted-foreground text-center py-8">
+            Nenhuma produção encontrada.
+          </p>
         ) : (
           <InternalProductionChartWithScroll chartData={chartData} />
         )}
@@ -284,7 +373,11 @@ export default function ProfessorProductionPerYear() {
 }
 
 // Componente interno para o gráfico com rolagem, expansão e a linha de média
-function InternalProductionChartWithScroll({ chartData }: { chartData: { year: string, amount: number }[] }) {
+function InternalProductionChartWithScroll({
+  chartData,
+}: {
+  chartData: { year: string; amount: number }[];
+}) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [, setChartHeight] = useState<number>(0);
 
@@ -294,12 +387,10 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
     }
   }, []);
 
-  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } = useExpandableChart(
-    chartData.length,
-    MAX_VISIBLE_BARS,
-  );
+  const { expanded, toggleExpand, isScrollable, chartWidth, isMobile } =
+    useExpandableChart(chartData.length, MAX_VISIBLE_BARS);
 
-  const marginBottom = isScrollable ? 'mb-24' : 'mb-16';
+  const marginBottom = isScrollable ? "mb-24" : "mb-16";
 
   // Tamanhos de fonte responsivos
   const fontSize = isMobile ? 11 : 18;
@@ -320,35 +411,55 @@ function InternalProductionChartWithScroll({ chartData }: { chartData: { year: s
           <ChartContainer
             config={{
               year: {
-                label: 'Ano',
-                color: 'hsl(var(--chart-2))',
+                label: "Ano",
+                color: "hsl(var(--chart-2))",
               },
               amount: {
-                label: 'Número',
-                color: 'hsl(var(--chart-3))',
+                label: "Número",
+                color: "hsl(var(--chart-3))",
               },
             }}
             className="w-full h-[400px]"
           >
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart margin={{ top: 20, right: 5, left: 5, bottom: 80 }} data={chartData}>
+              <BarChart
+                margin={{ top: 20, right: 5, left: 5, bottom: 80 }}
+                data={chartData}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="year"
                   interval={0}
                   tickFormatter={(name) =>
-                    String(name).length > 15 ? String(name).slice(0, 15) + '...' : String(name)
+                    String(name).length > 15
+                      ? String(name).slice(0, 15) + "..."
+                      : String(name)
                   }
                   style={{ fontSize }}
                 />
                 <YAxis style={{ fontSize }} />
-                <Tooltip content={<CustomTooltip active={false} payload={[]} label={''} />} />
-                <Bar dataKey="amount" fill="#8884d8" label={{ position: 'top', style: { fontSize: labelFontSize } }}>
+                <Tooltip
+                  content={
+                    <CustomTooltip active={false} payload={[]} label={""} />
+                  }
+                />
+                <Bar
+                  dataKey="amount"
+                  fill="#8884d8"
+                  label={{
+                    position: "top",
+                    style: { fontSize: labelFontSize },
+                  }}
+                >
                   {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colorFromName((parseInt(entry.year, 10) + 1).toString())} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={colorFromName(
+                        (parseInt(entry.year, 10) + 1).toString(),
+                      )}
+                    />
                   ))}
                 </Bar>
-
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
