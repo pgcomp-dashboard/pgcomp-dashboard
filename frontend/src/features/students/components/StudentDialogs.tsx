@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Area, Course } from "@/types/academic";
+import { ApiError } from "@/types/common";
 import { Student } from "@/types/user";
 import { useEffect, useState } from "react";
 
@@ -30,9 +31,11 @@ interface StudentDialogsProps {
   selectedStudent: Student | null;
   areas: Area[];
   courses: Course[];
-  onCreate: (student: Omit<Student, "id">) => void;
-  onUpdate: (id: number, student: Omit<Student, "id">) => void;
+  onCreate: (student: Omit<Student, "id">) => Promise<void>;
+  onUpdate: (id: number, student: Omit<Student, "id">) => Promise<void>;
   onDelete: (id: number) => void;
+  createError?: unknown;
+  updateError?: unknown;
 }
 
 const initialStudent: Omit<Student, "id"> = {
@@ -61,6 +64,8 @@ export function StudentDialogs({
   onCreate,
   onUpdate,
   onDelete,
+  createError,
+  updateError,
 }: StudentDialogsProps) {
   const [newStudent, setNewStudent] =
     useState<Omit<Student, "id">>(initialStudent);
@@ -77,8 +82,19 @@ export function StudentDialogs({
       );
       return false;
     }
+    if (!s.email?.trim()) {
+      alert("O email é obrigatório.");
+      return false;
+    }
+    if (!/^[^@\s]+@ufba\.br$/i.test(s.email.trim())) {
+      alert("Informe um email institucional com o domínio @ufba.br.");
+      return false;
+    }
     return true;
   };
+
+  const createErrorMessages = getApiErrorMessages(createError);
+  const updateErrorMessages = getApiErrorMessages(updateError);
 
   return (
     <>
@@ -96,6 +112,7 @@ export function StudentDialogs({
             setStudent={setNewStudent}
             areas={areas}
             courses={courses}
+            errorMessages={createErrorMessages}
           />
           <DialogFooter>
             <Button
@@ -108,9 +125,9 @@ export function StudentDialogs({
               Cancelar
             </Button>
             <Button
-              onClick={() => {
+              onClick={async () => {
                 if (validate(newStudent)) {
-                  onCreate(newStudent);
+                  await onCreate(newStudent);
                   setOpenAdd(false);
                   setNewStudent(initialStudent);
                 }
@@ -135,6 +152,7 @@ export function StudentDialogs({
               setStudent={setEditStudent as any}
               areas={areas}
               courses={courses}
+              errorMessages={updateErrorMessages}
             />
           )}
           <DialogFooter>
@@ -142,9 +160,9 @@ export function StudentDialogs({
               Cancelar
             </Button>
             <Button
-              onClick={() => {
+              onClick={async () => {
                 if (editStudent && validate(editStudent)) {
-                  onUpdate(editStudent.id, editStudent);
+                  await onUpdate(editStudent.id, editStudent);
                   setOpenEdit(false);
                 }
               }}
@@ -193,14 +211,30 @@ function StudentForm({
   setStudent,
   areas,
   courses,
+  errorMessages,
 }: {
   student: any;
   setStudent: any;
   areas: Area[];
   courses: Course[];
+  errorMessages: string[];
 }) {
+  const registrationError = errorMessages.find((message) =>
+    /matr[ií]cula|registration|unique/i.test(message),
+  );
+
   return (
     <div className="grid gap-4 py-4">
+      {errorMessages.length > 0 && (
+        <div
+          className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
+          role="alert"
+        >
+          {errorMessages.map((message, index) => (
+            <p key={`${message}-${index}`}>{message}</p>
+          ))}
+        </div>
+      )}
       <div className="grid gap-2">
         <Label>Nome</Label>
         <Input
@@ -211,8 +245,10 @@ function StudentForm({
       <div className="grid gap-2">
         <Label>Email</Label>
         <Input
+          type="email"
           value={student.email ?? ""}
           onChange={(e) => setStudent({ ...student, email: e.target.value })}
+          placeholder="nome@ufba.br"
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -272,10 +308,14 @@ function StudentForm({
           <Input
             type="number"
             value={student.registration}
+            aria-invalid={!!registrationError}
             onChange={(e) =>
               setStudent({ ...student, registration: Number(e.target.value) })
             }
           />
+          {registrationError && (
+            <p className="text-sm text-destructive">{registrationError}</p>
+          )}
         </div>
         <div className="grid gap-2">
           <Label>Data de Defesa</Label>
@@ -290,4 +330,14 @@ function StudentForm({
       </div>
     </div>
   );
+}
+
+function getApiErrorMessages(error: unknown): string[] {
+  if (!error) return [];
+
+  if (typeof error === "object" && "errors" in error) {
+    return (error as ApiError).errors.map((item) => item.description);
+  }
+
+  return ["Não foi possível salvar o estudante. Tente novamente."];
 }
