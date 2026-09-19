@@ -57,17 +57,19 @@ export function AdminSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem> */}
           {/* Projetos Individuais */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/portal/projects"}
-            >
-              <Link to="/portal/projects">
-                <File className="h-4 w-4" />
-                <span>Projetos Individuais</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {auth?.user?.type !== "student" && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/portal/projects"}
+              >
+                <Link to="/portal/projects">
+                  <File className="h-4 w-4" />
+                  <span>Projetos Individuais</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {auth?.isAdmin && (
             <>
               {/* Projetos PGCOMP */}
