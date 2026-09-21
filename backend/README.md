@@ -6,29 +6,29 @@ Responsável pelo serviço de recuperação dos dados (através de web scraping)
 
 ### Estrutura da pasta
 
-_backend_
-├── _app_ : código de controle do sistema (modelos, definições de rota, controladores, etc)
-├── _bootstrap_ : inicialização do Laravel
-├── _config_ : configuração do sistema
-├── _database_ : migrations com estrutura das tabelas do banco de dados
-├── _lang_ : arquivos com tradução de texto para a aplicação
-├── _public_ : diretório público para o qual o servidor aponta
-├── _resources_ : arquivos importantes para a entrega das views
-├── _routes_ : definições de rota do sistema
-├── _storage_ : arquivos de caches, arquivos compilados e logs do sistema
-├── _tests_ : testes unitários e integração do sistema
-├── _.editorconfig_ : plugin que obriga o editor de código a seguir padrões macro essenciais de formatação pré-configurados pelo usuário
-├── _.env.example_ : arquivo template onde para a definição de todas as variáveis de ambiente
-├── _gitattributes_ : arquivo de configuração do Git
-├── _.gitignore_ : arquivo de configuração do Git
-├── _.styleci.yml_ : fornece verificações para seu repositório, garante que seu código seja sempre escrito de acordo com os padrões que você deseja
-├── _README.md_ : documentação do funcionamento do backend
-├── _artisan_ : arquivo necessário para executarmos no terminal todos os comandos do Artisan
-├── _composer.json_ : arquivo de configuração do Composer (pode ser editado)
-├── _composer.lock_ : arquivo de configuração do Composer (não pode ser editado)
-├── _package.json_ : similar ao composer.json, porém seu uso é voltado para assets frontend
-├── _phpunit.xml_ : arquivo de configuração do PHPUnit, ferramenta de testes de uso do Laravel
-└── _webpack.mix.js_ : neste arquivo é possível definir as configuração para compactação e unificação de arquivos css e js
+    .
+    ├── _app_ : código de controle do sistema (modelos, definições de rota, controladores, etc)
+    ├── _bootstrap_ : inicialização do Laravel
+    ├── _config_ : configuração do sistema
+    ├── _database_ : migrations com estrutura das tabelas do banco de dados
+    ├── _lang_ : arquivos com tradução de texto para a aplicação
+    ├── _public_ : diretório público para o qual o servidor aponta
+    ├── _resources_ : arquivos importantes para a entrega das views
+    ├── _routes_ : definições de rota do sistema
+    ├── _storage_ : arquivos de caches, arquivos compilados e logs do sistema
+    ├── _tests_ : testes unitários e integração do sistema
+    ├── _.editorconfig_ : plugin que obriga o editor de código a seguir padrões macro essenciais de formatação pré-configurados pelo usuário
+    ├── _.env.example_ : arquivo template onde para a definição de todas as variáveis de ambiente
+    ├── _gitattributes_ : arquivo de configuração do Git
+    ├── _.gitignore_ : arquivo de configuração do Git
+    ├── _.styleci.yml_ : fornece verificações para seu repositório, garante que seu código seja sempre escrito de acordo com os padrões que você deseja
+    ├── _README.md_ : documentação do funcionamento do backend
+    ├── _artisan_ : arquivo necessário para executarmos no terminal todos os comandos do Artisan
+    ├── _composer.json_ : arquivo de configuração do Composer (pode ser editado)
+    ├── _composer.lock_ : arquivo de configuração do Composer (não pode ser editado)
+    ├── _package.json_ : similar ao composer.json, porém seu uso é voltado para assets frontend
+    ├── _phpunit.xml_ : arquivo de configuração do PHPUnit, ferramenta de testes de uso do Laravel
+    └── _webpack.mix.js_ : neste arquivo é possível definir as configuração para compactação e unificação de arquivos css e js
 
 ### Iniciar projeto backend
 
