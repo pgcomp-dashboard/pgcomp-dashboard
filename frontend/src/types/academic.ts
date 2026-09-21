@@ -78,6 +78,7 @@ export type Ranking = {
   is_accredited: boolean;
   reasons: string[];
   lattes_url: string;
+  lattes_xml_uploaded_at: string;
   productions: RankingProduction[];
 };
 

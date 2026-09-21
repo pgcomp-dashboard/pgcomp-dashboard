@@ -44,6 +44,15 @@ export function AccreditationTable({
     { id: "total_score", desc: true },
   ]);
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    return new Date(dateString).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
   const handleShowDetails = (userId: number) => {
     navigate(
       `/portal/productions?professorId=${userId}&initialYear=${startYear}&finalYear=${endYear}`,
@@ -78,7 +87,15 @@ export function AccreditationTable({
               to={info.row.original.lattes_url}
               target="_blank"
               className="flex justify-center transition-all duration-300"
-              style={blurNames ? { filter: "blur(6px)", userSelect: "none", pointerEvents: "none" } : undefined}
+              style={
+                blurNames
+                  ? {
+                      filter: "blur(6px)",
+                      userSelect: "none",
+                      pointerEvents: "none",
+                    }
+                  : undefined
+              }
             >
               {formatName(info.getValue())}
             </Link>
@@ -92,6 +109,16 @@ export function AccreditationTable({
         cell: (info) => (
           <div className="font-medium text-center capitalize">
             {info.getValue()}
+          </div>
+        ),
+      }),
+      columnHelper.accessor("lattes_xml_uploaded_at", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Atualização" />
+        ),
+        cell: (info) => (
+          <div className="font-medium text-center capitalize">
+            {formatDate(info.getValue())}
           </div>
         ),
       }),
@@ -305,7 +332,15 @@ export function AccreditationTable({
               <Button
                 variant="ghost"
                 className="p-0 h-auto font-semibold text-left justify-start hover:underline hover:bg-transparent transition-all duration-300"
-                style={blurNames ? { filter: "blur(6px)", userSelect: "none", pointerEvents: "none" } : undefined}
+                style={
+                  blurNames
+                    ? {
+                        filter: "blur(6px)",
+                        userSelect: "none",
+                        pointerEvents: "none",
+                      }
+                    : undefined
+                }
                 onClick={() => handleShowDetails(rank.user_id)}
               >
                 {formatName(rank.name)}
