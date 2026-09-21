@@ -44,6 +44,7 @@ class AccreditationService
                 'users.lattes_url',
                 'users.pq',
                 'users.is_senior',
+                'lattes_xml_uploaded_at',
                 DB::raw('SUM(COALESCE(stratum_qualis.score, 0)) as total_score'),
                 DB::raw('GROUP_CONCAT(CONCAT(publishers.publisher_type, ":", stratum_qualis.code)) as qualis_data')
             ])
@@ -249,7 +250,8 @@ class AccreditationService
             'is_accredited' => $isAccredited,
             'reasons' => $reasons,
             'productions' => $productions,
-            'rules' => $rules
+            'rules' => $rules,
+            'lattes_xml_uploaded_at' => $user->lattes_xml_uploaded_at
         ];
     }
 }
