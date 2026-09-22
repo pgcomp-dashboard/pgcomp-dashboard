@@ -33,6 +33,7 @@ interface GetProductionColumnsProps {
   onToggleFeatured?: (production: Production) => void;
   isTogglingFeatured?: boolean;
   podeFavoritar?: boolean;
+  readOnly?: boolean;
 }
 
 export const getProductionColumns = ({
@@ -44,6 +45,7 @@ export const getProductionColumns = ({
   onToggleFeatured,
   isTogglingFeatured,
   podeFavoritar,
+  readOnly,
 }: GetProductionColumnsProps): ColumnDef<Production, any>[] => [
   columnHelper.accessor("title", {
     id: "titulo",
@@ -184,93 +186,97 @@ export const getProductionColumns = ({
       const production = row.original;
       return (
         <div className="flex justify-center">
-          {onToggleFeatured && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-block">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onToggleFeatured(production)}
-                      disabled={
-                        isTogglingFeatured ||
-                        (!production.is_featured && !podeFavoritar)
-                      }
-                      title={
-                        production.is_featured
-                          ? "Remover favorito"
-                          : "Favoritar"
-                      }
-                    >
-                      <Star
-                        className={`h-5 w-5 ${production.is_featured ? "fill-amber-400 text-amber-500" : ""}`}
-                      />
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                {!podeFavoritar && !production.is_featured && (
-                  <TooltipContent>
-                    <span>
-                      Você já atingiu o limite de 4 produções favoritas, remova
-                      uma para favoritar outra
-                    </span>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEdit(production)}
-            title="Editar"
-          >
-            <SquarePenIcon className="h-5 w-5" />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+          {readOnly ? null : (
+            <>
+              {onToggleFeatured && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-block">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onToggleFeatured(production)}
+                          disabled={
+                            isTogglingFeatured ||
+                            (!production.is_featured && !podeFavoritar)
+                          }
+                          title={
+                            production.is_featured
+                              ? "Remover favorito"
+                              : "Favoritar"
+                          }
+                        >
+                          <Star
+                            className={`h-5 w-5 ${production.is_featured ? "fill-amber-400 text-amber-500" : ""}`}
+                          />
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {!podeFavoritar && !production.is_featured && (
+                      <TooltipContent>
+                        <span>
+                          Você já atingiu o limite de 4 produções favoritas,
+                          remova uma para favoritar outra
+                        </span>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onDelete(production)}
-                title="Deletar"
+                onClick={() => onEdit(production)}
+                title="Editar"
               >
-                <Trash className="text-red-500 h-5 w-5" />
+                <SquarePenIcon className="h-5 w-5" />
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogPortal>
-              <AlertDialogOverlay />
-              <AlertDialogContent>
-                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Essa ação não pode ser desfeita. Isso vai permanentemente
-                  deletar a produção {selectedProduction?.title}.
-                </AlertDialogDescription>
-                <div className="flex justify-end gap-4">
-                  <AlertDialogCancel asChild>
-                    <Button
-                      className="bg-white text-black"
-                      onClick={() => setProductionToDelete(undefined)}
-                    >
-                      Cancelar
-                    </Button>
-                  </AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                    <Button
-                      className="bg-red-400 hover:bg-red-500"
-                      onClick={() =>
-                        selectedProduction &&
-                        confirmDelete(selectedProduction.id)
-                      }
-                    >
-                      Sim, deletar produção
-                    </Button>
-                  </AlertDialogAction>
-                </div>
-              </AlertDialogContent>
-            </AlertDialogPortal>
-          </AlertDialog>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(production)}
+                    title="Deletar"
+                  >
+                    <Trash className="text-red-500 h-5 w-5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogPortal>
+                  <AlertDialogOverlay />
+                  <AlertDialogContent>
+                    <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Essa ação não pode ser desfeita. Isso vai permanentemente
+                      deletar a produção {selectedProduction?.title}.
+                    </AlertDialogDescription>
+                    <div className="flex justify-end gap-4">
+                      <AlertDialogCancel asChild>
+                        <Button
+                          className="bg-white text-black"
+                          onClick={() => setProductionToDelete(undefined)}
+                        >
+                          Cancelar
+                        </Button>
+                      </AlertDialogCancel>
+                      <AlertDialogAction asChild>
+                        <Button
+                          className="bg-red-400 hover:bg-red-500"
+                          onClick={() =>
+                            selectedProduction &&
+                            confirmDelete(selectedProduction.id)
+                          }
+                        >
+                          Sim, deletar produção
+                        </Button>
+                      </AlertDialogAction>
+                    </div>
+                  </AlertDialogContent>
+                </AlertDialogPortal>
+              </AlertDialog>
+            </>
+          )}
         </div>
       );
     },

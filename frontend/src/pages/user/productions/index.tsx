@@ -34,6 +34,8 @@ export default function ProductionsPage() {
     filteredScore,
     selectedProfessorId,
     handleProfessorChange,
+    studentsList,
+    isViewingStudent,
   } = useProductionData({
     filters: filterState.filters,
     sortConfig: filterState.sortConfig,
@@ -44,6 +46,9 @@ export default function ProductionsPage() {
   }, 0);
 
   const podeFavoritar = favoritos < 4;
+  const selectedAdminUserId = selectedProfessorId.startsWith("professor:")
+    ? selectedProfessorId.replace("professor:", "")
+    : undefined;
 
   const crud = useProductionCrud(selectedProfessorId);
   const featuredMutation = useMutation({
@@ -70,9 +75,14 @@ export default function ProductionsPage() {
     },
   });
 
-  const currentProf =
-    selectedProfessorId !== "own"
-      ? professorsList.find((p) => p.id.toString() === selectedProfessorId)
+  const currentProf = isViewingStudent
+    ? studentsList.find(
+        (student) => `student:${student.id}` === selectedProfessorId,
+      )
+    : selectedProfessorId !== "own"
+      ? professorsList.find(
+          (professor) => `professor:${professor.id}` === selectedProfessorId,
+        )
       : auth?.user;
 
   const lastXmlUpdate = (currentProf as any)?.lattes_xml_uploaded_at;
@@ -88,6 +98,7 @@ export default function ProductionsPage() {
         selectedProfessorId={selectedProfessorId}
         onProfessorChange={handleProfessorChange}
         professorsList={professorsList}
+        studentsList={studentsList}
         lastXmlUpdate={lastXmlUpdate}
       />
       <div className="bg-background border rounded-xl shadow-sm overflow-hidden p-6">
@@ -124,6 +135,7 @@ export default function ProductionsPage() {
               uniqueYears={uniqueYears}
               qualisList={qualisList}
               isAdmin={auth?.isAdmin}
+              readOnly={isViewingStudent}
               onAdd={setChosenForm}
               onClearAll={crud.fullDelete}
             />
@@ -146,27 +158,22 @@ export default function ProductionsPage() {
                   : undefined
               }
               isTogglingFeatured={featuredMutation.isPending}
+              readOnly={isViewingStudent}
             />
           </div>
         ) : chosenForm === "xml" ? (
           <UploadXMLForm
-            professorId={
-              selectedProfessorId === "own" ? undefined : selectedProfessorId
-            }
+            professorId={selectedAdminUserId}
             onSuccess={() => setChosenForm("none")}
           />
         ) : chosenForm === "doi" ? (
           <ProductionDOIForm
-            professorId={
-              selectedProfessorId === "own" ? undefined : selectedProfessorId
-            }
+            professorId={selectedAdminUserId}
             onSuccess={() => setChosenForm("none")}
           />
         ) : (
           <ProductionCreateForm
-            professorId={
-              selectedProfessorId === "own" ? undefined : selectedProfessorId
-            }
+            professorId={selectedAdminUserId}
             onSuccess={() => setChosenForm("none")}
           />
         )}

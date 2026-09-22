@@ -1,17 +1,27 @@
-'use client';
+"use client";
 
-import { StudentDialogs } from '@/features/students/components/StudentDialogs';
-import { StudentHeader } from '@/features/students/components/StudentHeader';
-import { StudentTable } from '@/features/students/components/StudentTable';
-import { useStudents } from '@/features/students/hooks/useStudents';
-import { Student } from '@/types/user';
-import { useState } from 'react';
+import { StudentDialogs } from "@/features/students/components/StudentDialogs";
+import { StudentHeader } from "@/features/students/components/StudentHeader";
+import { StudentTable } from "@/features/students/components/StudentTable";
+import { useStudents } from "@/features/students/hooks/useStudents";
+import { Student } from "@/types/user";
+import { useState } from "react";
 
 export default function StudentsPage() {
   const {
-    students, areas, courses, pagination,
-    page, setPage, perPage, setPerPage, search, setSearch,
-    createMutation, updateMutation, deleteMutation
+    students,
+    areas,
+    courses,
+    pagination,
+    page,
+    setPage,
+    perPage,
+    setPerPage,
+    search,
+    setSearch,
+    createMutation,
+    updateMutation,
+    deleteMutation,
   } = useStudents();
 
   const [openAdd, setOpenAdd] = useState(false);
@@ -58,9 +68,13 @@ export default function StudentsPage() {
         selectedStudent={selectedStudent}
         areas={areas}
         courses={courses}
-        onCreate={(s) => createMutation.mutate(s)}
-        onUpdate={(id, s) => updateMutation.mutate({ id, student: s })}
+        onCreate={(s) => createMutation.mutateAsync(s).then(() => undefined)}
+        onUpdate={(id, s) =>
+          updateMutation.mutateAsync({ id, student: s }).then(() => undefined)
+        }
         onDelete={(id) => deleteMutation.mutate(id)}
+        createError={createMutation.error}
+        updateError={updateMutation.error}
       />
     </div>
   );

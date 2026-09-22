@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useFormErrorToast } from "@/hooks/useFormErrorToast";
+import { parseApiError } from "@/services/http-client";
 import { authService } from "@/services/modules/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -134,16 +135,7 @@ export default function RegisterPage() {
       });
       navigate("/login");
     } catch (e) {
-      const erro = e as unknown as {
-        errors: { description: string }[];
-        code: number;
-      };
-      if (erro.code === 422) {
-        erro.errors?.map((e) => {
-          toast.error(e.description);
-        });
-        return;
-      }
+      toast.error(parseApiError(e));
     }
   }
 

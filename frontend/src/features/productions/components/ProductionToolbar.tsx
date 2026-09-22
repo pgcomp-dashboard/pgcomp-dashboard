@@ -40,6 +40,7 @@ interface ProductionToolbarProps {
   qualisList: any[];
   // Action button props
   isAdmin?: boolean;
+  readOnly?: boolean;
   onAdd: (form: "xml" | "doi" | "other") => void;
   onClearAll: () => Promise<void>;
 }
@@ -52,6 +53,7 @@ export function ProductionToolbar({
   qualisList,
   onAdd,
   onClearAll,
+  readOnly = false,
 }: ProductionToolbarProps) {
   const { data: rulesData } = useQuery({
     queryKey: ["rulesYears"],
@@ -204,38 +206,40 @@ export function ProductionToolbar({
             </Select>
           </div>
 
-          <div className="flex items-center gap-4 pt-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="text-xs h-8"
-            >
-              Limpar Filtros
-            </Button>
+          {!readOnly && (
+            <div className="flex items-center gap-4 pt-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="text-xs h-8"
+              >
+                Limpar Filtros
+              </Button>
 
-            <div className="flex items-center gap-2">
-              <ClearProductionsDialog onConfirm={onClearAll} />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="h-9 bg-primary hover:bg-primary/90 text-sm">
-                    <Plus className="mr-1.5 h-4 w-4" /> Adicionar
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => onAdd("xml")}>
-                    Importar XML Lattes
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAdd("doi")}>
-                    Adicionar via DOI
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAdd("other")}>
-                    Adicionar Manualmente
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-2">
+                <ClearProductionsDialog onConfirm={onClearAll} />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="h-9 bg-primary hover:bg-primary/90 text-sm">
+                      <Plus className="mr-1.5 h-4 w-4" /> Adicionar
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => onAdd("xml")}>
+                      Importar XML Lattes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAdd("doi")}>
+                      Adicionar via DOI
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAdd("other")}>
+                      Adicionar Manualmente
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

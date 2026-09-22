@@ -22,6 +22,7 @@ class AccreditationDetailResource extends JsonResource
             'pq' => (bool) $this->pq,
             'is_senior' => (bool) $this->is_senior,
             'lattes_url' => $this->lattes_url,
+            'lattes_xml_uploaded_at' => $this->lattes_xml_uploaded_at,
             'total_score' => (float) $this->total_score,
             'a1_a4_count' => (int) $this->a1_a4_count,
             'is_accredited' => (bool) $this->is_accredited,

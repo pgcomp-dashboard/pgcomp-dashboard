@@ -70,6 +70,7 @@ export type Ranking = {
   pq: boolean;
   is_senior: boolean;
   total_score: number;
+  position: number;
   a1_a4_count: number;
   a1_a2_count: number;
   qualis_breakdown: Record<string, number>;
@@ -77,7 +78,23 @@ export type Ranking = {
   is_accredited: boolean;
   reasons: string[];
   lattes_url: string;
+  lattes_xml_uploaded_at: string;
   productions: RankingProduction[];
+};
+
+export type StudentRanking = {
+  user_id: number;
+  name: string;
+  position: number;
+  registration: number | null;
+  course_name: string | null;
+  area_name: string | null;
+  productions_count: number;
+  a1_a4_count: number;
+  a1_a2_count: number;
+  total_score: number;
+  is_eligible: boolean;
+  reasons: string[];
 };
 export interface Project {
   id: number;

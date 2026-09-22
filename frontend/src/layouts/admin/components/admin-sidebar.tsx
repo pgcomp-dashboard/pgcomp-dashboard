@@ -3,6 +3,7 @@ import {
   BookOpen,
   File,
   Heart,
+  Medal,
   Settings2,
   Trophy,
   Users,
@@ -56,17 +57,19 @@ export function AdminSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem> */}
           {/* Projetos Individuais */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/portal/projects"}
-            >
-              <Link to="/portal/projects">
-                <File className="h-4 w-4" />
-                <span>Projetos Individuais</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {auth?.user?.type !== "student" && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/portal/projects"}
+              >
+                <Link to="/portal/projects">
+                  <File className="h-4 w-4" />
+                  <span>Projetos Individuais</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {auth?.isAdmin && (
             <>
               {/* Projetos PGCOMP */}
@@ -192,17 +195,32 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/admin/credenciamento"}
-            >
-              <Link to="/admin/credenciamento">
-                <Trophy className="h-4 w-4" />
-                <span>Credenciamento</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {auth?.isAdmin && (
+            <>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/credenciamento"}
+                >
+                  <Link to="/admin/credenciamento">
+                    <Trophy className="h-4 w-4" />
+                    <span>Credenciamento</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/student-ranking"}
+                >
+                  <Link to="/admin/student-ranking">
+                    <Medal className="h-4 w-4" />
+                    <span>Ranking de discentes</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </>
+          )}
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>

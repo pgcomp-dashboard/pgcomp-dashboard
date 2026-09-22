@@ -1,14 +1,14 @@
-import { Label } from '@/components/ui/label';
-import { Clock } from 'lucide-react';
+import { Label } from "@/components/ui/label";
+import { Clock } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Professor } from "@/types/user";
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Professor, Student } from "@/types/user";
 
 interface ProductionHeaderProps {
   isAdmin?: boolean;
@@ -19,6 +19,7 @@ interface ProductionHeaderProps {
   selectedProfessorId: string;
   onProfessorChange: (value: string) => void;
   professorsList: Professor[];
+  studentsList: Student[];
   lastXmlUpdate?: string;
 }
 
@@ -31,16 +32,17 @@ export function ProductionHeader({
   selectedProfessorId,
   onProfessorChange,
   professorsList,
+  studentsList,
   lastXmlUpdate,
 }: ProductionHeaderProps) {
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -62,46 +64,92 @@ export function ProductionHeader({
           </div>
         )}
       </div>
-      <div className='w-full flex flex-row items-center'>
-      {isAdmin && (
-        <div className="w-full max-w-md mx-auto mb-4">
-          <Label className="text-sm font-medium mb-1.5 block">
-            Visualizar produções de:
-          </Label>
-          <Select
-            value={selectedProfessorId}
-            onValueChange={onProfessorChange}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecione um docente" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="own">Minhas produções</SelectItem>
-              {professorsList.map((prof) => (
-                <SelectItem key={prof.id} value={prof.id.toString()}>
-                  {prof.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      <div className="w-full space-y-3">
-        <div className="flex flex-col items-center gap-2">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
-              <span className="text-sm font-medium">
-                {hasActiveFilters ? 'Pontuação filtrada:' : 'Pontuação total:'}
-              </span>
-            {(isLoading || isPending) ? (
-              <Skeleton className="h-6 w-12 bg-primary/20" />
-            ) : (
-              <span className="text-lg font-bold text-primary">
-                    {score}
-              </span>
-            )}
+      <div className="w-full flex flex-row items-center">
+        {isAdmin && (
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label className="text-sm font-medium mb-1.5 block">
+                Produções de docente
+              </Label>
+              <Select
+                value={
+                  selectedProfessorId.startsWith("professor:") ||
+                  selectedProfessorId === "own"
+                    ? selectedProfessorId
+                    : "none"
+                }
+                onValueChange={(value) =>
+                  value !== "none" && onProfessorChange(value)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione um docente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">
+                    Nenhum docente selecionado
+                  </SelectItem>
+                  <SelectItem value="own">Minhas produções</SelectItem>
+                  {professorsList.map((prof) => (
+                    <SelectItem
+                      key={`professor-${prof.id}`}
+                      value={`professor:${prof.id}`}
+                    >
+                      {prof.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-        </div>
+
+            <div>
+              <Label className="text-sm font-medium mb-1.5 block">
+                Produções de discente
+              </Label>
+              <Select
+                value={
+                  selectedProfessorId.startsWith("student:")
+                    ? selectedProfessorId
+                    : "none"
+                }
+                onValueChange={(value) =>
+                  value !== "none" && onProfessorChange(value)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione um discente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">
+                    Nenhum discente selecionado
+                  </SelectItem>
+                  {studentsList.map((student) => (
+                    <SelectItem
+                      key={`student-${student.id}`}
+                      value={`student:${student.id}`}
+                    >
+                      {student.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        <div className="w-full space-y-3">
+          <div className="flex flex-col items-center gap-2">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
+              <span className="text-sm font-medium">
+                {hasActiveFilters ? "Pontuação filtrada:" : "Pontuação total:"}
+              </span>
+              {isLoading || isPending ? (
+                <Skeleton className="h-6 w-12 bg-primary/20" />
+              ) : (
+                <span className="text-lg font-bold text-primary">{score}</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

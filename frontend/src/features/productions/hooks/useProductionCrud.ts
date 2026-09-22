@@ -11,6 +11,9 @@ import { RequestBodyType, updateProductionFormSchema } from "../types";
 import { usePublisherSearch } from "./usePublisherSearch";
 
 export function useProductionCrud(selectedProfessorId: string) {
+  const selectedUserId = selectedProfessorId.startsWith("professor:")
+    ? Number(selectedProfessorId.replace("professor:", ""))
+    : undefined;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProduction, setSelectedProduction] = useState<Production>();
   const publisherSearch = usePublisherSearch();
@@ -52,9 +55,9 @@ export function useProductionCrud(selectedProfessorId: string) {
     };
 
     try {
-      if (selectedProfessorId && selectedProfessorId !== "own") {
+      if (selectedUserId) {
         await productionService.updateUserProduction(
-          Number(selectedProfessorId),
+          selectedUserId,
           selectedProduction.id,
           payload,
         );
@@ -76,13 +79,9 @@ export function useProductionCrud(selectedProfessorId: string) {
 
   async function deleteProduction(id: number) {
     try {
-      const response =
-        selectedProfessorId && selectedProfessorId !== "own"
-          ? await productionService.deleteUserProduction(
-              Number(selectedProfessorId),
-              id,
-            )
-          : await productionService.deleteProduction(id);
+      const response = selectedUserId
+        ? await productionService.deleteUserProduction(selectedUserId, id)
+        : await productionService.deleteProduction(id);
       console.log(response);
       if (Number(response.status) === 200) {
         toast.success("Produção deletada com sucesso.");
@@ -97,12 +96,9 @@ export function useProductionCrud(selectedProfessorId: string) {
 
   async function fullDelete() {
     try {
-      const response =
-        selectedProfessorId && selectedProfessorId !== "own"
-          ? await productionService.clearUserProductions(
-              Number(selectedProfessorId),
-            )
-          : await productionService.clearProductions();
+      const response = selectedUserId
+        ? await productionService.clearUserProductions(selectedUserId)
+        : await productionService.clearProductions();
       if (Number(response.status) === 200) {
         toast.success("Produções deletadas com sucesso.");
         queryClient.invalidateQueries({

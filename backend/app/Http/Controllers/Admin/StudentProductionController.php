@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\User\ProductionController;
+use App\Http\Resources\ProductionResource;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\StoreProductionRequest;
 use App\Http\Requests\User\UpdateProductionRequest;
@@ -21,10 +23,11 @@ class StudentProductionController extends Controller
 
     public function index(Request $request, $students)
     {
-        $this->productionController = $this->newInstance();
-        $this->productionController->studentQuery($students);
+        User::students()->findOrFail($students);
 
-        return $this->productionController->index($request);
+        return ProductionResource::collection(
+            $this->productionService->getProductionsForUser((int) $students, $request->all())
+        );
     }
 
     public function show($students, $productions)
