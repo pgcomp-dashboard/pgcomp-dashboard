@@ -225,7 +225,7 @@ export function AdminSidebar() {
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton isActive={isStudentArea}>
                       <GraduationCap className="h-4 w-4" />
-                      <span>Estudantes</span>
+                      <span>Discentes</span>
                       <ChevronDown
                         className={`ml-auto h-4 w-4 transition-transform ${studentsOpen ? "rotate-180" : ""}`}
                       />

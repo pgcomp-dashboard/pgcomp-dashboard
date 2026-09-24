@@ -89,7 +89,7 @@ export default function StudentRulesPage() {
       <div>
         <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight">
           <Settings2 className="h-8 w-8 text-primary" />
-          Regras dos Estudantes
+          Regras dos Discentes
         </h1>
         <p className="mt-2 text-muted-foreground">
           Configure o período e os critérios usados para classificar e marcar os
