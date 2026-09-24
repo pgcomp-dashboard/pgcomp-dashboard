@@ -1,16 +1,24 @@
 import {
   BarChart2,
   BookOpen,
+  ChevronDown,
   File,
+  GraduationCap,
   Heart,
   Medal,
   Settings2,
   Trophy,
   Users,
 } from "lucide-react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router";
 
 import AppLogo from "@/components/AppLogo";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +32,10 @@ import useAuth from "@/hooks/auth";
 export function AdminSidebar() {
   const auth = useAuth();
   const { pathname } = useLocation();
+  const isStudentArea =
+    pathname === "/portal/student/productions" ||
+    pathname.startsWith("/admin/student/");
+  const [studentsOpen, setStudentsOpen] = useState(isStudentArea);
 
   return (
     <Sidebar>
@@ -209,15 +221,54 @@ export function AdminSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/admin/student-ranking"}
-                >
-                  <Link to="/admin/student-ranking">
-                    <Medal className="h-4 w-4" />
-                    <span>Ranking de discentes</span>
-                  </Link>
-                </SidebarMenuButton>
+                <Collapsible open={studentsOpen} onOpenChange={setStudentsOpen}>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton isActive={isStudentArea}>
+                      <GraduationCap className="h-4 w-4" />
+                      <span>Estudantes</span>
+                      <ChevronDown
+                        className={`ml-auto h-4 w-4 transition-transform ${studentsOpen ? "rotate-180" : ""}`}
+                      />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenu className="ml-4 border-l pl-2">
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={pathname === "/admin/student/ranking"}
+                        >
+                          <Link to="/admin/student/ranking">
+                            <Medal className="h-4 w-4" />
+                            <span>Ranking</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={pathname === "/portal/student/productions"}
+                        >
+                          <Link to="/portal/student/productions">
+                            <File className="h-4 w-4" />
+                            <span>Produções</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={pathname === "/admin/student/rules"}
+                        >
+                          <Link to="/admin/student/rules">
+                            <Settings2 className="h-4 w-4" />
+                            <span>Regras</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </SidebarMenu>
+                  </CollapsibleContent>
+                </Collapsible>
               </SidebarMenuItem>
             </>
           )}

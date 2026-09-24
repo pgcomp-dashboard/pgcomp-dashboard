@@ -41,18 +41,18 @@ const QUALIS_OPTIONS = [
 export default function Dashboard() {
   //const [ lastExecution, setLastExecution ] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  
+
   // 👇 Novos estados adicionados
-  const [ productionType, setProductionType ] = useState<'journal' | 'conference' | undefined>(undefined);
-  const [ isRefetchingProductions, setIsRefetchingProductions ] = useState(false);
-  const [ productionQualis, setProductionQualis ] = useState<string[]>(['A1','A2','A3','A4','B1','B2','B3','B4']);
-  
-  const [selectedQualis, setSelectedQualis] = useState<string[]>(['A1','A2','A3','A4','B1','B2','B3','B4']);
+  const [productionType, setProductionType] = useState<'journal' | 'conference' | undefined>(undefined);
+  const [isRefetchingProductions, setIsRefetchingProductions] = useState(false);
+  const [productionQualis, setProductionQualis] = useState<string[]>(['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4']);
+
+  const [selectedQualis, setSelectedQualis] = useState<string[]>(['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4']);
   const [qualisPublisherType, setQualisPublisherType] = useState<'journal' | 'conference' | undefined>(undefined);
-  
+
   const [isRefetchingQualis, setIsRefetchingQualis] = useState(false);
   const [isRefetchingDefenses, setIsRefetchingDefenses] = useState(false);
-  const [ isRefetchingEnrollments, setIsRefetchingEnrollments ] = useState(false);
+  const [isRefetchingEnrollments, setIsRefetchingEnrollments] = useState(false);
 
   async function refetchQuery(key: string, setLoading: (v: boolean) => void) {
     setLoading(true);
@@ -300,9 +300,9 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
-              <ProductionsPerYearChart 
-                publisherType={productionType} 
-                qualis={productionQualis} 
+              <ProductionsPerYearChart
+                publisherType={productionType}
+                qualis={productionQualis}
               />
             </CardContent>
           </Card>
@@ -403,7 +403,7 @@ export default function Dashboard() {
           <Card>
             <Tabs defaultValue="all">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                <CardTitle className="text-base sm:text-lg lg:text-xl">Matrículas por ano</CardTitle>
+                <CardTitle className="text-base sm:text-lg lg:text-xl">Alunos Ativos Matriculados por ano de entrada</CardTitle>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => refetchQuery('enrollments_per_year', setIsRefetchingEnrollments)} disabled={isRefetchingEnrollments} title="Atualizar">
                     <RotateCw className={cn('h-4 w-4', isRefetchingEnrollments && 'animate-spin')} />

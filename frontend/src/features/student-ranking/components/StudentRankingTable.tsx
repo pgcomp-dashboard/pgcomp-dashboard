@@ -7,9 +7,11 @@ import {
   createColumnHelper,
   OnChangeFn,
   PaginationState,
+  Row,
   SortingState,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { Link } from "react-router";
 
 interface StudentRankingTableProps {
   ranking: StudentRanking[];
@@ -53,7 +55,16 @@ export function StudentRankingTable({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Nome" />
         ),
-        cell: (info) => <div className="font-medium">{info.getValue()}</div>,
+        cell: (info) => (
+          <div className="font-medium">
+            <Link
+              to={`/portal/student/productions?student=${info.row.original.user_id}`}
+              className="text-primary hover:underline"
+            >
+              {info.getValue()}
+            </Link>
+          </div>
+        ),
       }),
       columnHelper.accessor("registration", {
         header: ({ column }) => (
@@ -67,34 +78,21 @@ export function StudentRankingTable({
         ),
         cell: (info) => <div>{info.getValue() ?? "Não informado"}</div>,
       }),
-      columnHelper.accessor("area_name", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Área" />
-        ),
-        cell: (info) => <div>{info.getValue() ?? "Não informado"}</div>,
-      }),
-      columnHelper.accessor("productions_count", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Produções" />
-        ),
-        cell: (info) => <div className="text-center">{info.getValue()}</div>,
-      }),
-      columnHelper.accessor("a1_a4_count", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="A1-A4" />
-        ),
-        cell: (info) => (
-          <div className="text-center font-medium">{info.getValue()}</div>
-        ),
-      }),
-      columnHelper.accessor("a1_a2_count", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="A1-A2" />
-        ),
-        cell: (info) => (
-          <div className="text-center font-medium">{info.getValue()}</div>
-        ),
-      }),
+      ...(
+        ["ja1", "ja2", "ja3", "ja4", "ca1", "ca2", "ca3", "ca4"] as const
+      ).map((field) =>
+        columnHelper.accessor(field, {
+          header: ({ column }) => (
+            <DataTableColumnHeader
+              column={column}
+              title={`#${field.toUpperCase()}`}
+            />
+          ),
+          cell: (info) => (
+            <div className="text-center font-medium">{info.getValue()}</div>
+          ),
+        }),
+      ),
       columnHelper.accessor("total_score", {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Pontuação" />
@@ -126,6 +124,77 @@ export function StudentRankingTable({
     [],
   );
 
+  const renderMobileCard = (row: Row<StudentRanking>) => {
+    const student = row.original;
+
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="shrink-0 text-2xl font-bold text-primary">
+              {student.position}º
+            </span>
+            <div className="min-w-0">
+              <Link
+                to={`/portal/student/productions?student=${student.user_id}`}
+                className="block truncate font-semibold text-primary hover:underline"
+              >
+                {student.name}
+              </Link>
+              <p className="text-sm text-muted-foreground">
+                {student.registration ?? "Matrícula não informada"}
+              </p>
+            </div>
+          </div>
+          <span
+            className={
+              student.is_eligible
+                ? "shrink-0 rounded-full bg-green-100 px-2 py-1 text-[10px] font-medium text-green-800"
+                : "shrink-0 rounded-full bg-red-100 px-2 py-1 text-[10px] font-medium text-red-800"
+            }
+          >
+            {student.is_eligible ? "Apto" : "Fora dos critérios"}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 rounded-lg bg-muted/30 p-3 text-sm">
+          <div className="flex items-center justify-between border-b pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Curso
+            </span>
+            <span className="max-w-[65%] text-right font-medium">
+              {student.course_name ?? "Não informado"}
+            </span>
+          </div>
+          <div className="grid grid-cols-4 gap-2 pt-1">
+            {(
+              ["ja1", "ja2", "ja3", "ja4", "ca1", "ca2", "ca3", "ca4"] as const
+            ).map((field) => (
+              <div
+                key={field}
+                className="rounded-md border border-border/50 bg-background p-2 text-center"
+              >
+                <span className="block text-[10px] font-bold uppercase text-muted-foreground">
+                  #{field.toUpperCase()}
+                </span>
+                <span className="font-bold">{student[field]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between border-t pt-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Pontuação
+          </span>
+          <span className="text-lg font-black text-primary">
+            {student.total_score.toFixed(1)}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <DataTable
       columns={columns}
@@ -139,6 +208,7 @@ export function StudentRankingTable({
       pagination={{ pageIndex: page - 1, pageSize: perPage }}
       pageCount={pagination?.meta.last_page ?? 0}
       manualPagination
+      renderMobileCard={renderMobileCard}
       onPaginationChange={
         ((updater) => {
           const current = { pageIndex: page - 1, pageSize: perPage };
