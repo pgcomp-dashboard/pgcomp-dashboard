@@ -196,6 +196,19 @@ export function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           {auth?.isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/portal/student/productions"}
+              >
+                <Link to="/portal/student/productions">
+                  <File className="h-4 w-4" />
+                  <span>Produções de discentes</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+          {auth?.isAdmin && (
             <>
               <SidebarMenuItem>
                 <SidebarMenuButton

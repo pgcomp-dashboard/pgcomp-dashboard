@@ -1,8 +1,8 @@
 import useAuth from "@/hooks/auth";
 import { productionService } from "@/services/modules/production.service";
 import { professorService } from "@/services/modules/professor.service";
-import { studentService } from "@/services/modules/student.service";
 import { qualisService } from "@/services/modules/qualis.service";
+import { studentService } from "@/services/modules/student.service";
 import { Production, StratumQualis } from "@/types/academic";
 import { Student } from "@/types/user";
 import { useQuery } from "@tanstack/react-query";
@@ -13,21 +13,25 @@ import { ProductionFilters } from "./useProductionFilters";
 interface UseProductionDataOptions {
   filters: ProductionFilters;
   sortConfig: { key: string; direction: "asc" | "desc" };
+  mode?: "professor" | "student";
 }
 
 export function useProductionData({
   filters,
   sortConfig,
+  mode = "professor",
 }: UseProductionDataOptions) {
   const auth = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramProfessorId = searchParams.get("professorId");
   const paramStudentId = searchParams.get("studentId");
-  const [selectedProfessorId, setSelectedProfessorId] = useState<string>(
-    paramProfessorId
-      ? `professor:${paramProfessorId}`
-      : paramStudentId
+  const [selectedProfessorId, setSelectedProfessorId] = useState<string>(() =>
+    mode === "student"
+      ? paramStudentId
         ? `student:${paramStudentId}`
+        : "none"
+      : paramProfessorId
+        ? `professor:${paramProfessorId}`
         : "own",
   );
   const [isPending, startTransition] = useTransition();
@@ -66,11 +70,7 @@ export function useProductionData({
         },
       };
 
-      if (
-        auth?.isAdmin &&
-        selectedProfessorId &&
-        selectedProfessorId.startsWith("student:")
-      ) {
+      if (auth?.isAdmin && selectedProfessorId.startsWith("student:")) {
         return productionService.getStudentProductions(
           Number(selectedProfessorId.replace("student:", "")),
           params,
@@ -83,7 +83,9 @@ export function useProductionData({
           params,
         );
       }
-      return productionService.getProductions(params);
+      return selectedProfessorId === "none"
+        ? []
+        : productionService.getProductions(params);
     },
     enabled: !!auth?.isAuthenticated,
   });
@@ -200,8 +202,10 @@ export function useProductionData({
         searchParams.delete("studentId");
         setSearchParams(searchParams);
       } else if (value.startsWith("student:")) {
+        searchParams.delete("professorId");
         setSearchParams({ studentId: value.replace("student:", "") });
       } else {
+        searchParams.delete("studentId");
         setSearchParams({ professorId: value.replace("professor:", "") });
       }
     });
@@ -220,6 +224,7 @@ export function useProductionData({
     filteredScore,
     selectedProfessorId,
     handleProfessorChange,
-    isViewingStudent: selectedProfessorId.startsWith("student:"),
+    isViewingStudent:
+      mode === "student" || selectedProfessorId.startsWith("student:"),
   };
 }

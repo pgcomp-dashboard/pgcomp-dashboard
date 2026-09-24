@@ -58,6 +58,12 @@ export function AppRoutes() {
             <Route path="portal">
               <Route index element={<Navigate to="/" replace />} />
               <Route path="productions" element={<ProductionsPage />} />
+              <Route element={<EnsureAdmin />}>
+                <Route
+                  path="student/productions"
+                  element={<ProductionsPage mode="student" />}
+                />
+              </Route>
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="profile" element={<ProfilePage />} />
             </Route>

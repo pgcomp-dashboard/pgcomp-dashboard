@@ -17,7 +17,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function ProductionsPage() {
+interface ProductionsPageProps {
+  mode?: "professor" | "student";
+}
+
+export default function ProductionsPage({
+  mode = "professor",
+}: ProductionsPageProps) {
   const [chosenForm, setChosenForm] = useState<FormType>("none");
   const queryClient = useQueryClient();
 
@@ -39,6 +45,7 @@ export default function ProductionsPage() {
   } = useProductionData({
     filters: filterState.filters,
     sortConfig: filterState.sortConfig,
+    mode,
   });
 
   const favoritos = filteredAndSortedProductions?.reduce((acc, p) => {
@@ -90,6 +97,7 @@ export default function ProductionsPage() {
   return (
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto px-4 py-8">
       <ProductionHeader
+        mode={mode}
         isAdmin={auth?.isAdmin}
         score={filteredScore}
         hasActiveFilters={filterState.hasActiveFilters}
