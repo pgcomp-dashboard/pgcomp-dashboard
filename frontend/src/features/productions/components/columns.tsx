@@ -169,15 +169,19 @@ export const getProductionColumns = ({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Pts" />
       ),
-      cell: (info) => (
-        <div className="text-center text-sm">
-          {info.getValue() >= 0
-            ? Number.isInteger(info.getValue())
-              ? info.getValue()
-              : info.getValue().toFixed(2)
-            : "--"}
-        </div>
-      ),
+      cell: (info) => {
+        const score = info.getValue();
+
+        return (
+          <div className="text-center text-sm">
+            {score !== undefined && score >= 0
+              ? Number.isInteger(score)
+                ? score
+                : score.toFixed(2)
+              : "--"}
+          </div>
+        );
+      },
       meta: {
         className: "w-[8%]",
       },
