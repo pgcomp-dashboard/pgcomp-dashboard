@@ -12,6 +12,7 @@ import ProjectDashboardPage from "@/pages/admin/projects-dashboard";
 import PublishersPage from "@/pages/admin/publishers";
 import QualisPage from "@/pages/admin/qualis/index";
 import StudentRankingPage from "@/pages/admin/student-ranking";
+import StudentRulesPage from "@/pages/admin/student/rules";
 import StudentsPage from "@/pages/admin/students";
 import SystemConfigPage from "@/pages/admin/system-config";
 import ForgotPasswordPage from "@/pages/auth/forgot-password";
@@ -72,7 +73,8 @@ export function AppRoutes() {
               <Route index element={<Navigate to="/" replace />} />
               <Route path="areas" element={<AreasPage />} />
               <Route path="students" element={<StudentsPage />} />
-              <Route path="student-ranking" element={<StudentRankingPage />} />
+              <Route path="student/ranking" element={<StudentRankingPage />} />
+              <Route path="student/rules" element={<StudentRulesPage />} />
               <Route path="credenciamento" element={<CredenciamentoPage />} />
               <Route
                 path="projects-dashboard"
