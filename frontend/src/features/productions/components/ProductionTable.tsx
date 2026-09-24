@@ -152,7 +152,9 @@ export function ProductionTable({
           </div>
         </div>
 
-        <CardFooter className="flex border-t mt-auto items-stretch p-0">
+        <CardFooter
+          className={`flex border-t mt-auto items-stretch p-0 ${readOnly ? "hidden" : ""}`}
+        >
           {onToggleFeatured && (
             <Button
               variant="ghost"
