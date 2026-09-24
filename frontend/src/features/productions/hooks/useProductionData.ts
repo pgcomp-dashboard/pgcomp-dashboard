@@ -24,7 +24,8 @@ export function useProductionData({
   const auth = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramProfessorId = searchParams.get("professorId");
-  const paramStudentId = searchParams.get("studentId");
+  const paramStudentId =
+    searchParams.get("student") ?? searchParams.get("studentId");
   const [selectedProfessorId, setSelectedProfessorId] = useState<string>(() =>
     mode === "student"
       ? paramStudentId
@@ -203,7 +204,7 @@ export function useProductionData({
         setSearchParams(searchParams);
       } else if (value.startsWith("student:")) {
         searchParams.delete("professorId");
-        setSearchParams({ studentId: value.replace("student:", "") });
+        setSearchParams({ student: value.replace("student:", "") });
       } else {
         searchParams.delete("studentId");
         setSearchParams({ professorId: value.replace("professor:", "") });

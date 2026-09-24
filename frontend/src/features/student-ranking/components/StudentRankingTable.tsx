@@ -11,6 +11,7 @@ import {
   SortingState,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { Link } from "react-router";
 
 interface StudentRankingTableProps {
   ranking: StudentRanking[];
@@ -54,7 +55,16 @@ export function StudentRankingTable({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Nome" />
         ),
-        cell: (info) => <div className="font-medium">{info.getValue()}</div>,
+        cell: (info) => (
+          <div className="font-medium">
+            <Link
+              to={`/portal/student/productions?student=${info.row.original.user_id}`}
+              className="text-primary hover:underline"
+            >
+              {info.getValue()}
+            </Link>
+          </div>
+        ),
       }),
       columnHelper.accessor("registration", {
         header: ({ column }) => (
@@ -125,7 +135,12 @@ export function StudentRankingTable({
               {student.position}º
             </span>
             <div className="min-w-0">
-              <p className="truncate font-semibold">{student.name}</p>
+              <Link
+                to={`/portal/student/productions?student=${student.user_id}`}
+                className="block truncate font-semibold text-primary hover:underline"
+              >
+                {student.name}
+              </Link>
               <p className="text-sm text-muted-foreground">
                 {student.registration ?? "Matrícula não informada"}
               </p>
