@@ -32,6 +32,23 @@ class ApprovalRequestController extends Controller
                 ];
             });
 
+        $studentRegistrations = User::whereNotNull('registration_requested_at')
+            ->where('type', UserType::STUDENT)
+            ->with('advisors:id,name')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'registration' => $user->registration,
+                    'advisor' => $user->advisors->first()?->name,
+                    'type' => $user->type,
+                    'request_type' => 'registration',
+                    'created_at' => $user->registration_requested_at,
+                ];
+            });
+
         $adminRequests = User::where('admin_status', 'pending')
             ->get()
             ->map(function ($user) {
@@ -46,7 +63,7 @@ class ApprovalRequestController extends Controller
             });
 
         return response()->json([
-            'data' => $registrations->concat($adminRequests)
+            'data' => $registrations->concat($studentRegistrations)->concat($adminRequests)
         ]);
     }
 
@@ -60,6 +77,7 @@ class ApprovalRequestController extends Controller
 
         if ($requestType === 'registration') {
             $user->is_approved = true;
+            $user->registration_requested_at = null;
             $user->save();
             Mail::to($user->email)->send(new RegistrationMail($user, 'approved'));
         } elseif ($requestType === 'admin') {
@@ -85,6 +103,8 @@ class ApprovalRequestController extends Controller
 
         if ($requestType === 'registration') {
             Mail::to($user->email)->send(new RegistrationMail($user, 'rejected'));
+            $user->advisors()->detach();
+            $user->coadvisors()->detach();
             $user->delete();
             return response()->json(['message' => 'Cadastro rejeitado e usuário removido.']);
         } elseif ($requestType === 'admin') {

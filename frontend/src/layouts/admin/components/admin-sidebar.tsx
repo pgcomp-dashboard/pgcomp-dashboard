@@ -236,6 +236,17 @@ export function AdminSidebar() {
                       <SidebarMenuItem>
                         <SidebarMenuButton
                           asChild
+                          isActive={pathname === "/admin/student/requests"}
+                        >
+                          <Link to="/admin/student/requests">
+                            <Users className="h-4 w-4" />
+                            <span>Solicitações</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          asChild
                           isActive={pathname === "/admin/student/ranking"}
                         >
                           <Link to="/admin/student/ranking">

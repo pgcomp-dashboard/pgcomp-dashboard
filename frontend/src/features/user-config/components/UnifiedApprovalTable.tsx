@@ -21,8 +21,27 @@ import { useUnifiedRequests } from "../hooks/useUnifiedRequests";
 
 const columnHelper = createColumnHelper<ApprovalRequest>();
 
-export function UnifiedApprovalTable() {
-  const { requests, isLoading, error, approveMutation, rejectMutation, approvingId, rejectingId } = useUnifiedRequests();
+export function UnifiedApprovalTable({
+  userType,
+}: {
+  userType?: "student" | "professor";
+}) {
+  const {
+    requests,
+    isLoading,
+    error,
+    approveMutation,
+    rejectMutation,
+    approvingId,
+    rejectingId,
+  } = useUnifiedRequests();
+  const visibleRequests = userType
+    ? requests.filter(
+        (request) =>
+          request.type === userType && request.request_type === "registration",
+      )
+    : requests;
+  const showStudentDetails = userType === "student";
   const isAnyPending = approvingId !== null || rejectingId !== null;
 
   const columns = useMemo<ColumnDef<ApprovalRequest, any>[]>(
@@ -33,6 +52,38 @@ export function UnifiedApprovalTable() {
           <div className="text-center font-medium">{info.getValue()}</div>
         ),
       }),
+      ...(showStudentDetails
+        ? [
+            columnHelper.accessor("email", {
+              header: "E-mail",
+              cell: (info) => (
+                <div
+                  className="max-w-56 truncate text-center"
+                  title={info.getValue()}
+                >
+                  {info.getValue() || "—"}
+                </div>
+              ),
+            }),
+            columnHelper.accessor("registration", {
+              header: "Matrícula",
+              cell: (info) => (
+                <div className="text-center">{info.getValue() ?? "—"}</div>
+              ),
+            }),
+            columnHelper.accessor("advisor", {
+              header: "Orientador",
+              cell: (info) => (
+                <div
+                  className="max-w-48 truncate text-center"
+                  title={info.getValue() ?? "—"}
+                >
+                  {info.getValue() ?? "—"}
+                </div>
+              ),
+            }),
+          ]
+        : []),
       columnHelper.accessor("request_type", {
         header: "Tipo de Solicitação",
         cell: (info) => {
@@ -57,7 +108,12 @@ export function UnifiedApprovalTable() {
               <Button
                 size="sm"
                 disabled={isAnyPending}
-                onClick={() => approveMutation.mutate({ id: request.id, requestType: request.request_type })}
+                onClick={() =>
+                  approveMutation.mutate({
+                    id: request.id,
+                    requestType: request.request_type,
+                  })
+                }
                 className="bg-green-600 hover:bg-green-700"
               >
                 {isApprovingThis ? (
@@ -86,14 +142,21 @@ export function UnifiedApprovalTable() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Confirmar rejeição</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Tem certeza que deseja rejeitar a solicitação de <strong>{request.name}</strong>? Esta ação não pode ser desfeita.
+                      Tem certeza que deseja rejeitar a solicitação de{" "}
+                      <strong>{request.name}</strong>? Esta ação não pode ser
+                      desfeita.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      onClick={() => rejectMutation.mutate({ id: request.id, requestType: request.request_type })}
+                      onClick={() =>
+                        rejectMutation.mutate({
+                          id: request.id,
+                          requestType: request.request_type,
+                        })
+                      }
                     >
                       Rejeitar
                     </AlertDialogAction>
@@ -105,7 +168,14 @@ export function UnifiedApprovalTable() {
         },
       }),
     ],
-    [approveMutation, rejectMutation, approvingId, rejectingId, isAnyPending],
+    [
+      approveMutation,
+      rejectMutation,
+      approvingId,
+      rejectingId,
+      isAnyPending,
+      showStudentDetails,
+    ],
   );
 
   const renderMobileCard = (row: Row<ApprovalRequest>) => {
@@ -124,20 +194,45 @@ export function UnifiedApprovalTable() {
           <div>
             <Label className="text-xs text-muted-foreground">Tipo</Label>
             <p className="font-medium">
-              {request.request_type === "registration" ? "Novo Cadastro" : "Privilégio Admin"}
+              {request.request_type === "registration"
+                ? "Novo Cadastro"
+                : "Privilégio Admin"}
             </p>
           </div>
           <div>
             <Label className="text-xs text-muted-foreground">E-mail</Label>
             <p className="font-medium truncate">{request.email || "N/A"}</p>
           </div>
+          {showStudentDetails && request.type === "student" && (
+            <>
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  Matrícula
+                </Label>
+                <p className="font-medium">{request.registration ?? "N/A"}</p>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  Orientador
+                </Label>
+                <p className="font-medium truncate">
+                  {request.advisor || "Não informado"}
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         <CardFooter className="flex gap-2 pt-2 border-t p-0 mt-2">
           <Button
             className="flex-1 bg-green-600 hover:bg-green-700"
             disabled={isAnyPending}
-            onClick={() => approveMutation.mutate({ id: request.id, requestType: request.request_type })}
+            onClick={() =>
+              approveMutation.mutate({
+                id: request.id,
+                requestType: request.request_type,
+              })
+            }
           >
             {isApprovingThis ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -165,14 +260,21 @@ export function UnifiedApprovalTable() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Confirmar rejeição</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Tem certeza que deseja rejeitar a solicitação de <strong>{request.name}</strong>? Esta ação não pode ser desfeita.
+                  Tem certeza que deseja rejeitar a solicitação de{" "}
+                  <strong>{request.name}</strong>? Esta ação não pode ser
+                  desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  onClick={() => rejectMutation.mutate({ id: request.id, requestType: request.request_type })}
+                  onClick={() =>
+                    rejectMutation.mutate({
+                      id: request.id,
+                      requestType: request.request_type,
+                    })
+                  }
                 >
                   Rejeitar
                 </AlertDialogAction>
@@ -201,7 +303,7 @@ export function UnifiedApprovalTable() {
   return (
     <DataTable
       columns={columns}
-      data={requests}
+      data={visibleRequests}
       renderMobileCard={renderMobileCard}
       emptyMessage="Nenhuma solicitação pendente."
     />

@@ -2,6 +2,7 @@ import {
   Bell,
   BookOpenText,
   ChevronRight,
+  GraduationCap,
   LogOut,
   ShieldPlus,
   User,
@@ -80,6 +81,28 @@ export function AdminHeader() {
                     </div>
                     <Badge variant="secondary" className="h-5 text-[10px]">
                       {summary.registrations}
+                    </Badge>
+                  </Link>
+                )}
+                {summary.student_registrations > 0 && (
+                  <Link
+                    to="/admin/student/requests"
+                    className="flex items-center gap-3 border-t px-4 py-3 transition-colors hover:bg-muted"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600">
+                      <GraduationCap className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium leading-none">
+                        Cadastros de discentes
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {summary.student_registrations} discentes aguardando
+                        aprovação.
+                      </p>
+                    </div>
+                    <Badge variant="secondary" className="h-5 text-[10px]">
+                      {summary.student_registrations}
                     </Badge>
                   </Link>
                 )}

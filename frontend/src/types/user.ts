@@ -5,7 +5,7 @@ export type UserBase = {
 };
 
 export type Professor = UserBase & {
-  type: 'professor';
+  type: "professor";
   siape: number;
   email: string;
   lattes_url: string;
@@ -15,13 +15,13 @@ export type Professor = UserBase & {
   pq: boolean;
   is_senior: boolean;
   orcid: string | null;
-  admin_status: 'pending' | 'approved' | 'rejected' | null;
+  admin_status: "pending" | "approved" | "rejected" | null;
   lattes_xml_path?: string;
   lattes_xml_uploaded_at?: string;
-}
+};
 
 export type Student = UserBase & {
-  type: 'student';
+  type: "student";
   email?: string;
   registration: number;
   area_id: number;
@@ -29,10 +29,10 @@ export type Student = UserBase & {
   lattes_url?: string;
   defended_at?: string;
   is_protected: boolean;
-}
+};
 
 export type Manager = UserBase & {
-  type: 'manager';
+  type: "manager";
   email: string;
   is_admin: true;
 };
@@ -49,14 +49,16 @@ export type AdminRequest = {
   id: number;
   name: string;
   email: string;
-  admin_status: 'pending' | 'approved' | 'rejected' | null;
+  admin_status: "pending" | "approved" | "rejected" | null;
 };
 
 export type ApprovalRequest = {
   id: number;
   name: string;
   email: string;
-  type: 'professor' | 'student' | 'manager';
-  request_type: 'registration' | 'admin';
+  registration?: number | string | null;
+  advisor?: string | null;
+  type: "professor" | "student" | "manager";
+  request_type: "registration" | "admin";
   created_at?: string;
 };

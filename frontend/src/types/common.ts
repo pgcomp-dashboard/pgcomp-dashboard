@@ -1,8 +1,9 @@
 export interface ApiError {
   code: number;
   errors: { description: string }[];
+  message?: string;
+  retryAfter?: number;
 }
-
 
 export interface PaginatedResponse<T> {
   data: T[];

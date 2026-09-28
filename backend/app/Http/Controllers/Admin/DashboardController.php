@@ -19,7 +19,7 @@ class DashboardController extends Controller
     {
         $this->dashboardService = $dashboardService;
     }
-    
+
     public function advisors(Request $request)
     {
         $userType = $request->input('user_type');
@@ -181,22 +181,22 @@ class DashboardController extends Controller
             'anoFinal'      => 'nullable|int',
             'publisher_type' => 'nullable|string|in:journal,conference',
         ]);
-        
+
         $anoAtual   = (int) date('Y');
         $anoInicial = $validated['anoInicial'] ?? $anoAtual - 2;
         $anoFinal   = $validated['anoFinal'] ?? $anoAtual;
-        
+
         if ($anoInicial >= $anoFinal) {
             throw ValidationException::withMessages(['anoInicial' => 'Ano inicial não pode ser maior ou igual ao ano final!']);
         }
-        
+
         $professor = User::where('id', $professorId)
             ->where('type', UserType::PROFESSOR)
             ->firstOrFail();
-            
+
         $qualisInput = $request->input('qualis');
         $qualis_codes = $qualisInput ? explode(',', $qualisInput) : null;
-        
+
         $resultado = $this->dashboardService->getProfessorProduction(
             $professorId,
             $anoInicial,
@@ -204,7 +204,7 @@ class DashboardController extends Controller
             $validated['publisher_type'] ?? null,
             $qualis_codes
         );
-        
+
         return response()->json([
             'professor'   => $professor->name,
             'productions' => $resultado,
@@ -230,15 +230,20 @@ class DashboardController extends Controller
             ->where('type', UserType::PROFESSOR)
             ->count();
 
+        $studentRegistrations = User::whereNotNull('registration_requested_at')
+            ->where('type', UserType::STUDENT)
+            ->count();
+
         $adminRequests = User::where('admin_status', 'pending')->count();
 
         $publishers = \App\Models\Publishers::onlyPending()->count();
 
         return response()->json([
             'registrations' => $registrations,
+            'student_registrations' => $studentRegistrations,
             'admin_requests' => $adminRequests,
             'publishers' => $publishers,
-            'total' => $registrations + $adminRequests + $publishers
+            'total' => $registrations + $studentRegistrations + $adminRequests + $publishers
         ]);
     }
 }

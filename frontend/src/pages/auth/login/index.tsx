@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import useAuth from "@/hooks/auth";
 import { useFormErrorToast } from "@/hooks/useFormErrorToast";
+import { parseApiError } from "@/services/http-client";
 import { authService } from "@/services/modules/auth.service";
 import { ApiError } from "@/types/common";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,7 +64,20 @@ export default function LoginPage() {
     } catch (e: unknown) {
       const error = e as ApiError;
       console.error("Failed to login", error);
-      toast.error("Email ou senha incorretos");
+      const errorMessages = error.errors?.map((item) => item.description) ?? [];
+      const isCredentialsError =
+        (error.code === 401 || error.code === 422) &&
+        errorMessages.some((message) =>
+          /credential|credencial|these credentials|invalid (email|password)|incorrect (email|password)|senha (incorreta|inválida)|e-mail (incorreto|inválido)/i.test(
+            message,
+          ),
+        );
+
+      toast.error(
+        isCredentialsError
+          ? "E-mail ou senha incorretos."
+          : parseApiError(error),
+      );
     }
   }
 

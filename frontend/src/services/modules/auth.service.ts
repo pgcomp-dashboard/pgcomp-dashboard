@@ -40,6 +40,19 @@ export const authService = {
     return apiClient.post("/api/student-registration/request", body);
   },
 
+  async getStudentRegistrationOptions() {
+    return apiClient.get<{
+      advisors: { id: number; name: string }[];
+    }>("/api/student-registration/options");
+  },
+
+  async registerStudent(body: RequestBodyType) {
+    return apiClient.post<{ message: string }>(
+      "/api/student-registration",
+      body,
+    );
+  },
+
   async confirmStudentRegistration(body: RequestBodyType) {
     return apiClient.post("/api/student-registration/confirm", body);
   },

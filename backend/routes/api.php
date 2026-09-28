@@ -53,6 +53,8 @@ Route::get('healthcheck', function (Request $request) {
 // Public auth routes
 Route::post('student-registration/request', [UserController::class, 'requestStudentRegistration']);
 Route::post('student-registration/confirm', [UserController::class, 'confirmStudentRegistration']);
+Route::get('student-registration/options', [UserController::class, 'studentRegistrationOptions']);
+Route::post('student-registration', [UserController::class, 'registerStudent']);
 
 // Middleware
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

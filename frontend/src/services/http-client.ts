@@ -1,8 +1,54 @@
 import { ApiError, RequestBodyType } from "@/types/common";
 
+function flattenErrorMessages(value: unknown): string[] {
+  if (typeof value === "string") return [value];
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      if (typeof item === "string") return [item];
+      if (item && typeof item === "object") {
+        const entry = item as { description?: unknown; message?: unknown };
+        if (typeof entry.description === "string") return [entry.description];
+        if (typeof entry.message === "string") return [entry.message];
+      }
+      return [];
+    });
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value).flatMap(flattenErrorMessages);
+  }
+  return [];
+}
+
+function isRateLimitError(message: string): boolean {
+  return /too many attempts|too many requests|rate limit|throttl/i.test(
+    message,
+  );
+}
+
 export function parseApiError(error: unknown): string {
-  if (typeof error === "object" && error && "errors" in error) {
-    return (error as ApiError).errors.map((e) => e.description).join("\n");
+  if (error && typeof error === "object") {
+    const apiError = error as Partial<ApiError>;
+    const details = flattenErrorMessages(apiError.errors);
+    const messages = [
+      ...details,
+      ...(typeof apiError.message === "string" ? [apiError.message] : []),
+    ];
+    const rateLimitMessage = messages.find(isRateLimitError);
+
+    if (apiError.code === 429 || rateLimitMessage) {
+      return apiError.retryAfter
+        ? `Muitas tentativas. Aguarde ${apiError.retryAfter} segundos e tente novamente.`
+        : "Muitas tentativas. Aguarde um pouco e tente novamente.";
+    }
+
+    if (typeof apiError.code === "number" && apiError.code >= 500) {
+      return "Erro interno do servidor. Tente novamente mais tarde.";
+    }
+
+    if (details.length > 0) return details.join("\n");
+    if (typeof apiError.message === "string") return apiError.message;
+
+    if (apiError.code === 408) return "Falha de conexão com o servidor.";
   }
   return "Erro desconhecido.";
 }
@@ -61,7 +107,7 @@ export class HttpClient {
 
     const finalHeaders: Record<string, string> = {
       "Content-Type": "application/json",
-      'Accept': 'application/json',
+      Accept: "application/json",
       ...headers,
     };
 
@@ -93,19 +139,48 @@ export class HttpClient {
       });
 
       if (!response.ok) {
+        let responseBody: Record<string, unknown> = {};
+        try {
+          responseBody = await response.json();
+        } catch {
+          responseBody = {};
+        }
+
+        const details = flattenErrorMessages(responseBody.errors);
+        const responseMessage =
+          typeof responseBody.message === "string" ? responseBody.message : "";
+        const hasRateLimitMessage = [responseMessage, ...details].some(
+          isRateLimitError,
+        );
+        const retryAfterValue = response.headers.get("Retry-After");
+        const retryAfterHeader = retryAfterValue
+          ? Number(retryAfterValue)
+          : NaN;
+        const retryAfter = Number.isFinite(retryAfterHeader)
+          ? retryAfterHeader
+          : undefined;
+        let message = responseMessage;
+
+        if (response.status === 429 || hasRateLimitMessage) {
+          message = "Muitas tentativas. Aguarde um pouco e tente novamente.";
+        } else if (response.status >= 500) {
+          message = "Erro interno do servidor. Tente novamente mais tarde.";
+        } else if (!message && details.length === 0) {
+          message =
+            response.status === 408
+              ? "Falha de conexão com o servidor."
+              : "Erro ao se comunicar com a API.";
+        }
+
         const error: ApiError = {
           code: response.status,
-          errors: [{ description: "Erro ao se comunicar com a API." }],
+          message,
+          retryAfter,
+          errors:
+            details.length > 0
+              ? details.map((description) => ({ description }))
+              : [{ description: message }],
         };
-
-        try {
-          const json = await response.json();
-          error.errors = json.errors ?? [
-            { description: json.message ?? "Erro desconhecido." },
-          ];
-        } catch (jsonError) {
-          console.error("Erro ao interpretar JSON de erro da API:", jsonError);
-        }
 
         throw error;
       }
@@ -191,7 +266,7 @@ export class HttpClient {
     const url = `${this.baseUrl}${endpoint}${queryString ? `?${queryString}` : ""}`;
 
     const finalHeaders: Record<string, string> = {
-      'Accept': 'application/xml, application/octet-stream, */*',
+      Accept: "application/xml, application/octet-stream, */*",
       ...headers,
     };
 
@@ -201,7 +276,7 @@ export class HttpClient {
 
     try {
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: finalHeaders,
       });
 
@@ -210,7 +285,7 @@ export class HttpClient {
       }
 
       // Try to get filename from Content-Disposition header
-      const contentDisposition = response.headers.get('Content-Disposition');
+      const contentDisposition = response.headers.get("Content-Disposition");
       let finalFilename = filename;
       if (contentDisposition) {
         const match = contentDisposition.match(/filename="?(.+?)"?($|;)/);
@@ -221,9 +296,9 @@ export class HttpClient {
 
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = downloadUrl;
-      link.setAttribute('download', finalFilename);
+      link.setAttribute("download", finalFilename);
       document.body.appendChild(link);
       link.click();
       link.remove();

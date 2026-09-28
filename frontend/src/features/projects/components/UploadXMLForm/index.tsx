@@ -7,17 +7,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { queryClient } from '@/lib/query-client';
-import { projectService } from '@/services/modules/project.service';
-import { FileText, Loader2, Upload, X } from 'lucide-react';
-import { ChangeEvent, useState } from 'react';
-import { toast } from 'sonner';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { queryClient } from "@/lib/query-client";
+import { projectService } from "@/services/modules/project.service";
+import { FileText, Loader2, Upload, X } from "lucide-react";
+import { ChangeEvent, DragEvent, useState } from "react";
+import { toast } from "sonner";
 
-type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 export default function UploadProjectXMLForm({
   professorId,
@@ -29,39 +29,55 @@ export default function UploadProjectXMLForm({
   portalMode?: boolean;
 }) {
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<UploadStatus>('idle');
+  const [status, setStatus] = useState<UploadStatus>("idle");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  function setSelectedFile(selectedFile?: File) {
+    if (!selectedFile) return;
+    if (!/\.(xml|zip)$/i.test(selectedFile.name)) {
+      toast.error("Selecione um arquivo .XML ou .ZIP.");
+      return;
+    }
+    setFile(selectedFile);
+    setStatus("idle");
+  }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-      setStatus('idle');
-    }
+    setSelectedFile(e.target.files?.[0]);
+  }
+
+  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+    setSelectedFile(event.dataTransfer.files?.[0]);
   }
 
   async function onSubmit() {
     if (!file) return;
     if (!portalMode && !professorId) return;
-    setStatus('uploading');
+    setStatus("uploading");
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
       if (portalMode) {
         await projectService.importLattesFilePortal(formData);
-        await queryClient.invalidateQueries({ queryKey: ['myProjects'] });
+        await queryClient.invalidateQueries({ queryKey: ["myProjects"] });
       } else {
         await projectService.importLattesFile(Number(professorId), formData);
-        await queryClient.invalidateQueries({ queryKey: ['projects', professorId] });
+        await queryClient.invalidateQueries({
+          queryKey: ["projects", professorId],
+        });
       }
-      toast.success('Projetos cadastrados com sucesso');
-      setStatus('success');
+      toast.success("Projetos cadastrados com sucesso");
+      setStatus("success");
       if (onSuccess) onSuccess();
     } catch (err) {
-      setStatus('error');
-      toast.error('Erro no cadastro dos projetos');
-      console.error('Erro ao importar projetos:', err);
+      setStatus("error");
+      toast.error("Erro no cadastro dos projetos");
+      console.error("Erro ao importar projetos:", err);
     }
   }
 
@@ -84,12 +100,28 @@ export default function UploadProjectXMLForm({
 
         <div className="w-full space-y-3">
           {!file ? (
-            <Label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors">
+            <Label
+              onDragOver={(event) => {
+                event.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={(event) => {
+                if (
+                  !event.currentTarget.contains(event.relatedTarget as Node)
+                ) {
+                  setIsDragging(false);
+                }
+              }}
+              onDrop={handleDrop}
+              className={`flex h-32 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed cursor-pointer transition-colors ${isDragging ? "border-primary bg-primary/10" : "bg-muted/30 hover:bg-muted/50"}`}
+            >
               <div className="flex flex-col items-center justify-center py-4">
                 <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">
                   <span className="font-medium text-primary">
-                    Clique para selecionar
+                    {isDragging
+                      ? "Solte o arquivo aqui"
+                      : "Clique ou arraste o arquivo"}
                   </span>
                 </p>
                 <p className="text-xs text-muted-foreground">.ZIP ou .XML</p>
@@ -126,17 +158,20 @@ export default function UploadProjectXMLForm({
           )}
 
           <Button
-            disabled={!file || status === 'uploading'}
+            disabled={!file || status === "uploading"}
             onClick={() => setShowConfirmDialog(true)}
             className="w-full"
           >
-            {status === 'uploading' && (
+            {status === "uploading" && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            {status === 'uploading' ? 'Enviando...' : 'Enviar arquivo'}
+            {status === "uploading" ? "Enviando..." : "Enviar arquivo"}
           </Button>
 
-          <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <AlertDialog
+            open={showConfirmDialog}
+            onOpenChange={setShowConfirmDialog}
+          >
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Importar Projetos</AlertDialogTitle>
@@ -154,12 +189,12 @@ export default function UploadProjectXMLForm({
             </AlertDialogContent>
           </AlertDialog>
 
-          {status === 'success' && (
+          {status === "success" && (
             <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200 text-center">
               Arquivo enviado com sucesso!
             </div>
           )}
-          {status === 'error' && (
+          {status === "error" && (
             <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 text-center">
               Falha no envio. Tente novamente.
             </div>

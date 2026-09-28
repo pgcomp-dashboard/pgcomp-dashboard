@@ -21,8 +21,15 @@ import {
 } from "@/components/ui/sheet";
 import { queryClient } from "@/lib/query-client";
 import { productionService } from "@/services/modules/production.service";
-import { FileText, HelpCircle, Loader2, PlayCircle, Upload, X } from "lucide-react";
-import { ChangeEvent, useState } from "react";
+import {
+  FileText,
+  HelpCircle,
+  Loader2,
+  PlayCircle,
+  Upload,
+  X,
+} from "lucide-react";
+import { ChangeEvent, DragEvent, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -39,12 +46,26 @@ export default function UploadXMLForm({
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  function setSelectedFile(selectedFile?: File) {
+    if (!selectedFile) return;
+    if (!/\.(xml|zip)$/i.test(selectedFile.name)) {
+      toast.error("Selecione um arquivo .XML ou .ZIP.");
+      return;
+    }
+    setFile(selectedFile);
+    setStatus("idle");
+  }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-      setStatus("idle");
-    }
+    setSelectedFile(e.target.files?.[0]);
+  }
+
+  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+    setSelectedFile(event.dataTransfer.files?.[0]);
   }
 
   async function onSubmit() {
@@ -100,7 +121,11 @@ export default function UploadXMLForm({
             </p>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-primary/10">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 rounded-full hover:bg-primary/10"
+                >
                   <HelpCircle className="h-4 w-4 text-primary" />
                 </Button>
               </SheetTrigger>
@@ -111,13 +136,16 @@ export default function UploadXMLForm({
                     Como exportar o XML do Lattes?
                   </SheetTitle>
                   <SheetDescription>
-                    Siga o passo a passo no vídeo abaixo para obter seu arquivo de produções.
+                    Siga o passo a passo no vídeo abaixo para obter seu arquivo
+                    de produções.
                   </SheetDescription>
                 </SheetHeader>
                 <div className="relative aspect-video w-full overflow-hidden rounded-xl border bg-muted shadow-lg">
                   <iframe
                     className="h-full w-full"
-                    src="https://www.youtube.com/embed/5n7aV5sUzMA?si=ZQvk35-fod67sV_8" title="Como exportar currículo Lattes" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    src="https://www.youtube.com/embed/5n7aV5sUzMA?si=ZQvk35-fod67sV_8"
+                    title="Como exportar currículo Lattes"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                   ></iframe>
                 </div>
@@ -126,9 +154,24 @@ export default function UploadXMLForm({
                   <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
                     <li>Acesse a Plataforma Lattes</li>
                     <li>Va em atualizar currículo lattes</li>
-                    <li>Clique em <span className="font-medium text-foreground">"Exportar"</span> no menu lateral</li>
-                    <li>Selecione o formato <span className="font-medium text-foreground">"XML"</span></li>
-                    <li>Clique em <span className="font-medium text-foreground">"Confirmar"</span> para baixar o arquivo</li>
+                    <li>
+                      Clique em{" "}
+                      <span className="font-medium text-foreground">
+                        "Exportar"
+                      </span>{" "}
+                      no menu lateral
+                    </li>
+                    <li>
+                      Selecione o formato{" "}
+                      <span className="font-medium text-foreground">"XML"</span>
+                    </li>
+                    <li>
+                      Clique em{" "}
+                      <span className="font-medium text-foreground">
+                        "Confirmar"
+                      </span>{" "}
+                      para baixar o arquivo
+                    </li>
                   </ol>
                 </div>
               </SheetContent>
@@ -138,12 +181,28 @@ export default function UploadXMLForm({
 
         <div className="w-full space-y-3">
           {!file ? (
-            <Label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors">
+            <Label
+              onDragOver={(event) => {
+                event.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={(event) => {
+                if (
+                  !event.currentTarget.contains(event.relatedTarget as Node)
+                ) {
+                  setIsDragging(false);
+                }
+              }}
+              onDrop={handleDrop}
+              className={`flex h-32 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed cursor-pointer transition-colors ${isDragging ? "border-primary bg-primary/10" : "bg-muted/30 hover:bg-muted/50"}`}
+            >
               <div className="flex flex-col items-center justify-center py-4">
                 <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">
                   <span className="font-medium text-primary">
-                    Clique para selecionar
+                    {isDragging
+                      ? "Solte o arquivo aqui"
+                      : "Clique ou arraste o arquivo"}
                   </span>
                 </p>
                 <p className="text-xs text-muted-foreground">.ZIP ou .XML</p>
