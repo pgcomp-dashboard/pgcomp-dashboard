@@ -143,10 +143,9 @@ export default function RegisterPage() {
           registration: values.registration,
           email: values.email,
         });
-        toast.success("E-mail de confirmação enviado", {
-          description: "Acesse o link recebido para concluir seu cadastro.",
+        navigate("/student-registration-sent", {
+          state: { email: values.email },
         });
-        navigate("/login");
       } catch (error) {
         if ((error as ApiError).code !== 404) {
           toast.error(parseApiError(error));
@@ -202,10 +201,8 @@ export default function RegisterPage() {
           degree: studentDegree,
           advisor_id: Number(values.advisor_id),
         });
-        toast.success("Solicitação enviada", {
-          description:
-            "Seu acesso ficará disponível após aprovação do administrador.",
-        });
+        navigate("/waiting-approval");
+        return;
       }
       navigate("/login");
     } catch (error) {
@@ -260,7 +257,7 @@ export default function RegisterPage() {
           <div className="rounded-md border p-12">
             <ProfessorRegistrationForm
               onBack={() => setStep("choose")}
-              onSuccess={() => navigate("/login")}
+              onSuccess={() => navigate("/waiting-approval")}
             />
           </div>
         ) : (
@@ -481,11 +478,6 @@ function ProfessorRegistrationForm({
   async function onSubmit(values: ProfessorFormValues) {
     try {
       await authService.register({ ...values, type: "professor" });
-      toast.success("Cadastro realizado com sucesso!", {
-        description:
-          "Verifique seu e-mail e aguarde a aprovação do administrador.",
-        duration: 6000,
-      });
       onSuccess();
     } catch (error) {
       toast.error(parseApiError(error));

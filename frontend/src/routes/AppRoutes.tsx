@@ -20,6 +20,7 @@ import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
 import ResetPasswordPage from "@/pages/auth/reset-password";
+import StudentRegistrationSentPage from "@/pages/auth/student-registration-sent";
 import StudentSetPasswordPage from "@/pages/auth/student-set-password";
 import WaitingApprovalPage from "@/pages/auth/waiting-approval";
 import NotFoundPage from "@/pages/not-found";
@@ -44,10 +45,14 @@ export function AppRoutes() {
       <Route path="forgot-password" element={<ForgotPasswordPage />} />
       <Route path="reset-password" element={<ResetPasswordPage />} />
       <Route path="student-set-password" element={<StudentSetPasswordPage />} />
+      <Route
+        path="student-registration-sent"
+        element={<StudentRegistrationSentPage />}
+      />
       <Route path="register" element={<RegisterPage />} />
+      <Route path="waiting-approval" element={<WaitingApprovalPage />} />
       {/* Rotas Protegidas (Geral) */}
       <Route element={<EnsureAuthenticated />}>
-        <Route path="waiting-approval" element={<WaitingApprovalPage />} />
         <Route element={<EnsureIsApproved />}>
           <Route
             element={
