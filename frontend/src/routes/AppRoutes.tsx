@@ -5,6 +5,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import AdminLayout from "@/layouts/admin/admin-layout";
 import CredenciamentoPage from "@/pages/admin/accreditation";
 import AreasPage from "@/pages/admin/areas";
+import AwardsPage from "@/pages/admin/awards";
 import FeaturedProductionsPage from "@/pages/admin/featured-productions";
 import LattesUploadsPage from "@/pages/admin/lattes-uploads";
 import ProfessorsPage from "@/pages/admin/professors";
@@ -24,6 +25,7 @@ import StudentRegistrationSentPage from "@/pages/auth/student-registration-sent"
 import StudentSetPasswordPage from "@/pages/auth/student-set-password";
 import WaitingApprovalPage from "@/pages/auth/waiting-approval";
 import NotFoundPage from "@/pages/not-found";
+import MyAwardsPage from "@/pages/user/awards";
 import ProductionsPage from "@/pages/user/productions";
 import ProfilePage from "@/pages/user/profile";
 import ProjectsPage from "@/pages/user/projects";
@@ -72,6 +74,7 @@ export function AppRoutes() {
                 />
               </Route>
               <Route path="projects" element={<ProjectsPage />} />
+              <Route path="awards" element={<MyAwardsPage />} />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
             {/* Rotas restritas apenas para ADMIN */}
@@ -85,6 +88,7 @@ export function AppRoutes() {
               />
               <Route path="student/ranking" element={<StudentRankingPage />} />
               <Route path="student/rules" element={<StudentRulesPage />} />
+              <Route path="awards" element={<AwardsPage />} />
               <Route path="credenciamento" element={<CredenciamentoPage />} />
               <Route
                 path="projects-dashboard"

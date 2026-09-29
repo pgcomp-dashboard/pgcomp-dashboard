@@ -8,6 +8,9 @@ use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\Admin\AdminApprovalController;
 use App\Http\Controllers\Admin\ApprovalRequestController;
 use App\Http\Controllers\Admin\AreaController;
+use App\Http\Controllers\Admin\AwardCategoryController;
+use App\Http\Controllers\Admin\AwardController;
+use App\Http\Controllers\Admin\AwardDashboardController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -21,6 +24,7 @@ use App\Http\Controllers\Admin\StudentRankingController;
 use App\Http\Controllers\Admin\StudentProductionController;
 use App\Http\Controllers\Admin\UserController as UserAdminController;
 use App\Http\Controllers\User\AdminRequestController;
+use App\Http\Controllers\User\AwardController as UserAwardController;
 use App\Http\Controllers\User\ProductionController;
 use App\Http\Controllers\Admin\ProductionController as ProductionAdminController;
 use App\Http\Controllers\User\UserController;
@@ -83,6 +87,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('admin-status', [AdminRequestController::class, 'getStatus']);
         Route::get('publishers', [PublisherController::class, 'index']);
         Route::post('publishers', [UserPublisherController::class, 'store']);
+
+        // Prêmios do próprio usuário
+        Route::get('award-categories', [UserAwardController::class, 'categories']);
+        Route::get('awards/{award}/attachment', [UserAwardController::class, 'attachment']);
+        // Atualização via POST: multipart não é lido em PUT.
+        Route::post('awards/{award}', [UserAwardController::class, 'update']);
+        Route::apiResource('awards', UserAwardController::class)->only(['index', 'store', 'destroy']);
     });
 
     // Admin group routes
@@ -113,6 +124,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('stratum_qualis', StratumQualisController::class)->parameters(['stratum_qualis' => 'qualis']);
         Route::apiResource('courses', CourseController::class)->except(['destroy']);
         Route::apiResource('areas', AreaController::class);
+
+        // Prêmios
+        Route::apiResource('award-categories', AwardCategoryController::class)->except(['show']);
+        Route::get('awards-dashboard', [AwardDashboardController::class, 'summary']);
+        Route::get('awards/{award}/attachment', [AwardController::class, 'attachment']);
+        // Atualização via POST: multipart não é lido em PUT.
+        Route::post('awards/{award}', [AwardController::class, 'update']);
+        Route::apiResource('awards', AwardController::class)->only(['index', 'show', 'destroy']);
+
         Route::apiResource('students', StudentController::class);
         Route::get('student-ranking', [StudentRankingController::class, 'index']);
         Route::apiResource('students.productions', StudentProductionController::class)
