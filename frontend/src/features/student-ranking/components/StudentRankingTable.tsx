@@ -24,6 +24,7 @@ interface StudentRankingTableProps {
   setPerPage: (perPage: number) => void;
   sorting: SortingState;
   setSorting: OnChangeFn<SortingState>;
+  blurNames: boolean;
 }
 
 const columnHelper = createColumnHelper<StudentRanking>();
@@ -39,6 +40,7 @@ export function StudentRankingTable({
   setPerPage,
   sorting,
   setSorting,
+  blurNames,
 }: StudentRankingTableProps) {
   const columns = useMemo<ColumnDef<StudentRanking, any>[]>(
     () => [
@@ -60,6 +62,15 @@ export function StudentRankingTable({
             <Link
               to={`/portal/student/productions?student=${info.row.original.user_id}`}
               className="text-primary hover:underline"
+              style={
+                blurNames
+                  ? {
+                      filter: "blur(6px)",
+                      userSelect: "none",
+                      pointerEvents: "none",
+                    }
+                  : undefined
+              }
             >
               {info.getValue()}
             </Link>
@@ -121,7 +132,7 @@ export function StudentRankingTable({
         ),
       }),
     ],
-    [],
+    [blurNames],
   );
 
   const renderMobileCard = (row: Row<StudentRanking>) => {
@@ -138,6 +149,15 @@ export function StudentRankingTable({
               <Link
                 to={`/portal/student/productions?student=${student.user_id}`}
                 className="block truncate font-semibold text-primary hover:underline"
+                style={
+                  blurNames
+                    ? {
+                        filter: "blur(6px)",
+                        userSelect: "none",
+                        pointerEvents: "none",
+                      }
+                    : undefined
+                }
               >
                 {student.name}
               </Link>

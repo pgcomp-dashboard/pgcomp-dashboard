@@ -7,12 +7,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { StudentRankingTable } from "@/features/student-ranking/components/StudentRankingTable";
 import { useStudentRanking } from "@/features/student-ranking/hooks/useStudentRanking";
 import { cn } from "@/lib/utils";
-import { Loader2, RotateCw } from "lucide-react";
+import { EyeOff, Loader2, RotateCw } from "lucide-react";
+import { useState } from "react";
 
 export default function StudentRankingPage() {
+  const [blurNames, setBlurNames] = useState(false);
   const {
     ranking,
     pagination,
@@ -160,6 +163,21 @@ export default function StudentRankingPage() {
           </Select>
         </div>
 
+        <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2">
+          <EyeOff className="h-4 w-4 text-muted-foreground" />
+          <Label
+            htmlFor="student-ranking-blur-names"
+            className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            Ocultar nomes
+          </Label>
+          <Switch
+            id="student-ranking-blur-names"
+            checked={blurNames}
+            onCheckedChange={setBlurNames}
+          />
+        </div>
+
         <Button
           variant="outline"
           size="icon"
@@ -182,6 +200,7 @@ export default function StudentRankingPage() {
         setPerPage={setPerPage}
         sorting={sorting}
         setSorting={setSorting}
+        blurNames={blurNames}
       />
     </div>
   );
