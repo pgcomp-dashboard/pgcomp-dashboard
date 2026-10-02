@@ -6,8 +6,10 @@ import {
   ClipboardList,
   File,
   GraduationCap,
+  Globe,
   Heart,
   Medal,
+  Plane,
   Settings2,
   Trophy,
   Users,
@@ -218,6 +220,15 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {/* Ações de internacionalização do próprio usuário */}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/portal/internationalization"}>
+              <Link to="/portal/internationalization">
+                <Globe className="h-4 w-4" />
+                <span>Internacionalização</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           {auth?.isAdmin && (
             <>
               <SidebarMenuItem>
@@ -239,6 +250,17 @@ export function AdminSidebar() {
                   <Link to="/admin/awards">
                     <ClipboardList className="h-4 w-4" />
                     <span>Gestão de Prêmios</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/internationalization"}
+                >
+                  <Link to="/admin/internationalization">
+                    <Plane className="h-4 w-4" />
+                    <span>Gestão de Internacionalização</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

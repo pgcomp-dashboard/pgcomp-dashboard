@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { AwardFormDialog } from "@/features/awards/components/AwardFormDialog";
 import { AwardsTable } from "@/features/awards/components/AwardsTable";
-import { DeleteConfirmDialog } from "@/features/awards/components/DeleteConfirmDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { useMyAwards } from "@/features/awards/hooks/useAwards";
 import { Award, winnerNames } from "@/features/awards/types";
 import { myAwardService } from "@/services/modules/award.service";

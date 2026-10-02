@@ -11,6 +11,9 @@ use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\AwardCategoryController;
 use App\Http\Controllers\Admin\AwardController;
 use App\Http\Controllers\Admin\AwardDashboardController;
+use App\Http\Controllers\Admin\InternationalizationActionController;
+use App\Http\Controllers\Admin\InternationalizationCategoryController;
+use App\Http\Controllers\Admin\InternationalizationDashboardController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -25,6 +28,7 @@ use App\Http\Controllers\Admin\StudentProductionController;
 use App\Http\Controllers\Admin\UserController as UserAdminController;
 use App\Http\Controllers\User\AdminRequestController;
 use App\Http\Controllers\User\AwardController as UserAwardController;
+use App\Http\Controllers\User\InternationalizationActionController as UserInternationalizationActionController;
 use App\Http\Controllers\User\ProductionController;
 use App\Http\Controllers\Admin\ProductionController as ProductionAdminController;
 use App\Http\Controllers\User\UserController;
@@ -94,6 +98,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Atualização via POST: multipart não é lido em PUT.
         Route::post('awards/{award}', [UserAwardController::class, 'update']);
         Route::apiResource('awards', UserAwardController::class)->only(['index', 'store', 'destroy']);
+
+        // Ações de internacionalização do próprio usuário
+        Route::get('internationalization-categories', [UserInternationalizationActionController::class, 'categories']);
+        Route::get('internationalization-actions/{internationalization_action}/files/{slot}', [UserInternationalizationActionController::class, 'file']);
+        // Atualização via POST: multipart não é lido em PUT.
+        Route::post('internationalization-actions/{internationalization_action}', [UserInternationalizationActionController::class, 'update']);
+        Route::apiResource('internationalization-actions', UserInternationalizationActionController::class)->only(['index', 'store', 'destroy']);
     });
 
     // Admin group routes
@@ -132,6 +143,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Atualização via POST: multipart não é lido em PUT.
         Route::post('awards/{award}', [AwardController::class, 'update']);
         Route::apiResource('awards', AwardController::class)->only(['index', 'show', 'destroy']);
+
+        // Internacionalização
+        Route::apiResource('internationalization-categories', InternationalizationCategoryController::class)->except(['show']);
+        Route::get('internationalization-dashboard', [InternationalizationDashboardController::class, 'summary']);
+        Route::get('internationalization-actions/{internationalization_action}/files/{slot}', [InternationalizationActionController::class, 'file']);
+        // Atualização via POST: multipart não é lido em PUT.
+        Route::post('internationalization-actions/{internationalization_action}', [InternationalizationActionController::class, 'update']);
+        Route::apiResource('internationalization-actions', InternationalizationActionController::class)->only(['index', 'show', 'destroy']);
 
         Route::apiResource('students', StudentController::class);
         Route::get('student-ranking', [StudentRankingController::class, 'index']);

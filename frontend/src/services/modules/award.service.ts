@@ -16,7 +16,8 @@ function toFormData(input: AwardInput): FormData {
   form.append("scope", input.scope);
   form.append("award_category_id", String(input.category_id));
   form.append("description", input.description);
-  if (input.url) form.append("url", input.url);
+  // Vazio vira null no backend, o que permite limpar a URL ao editar.
+  form.append("url", input.url ?? "");
   if (input.attachment) form.append("attachment", input.attachment);
   if (input.remove_attachment) form.append("remove_attachment", "1");
   return form;

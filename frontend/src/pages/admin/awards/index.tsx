@@ -5,7 +5,7 @@ import { AwardsDashboard } from "@/features/awards/components/AwardsDashboard";
 import { AwardsTable } from "@/features/awards/components/AwardsTable";
 import { CategoriesTable } from "@/features/awards/components/CategoriesTable";
 import { CategoryFormDialog } from "@/features/awards/components/CategoryFormDialog";
-import { DeleteConfirmDialog } from "@/features/awards/components/DeleteConfirmDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { useAwards } from "@/features/awards/hooks/useAwards";
 import { Award, AwardCategory, winnerNames } from "@/features/awards/types";
 import { awardService } from "@/services/modules/award.service";
