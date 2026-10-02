@@ -1,3 +1,4 @@
+import { parseApiError } from "@/services/http-client";
 import { publisherService } from "@/services/modules/publisher.service";
 import { qualisService } from "@/services/modules/qualis.service";
 import { Publisher, StratumQualis } from "@/types/academic";
@@ -48,8 +49,23 @@ export function usePublishers() {
     queryFn: () => qualisService.getAllQualis(),
   });
 
-  const { data: publishersData, isLoading, isError, isFetching, refetch } = useQuery<PaginatedResponse<Publisher>, Error>({
-    queryKey: ["publishers", page, perPage, search, typeFilter, qualisFilter, approvalFilter, sorting],
+  const {
+    data: publishersData,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useQuery<PaginatedResponse<Publisher>, Error>({
+    queryKey: [
+      "publishers",
+      page,
+      perPage,
+      search,
+      typeFilter,
+      qualisFilter,
+      approvalFilter,
+      sorting,
+    ],
     queryFn: async () => {
       const params: Record<string, any> = {
         page,
@@ -61,15 +77,15 @@ export function usePublishers() {
         params.filter.search = search.trim();
       }
 
-      if (typeFilter !== 'all') {
+      if (typeFilter !== "all") {
         params.filter.publisher_type = typeFilter;
       }
 
-      if (approvalFilter !== 'all') {
+      if (approvalFilter !== "all") {
         params.filter.status = approvalFilter;
       }
 
-      if (qualisFilter !== 'all') {
+      if (qualisFilter !== "all") {
         params.filter.qualis_code = qualisFilter;
       }
 
@@ -92,7 +108,8 @@ export function usePublishers() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: Partial<Publisher>) => publisherService.createPublisher(data),
+    mutationFn: (data: Partial<Publisher>) =>
+      publisherService.createPublisher(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["publishers"] });
       toast.success("Veículo criado com sucesso");
@@ -127,15 +144,17 @@ export function usePublishers() {
       queryClient.invalidateQueries({ queryKey: ["admin", "pending-summary"] });
       toast.success("Veículo aprovado com sucesso!");
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || "Erro ao aprovar veículo";
-      toast.error(message);
-    },
+    onError: (error) => toast.error(parseApiError(error)),
   });
 
   const importMutation = useMutation({
-    mutationFn: ({ formData, type }: { formData: FormData; type: 'journal' | 'conference' }) =>
-      publisherService.createPublishersFromSpreadsheet(formData, type),
+    mutationFn: ({
+      formData,
+      type,
+    }: {
+      formData: FormData;
+      type: "journal" | "conference";
+    }) => publisherService.createPublishersFromSpreadsheet(formData, type),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["publishers"] });
       toast.success("Upload da planilha realizado com sucesso");
