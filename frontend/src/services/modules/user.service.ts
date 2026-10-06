@@ -1,9 +1,24 @@
 import { Ranking } from "@/types/academic";
 import { PaginatedResponse, RequestBodyType } from "@/types/common";
-import { Professor, User } from "@/types/user";
+import { AdminUser, AdminUserUpdate, Professor, User } from "@/types/user";
 import { apiClient } from "../http-client";
 
 export const userService = {
+  async getAdminUsers(params: Record<string, any> = {}) {
+    return await apiClient.get<PaginatedResponse<AdminUser>>(
+      "/api/admin/users",
+      params,
+    );
+  },
+
+  async updateAdminUser(id: number, body: AdminUserUpdate) {
+    const response = await apiClient.put<{ data: AdminUser }>(
+      `/api/admin/users/${id}`,
+      body,
+    );
+    return response.data;
+  },
+
   async getUser() {
     return await apiClient.get<User>("/api/user");
   },
@@ -44,5 +59,19 @@ export const userService = {
 
   async approveUser(userId: number) {
     return await apiClient.post(`/api/admin/users/${userId}/approve`, {});
+  },
+
+  async approveRegistration(userId: number) {
+    return await apiClient.post(
+      `/api/admin/approval-requests/${userId}/approve`,
+      { request_type: "registration" },
+    );
+  },
+
+  async approveAdminRequest(userId: number) {
+    return await apiClient.post(
+      `/api/admin/approval-requests/${userId}/approve`,
+      { request_type: "admin" },
+    );
   },
 };

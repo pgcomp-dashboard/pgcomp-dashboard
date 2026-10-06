@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Production;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Validation\ValidationException;
 
@@ -18,7 +19,7 @@ class UserService
     public function listAll()
     {
         return QueryBuilder::for(User::class)
-            ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved'])
+            ->allowedFilters([AllowedFilter::partial('name'), 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved'])
             ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved'])
             ->paginate(request()->input('per_page', 15));
     }
@@ -84,6 +85,11 @@ class UserService
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
+        }
+
+        if (array_key_exists('type', $data)) {
+            $user->type = $data['type'];
+            unset($data['type']);
         }
 
         if (array_key_exists('is_admin', $data)) {

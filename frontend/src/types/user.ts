@@ -45,6 +45,30 @@ export interface Advisor {
 
 export type User = Professor | Student | Manager;
 
+export type AdminUser = UserBase & {
+  type: "student" | "professor" | "manager";
+  name: string;
+  email: string | null;
+  category: string | null;
+  is_admin: boolean;
+  is_approved: boolean;
+  registration: number | null;
+  siape: number | null;
+  course_id: number | null;
+  area_id: number | null;
+  lattes_url: string | null;
+  orcid: string | null;
+  pq: boolean;
+  is_senior: boolean;
+  defended_at: string | null;
+  admin_status: "pending" | "approved" | "rejected" | null;
+  registration_requested_at: string | null;
+};
+
+export type AdminUserUpdate = Partial<
+  Omit<AdminUser, "id" | "category" | "is_approved">
+> & { password?: string };
+
 export type AdminRequest = {
   id: number;
   name: string;

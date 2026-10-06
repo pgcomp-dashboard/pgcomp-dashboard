@@ -16,6 +16,7 @@ import StudentRequestsPage from "@/pages/admin/student/requests";
 import StudentRulesPage from "@/pages/admin/student/rules";
 import StudentsPage from "@/pages/admin/students";
 import SystemConfigPage from "@/pages/admin/system-config";
+import AdminUsersPage from "@/pages/admin/users";
 import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
@@ -91,6 +92,7 @@ export function AppRoutes() {
                 element={<ProjectDashboardPage />}
               />
               <Route path="professors" element={<ProfessorsPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
               <Route
                 path="featured-productions"
                 element={<FeaturedProductionsPage />}
