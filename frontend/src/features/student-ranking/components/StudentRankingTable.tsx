@@ -114,23 +114,6 @@ export function StudentRankingTable({
           </div>
         ),
       }),
-      columnHelper.accessor("is_eligible", {
-        id: "status",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" />
-        ),
-        cell: ({ row }) => (
-          <div
-            className={
-              row.original.is_eligible
-                ? "text-center font-medium text-green-700"
-                : "text-center font-medium text-red-700"
-            }
-          >
-            {row.original.is_eligible ? "Apto" : "Fora dos critérios"}
-          </div>
-        ),
-      }),
     ],
     [blurNames],
   );
