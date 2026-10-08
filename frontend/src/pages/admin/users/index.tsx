@@ -30,6 +30,12 @@ function userTypeLabel(type: AdminUser["type"]) {
   return "Administrador";
 }
 
+function getApiFieldError(error: unknown, field: string): string | undefined {
+  if (!error || typeof error !== "object") return undefined;
+  const apiError = error as unknown as ApiError;
+  return apiError.fieldErrors?.[field]?.[0];
+}
+
 export default function AdminUsersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
@@ -91,6 +97,12 @@ export default function AdminUsersPage() {
     },
     onError: (error) => toast.error(parseApiError(error)),
   });
+
+  const emailServerError = getApiFieldError(updateMutation.error, "email");
+  const saveError =
+    updateMutation.error && !emailServerError
+      ? parseApiError(updateMutation.error)
+      : undefined;
 
   const columns = useMemo<ColumnDef<AdminUser, any>[]>(
     () => [
@@ -221,15 +233,9 @@ export default function AdminUsersPage() {
         courses={coursesQuery.data ?? []}
         isSaving={updateMutation.isPending}
         isApproving={approveMutation.isPending}
-        emailServerError={
-          (updateMutation.error as ApiError | null)?.fieldErrors?.email?.[0]
-        }
-        saveError={
-          updateMutation.error &&
-          !(updateMutation.error as ApiError).fieldErrors?.email?.length
-            ? parseApiError(updateMutation.error)
-            : undefined
-        }
+        emailServerError={emailServerError}
+        saveError={saveError}
+        onEmailChange={updateMutation.reset}
         onOpenChange={(open) => {
           if (!open) setSelectedUser(null);
         }}

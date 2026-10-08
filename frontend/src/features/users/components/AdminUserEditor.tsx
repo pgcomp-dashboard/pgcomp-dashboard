@@ -30,6 +30,7 @@ interface AdminUserEditorProps {
   isApproving: boolean;
   emailServerError?: string;
   saveError?: string;
+  onEmailChange: () => void;
   onOpenChange: (open: boolean) => void;
   onSave: (data: AdminUserUpdate) => void;
   onApprove: (userId: number, isAdminRequest?: boolean) => void;
@@ -43,6 +44,7 @@ export function AdminUserEditor({
   isApproving,
   emailServerError,
   saveError,
+  onEmailChange,
   onOpenChange,
   onSave,
   onApprove,
@@ -131,6 +133,7 @@ export function AdminUserEditor({
                     const email = event.target.value || null;
                     setDraft((current) => ({ ...current, email }));
                     setEmailError(validateEmail(email));
+                    onEmailChange();
                   }}
                 />
                 {visibleEmailError && (
