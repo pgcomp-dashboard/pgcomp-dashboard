@@ -36,6 +36,14 @@ class StudentRankingService
                 DB::raw('ROW_NUMBER() OVER (ORDER BY SUM(COALESCE(stratum_qualis.score, 0)) DESC, COUNT(DISTINCT productions.id) DESC, users.id DESC) as position'),
                 DB::raw("SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2', 'A3', 'A4') THEN 1 ELSE 0 END) as a1_a4_count"),
                 DB::raw("SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2') THEN 1 ELSE 0 END) as a1_a2_count"),
+                DB::raw("SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code = 'A1' THEN 1 ELSE 0 END) as ja1"),
+                DB::raw("SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code = 'A2' THEN 1 ELSE 0 END) as ja2"),
+                DB::raw("SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code = 'A3' THEN 1 ELSE 0 END) as ja3"),
+                DB::raw("SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code = 'A4' THEN 1 ELSE 0 END) as ja4"),
+                DB::raw("SUM(CASE WHEN publishers.publisher_type = 'conference' AND stratum_qualis.code = 'A1' THEN 1 ELSE 0 END) as ca1"),
+                DB::raw("SUM(CASE WHEN publishers.publisher_type = 'conference' AND stratum_qualis.code = 'A2' THEN 1 ELSE 0 END) as ca2"),
+                DB::raw("SUM(CASE WHEN publishers.publisher_type = 'conference' AND stratum_qualis.code = 'A3' THEN 1 ELSE 0 END) as ca3"),
+                DB::raw("SUM(CASE WHEN publishers.publisher_type = 'conference' AND stratum_qualis.code = 'A4' THEN 1 ELSE 0 END) as ca4"),
             ])
             ->leftJoin('courses', 'users.course_id', '=', 'courses.id')
             ->leftJoin('areas', 'users.area_id', '=', 'areas.id')
@@ -77,6 +85,9 @@ class StudentRankingService
                 $student->productions_count = (int) $student->productions_count;
                 $student->a1_a4_count = (int) $student->a1_a4_count;
                 $student->a1_a2_count = (int) $student->a1_a2_count;
+                foreach (['ja1', 'ja2', 'ja3', 'ja4', 'ca1', 'ca2', 'ca3', 'ca4'] as $count) {
+                    $student->{$count} = (int) $student->{$count};
+                }
                 $isEligible = $student->total_score >= $minScore
                     && ($student->a1_a4_count >= $minJournals || $student->a1_a2_count >= $minJournalsA1A2);
                 $reasons = [];

@@ -1,5 +1,4 @@
 import { Label } from "@/components/ui/label";
-import { Clock } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -9,8 +8,10 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Professor, Student } from "@/types/user";
+import { Clock } from "lucide-react";
 
 interface ProductionHeaderProps {
+  mode?: "professor" | "student";
   isAdmin?: boolean;
   score: number;
   hasActiveFilters: boolean;
@@ -24,6 +25,7 @@ interface ProductionHeaderProps {
 }
 
 export function ProductionHeader({
+  mode = "professor",
   isAdmin,
   score,
   hasActiveFilters,
@@ -65,7 +67,7 @@ export function ProductionHeader({
         )}
       </div>
       <div className="w-full flex flex-row items-center">
-        {isAdmin && (
+        {isAdmin && mode === "professor" && (
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <Label className="text-sm font-medium mb-1.5 block">
@@ -101,7 +103,10 @@ export function ProductionHeader({
                 </SelectContent>
               </Select>
             </div>
-
+          </div>
+        )}
+        {isAdmin && mode === "student" && (
+          <div className="w-full mb-4">
             <div>
               <Label className="text-sm font-medium mb-1.5 block">
                 Produções de discente

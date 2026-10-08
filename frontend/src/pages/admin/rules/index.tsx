@@ -1,12 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  CalendarDays,
   ExternalLink,
   Link as LinkIcon,
   Loader2,
   Save,
   Settings2,
-  CalendarDays,
 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -38,14 +38,6 @@ const accreditationRulesSchema = z.object({
   is_maintenance_mode: z.boolean(),
 });
 
-const studentRankingRulesSchema = z.object({
-  initial_year: z.coerce.number().min(2000).max(2100),
-  final_year: z.coerce.number().min(2000).max(2100),
-  min_journals: z.coerce.number().min(0),
-  min_journals_a1a2: z.coerce.number().min(0),
-  min_score: z.coerce.number().min(0),
-});
-
 const resolutionLinkSchema = z.object({
   resolution_link: z
     .string()
@@ -61,7 +53,6 @@ const importantDatesSchema = z.object({
 });
 
 type AccreditationRulesValues = z.infer<typeof accreditationRulesSchema>;
-type StudentRankingRulesValues = z.infer<typeof studentRankingRulesSchema>;
 type ResolutionLinkValues = z.infer<typeof resolutionLinkSchema>;
 type ImportantDatesValues = z.infer<typeof importantDatesSchema>;
 
@@ -79,10 +70,6 @@ export default function RulesPage() {
     (c) => c.group === "accreditation" && c.key === "rules",
   );
 
-  const studentRankingConfig = configurations?.find(
-    (c) => c.group === "student_ranking" && c.key === "rules",
-  );
-
   const form = useForm<AccreditationRulesValues>({
     resolver: zodResolver(accreditationRulesSchema),
     defaultValues: {
@@ -97,28 +84,11 @@ export default function RulesPage() {
     },
   });
 
-  const studentRankingForm = useForm<StudentRankingRulesValues>({
-    resolver: zodResolver(studentRankingRulesSchema),
-    defaultValues: {
-      initial_year: new Date().getFullYear() - 4,
-      final_year: new Date().getFullYear(),
-      min_journals: 0,
-      min_journals_a1a2: 0,
-      min_score: 0,
-    },
-  });
-
   useEffect(() => {
     if (accreditationConfig?.casted_value) {
       form.reset(accreditationConfig.casted_value);
     }
   }, [accreditationConfig, form]);
-
-  useEffect(() => {
-    if (studentRankingConfig?.casted_value) {
-      studentRankingForm.reset(studentRankingConfig.casted_value);
-    }
-  }, [studentRankingConfig, studentRankingForm]);
 
   const updateMutation = useMutation({
     mutationFn: (values: AccreditationRulesValues) =>
@@ -139,31 +109,8 @@ export default function RulesPage() {
     },
   });
 
-  const studentRankingMutation = useMutation({
-    mutationFn: (values: StudentRankingRulesValues) =>
-      configurationService.create({
-        group: "student_ranking",
-        key: "rules",
-        value: JSON.stringify(values),
-        type: "json",
-        description: "Regras para o ranking de discentes",
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["configurations"] });
-      queryClient.invalidateQueries({ queryKey: ["student-ranking"] });
-      toast.success("Regras do ranking de discentes atualizadas com sucesso");
-    },
-    onError: (error: any) => {
-      toast.error("Erro ao atualizar regras dos discentes: " + error.message);
-    },
-  });
-
   function onSubmit(values: AccreditationRulesValues) {
     updateMutation.mutate(values);
-  }
-
-  function onStudentRankingSubmit(values: StudentRankingRulesValues) {
-    studentRankingMutation.mutate(values);
   }
 
   const { data: resolutionLink, isLoading: isLinkLoading } = useQuery({
@@ -446,82 +393,6 @@ export default function RulesPage() {
                   <Save className="mr-2 h-4 w-4" />
                 )}
                 Salvar Configurações
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-
-      <div className="grid gap-8 rounded-xl border bg-card p-8 shadow-sm">
-        <div>
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Settings2 className="h-5 w-5 text-primary" />
-            Regras do Ranking de Discentes
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Configure o período e os critérios usados para classificar e marcar
-            os discentes como aptos.
-          </p>
-        </div>
-
-        <Form {...studentRankingForm}>
-          <form
-            onSubmit={studentRankingForm.handleSubmit(onStudentRankingSubmit)}
-            className="space-y-8"
-          >
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              {(
-                [
-                  "initial_year",
-                  "final_year",
-                  "min_journals",
-                  "min_journals_a1a2",
-                  "min_score",
-                ] as const
-              ).map((name) => {
-                const labels = {
-                  initial_year: "Ano Inicial",
-                  final_year: "Ano Final",
-                  min_journals: "Mínimo de Periódicos A1-A4",
-                  min_journals_a1a2: "Mínimo de Periódicos A1-A2",
-                  min_score: "Pontuação Mínima",
-                };
-
-                return (
-                  <FormField
-                    key={name}
-                    control={studentRankingForm.control}
-                    name={name}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{labels[name]}</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step={name === "min_score" ? "0.1" : "1"}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              })}
-            </div>
-
-            <div className="flex justify-end border-t pt-4">
-              <Button
-                type="submit"
-                size="lg"
-                disabled={studentRankingMutation.isPending}
-              >
-                {studentRankingMutation.isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
-                )}
-                Salvar Regras dos Discentes
               </Button>
             </div>
           </form>

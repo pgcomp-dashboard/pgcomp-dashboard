@@ -92,6 +92,14 @@ export type StudentRanking = {
   productions_count: number;
   a1_a4_count: number;
   a1_a2_count: number;
+  ja1: number;
+  ja2: number;
+  ja3: number;
+  ja4: number;
+  ca1: number;
+  ca2: number;
+  ca3: number;
+  ca4: number;
   total_score: number;
   is_eligible: boolean;
   reasons: string[];

@@ -3,6 +3,11 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -319,7 +324,9 @@ export function AccreditationTable({
     const rank = row.original;
     const index = row.index;
     const breakdown = rank.qualis_breakdown || {};
+    const breakdownA1A2 = rank.qualis_breakdown_a1a2 || {};
     const sortedKeys = Object.keys(breakdown).sort();
+    const sortedKeysA1A2 = Object.keys(breakdownA1A2).sort();
 
     return (
       <div className="flex flex-col gap-3">
@@ -382,24 +389,93 @@ export function AccreditationTable({
             <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">
               Detalhamento Qualis
             </p>
-            <div className="grid grid-cols-3 gap-2">
-              {sortedKeys.length > 0 ? (
-                sortedKeys.map((key) => (
-                  <div
-                    key={key}
-                    className="flex flex-col items-center bg-background rounded border p-1 border-border/40"
-                  >
-                    <span className="text-[10px] font-mono text-muted-foreground">
-                      {key}
-                    </span>
-                    <span className="text-xs font-bold">{breakdown[key]}</span>
-                  </div>
-                ))
-              ) : (
-                <span className="text-xs italic text-muted-foreground col-span-3">
-                  Nenhuma publicação
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center justify-between rounded-md border border-border/50 bg-background px-3 py-2">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  #PA1-A4
                 </span>
-              )}
+                <div className="flex items-center gap-2">
+                  <span className="font-bold">{rank.a1_a4_count}</span>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="Detalhamento PA1-A4"
+                        className="inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <Info className="size-3.5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 p-3 text-xs" side="top">
+                      <div className="space-y-1">
+                        <p className="mb-1 border-b pb-1 font-semibold">
+                          Detalhamento
+                        </p>
+                        {sortedKeys.length > 0 ? (
+                          sortedKeys.map((key) => (
+                            <div
+                              key={key}
+                              className="flex justify-between gap-4"
+                            >
+                              <span className="font-mono">{key}:</span>
+                              <span className="font-bold">
+                                {breakdown[key]}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs italic">
+                            Sem publicações no período
+                          </p>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+              <div className="flex items-center justify-between rounded-md border border-border/50 bg-background px-3 py-2">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  #PA1-A2
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold">{rank.a1_a2_count}</span>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="Detalhamento PA1-A2"
+                        className="inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <Info className="size-3.5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 p-3 text-xs" side="top">
+                      <div className="space-y-1">
+                        <p className="mb-1 border-b pb-1 font-semibold">
+                          Detalhamento
+                        </p>
+                        {sortedKeysA1A2.length > 0 ? (
+                          sortedKeysA1A2.map((key) => (
+                            <div
+                              key={key}
+                              className="flex justify-between gap-4"
+                            >
+                              <span className="font-mono">{key}:</span>
+                              <span className="font-bold">
+                                {breakdownA1A2[key]}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs italic">
+                            Sem publicações no período
+                          </p>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
             </div>
           </div>
         </div>
