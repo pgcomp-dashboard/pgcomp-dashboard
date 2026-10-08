@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\UserCategory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -17,6 +19,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'sometimes|string|max:255',
             'type' => ['sometimes', 'string', Rule::in(['student', 'professor', 'manager'])],
+            'category' => ['sometimes', new Enum(UserCategory::class)],
             'email' => [
                 'sometimes',
                 'nullable',

@@ -147,6 +147,18 @@ export class HttpClient {
         }
 
         const details = flattenErrorMessages(responseBody.errors);
+        const responseErrors = responseBody.errors;
+        const fieldErrors =
+          responseErrors &&
+          typeof responseErrors === "object" &&
+          !Array.isArray(responseErrors)
+            ? Object.fromEntries(
+                Object.entries(responseErrors).map(([field, value]) => [
+                  field,
+                  flattenErrorMessages(value),
+                ]),
+              )
+            : undefined;
         const responseMessage =
           typeof responseBody.message === "string" ? responseBody.message : "";
         const hasRateLimitMessage = [responseMessage, ...details].some(
@@ -176,6 +188,7 @@ export class HttpClient {
           code: response.status,
           message,
           retryAfter,
+          fieldErrors,
           errors:
             details.length > 0
               ? details.map((description) => ({ description }))

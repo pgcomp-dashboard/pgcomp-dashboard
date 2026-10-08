@@ -28,6 +28,8 @@ interface AdminUserEditorProps {
   courses: Course[];
   isSaving: boolean;
   isApproving: boolean;
+  emailServerError?: string;
+  saveError?: string;
   onOpenChange: (open: boolean) => void;
   onSave: (data: AdminUserUpdate) => void;
   onApprove: (userId: number, isAdminRequest?: boolean) => void;
@@ -39,11 +41,14 @@ export function AdminUserEditor({
   courses,
   isSaving,
   isApproving,
+  emailServerError,
+  saveError,
   onOpenChange,
   onSave,
   onApprove,
 }: AdminUserEditorProps) {
   const [draft, setDraft] = useState<AdminUserUpdate>({});
+  const [emailError, setEmailError] = useState<string>();
 
   useEffect(() => {
     if (!user) return;
@@ -51,6 +56,8 @@ export function AdminUserEditor({
       name: user.name,
       type: user.type,
       email: user.email,
+      category:
+        user.type === "professor" ? (user.category ?? "permanente") : undefined,
       registration: user.registration,
       siape: user.siape,
       course_id: user.course_id,
@@ -63,13 +70,28 @@ export function AdminUserEditor({
       defended_at: user.defended_at?.slice(0, 10) ?? null,
       password: "",
     });
+    setEmailError(undefined);
   }, [user]);
 
+  const validateEmail = (email: string | null | undefined) => {
+    if (!email?.trim()) return undefined;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+      ? undefined
+      : "Informe um e-mail válido.";
+  };
+
   const handleSave = () => {
+    const invalidEmail = validateEmail(draft.email);
+    setEmailError(invalidEmail);
+    if (invalidEmail) return;
+
     const data = { ...draft };
     if (!data.password) delete data.password;
+    if (data.type !== "professor") delete data.category;
     onSave(data);
   };
+
+  const visibleEmailError = emailError ?? emailServerError;
 
   return (
     <Dialog open={!!user} onOpenChange={onOpenChange}>
@@ -78,9 +100,7 @@ export function AdminUserEditor({
           <>
             <DialogHeader>
               <DialogTitle>Editar usuário</DialogTitle>
-              <DialogDescription>
-                Atualize os dados da conta. A categoria é somente leitura.
-              </DialogDescription>
+              <DialogDescription>Atualize os dados da conta.</DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -103,13 +123,25 @@ export function AdminUserEditor({
                   id="admin-user-email"
                   type="email"
                   value={draft.email ?? ""}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      email: event.target.value || null,
-                    }))
+                  aria-invalid={!!visibleEmailError}
+                  aria-describedby={
+                    visibleEmailError ? "admin-user-email-error" : undefined
                   }
+                  onChange={(event) => {
+                    const email = event.target.value || null;
+                    setDraft((current) => ({ ...current, email }));
+                    setEmailError(validateEmail(email));
+                  }}
                 />
+                {visibleEmailError && (
+                  <p
+                    id="admin-user-email-error"
+                    className="text-sm text-destructive"
+                    role="alert"
+                  >
+                    {visibleEmailError}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -134,10 +166,28 @@ export function AdminUserEditor({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>Categoria</Label>
-                <Input value={user.category ?? "Sem categoria"} disabled />
-              </div>
+              {draft.type === "professor" && (
+                <div className="space-y-2">
+                  <Label htmlFor="admin-user-category">Categoria</Label>
+                  <Select
+                    value={draft.category ?? "permanente"}
+                    onValueChange={(
+                      value: NonNullable<AdminUserUpdate["category"]>,
+                    ) =>
+                      setDraft((current) => ({ ...current, category: value }))
+                    }
+                  >
+                    <SelectTrigger id="admin-user-category">
+                      <SelectValue placeholder="Selecione uma categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="permanente">Permanente</SelectItem>
+                      <SelectItem value="colaborador">Colaborador</SelectItem>
+                      <SelectItem value="visitante">Visitante</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="admin-user-orcid">ORCID</Label>
                 <Input
@@ -329,6 +379,11 @@ export function AdminUserEditor({
             </div>
 
             <DialogFooter className="gap-2 sm:justify-between">
+              {saveError && (
+                <p className="text-sm text-destructive sm:mr-auto" role="alert">
+                  {saveError}
+                </p>
+              )}
               <div className="flex flex-wrap gap-2">
                 {!user.is_approved &&
                   ((user.type === "professor" && !user.is_approved) ||

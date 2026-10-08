@@ -1,6 +1,7 @@
 export interface ApiError {
   code: number;
   errors: { description: string }[];
+  fieldErrors?: Record<string, string[]>;
   message?: string;
   retryAfter?: number;
 }

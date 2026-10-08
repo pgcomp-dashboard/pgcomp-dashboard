@@ -48,7 +48,7 @@ export interface AdvisorStudent {
   name: string;
   registration: number;
   course: string | null;
-  status: 'Ativo' | 'Concluído';
+  status: "Ativo" | "Concluído";
 }
 
 export type User = Professor | Student | Manager;
@@ -73,9 +73,9 @@ export type AdminUser = UserBase & {
   registration_requested_at: string | null;
 };
 
-export type AdminUserUpdate = Partial<
-  Omit<AdminUser, "id" | "category" | "is_approved">
-> & { password?: string };
+export type AdminUserUpdate = Partial<Omit<AdminUser, "id" | "is_approved">> & {
+  password?: string;
+};
 
 export type AdminRequest = {
   id: number;

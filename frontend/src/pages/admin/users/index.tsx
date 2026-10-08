@@ -7,6 +7,7 @@ import { parseApiError } from "@/services/http-client";
 import { areaService } from "@/services/modules/area.service";
 import { courseService } from "@/services/modules/course.service";
 import { userService } from "@/services/modules/user.service";
+import { ApiError } from "@/types/common";
 import { AdminUser, AdminUserUpdate } from "@/types/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -220,6 +221,15 @@ export default function AdminUsersPage() {
         courses={coursesQuery.data ?? []}
         isSaving={updateMutation.isPending}
         isApproving={approveMutation.isPending}
+        emailServerError={
+          (updateMutation.error as ApiError | null)?.fieldErrors?.email?.[0]
+        }
+        saveError={
+          updateMutation.error &&
+          !(updateMutation.error as ApiError).fieldErrors?.email?.length
+            ? parseApiError(updateMutation.error)
+            : undefined
+        }
         onOpenChange={(open) => {
           if (!open) setSelectedUser(null);
         }}
