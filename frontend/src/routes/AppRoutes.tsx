@@ -5,10 +5,11 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import AdminLayout from "@/layouts/admin/admin-layout";
 import CredenciamentoPage from "@/pages/admin/accreditation";
 import AreasPage from "@/pages/admin/areas";
-import InternationalizationAdminPage from "@/pages/admin/internationalization";
 import AwardsPage from "@/pages/admin/awards";
 import FeaturedProductionsPage from "@/pages/admin/featured-productions";
+import InternationalizationAdminPage from "@/pages/admin/internationalization";
 import LattesUploadsPage from "@/pages/admin/lattes-uploads";
+import OrientacoesPage from "@/pages/admin/orientacoes";
 import ProfessorsPage from "@/pages/admin/professors";
 import ProjectDashboardPage from "@/pages/admin/projects-dashboard";
 import PublishersPage from "@/pages/admin/publishers";
@@ -78,7 +79,10 @@ export function AppRoutes() {
               </Route>
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="awards" element={<MyAwardsPage />} />
-              <Route path="internationalization" element={<MyInternationalizationPage />} />
+              <Route
+                path="internationalization"
+                element={<MyInternationalizationPage />}
+              />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
             {/* Rotas restritas apenas para ADMIN */}
@@ -93,7 +97,10 @@ export function AppRoutes() {
               <Route path="student/ranking" element={<StudentRankingPage />} />
               <Route path="student/rules" element={<StudentRulesPage />} />
               <Route path="awards" element={<AwardsPage />} />
-              <Route path="internationalization" element={<InternationalizationAdminPage />} />
+              <Route
+                path="internationalization"
+                element={<InternationalizationAdminPage />}
+              />
               <Route path="credenciamento" element={<CredenciamentoPage />} />
               <Route
                 path="projects-dashboard"
@@ -101,6 +108,7 @@ export function AppRoutes() {
               />
               <Route path="professors" element={<ProfessorsPage />} />
               <Route path="users" element={<AdminUsersPage />} />
+              <Route path="orientacoes" element={<OrientacoesPage />} />
               <Route
                 path="featured-productions"
                 element={<FeaturedProductionsPage />}

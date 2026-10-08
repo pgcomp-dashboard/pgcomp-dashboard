@@ -43,6 +43,14 @@ export interface Advisor {
   advisedes_count: number;
 }
 
+export interface AdvisorStudent {
+  id: number;
+  name: string;
+  registration: number;
+  course: string | null;
+  status: 'Ativo' | 'Concluído';
+}
+
 export type User = Professor | Student | Manager;
 
 export type AdminUser = UserBase & {

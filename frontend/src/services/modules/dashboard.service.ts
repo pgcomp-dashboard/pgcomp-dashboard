@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/http-client";
-import { Advisor } from "@/types/user";
+import { Advisor, AdvisorStudent } from "@/types/user";
 
 export const dashboardService = {
   async totalStudentsPerAdvisor(
@@ -115,6 +115,17 @@ export const dashboardService = {
         },
       ])
       .flat();
+  },
+
+  async studentsByAdvisor(
+    professorId: number,
+    filter?: "mestrando" | "doutorando" | "completed",
+  ) {
+    const response = await apiClient.get<{ data: AdvisorStudent[] }>(
+      `/api/admin/dashboard/advisor/${professorId}/students`,
+      { user_type: filter },
+    );
+    return response.data;
   },
 
   async getPendingSummary() {

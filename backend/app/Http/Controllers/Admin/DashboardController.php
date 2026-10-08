@@ -28,6 +28,20 @@ class DashboardController extends Controller
         return $this->dashboardService->getAdvisorsWithCounts($userType, $attributes);
     }
 
+    public function advisorStudents(Request $request, int $professorId)
+    {
+        $validated = $request->validate([
+            'user_type' => 'nullable|in:mestrando,doutorando,completed',
+        ]);
+
+        $students = $this->dashboardService->getStudentsForAdvisor($professorId, $validated['user_type'] ?? null);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $students,
+        ]);
+    }
+
     public function programName()
     {
         // TODO: Retornar o JSON com o nome do programa
