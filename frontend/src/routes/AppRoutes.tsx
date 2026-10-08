@@ -7,6 +7,7 @@ import CredenciamentoPage from "@/pages/admin/accreditation";
 import AreasPage from "@/pages/admin/areas";
 import FeaturedProductionsPage from "@/pages/admin/featured-productions";
 import LattesUploadsPage from "@/pages/admin/lattes-uploads";
+import OrientacoesPage from "@/pages/admin/orientacoes";
 import ProfessorsPage from "@/pages/admin/professors";
 import ProjectDashboardPage from "@/pages/admin/projects-dashboard";
 import PublishersPage from "@/pages/admin/publishers";
@@ -81,6 +82,7 @@ export function AppRoutes() {
                 element={<ProjectDashboardPage />}
               />
               <Route path="professors" element={<ProfessorsPage />} />
+              <Route path="orientacoes" element={<OrientacoesPage />} />
               <Route
                 path="featured-productions"
                 element={<FeaturedProductionsPage />}

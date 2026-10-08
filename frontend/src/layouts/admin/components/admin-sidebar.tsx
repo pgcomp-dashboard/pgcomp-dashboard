@@ -8,6 +8,7 @@ import {
   Medal,
   Settings2,
   Trophy,
+  UserCog,
   Users,
 } from "lucide-react";
 import { useState } from "react";
@@ -140,6 +141,18 @@ export function AdminSidebar() {
                   <Link to="/admin/professors">
                     <Users className="h-4 w-4" />
                     <span>Docentes</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {/* Orientações */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/orientacoes"}
+                >
+                  <Link to="/admin/orientacoes">
+                    <UserCog className="h-4 w-4" />
+                    <span>Orientações</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
