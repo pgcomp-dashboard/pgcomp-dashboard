@@ -32,6 +32,7 @@ import useAuth from '@/hooks/auth';
 import { dashboardService } from '@/services/modules/dashboard.service';
 import { User } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import ChartScrollWrapper from './ChartScrollWrapper';
 
 const MAX_VISIBLE_BARS = 8;
@@ -63,6 +64,7 @@ type StudentsPerAdvisorFilter = 'mestrando' | 'doutorando' | 'completed' | undef
 
 export default function StudentsPerAdvisorChart() {
   const auth = useAuth();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<StudentsPerAdvisorFilter>(undefined);
   const [visibleProfessors, setVisibleProfessors] = useState(new Map<number, boolean>());
 
@@ -131,6 +133,10 @@ export default function StudentsPerAdvisorChart() {
     const clone = new Map(visibleProfessors);
     clone.set(id, !isProfessorVisible(id));
     setVisibleProfessors(clone);
+  }
+
+  function goToAdvisorStudents(advisorId: number) {
+    navigate(`/admin/orientacoes?professor=${advisorId}&status=${filter ?? 'all'}`);
   }
 
   return (
@@ -252,6 +258,8 @@ export default function StudentsPerAdvisorChart() {
                       <Cell
                         key={`cell-${index}`}
                         fill={colorFromName(entry.name)}
+                        cursor="pointer"
+                        onClick={() => goToAdvisorStudents(entry.id)}
                       />
                     ))}
                   </Bar>

@@ -95,6 +95,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             Route::get('fields', [DashboardController::class, 'studentCountPerArea']);
             Route::get('students', [DashboardController::class, 'studentCountPerCourse']);
             Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);
+            Route::get('advisor/{professorId}/students', [DashboardController::class, 'advisorStudents']);
             Route::get('defenses_per_year', [DashboardController::class, 'defensesPerYear']);
             Route::get('enrollments_per_year', [DashboardController::class, 'enrollmentsPerYear']);
             Route::get('professors', [DashboardController::class, 'allProfessors']);

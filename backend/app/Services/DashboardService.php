@@ -43,6 +43,42 @@ class DashboardService
             ->values();
     }
 
+    public function getStudentsForAdvisor(int $professorId, ?string $userType): \Illuminate\Support\Collection
+    {
+        $professor = User::where('type', UserType::PROFESSOR)->findOrFail($professorId);
+
+        $courseNameForFilter = null;
+        if ($userType === 'doutorando') {
+            $courseNameForFilter = 'Doutorado';
+        } elseif ($userType === 'mestrando') {
+            $courseNameForFilter = 'Mestrado';
+        }
+
+        $students = $professor->advisedes()
+            ->with(['course', 'defenses'])
+            ->when($userType === 'completed', function ($query) {
+                $query->whereHas('defenses');
+            }, function ($query) {
+                $query->whereDoesntHave('defenses');
+            })
+            ->when($courseNameForFilter, function ($query) use ($courseNameForFilter) {
+                $query->whereHas('course', function ($q) use ($courseNameForFilter) {
+                    $q->where('name', $courseNameForFilter);
+                });
+            })
+            ->get(['users.id', 'users.name', 'users.registration', 'users.course_id']);
+
+        return $students->map(function (User $student) {
+            return [
+                'id' => $student->id,
+                'name' => $student->name,
+                'registration' => $student->registration,
+                'course' => $student->course?->name,
+                'status' => $student->defenses->isNotEmpty() ? 'Concluído' : 'Ativo',
+            ];
+        })->values();
+    }
+
     public function getDefensesPerYear()
     {
         $totals = Defense::selectRaw('YEAR(defended_at) AS year, type, COUNT(*) AS total')
