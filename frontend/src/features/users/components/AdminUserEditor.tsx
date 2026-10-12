@@ -151,13 +151,21 @@ export function AdminUserEditor({
                 <Label>Tipo de usuário</Label>
                 <Select
                   value={draft.type ?? user.type}
-                  onValueChange={(value: AdminUser["type"]) =>
+                  onValueChange={(value) => {
+                    if (
+                      value !== "student" &&
+                      value !== "professor" &&
+                      value !== "manager"
+                    ) {
+                      return;
+                    }
+
                     setDraft((current) => ({
                       ...current,
                       type: value,
                       ...(value === "manager" ? { is_admin: true } : {}),
-                    }))
-                  }
+                    }));
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />
