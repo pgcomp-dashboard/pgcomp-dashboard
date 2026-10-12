@@ -231,7 +231,10 @@ export function StudentRankingTable({
         isLoading={isLoading}
         isFetching={isFetching}
         sorting={sorting}
-        onSortingChange={setSorting}
+        onSortingChange={(updater) => {
+          setSorting(updater);
+          setPage(1);
+        }}
         manualSorting
         emptyMessage="Não foram encontrados discentes"
         pagination={{ pageIndex: page - 1, pageSize: perPage }}

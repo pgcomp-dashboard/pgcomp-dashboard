@@ -59,6 +59,7 @@ class StudentRankingService
             $query->where('users.course_id', $courseId);
         }
 
+        $eligibilitySort = DB::raw("CASE WHEN SUM(COALESCE(stratum_qualis.score, 0)) >= {$minScore} AND (SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2', 'A3', 'A4') THEN 1 ELSE 0 END) >= {$minJournals} OR SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2') THEN 1 ELSE 0 END) >= {$minJournalsA1A2}) THEN 1 ELSE 0 END");
         $sortColumns = [
             'position' => 'total_score',
             'name' => 'users.name',
@@ -68,8 +69,17 @@ class StudentRankingService
             'productions_count' => 'productions_count',
             'a1_a4_count' => 'a1_a4_count',
             'a1_a2_count' => 'a1_a2_count',
+            'ja1' => 'ja1',
+            'ja2' => 'ja2',
+            'ja3' => 'ja3',
+            'ja4' => 'ja4',
+            'ca1' => 'ca1',
+            'ca2' => 'ca2',
+            'ca3' => 'ca3',
+            'ca4' => 'ca4',
             'total_score' => 'total_score',
-            'status' => DB::raw("CASE WHEN SUM(COALESCE(stratum_qualis.score, 0)) >= {$minScore} AND (SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2', 'A3', 'A4') THEN 1 ELSE 0 END) >= {$minJournals} OR SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2') THEN 1 ELSE 0 END) >= {$minJournalsA1A2}) THEN 1 ELSE 0 END"),
+            'is_eligible' => $eligibilitySort,
+            'status' => $eligibilitySort,
         ];
 
         $sortColumn = $sortColumns[$sort] ?? $sortColumns['position'];
