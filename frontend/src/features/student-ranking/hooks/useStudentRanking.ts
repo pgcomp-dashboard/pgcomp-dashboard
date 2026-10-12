@@ -1,14 +1,18 @@
 import { studentRankingService } from "@/services/modules/student-ranking.service";
+import { studentService } from "@/services/modules/student.service";
 import { configurationService } from "@/services/modules/configuration.service";
 import { courseService } from "@/services/modules/course.service";
+import { parseApiError } from "@/services/http-client";
 import { Course } from "@/types/academic";
 import { StudentRanking } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
 import { SortingState } from "@tanstack/react-table";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export function useStudentRanking() {
+  const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
   const [startYear, setStartYear] = useState(currentYear - 4);
   const [endYear, setEndYear] = useState(currentYear);
@@ -64,6 +68,19 @@ export function useStudentRanking() {
     placeholderData: (previousData) => previousData,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (studentId: number) => studentService.deleteStudent(studentId),
+    onSuccess: () => {
+      setPage(1);
+      queryClient.invalidateQueries({ queryKey: ["student-ranking"] });
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      toast.success("Discente excluído com sucesso.");
+    },
+    onError: (error) => {
+      toast.error(parseApiError(error));
+    },
+  });
+
   const years = useMemo(
     () =>
       Array.from(
@@ -94,5 +111,6 @@ export function useStudentRanking() {
     courses,
     sorting,
     setSorting,
+    deleteMutation,
   };
 }

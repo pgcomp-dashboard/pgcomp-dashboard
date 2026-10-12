@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { Button } from "./button";
 import { Card, CardContent } from "./card";
 
@@ -46,6 +47,8 @@ interface DataTableProps<TData, TValue> {
   manualSorting?: boolean; // Set to true if the backend sorts the data
   manualFiltering?: boolean; // Set to true if the backend filters the data
   renderMobileCard?: (row: Row<TData>) => React.ReactNode;
+  className?: string;
+  desktopBreakpoint?: "md" | "lg";
 }
 
 export function DataTable<TData, TValue>({
@@ -66,6 +69,8 @@ export function DataTable<TData, TValue>({
   manualSorting,
   manualFiltering,
   renderMobileCard,
+  className,
+  desktopBreakpoint = "md",
 }: DataTableProps<TData, TValue>) {
   const [internalPagination, setInternalPagination] = useState<PaginationState>(
     { pageIndex: 0, pageSize: 10 },
@@ -93,9 +98,14 @@ export function DataTable<TData, TValue>({
   const rows = table.getRowModel().rows;
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", className)}>
       {/* ── Desktop Table ─────────────────────────────── */}
-      <div className="relative hidden rounded-md border md:block">
+      <div
+        className={cn(
+          "relative hidden rounded-md border",
+          desktopBreakpoint === "lg" ? "lg:block" : "md:block",
+        )}
+      >
         {isFetching && !isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -159,7 +169,12 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* ── Mobile Cards ──────────────────────────────── */}
-      <div className="relative md:hidden">
+      <div
+        className={cn(
+          "relative",
+          desktopBreakpoint === "lg" ? "lg:hidden" : "md:hidden",
+        )}
+      >
         {isFetching && !isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

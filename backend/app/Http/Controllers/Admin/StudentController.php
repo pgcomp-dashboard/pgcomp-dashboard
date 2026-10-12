@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Admin\StoreStudentRequest;
 use App\Http\Requests\Admin\UpdateStudentRequest;
 use App\Http\Requests\Admin\IndexStudentRequest;
+use Illuminate\Http\Response;
 
 class StudentController extends Controller
 {
@@ -43,5 +44,13 @@ class StudentController extends Controller
         $updated = $this->userService->update($student, $request->all());
 
         return new UserResource($updated);
+    }
+
+    public function destroy(int $id): Response
+    {
+        $student = $this->userService->findStudent($id);
+        $this->userService->delete($student);
+
+        return response()->noContent();
     }
 }

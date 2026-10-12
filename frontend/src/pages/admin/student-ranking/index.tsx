@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -13,9 +14,12 @@ import { useStudentRanking } from "@/features/student-ranking/hooks/useStudentRa
 import { cn } from "@/lib/utils";
 import { EyeOff, Loader2, RotateCw } from "lucide-react";
 import { useState } from "react";
+import { StudentRanking } from "@/types/academic";
 
 export default function StudentRankingPage() {
   const [blurNames, setBlurNames] = useState(false);
+  const [studentToDelete, setStudentToDelete] =
+    useState<StudentRanking | null>(null);
   const {
     ranking,
     pagination,
@@ -37,6 +41,7 @@ export default function StudentRankingPage() {
     courses,
     sorting,
     setSorting,
+    deleteMutation,
   } = useStudentRanking();
 
   if (isLoading) {
@@ -201,6 +206,23 @@ export default function StudentRankingPage() {
         sorting={sorting}
         setSorting={setSorting}
         blurNames={blurNames}
+        onDelete={setStudentToDelete}
+      />
+
+      <DeleteConfirmDialog
+        open={studentToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleteMutation.isPending) setStudentToDelete(null);
+        }}
+        title="Excluir discente"
+        itemLabel={studentToDelete?.name}
+        isDeleting={deleteMutation.isPending}
+        onConfirm={async () => {
+          if (!studentToDelete) return;
+          deleteMutation.mutate(studentToDelete.user_id, {
+            onSuccess: () => setStudentToDelete(null),
+          });
+        }}
       />
     </div>
   );
