@@ -38,6 +38,8 @@ export default function StudentRankingPage() {
     setPerPage,
     courseId,
     setCourseId,
+    isEligible,
+    setIsEligible,
     courses,
     sorting,
     setSorting,
@@ -164,6 +166,38 @@ export default function StudentRankingPage() {
                   {course.name}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label
+            htmlFor="student-ranking-eligibility"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            Situação
+          </Label>
+          <Select
+            value={
+              isEligible === null ? "all" : isEligible ? "eligible" : "ineligible"
+            }
+            onValueChange={(value) => {
+              setIsEligible(
+                value === "all" ? null : value === "eligible",
+              );
+              setPage(1);
+            }}
+          >
+            <SelectTrigger
+              id="student-ranking-eligibility"
+              className="w-56 bg-background"
+            >
+              <SelectValue placeholder="Todas as situações" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as situações</SelectItem>
+              <SelectItem value="eligible">Aptos</SelectItem>
+              <SelectItem value="ineligible">Fora dos critérios</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -24,6 +24,9 @@ class StudentRankingController extends Controller
                 max((int) $request->query('page', 1), 1),
                 (string) $request->query('sort', 'position'),
                 (string) $request->query('direction', 'desc'),
+                $request->has('is_eligible')
+                    ? filter_var($request->query('is_eligible'), FILTER_VALIDATE_BOOLEAN)
+                    : null,
             )
         );
     }

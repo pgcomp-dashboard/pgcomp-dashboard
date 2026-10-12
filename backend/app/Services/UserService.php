@@ -19,7 +19,7 @@ class UserService
     public function listAll()
     {
         return QueryBuilder::for(User::class)
-            ->allowedFilters([AllowedFilter::partial('name'), 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved'])
+            ->allowedFilters([AllowedFilter::partial('name'), 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved', 'course_id', 'area_id'])
             ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved'])
             ->paginate(request()->input('per_page', 15));
     }

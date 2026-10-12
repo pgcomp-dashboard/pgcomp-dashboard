@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class StudentRankingService
 {
-    public function getRanking($year1 = null, $year2 = null, ?int $courseId = null, int $perPage = 15, int $page = 1, string $sort = 'position', string $direction = 'desc')
+    public function getRanking($year1 = null, $year2 = null, ?int $courseId = null, int $perPage = 15, int $page = 1, string $sort = 'position', string $direction = 'desc', ?bool $isEligible = null)
     {
         $rules = Configuration::get('student_ranking', 'rules', [
             'initial_year' => date('Y') - 4,
@@ -59,7 +59,8 @@ class StudentRankingService
             $query->where('users.course_id', $courseId);
         }
 
-        $eligibilitySort = DB::raw("CASE WHEN SUM(COALESCE(stratum_qualis.score, 0)) >= {$minScore} AND (SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2', 'A3', 'A4') THEN 1 ELSE 0 END) >= {$minJournals} OR SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2') THEN 1 ELSE 0 END) >= {$minJournalsA1A2}) THEN 1 ELSE 0 END");
+        $eligibilityExpression = "CASE WHEN SUM(COALESCE(stratum_qualis.score, 0)) >= {$minScore} AND (SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2', 'A3', 'A4') THEN 1 ELSE 0 END) >= {$minJournals} OR SUM(CASE WHEN publishers.publisher_type = 'journal' AND stratum_qualis.code IN ('A1', 'A2') THEN 1 ELSE 0 END) >= {$minJournalsA1A2}) THEN 1 ELSE 0 END";
+        $eligibilitySort = DB::raw($eligibilityExpression);
         $sortColumns = [
             'position' => 'total_score',
             'name' => 'users.name',
@@ -84,6 +85,10 @@ class StudentRankingService
 
         $sortColumn = $sortColumns[$sort] ?? $sortColumns['position'];
         $direction = strtolower($direction) === 'asc' ? 'asc' : 'desc';
+
+        if ($isEligible !== null) {
+            $query->havingRaw("{$eligibilityExpression} = ?", [(int) $isEligible]);
+        }
 
         return $query
             ->groupBy('users.id', 'users.name', 'users.registration', 'courses.name', 'areas.area')

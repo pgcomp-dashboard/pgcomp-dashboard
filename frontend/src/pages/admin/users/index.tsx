@@ -2,6 +2,13 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AdminUserEditor } from "@/features/users/components/AdminUserEditor";
 import { parseApiError } from "@/services/http-client";
 import { areaService } from "@/services/modules/area.service";
@@ -40,15 +47,37 @@ export default function AdminUsersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [approvalFilter, setApprovalFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [courseFilter, setCourseFilter] = useState("all");
+  const [areaFilter, setAreaFilter] = useState("all");
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
   const usersQuery = useQuery({
-    queryKey: ["admin-users", page, search],
+    queryKey: [
+      "admin-users",
+      page,
+      search,
+      typeFilter,
+      approvalFilter,
+      categoryFilter,
+      courseFilter,
+      areaFilter,
+    ],
     queryFn: () =>
       userService.getAdminUsers({
         page,
         per_page: PAGE_SIZE,
-        ...(search.trim() ? { filter: { name: search.trim() } } : {}),
+        filter: {
+          name: search.trim() || undefined,
+          type: typeFilter === "all" ? undefined : typeFilter,
+          is_approved:
+            approvalFilter === "all" ? undefined : approvalFilter,
+          category: categoryFilter === "all" ? undefined : categoryFilter,
+          course_id: courseFilter === "all" ? undefined : courseFilter,
+          area_id: areaFilter === "all" ? undefined : areaFilter,
+        },
       }),
   });
 
@@ -196,18 +225,108 @@ export default function AdminUsersPage() {
         </p>
       </header>
 
-      <div className="relative max-w-lg">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Buscar pelo nome"
-          className="pl-9"
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="relative min-w-56 flex-1">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Buscar pelo nome"
+            className="pl-9"
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        <Select
+          value={typeFilter}
+          onValueChange={(value) => {
+            setTypeFilter(value);
             setPage(1);
           }}
-        />
+        >
+          <SelectTrigger aria-label="Filtrar por tipo" className="w-44">
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os tipos</SelectItem>
+            <SelectItem value="student">Discentes</SelectItem>
+            <SelectItem value="professor">Docentes</SelectItem>
+            <SelectItem value="manager">Administradores</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={approvalFilter}
+          onValueChange={(value) => {
+            setApprovalFilter(value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger aria-label="Filtrar por aprovação" className="w-44">
+            <SelectValue placeholder="Aprovação" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as situações</SelectItem>
+            <SelectItem value="1">Aprovados</SelectItem>
+            <SelectItem value="0">Pendentes</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={categoryFilter}
+          onValueChange={(value) => {
+            setCategoryFilter(value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger aria-label="Filtrar por categoria" className="w-44">
+            <SelectValue placeholder="Categoria" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as categorias</SelectItem>
+            <SelectItem value="permanente">Permanente</SelectItem>
+            <SelectItem value="colaborador">Colaborador</SelectItem>
+            <SelectItem value="visitante">Visitante</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={courseFilter}
+          onValueChange={(value) => {
+            setCourseFilter(value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger aria-label="Filtrar por curso" className="w-52">
+            <SelectValue placeholder="Curso" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os cursos</SelectItem>
+            {(coursesQuery.data ?? []).map((course) => (
+              <SelectItem key={course.id} value={course.id.toString()}>
+                {course.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={areaFilter}
+          onValueChange={(value) => {
+            setAreaFilter(value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger aria-label="Filtrar por área" className="w-52">
+            <SelectValue placeholder="Área" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as áreas</SelectItem>
+            {(areasQuery.data ?? []).map((area) => (
+              <SelectItem key={area.id} value={area.id.toString()}>
+                {area.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {usersQuery.error ? (

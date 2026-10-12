@@ -14,7 +14,7 @@ class IndexUserRequest extends BaseIndexRequest
      */
     public function rules(): array
     {
-        $userFields = ['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'];
+        $userFields = ['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved', 'course_id', 'area_id'];
         $sortFields = [];
         foreach ($userFields as $field) {
             $sortFields[] = $field;
@@ -30,6 +30,9 @@ class IndexUserRequest extends BaseIndexRequest
             'filter.category' => 'sometimes|string',
             'filter.admin_status' => 'sometimes|string',
             'filter.is_admin' => 'sometimes|boolean',
+            'filter.is_approved' => 'sometimes|boolean',
+            'filter.course_id' => 'sometimes|integer|min:1',
+            'filter.area_id' => 'sometimes|integer|min:1',
             'sort' => ['sometimes', 'string', Rule::in($sortFields)],
         ]);
     }
