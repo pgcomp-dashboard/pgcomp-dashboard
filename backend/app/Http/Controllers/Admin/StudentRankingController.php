@@ -20,7 +20,7 @@ class StudentRankingController extends Controller
                 $request->query('year1'),
                 $request->query('year2'),
                 $request->filled('course_id') ? (int) $request->query('course_id') : null,
-                min(max((int) $request->query('per_page', 15), 1), 100),
+                min(max((int) $request->query('per_page', 15), 1), 500),
                 max((int) $request->query('page', 1), 1),
                 (string) $request->query('sort', 'position'),
                 (string) $request->query('direction', 'desc'),

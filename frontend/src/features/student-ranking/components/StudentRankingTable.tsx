@@ -199,33 +199,60 @@ export function StudentRankingTable({
   };
 
   return (
-    <DataTable
-      columns={columns}
-      data={ranking}
-      isLoading={isLoading}
-      isFetching={isFetching}
-      sorting={sorting}
-      onSortingChange={setSorting}
-      manualSorting
-      emptyMessage="Não foram encontrados discentes"
-      pagination={{ pageIndex: page - 1, pageSize: perPage }}
-      pageCount={pagination?.meta.last_page ?? 0}
-      manualPagination
-      renderMobileCard={renderMobileCard}
-      onPaginationChange={
-        ((updater) => {
-          const current = { pageIndex: page - 1, pageSize: perPage };
-          const next =
-            typeof updater === "function" ? updater(current) : updater;
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="student-ranking-per-page"
+            className="whitespace-nowrap text-sm text-muted-foreground"
+          >
+            Por página:
+          </label>
+          <select
+            id="student-ranking-per-page"
+            className="rounded border bg-background px-2 py-1 text-sm"
+            value={perPage}
+            onChange={(event) => {
+              setPerPage(Number(event.target.value));
+              setPage(1);
+            }}
+          >
+            {[50, 100, 300, 500].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <DataTable
+        columns={columns}
+        data={ranking}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        manualSorting
+        emptyMessage="Não foram encontrados discentes"
+        pagination={{ pageIndex: page - 1, pageSize: perPage }}
+        pageCount={pagination?.meta.last_page ?? 0}
+        manualPagination
+        renderMobileCard={renderMobileCard}
+        onPaginationChange={
+          ((updater) => {
+            const current = { pageIndex: page - 1, pageSize: perPage };
+            const next =
+              typeof updater === "function" ? updater(current) : updater;
 
-          if (next.pageSize !== perPage) {
-            setPerPage(next.pageSize);
-            setPage(1);
-          } else {
-            setPage(next.pageIndex + 1);
-          }
-        }) as OnChangeFn<PaginationState>
-      }
-    />
+            if (next.pageSize !== perPage) {
+              setPerPage(next.pageSize);
+              setPage(1);
+            } else {
+              setPage(next.pageIndex + 1);
+            }
+          }) as OnChangeFn<PaginationState>
+        }
+      />
+    </div>
   );
 }

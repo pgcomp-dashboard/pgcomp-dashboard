@@ -13,7 +13,7 @@ export function useStudentRanking() {
   const [startYear, setStartYear] = useState(currentYear - 4);
   const [endYear, setEndYear] = useState(currentYear);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(15);
+  const [perPage, setPerPage] = useState(50);
   const [courseId, setCourseId] = useState<number | null>(null);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "position", desc: true },
