@@ -3,6 +3,8 @@ import {
   AwardCategory,
   AwardInput,
   AwardsDashboardSummary,
+  ImportAwardInput,
+  ImportAwardsResult,
 } from "@/features/awards/types";
 import { apiClient } from "../http-client";
 
@@ -70,6 +72,10 @@ export const myAwardService = {
       "/api/portal/award-categories",
     );
     return response.data;
+  },
+
+  async importAwards(input: ImportAwardInput[]) {
+    return apiClient.post<ImportAwardsResult>("/api/portal/awards/import", input);
   },
 };
 

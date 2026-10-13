@@ -14,8 +14,28 @@ export interface AwardSubmitter {
 }
 
 export interface AwardWinner {
+  user_id?: number | null;
   name: string;
   recipient_type: AwardRecipientType;
+}
+
+export interface ImportAwardInput {
+  year: number;
+  scope: AwardScope;
+  award_category_name: string;
+  description: string;
+  url: string | null;
+  winners: AwardWinner[];
+}
+
+export interface ImportAwardsResult {
+  imported_count: number;
+  linked_winners_count: number;
+  unlinked_winners: {
+    award_index: number;
+    name: string;
+    recipient_type: AwardRecipientType;
+  }[];
 }
 
 export interface Award {
@@ -49,6 +69,13 @@ export interface AwardsDashboardSummary {
   by_scope: Record<AwardScope, number>;
   per_category: { name: string; total: number }[];
   per_year: { year: number; total: number }[];
+  per_year_by_scope: {
+    year: number;
+    national: number;
+    international: number;
+  }[];
+  awards_by_professor: { name: string; total: number }[];
+  awards_by_student: { name: string; total: number }[];
 }
 
 export const RECIPIENT_TYPE_LABEL: Record<AwardRecipientType, string> = {

@@ -11,6 +11,7 @@ class AwardResource extends JsonResource
         return [
             'id' => $this->id,
             'winners' => $this->whenLoaded('winners', fn () => $this->winners->map(fn ($w) => [
+                'user_id' => $w->user_id,
                 'name' => $w->name,
                 'recipient_type' => $w->recipient_type->value,
             ])->values()),

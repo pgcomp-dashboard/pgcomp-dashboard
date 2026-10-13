@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { AwardFormDialog } from "@/features/awards/components/AwardFormDialog";
+import { AwardImportDialog } from "@/features/awards/components/AwardImportDialog";
 import { AwardsTable } from "@/features/awards/components/AwardsTable";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { useMyAwards } from "@/features/awards/hooks/useAwards";
 import { Award, winnerNames } from "@/features/awards/types";
 import { myAwardService } from "@/services/modules/award.service";
-import { Plus } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import { useState } from "react";
 
 /** Área do usuário: cadastro e acompanhamento dos próprios prêmios. */
@@ -14,6 +15,7 @@ export default function MyAwardsPage() {
 
   const [form, setForm] = useState<{ open: boolean; editing: Award | null }>({ open: false, editing: null });
   const [awardToDelete, setAwardToDelete] = useState<Award | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -24,10 +26,16 @@ export default function MyAwardsPage() {
             Registre os prêmios e reconhecimentos que você recebeu. Eles são usados nos relatórios do programa.
           </p>
         </div>
-        <Button className="flex gap-2" onClick={() => setForm({ open: true, editing: null })}>
-          <Plus className="h-4 w-4" />
-          Cadastrar Prêmio
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" className="flex gap-2" onClick={() => setImportOpen(true)}>
+            <Download className="h-4 w-4" />
+            Importar Prêmios
+          </Button>
+          <Button className="flex gap-2" onClick={() => setForm({ open: true, editing: null })}>
+            <Plus className="h-4 w-4" />
+            Cadastrar Prêmio
+          </Button>
+        </div>
       </header>
 
       <AwardsTable
@@ -52,6 +60,12 @@ export default function MyAwardsPage() {
             await actions.add.mutateAsync(input);
           }
         }}
+      />
+      <AwardImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        isImporting={actions.import.isPending}
+        onImport={(records) => actions.import.mutateAsync(records)}
       />
       <DeleteConfirmDialog
         open={!!awardToDelete}

@@ -12,6 +12,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -119,6 +120,70 @@ export function AwardsDashboard() {
             </div>
           )}
         </section>
+
+        <section className="border rounded-lg p-4">
+          <h2 className="font-semibold mb-4">Prêmios nacionais e internacionais por ano</h2>
+          {data.per_year_by_scope.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhum prêmio cadastrado.</p>
+          ) : (
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.per_year_by_scope} margin={{ left: -16 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="year" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="national" name="Nacionais" fill="#2563eb" />
+                  <Bar dataKey="international" name="Internacionais" fill="#16a34a" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </section>
+
+        {[
+          {
+            title: "Prêmios por docente",
+            data: data.awards_by_professor,
+            color: "#7c3aed",
+            emptyMessage: "Nenhum docente premiado no período.",
+          },
+          {
+            title: "Prêmios por discente",
+            data: data.awards_by_student,
+            color: "#ea580c",
+            emptyMessage: "Nenhum discente premiado no período.",
+          },
+        ].map((chart) => (
+          <section key={chart.title} className="border rounded-lg p-4">
+            <h2 className="font-semibold mb-4">{chart.title}</h2>
+            {chart.data.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{chart.emptyMessage}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <div style={{ width: Math.max(640, chart.data.length * 80), height: 380 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chart.data} margin={{ bottom: 72, left: -16 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis
+                        dataKey="name"
+                        interval={0}
+                        angle={-40}
+                        textAnchor="end"
+                        height={100}
+                        tick={{ fontSize: 11 }}
+                      />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip />
+                      <Bar dataKey="total" name="Quantidade de prêmios" fill={chart.color} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+          </section>
+        ))}
       </div>
     </div>
   );

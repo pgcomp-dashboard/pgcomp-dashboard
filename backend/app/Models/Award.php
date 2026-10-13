@@ -35,7 +35,7 @@ class Award extends Model
 
     public function winners(): HasMany
     {
-        return $this->hasMany(AwardWinner::class)->orderBy('id');
+        return $this->hasMany(AwardWinner::class)->with('user')->orderBy('id');
     }
 
     public function scopeOfUser($query, int $userId)

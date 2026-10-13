@@ -35,8 +35,50 @@ class AwardDashboardController extends Controller
             ->orderByDesc('total')->orderBy('name')
             ->get();
 
+        $years = Award::query()->distinct()->orderByDesc('year')->pluck('year');
+        $perYear = Award::query()
+            ->selectRaw('year, count(*) as total')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->get()
+            ->map(fn ($row) => [
+                'year' => (int) $row->year,
+                'total' => (int) $row->total,
+            ]);
+        $perYearByScope = Award::query()
+            ->selectRaw('year, scope, count(*) as total')
+            ->groupBy('year', 'scope')
+            ->get()
+            ->groupBy('year')
+            ->map(fn ($scopes) => [
+                'national' => (int) ($scopes->firstWhere('scope', AwardScope::NATIONAL->value)?->total ?? 0),
+                'international' => (int) ($scopes->firstWhere('scope', AwardScope::INTERNATIONAL->value)?->total ?? 0),
+            ]);
+        $awardsByRecipient = fn (string $recipientType) => AwardWinner::query()
+            ->leftJoin('users', 'users.id', '=', 'award_winners.user_id')
+            ->join('awards', 'awards.id', '=', 'award_winners.award_id')
+            ->where('award_winners.recipient_type', $recipientType)
+            ->when($year, fn ($query) => $query->where('awards.year', $year))
+            ->selectRaw('COALESCE(users.name, award_winners.name) as name, COUNT(*) as total')
+            ->groupBy('award_winners.user_id')
+            ->groupByRaw('COALESCE(users.name, award_winners.name)')
+            ->orderByDesc('total')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($winner) => [
+                'name' => $winner->name,
+                'total' => (int) $winner->total,
+            ])
+            ->values();
+        $perYearByScope = $years->map(fn ($awardYear) => [
+                'year' => (int) $awardYear,
+                'national' => $perYearByScope->get($awardYear, ['national' => 0])['national'],
+                'international' => $perYearByScope->get($awardYear, ['international' => 0])['international'],
+            ])
+            ->sortBy('year')
+            ->values();
         return response()->json([
-            'years' => Award::query()->distinct()->orderByDesc('year')->pluck('year'),
+            'years' => $years,
             'total' => $filtered()->count(),
             'by_recipient_type' => collect(AwardRecipientType::values())
                 ->mapWithKeys(fn ($v) => [$v => (int) ($byType[$v] ?? 0)]),
@@ -44,9 +86,10 @@ class AwardDashboardController extends Controller
                 ->mapWithKeys(fn ($v) => [$v => (int) ($byScope[$v] ?? 0)]),
             'per_category' => $perCategory->map(fn ($r) => ['name' => $r->name, 'total' => (int) $r->total]),
             // Ignora o filtro de ano: mostra a evolução completa.
-            'per_year' => Award::query()->selectRaw('year, count(*) as total')
-                ->groupBy('year')->orderBy('year')->get()
-                ->map(fn ($r) => ['year' => (int) $r->year, 'total' => (int) $r->total]),
+            'per_year' => $perYear,
+            'per_year_by_scope' => $perYearByScope,
+            'awards_by_professor' => $awardsByRecipient(AwardRecipientType::PROFESSOR->value),
+            'awards_by_student' => $awardsByRecipient(AwardRecipientType::STUDENT->value),
         ]);
     }
 }

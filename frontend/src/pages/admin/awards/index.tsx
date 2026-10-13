@@ -31,12 +31,14 @@ export default function AwardsPage() {
             Acompanhe os prêmios cadastrados por docentes e discentes e gerencie as categorias.
           </p>
         </div>
-        {tab === "categories" && (
-          <Button className="flex gap-2" onClick={() => setCategoryForm({ open: true, editing: null })}>
-            <Plus className="h-4 w-4" />
-            Adicionar Categoria
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {tab === "categories" && (
+            <Button className="flex gap-2" onClick={() => setCategoryForm({ open: true, editing: null })}>
+              <Plus className="h-4 w-4" />
+              Adicionar Categoria
+            </Button>
+          )}
+        </div>
       </header>
 
       <Tabs value={tab} onValueChange={setTab}>

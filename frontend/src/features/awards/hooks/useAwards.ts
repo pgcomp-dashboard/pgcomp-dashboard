@@ -1,6 +1,7 @@
 import { queryClient } from "@/lib/query-client";
 import { awardService, myAwardService } from "@/services/modules/award.service";
 import { parseApiError } from "@/services/http-client";
+import { ImportAwardInput } from "@/features/awards/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -32,10 +33,9 @@ export function useAwards() {
     queryKey: CATEGORIES_KEY,
     queryFn: awardService.listCategories,
   });
-
-  // Categorias mostram a contagem de prêmios; o dashboard depende de ambos.
   const awardKeys = [AWARDS_KEY, CATEGORIES_KEY, DASHBOARD_KEY];
 
+  // Categorias mostram a contagem de prêmios; o dashboard depende de ambos.
   return {
     awards: awardsQuery.data ?? [],
     categories: categoriesQuery.data ?? [],
@@ -76,6 +76,23 @@ export function useMyAwards() {
 
   // Mudanças aqui também alteram o que a coordenação vê.
   const keys = [MY_AWARDS_KEY, AWARDS_KEY, CATEGORIES_KEY, DASHBOARD_KEY];
+  const importMutation = useMutation({
+    mutationFn: (records: ImportAwardInput[]) =>
+      myAwardService.importAwards(records),
+    onSuccess: (result) => {
+      keys.forEach((queryKey) => queryClient.invalidateQueries({ queryKey }));
+      toast.success(
+        `${result.imported_count} prêmio(s) importado(s); ${result.linked_winners_count} vencedor(es) vinculado(s) a usuário.`,
+      );
+      if (result.unlinked_winners.length > 0) {
+        const names = [...new Set(result.unlinked_winners.map(({ name }) => name))];
+        toast.warning(
+          `${result.unlinked_winners.length} vencedor(es) sem conta vinculada: ${names.slice(0, 5).join(", ")}${names.length > 5 ? ", ..." : ""}`,
+        );
+      }
+    },
+    onError: (error) => toast.error(parseApiError(error)),
+  });
 
   return {
     awards: awardsQuery.data ?? [],
@@ -85,6 +102,7 @@ export function useMyAwards() {
       add: useAwardMutation(myAwardService.createAward, keys, "Prêmio cadastrado com sucesso!"),
       update: useAwardMutation(myAwardService.updateAward, keys, "Prêmio atualizado com sucesso!"),
       remove: useAwardMutation(myAwardService.deleteAward, keys, "Prêmio excluído com sucesso!"),
+      import: importMutation,
     },
   };
 }

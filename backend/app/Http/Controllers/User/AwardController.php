@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Award\AwardRequest;
+use App\Http\Requests\Admin\Award\ImportAwardsRequest;
 use App\Http\Resources\AwardResource;
 use App\Models\Award;
 use App\Models\AwardCategory;
@@ -47,6 +48,17 @@ class AwardController extends Controller
         );
 
         return (new AwardResource($award))->response()->setStatusCode(201);
+    }
+
+    public function import(ImportAwardsRequest $request)
+    {
+        return response()->json(
+            $this->service->import(
+                $request->validated()['awards'],
+                $request->user()->id,
+            ),
+            201,
+        );
     }
 
     /**

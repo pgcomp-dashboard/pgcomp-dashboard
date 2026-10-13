@@ -95,6 +95,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Prêmios do próprio usuário
         Route::get('award-categories', [UserAwardController::class, 'categories']);
         Route::get('awards/{award}/attachment', [UserAwardController::class, 'attachment']);
+        Route::post('awards/import', [UserAwardController::class, 'import']);
         // Atualização via POST: multipart não é lido em PUT.
         Route::post('awards/{award}', [UserAwardController::class, 'update']);
         Route::apiResource('awards', UserAwardController::class)->only(['index', 'store', 'destroy']);

@@ -342,6 +342,110 @@ class AwardTest extends TestCase
         $this->assertDatabaseMissing('awards', ['id' => $award->id]);
     }
 
+    public function test_admin_imports_awards_and_links_only_unique_users_with_matching_recipient_type(): void
+    {
+        $admin = $this->admin();
+        $professor = $this->member();
+        $professor->update(['name' => 'Ana Souza', 'type' => 'professor']);
+        $student = $this->member();
+        $student->update(['name' => 'Bruno Lima', 'type' => 'student']);
+        $duplicate1 = $this->member();
+        $duplicate1->update(['name' => 'Nome Ambíguo', 'type' => 'professor']);
+        $duplicate2 = $this->member();
+        $duplicate2->update(['name' => 'Nome Ambíguo', 'type' => 'professor']);
+
+        $response = $this->actingAs($admin)->postJson('/api/portal/awards/import', [
+            [
+                'year' => 2014,
+                'scope' => 'international',
+                'award_category_name' => 'Best paper',
+                'description' => 'Melhor artigo no ECRTS 2014',
+                'url' => null,
+                'winners' => [
+                    ['name' => ' ana souza ', 'recipient_type' => 'professor'],
+                    ['name' => 'Bruno Lima', 'recipient_type' => 'student'],
+                ],
+            ],
+            [
+                'year' => 2015,
+                'scope' => 'national',
+                'award_category_name' => 'Menção Honrosa',
+                'description' => 'Menção honrosa em evento nacional em 2015.',
+                'url' => null,
+                'winners' => [
+                    ['name' => 'Nome Ambíguo', 'recipient_type' => 'professor'],
+                    ['name' => 'Pessoa Externa', 'recipient_type' => 'staff'],
+                ],
+            ],
+        ])->assertCreated()
+            ->assertJsonPath('imported_count', 2)
+            ->assertJsonPath('linked_winners_count', 2)
+            ->assertJsonCount(2, 'unlinked_winners')
+            ->assertJsonPath('unlinked_winners.0.name', 'Nome Ambíguo')
+            ->assertJsonPath('unlinked_winners.1.name', 'Pessoa Externa');
+
+        $this->assertDatabaseHas('award_winners', [
+            'name' => 'ana souza',
+            'user_id' => $professor->id,
+            'recipient_type' => 'professor',
+        ]);
+        $this->assertDatabaseHas('award_winners', [
+            'name' => 'Bruno Lima',
+            'user_id' => $student->id,
+            'recipient_type' => 'student',
+        ]);
+        $this->assertDatabaseHas('award_winners', [
+            'name' => 'Nome Ambíguo',
+            'user_id' => null,
+            'recipient_type' => 'professor',
+        ]);
+        $this->assertDatabaseCount('awards', 2);
+        $this->assertDatabaseHas('awards', [
+            'user_id' => $admin->id,
+            'year' => 2014,
+        ]);
+    }
+
+    public function test_invalid_award_import_does_not_partially_create_records(): void
+    {
+        $this->actingAs($this->admin())
+            ->postJson('/api/portal/awards/import', [
+                [
+                    'year' => 2014,
+                    'scope' => 'national',
+                    'award_category_name' => 'Categoria inexistente',
+                    'description' => 'Descrição válida de prêmio para teste.',
+                    'url' => null,
+                    'winners' => [
+                        ['name' => 'Ana Souza', 'recipient_type' => 'student'],
+                    ],
+                ],
+            ])
+            ->assertUnprocessable();
+
+        $this->assertDatabaseCount('awards', 0);
+        $this->assertDatabaseCount('award_winners', 0);
+    }
+
+    public function test_deleting_linked_user_keeps_winner_and_nulls_foreign_key(): void
+    {
+        $user = $this->member();
+        $award = Award::factory()->create();
+        $winner = $award->winners()->create([
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'recipient_type' => 'student',
+        ]);
+
+        $user->delete();
+
+        $this->assertDatabaseHas('award_winners', [
+            'id' => $winner->id,
+            'user_id' => null,
+            'name' => $user->name,
+        ]);
+    }
+
     public function test_dashboard_counts_each_person_even_when_they_share_the_same_role(): void
     {
         // Um único prêmio com 2 docentes e 1 discente: 1 prêmio, 3 pessoas.
@@ -370,7 +474,22 @@ class AwardTest extends TestCase
             ->assertJsonPath('years', [2024, 2023])
             ->assertJsonPath('by_recipient_type.student', 2)
             ->assertJsonPath('by_recipient_type.professor', 2)
-            ->assertJsonPath('by_scope.international', 1);
+            ->assertJsonPath('by_scope.international', 1)
+            ->assertJsonPath('per_year.0.year', 2023)
+            ->assertJsonPath('per_year.0.total', 1)
+            ->assertJsonPath('per_year.1.year', 2024)
+            ->assertJsonPath('per_year.1.total', 3);
+        $all->assertJsonPath('per_year_by_scope.0.year', 2023)
+            ->assertJsonPath('per_year_by_scope.0.national', 0)
+            ->assertJsonPath('per_year_by_scope.0.international', 1)
+            ->assertJsonPath('per_year_by_scope.1.national', 3)
+            ->assertJsonPath('per_year_by_scope.1.international', 0)
+            ->assertJsonPath('awards_by_professor.0.name', 'Pessoa 0')
+            ->assertJsonPath('awards_by_professor.0.total', 1)
+            ->assertJsonPath('awards_by_professor.1.name', 'Pessoa 1')
+            ->assertJsonPath('awards_by_professor.1.total', 1)
+            ->assertJsonPath('awards_by_student.0.name', 'Pessoa 0')
+            ->assertJsonPath('awards_by_student.0.total', 2);
 
         $filtered = $this->actingAs($admin)->getJson('/api/admin/awards-dashboard?year=2024')->assertOk();
         $filtered->assertJsonPath('total', 3)
@@ -380,6 +499,11 @@ class AwardTest extends TestCase
             ->assertJsonPath('by_scope.international', 0);
         // A evolução por ano ignora o filtro.
         $this->assertCount(2, $filtered->json('per_year'));
+        $this->assertSame(1, $filtered->json('per_year_by_scope.0.international'));
+        $this->assertSame(3, $filtered->json('per_year_by_scope.1.national'));
+        $this->assertSame('Pessoa 1', $filtered->json('awards_by_professor.0.name'));
+        $this->assertSame(1, $filtered->json('awards_by_professor.0.total'));
+        $this->assertSame(2, $filtered->json('awards_by_student.0.total'));
         $this->assertSame(3, collect($filtered->json('per_category'))->sum('total'));
     }
 }
