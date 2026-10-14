@@ -188,6 +188,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('accreditation', AccreditationController::class)->except(['destroy']);
 
         Route::get('approval-requests', [ApprovalRequestController::class, 'index']);
+        Route::post('approval-requests/approve-many', [ApprovalRequestController::class, 'approveMany']);
         Route::post('approval-requests/{id}/approve', [ApprovalRequestController::class, 'approve']);
         Route::post('approval-requests/{id}/reject', [ApprovalRequestController::class, 'reject']);
 

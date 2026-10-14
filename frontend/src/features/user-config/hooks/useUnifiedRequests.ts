@@ -35,6 +35,24 @@ export function useUnifiedRequests() {
     onSettled: () => setApprovingId(null),
   });
 
+  const approveAllMutation = useMutation({
+    mutationFn: (requests: ApprovalRequest[]) =>
+      adminService.approveRequests(
+        requests.map(({ id, request_type }) => ({ id, request_type })),
+      ),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: queryKey });
+      queryClient.invalidateQueries({ queryKey: ["admin", "pending-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["professors"] });
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+
+      toast.success(response.message);
+    },
+    onError: () => {
+      toast.error("Erro ao aprovar as solicitações.");
+    },
+  });
+
   const rejectMutation = useMutation({
     mutationFn: ({ id, requestType }: { id: number; requestType: string }) =>
       adminService.rejectRequest(id, requestType),
@@ -61,6 +79,7 @@ export function useUnifiedRequests() {
     isLoading,
     error,
     approveMutation,
+    approveAllMutation,
     rejectMutation,
     approvingId,
     rejectingId,

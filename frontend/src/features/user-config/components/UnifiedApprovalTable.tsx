@@ -15,7 +15,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
 import { ApprovalRequest } from "@/types/user";
 import { ColumnDef, createColumnHelper, Row } from "@tanstack/react-table";
-import { AlertCircle, Check, Loader2, X } from "lucide-react";
+import { AlertCircle, Check, CheckCheck, Loader2, X } from "lucide-react";
 import { useMemo } from "react";
 import { useUnifiedRequests } from "../hooks/useUnifiedRequests";
 
@@ -31,6 +31,7 @@ export function UnifiedApprovalTable({
     isLoading,
     error,
     approveMutation,
+    approveAllMutation,
     rejectMutation,
     approvingId,
     rejectingId,
@@ -42,7 +43,10 @@ export function UnifiedApprovalTable({
       )
     : requests;
   const showStudentDetails = userType === "student";
-  const isAnyPending = approvingId !== null || rejectingId !== null;
+  const isAnyPending =
+    approvingId !== null ||
+    rejectingId !== null ||
+    approveAllMutation.isPending;
 
   const columns = useMemo<ColumnDef<ApprovalRequest, any>[]>(
     () => [
@@ -301,11 +305,53 @@ export function UnifiedApprovalTable({
     );
 
   return (
-    <DataTable
-      columns={columns}
-      data={visibleRequests}
-      renderMobileCard={renderMobileCard}
-      emptyMessage="Nenhuma solicitação pendente."
-    />
+    <div className="flex flex-col gap-3">
+      {visibleRequests.length > 0 && (
+        <div className="flex justify-end">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                disabled={isAnyPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {approveAllMutation.isPending ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <CheckCheck />
+                )}
+                Aprovar todos ({visibleRequests.length})
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Aprovar todas as solicitações?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Serão aprovadas as {visibleRequests.length} solicitações
+                  pendentes exibidas nesta tela. Esta ação não pode ser
+                  desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-green-600 text-white hover:bg-green-700"
+                  onClick={() => approveAllMutation.mutate(visibleRequests)}
+                >
+                  Aprovar todos
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      )}
+      <DataTable
+        columns={columns}
+        data={visibleRequests}
+        renderMobileCard={renderMobileCard}
+        emptyMessage="Nenhuma solicitação pendente."
+      />
+    </div>
   );
 }

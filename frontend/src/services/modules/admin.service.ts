@@ -29,6 +29,13 @@ export const adminService = {
     return await apiClient.post(`/api/admin/approval-requests/${id}/approve`, { request_type: requestType });
   },
 
+  async approveRequests(requests: { id: number; request_type: string }[]) {
+    return await apiClient.post<{ data: { approved: number }; message: string }>(
+      '/api/admin/approval-requests/approve-many',
+      { requests },
+    );
+  },
+
   async rejectRequest(id: number, request_type: string) {
     return await apiClient.post(`/api/admin/approval-requests/${id}/reject`, { request_type });
   },

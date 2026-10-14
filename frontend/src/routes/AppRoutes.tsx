@@ -114,6 +114,10 @@ export function AppRoutes() {
                 element={<FeaturedProductionsPage />}
               />
               <Route path="publishers" element={<PublishersPage />} />
+              <Route
+                path="professors/requests"
+                element={<ProfessorsPage />}
+              />
               <Route path="qualis" element={<QualisPage />} />
               <Route path="rules" element={<RulesPage />} />
               <Route path="system-config" element={<SystemConfigPage />} />

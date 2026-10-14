@@ -140,7 +140,7 @@ export function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === "/admin/professors"}
+                  isActive={pathname.startsWith("/admin/professors")}
                 >
                   <Link to="/admin/professors">
                     <Users className="h-4 w-4" />

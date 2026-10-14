@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Mail;
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class ApprovalRequestController extends Controller
 {
@@ -90,6 +92,73 @@ class ApprovalRequestController extends Controller
         return response()->json([
             'message' => 'Solicitação aprovada com sucesso!',
             'data' => $user
+        ]);
+    }
+
+    /**
+     * Approve multiple pending requests in one request.
+     */
+    public function approveMany(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'requests' => ['required', 'array', 'min:1'],
+            'requests.*.id' => ['required', 'integer'],
+            'requests.*.request_type' => ['required', 'in:registration,admin'],
+        ]);
+
+        $approvedRequests = DB::transaction(function () use ($validated) {
+            $requests = [];
+
+            foreach ($validated['requests'] as $requestData) {
+                $user = User::query()
+                    ->lockForUpdate()
+                    ->find($requestData['id']);
+
+                $isPending = $user && match ($requestData['request_type']) {
+                    'registration' => $user->type === UserType::PROFESSOR
+                        ? !$user->is_approved
+                        : ($user->type === UserType::STUDENT
+                            && $user->registration_requested_at !== null),
+                    'admin' => $user->admin_status === 'pending',
+                };
+
+                if (!$isPending) {
+                    throw ValidationException::withMessages([
+                        'requests' => [
+                            "A solicitação {$requestData['id']} não está mais pendente ou não existe.",
+                        ],
+                    ]);
+                }
+
+                $requests[] = [$user, $requestData['request_type']];
+            }
+
+            foreach ($requests as [$user, $requestType]) {
+                if ($requestType === 'registration') {
+                    $user->is_approved = true;
+                    $user->registration_requested_at = null;
+                } else {
+                    $user->is_admin = true;
+                    $user->admin_status = 'approved';
+                }
+
+                $user->save();
+            }
+
+            return $requests;
+        });
+
+        foreach ($approvedRequests as [$user, $requestType]) {
+            if ($requestType === 'registration') {
+                Mail::to($user->email)->send(new RegistrationMail($user, 'approved'));
+            } else {
+                Mail::to($user->email)->send(new UserMail($user, 'approved'));
+            }
+        }
+
+        return response()->json([
+            'message' => count($approvedRequests).' solicitações aprovadas com sucesso!',
+            'data' => ['approved' => count($approvedRequests)],
         ]);
     }
 

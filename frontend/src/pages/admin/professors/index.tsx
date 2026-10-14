@@ -11,7 +11,7 @@ import { UnifiedApprovalTable } from "@/features/user-config/components/UnifiedA
 import { usePendingSummary } from "@/hooks/usePendingSummary";
 import { Professor } from "@/types/user";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 
 export default function ProfessorsPage() {
   const navigate = useNavigate();
@@ -77,19 +77,32 @@ export default function ProfessorsPage() {
     }
   };
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "list");
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(
+    location.pathname.endsWith("/requests") || searchParams.get("tab") === "requests"
+      ? "requests"
+      : "list",
+  );
 
   useEffect(() => {
+    const isRequestsRoute = location.pathname.endsWith("/requests");
     const tab = searchParams.get("tab");
-    if (tab && (tab === "list" || tab === "requests")) {
-      setActiveTab(tab);
+
+    if (tab === "requests" && !isRequestsRoute) {
+      navigate("/admin/professors/requests", { replace: true });
+      setActiveTab("requests");
+      return;
     }
-  }, [searchParams]);
+
+    setActiveTab(isRequestsRoute ? "requests" : "list");
+  }, [location.pathname, navigate, searchParams]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    setSearchParams({ tab: value });
+    navigate(
+      value === "requests" ? "/admin/professors/requests" : "/admin/professors",
+    );
   };
 
   const { summary } = usePendingSummary();
@@ -141,7 +154,7 @@ export default function ProfessorsPage() {
               administrador.
             </p>
           </div>
-          <UnifiedApprovalTable />
+          <UnifiedApprovalTable userType="professor" />
         </TabsContent>
       </Tabs>
 
