@@ -32,22 +32,8 @@ export default function OrientacoesPage() {
   return (
     <Card>
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-        <CardTitle>Orientações</CardTitle>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Tabs
-            value={status ?? 'all'}
-            onValueChange={(value) =>
-              setStatus(value === 'all' ? undefined : (value as 'mestrando' | 'doutorando' | 'completed'))
-            }
-          >
-            <TabsList>
-              <TabsTrigger value="all">Atuais</TabsTrigger>
-              <TabsTrigger value="mestrando">Mestrando</TabsTrigger>
-              <TabsTrigger value="doutorando">Doutorando</TabsTrigger>
-              <TabsTrigger value="completed">Concluídos</TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <div className="flex flex-wrap items-center gap-3">
+          <CardTitle>Orientações</CardTitle>
 
           <Select
             value={professorId?.toString() ?? 'none'}
@@ -70,6 +56,20 @@ export default function OrientacoesPage() {
             </SelectContent>
           </Select>
         </div>
+
+        <Tabs
+          value={status ?? 'all'}
+          onValueChange={(value) =>
+            setStatus(value === 'all' ? undefined : (value as 'mestrando' | 'doutorando' | 'completed'))
+          }
+        >
+          <TabsList>
+            <TabsTrigger value="all">Atuais</TabsTrigger>
+            <TabsTrigger value="mestrando">Mestrando</TabsTrigger>
+            <TabsTrigger value="doutorando">Doutorando</TabsTrigger>
+            <TabsTrigger value="completed">Concluídos</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </CardHeader>
 
       <CardContent>
