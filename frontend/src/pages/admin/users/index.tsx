@@ -155,7 +155,11 @@ export default function AdminUsersPage() {
     () => [
       columnHelper.accessor("name", {
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Nome" />
+          <DataTableColumnHeader
+            column={column}
+            title="Nome"
+            className="mx-0"
+          />
         ),
         cell: (info) => <div className="font-medium">{info.getValue()}</div>,
       }),
@@ -181,7 +185,7 @@ export default function AdminUsersPage() {
       }),
       columnHelper.display({
         id: "actions",
-        header: "Ações",
+        header: () => <div className="text-center">Ações</div>,
         cell: ({ row }) => (
           <div className="flex justify-center">
             <Button
@@ -355,6 +359,7 @@ export default function AdminUsersPage() {
           manualPagination
           onPaginationChange={handlePaginationChange}
           renderMobileCard={renderMobileCard}
+          className="[&_th]:text-left"
         />
       )}
 

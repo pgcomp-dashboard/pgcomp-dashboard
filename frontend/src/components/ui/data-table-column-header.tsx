@@ -1,15 +1,18 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 
 interface DataTableColumnHeaderProps<TData, TValue> {
   column: Column<TData, TValue>;
   title: string;
+  className?: string;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
   column,
   title,
+  className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
     return <div className="text-xs font-medium">{title}</div>;
@@ -19,7 +22,7 @@ export function DataTableColumnHeader<TData, TValue>({
     <Button
       variant="ghost"
       size="sm"
-      className="mx-auto h-8 data-[state=open]:bg-accent"
+      className={cn("h-8 data-[state=open]:bg-accent", className)}
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
       <span>{title}</span>
