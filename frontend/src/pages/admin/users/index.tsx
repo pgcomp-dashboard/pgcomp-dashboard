@@ -37,6 +37,24 @@ function userTypeLabel(type: AdminUser["type"]) {
   return "Administrador";
 }
 
+function getRegistrationStatus(user: AdminUser) {
+  if (user.is_approved) {
+    return { label: "Cadastrado", className: "font-medium text-green-700" };
+  }
+
+  if (user.type === "professor" || user.registration_requested_at) {
+    return {
+      label: "Solicitação pendente",
+      className: "font-medium text-amber-700",
+    };
+  }
+
+  return {
+    label: "Sem solicitação de cadastro",
+    className: "font-medium text-muted-foreground",
+  };
+}
+
 function getApiFieldError(error: unknown, field: string): string | undefined {
   if (!error || typeof error !== "object") return undefined;
   const apiError = error as unknown as ApiError;
@@ -153,19 +171,13 @@ export default function AdminUsersPage() {
         header: "Categoria",
         cell: (info) => <div>{info.getValue() || "—"}</div>,
       }),
-      columnHelper.accessor("is_approved", {
-        header: "Aprovação",
-        cell: (info) => (
-          <div
-            className={
-              info.getValue()
-                ? "font-medium text-green-700"
-                : "font-medium text-amber-700"
-            }
-          >
-            {info.getValue() ? "Aprovado" : "Pendente"}
-          </div>
-        ),
+      columnHelper.display({
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = getRegistrationStatus(row.original);
+          return <div className={status.className}>{status.label}</div>;
+        },
       }),
       columnHelper.display({
         id: "actions",
@@ -198,7 +210,7 @@ export default function AdminUsersPage() {
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
           <span>{userTypeLabel(user.type)}</span>
           <span>{user.category || "Sem categoria"}</span>
-          <span>{user.is_approved ? "Aprovado" : "Pendente"}</span>
+          <span>{getRegistrationStatus(user).label}</span>
         </div>
         <Button variant="outline" onClick={() => setSelectedUser(user)}>
           <Pencil className="mr-2 h-4 w-4" />
