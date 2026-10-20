@@ -30,6 +30,8 @@ import WaitingApprovalPage from "@/pages/auth/waiting-approval";
 import NotFoundPage from "@/pages/not-found";
 import MyAwardsPage from "@/pages/user/awards";
 import MyInternationalizationPage from "@/pages/user/internationalization";
+import PublicAwardsPage from "@/pages/public/awards";
+import PublicInternationalizationPage from "@/pages/public/internationalization";
 import ProductionsPage from "@/pages/user/productions";
 import ProfilePage from "@/pages/user/profile";
 import ProjectsPage from "@/pages/user/projects";
@@ -47,6 +49,8 @@ export function AppRoutes() {
   return (
     <Routes>
       {/* Rotas Públicas */}
+      <Route path="premios" element={<PublicAwardsPage />} />
+      <Route path="internacionalizacao" element={<PublicInternationalizationPage />} />
       <Route path="login" element={<LoginPage />} />
       <Route path="forgot-password" element={<ForgotPasswordPage />} />
       <Route path="reset-password" element={<ResetPasswordPage />} />

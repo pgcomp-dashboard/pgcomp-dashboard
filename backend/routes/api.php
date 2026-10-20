@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ApprovalRequestController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\AwardCategoryController;
 use App\Http\Controllers\Admin\AwardController;
+use App\Http\Controllers\PublicController;
 use App\Http\Controllers\Admin\AwardDashboardController;
 use App\Http\Controllers\Admin\InternationalizationActionController;
 use App\Http\Controllers\Admin\InternationalizationCategoryController;
@@ -56,6 +57,12 @@ Route::get('healthcheck', function (Request $request) {
     $startTime = defined('LARAVEL_START') ? LARAVEL_START : $request->server('REQUEST_TIME_FLOAT');
 
     return ['success' => true, 'response_time_in_ms' => floor((microtime(true) - $startTime) * 1000)];
+});
+
+// Listagens públicas (sem login), somente leitura
+Route::prefix('public')->middleware('throttle:60,1')->group(function () {
+    Route::get('awards', [PublicController::class, 'awards']);
+    Route::get('internationalization-actions', [PublicController::class, 'internationalization']);
 });
 
 // Public auth routes
