@@ -10,6 +10,7 @@ import {
   Heart,
   Medal,
   Plane,
+  ShieldPlus,
   Settings2,
   Trophy,
   UserCog,
@@ -18,6 +19,7 @@ import {
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
 
+import { Badge } from "@/components/ui/badge";
 import AppLogo from "@/components/AppLogo";
 import {
   Collapsible,
@@ -33,9 +35,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import useAuth from "@/hooks/auth";
+import { usePendingSummary } from "@/hooks/usePendingSummary";
 
 export function AdminSidebar() {
   const auth = useAuth();
+  const { summary } = usePendingSummary();
   const { pathname } = useLocation();
   const isStudentArea =
     pathname === "/portal/student/productions" ||
@@ -145,6 +149,11 @@ export function AdminSidebar() {
                   <Link to="/admin/professors">
                     <Users className="h-4 w-4" />
                     <span>Docentes</span>
+                    {summary.registrations > 0 && (
+                      <Badge variant="notification" className="ml-auto">
+                        {summary.registrations}
+                      </Badge>
+                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -168,6 +177,22 @@ export function AdminSidebar() {
                   <Link to="/admin/users">
                     <Users className="h-4 w-4" />
                     <span>Usuários</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/admin-requests"}
+                >
+                  <Link to="/admin/admin-requests">
+                    <ShieldPlus className="h-4 w-4" />
+                    <span>Acesso Admin</span>
+                    {summary.admin_requests > 0 && (
+                      <Badge variant="notification" className="ml-auto">
+                        {summary.admin_requests}
+                      </Badge>
+                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -309,6 +334,11 @@ export function AdminSidebar() {
                           <Link to="/admin/student/requests">
                             <Users className="h-4 w-4" />
                             <span>Solicitações</span>
+                            {summary.student_registrations > 0 && (
+                              <Badge variant="notification" className="ml-auto">
+                                {summary.student_registrations}
+                              </Badge>
+                            )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>

@@ -1,5 +1,5 @@
 import { RequestBodyType } from '@/types/common';
-import { Professor } from '@/types/user';
+import { AdminRequest } from '@/types/user';
 import { apiClient } from '../http-client';
 
 export const adminService = {
@@ -12,12 +12,12 @@ export const adminService = {
     return apiClient.get<{ data: string, status: string }>('/api/portal/admin-status');
   },
 
-  async getAdminRequests() {
-    return await apiClient.get<{ data: Professor[], status: string }>('/api/admin/admin-request');
+  async getAdminRequests(params: { status?: "pending" } = {}) {
+    return await apiClient.get<{ data: AdminRequest[], status: string }>('/api/admin/admin-request', params);
   },
 
   async avaliateAdminRequest(id: number, body: RequestBodyType) {
-    return await apiClient.post<{ data: Professor, message: string }>(`/api/admin/admin-request/${id}`, body)
+    return await apiClient.post<{ data: AdminRequest, message: string }>(`/api/admin/admin-request/${id}`, body)
   },
 
   // Unified Approval Requests

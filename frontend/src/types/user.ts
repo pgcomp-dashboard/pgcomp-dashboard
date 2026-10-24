@@ -80,7 +80,7 @@ export type AdminUserUpdate = Partial<Omit<AdminUser, "id" | "is_approved">> & {
 export type AdminRequest = {
   id: number;
   name: string;
-  email: string;
+  email: string | null;
   admin_status: "pending" | "approved" | "rejected" | null;
 };
 

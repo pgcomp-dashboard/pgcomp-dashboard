@@ -1,42 +1,46 @@
-import { queryClient } from '@/lib/query-client';
+import { useQueryClient } from '@tanstack/react-query';
 import { adminService } from '@/services/modules/admin.service';
-import { Professor } from '@/types/user';
+import { AdminRequest } from '@/types/user';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export function useAdminRequests() {
-  const queryKey = ['admin-requests'];
+  const queryKey = [ 'admin-requests' ];
+  const queryClient = useQueryClient();
 
   const {
     data,
     isLoading,
     error,
-  } = useQuery<Professor[], Error>({
+  } = useQuery<AdminRequest[], Error>({
     queryKey: queryKey,
     queryFn: async () => {
-      const response = await adminService.getAdminRequests();
+      const response = await adminService.getAdminRequests({ status: 'pending' });
       return response.data;
     },
-    placeholderData: (prevData) => prevData,
   });
 
+  const invalidateRequests = () => {
+    queryClient.invalidateQueries({ queryKey });
+    queryClient.invalidateQueries({ queryKey: [ 'admin', 'pending-summary' ] });
+  };
+
   const approveMutation = useMutation({
-    mutationFn: (id: number) => adminService.avaliateAdminRequest(id, { status: "approved" }),
-    onSuccess: (updatedUser) => {
-      queryClient.setQueryData(queryKey, (oldData: Professor[]) => {
-        if (!oldData) return [];
-        return oldData.map((prof) => prof.id === updatedUser.data.id ? updatedUser.data : prof);
-      });
-    }
+    mutationFn: (id: number) => adminService.avaliateAdminRequest(id, { status: 'approved' }),
+    onSuccess: () => {
+      invalidateRequests();
+      toast.success('Acesso de administrador aprovado.');
+    },
+    onError: () => toast.error('Erro ao aprovar o pedido de acesso admin.'),
   });
 
   const rejectMutation = useMutation({
-    mutationFn: (id: number) => adminService.avaliateAdminRequest(id, { status: "rejected" }),
-    onSuccess: (updatedUser) => {
-      queryClient.setQueryData(queryKey, (oldData: Professor[]) => {
-        if (!oldData) return [];
-        return oldData.map((prof) => prof.id === updatedUser.data.id ? updatedUser.data : prof);
-      });
-    }
+    mutationFn: (id: number) => adminService.avaliateAdminRequest(id, { status: 'rejected' }),
+    onSuccess: () => {
+      invalidateRequests();
+      toast.success('Pedido de acesso admin rejeitado.');
+    },
+    onError: () => toast.error('Erro ao rejeitar o pedido de acesso admin.'),
   });
 
   return {
@@ -44,6 +48,6 @@ export function useAdminRequests() {
     isLoading,
     error,
     approveMutation,
-    rejectMutation
+    rejectMutation,
   };
 }

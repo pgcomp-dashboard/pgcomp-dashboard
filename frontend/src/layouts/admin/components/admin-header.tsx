@@ -108,7 +108,7 @@ export function AdminHeader() {
                 )}
                 {summary.admin_requests > 0 && (
                   <Link
-                    to="/admin/professors/requests"
+                    to="/admin/admin-requests"
                     className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-t"
                   >
                     <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">

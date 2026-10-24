@@ -106,7 +106,7 @@ export default function ProfessorsPage() {
   };
 
   const { summary } = usePendingSummary();
-  const pendingRequests = summary.registrations + summary.admin_requests;
+  const pendingRequests = summary.registrations;
 
   if (isLoading) return <div>Carregando...</div>;
   if (isError) return <div>Erro ao carregar professores!</div>;

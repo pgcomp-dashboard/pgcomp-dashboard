@@ -18,6 +18,7 @@ import StudentRankingPage from "@/pages/admin/student-ranking";
 import StudentRequestsPage from "@/pages/admin/student/requests";
 import StudentRulesPage from "@/pages/admin/student/rules";
 import StudentsPage from "@/pages/admin/students";
+import AdminRequestsPage from "@/pages/admin/admin-requests";
 import SystemConfigPage from "@/pages/admin/system-config";
 import AdminUsersPage from "@/pages/admin/users";
 import ForgotPasswordPage from "@/pages/auth/forgot-password";
@@ -112,6 +113,7 @@ export function AppRoutes() {
               />
               <Route path="professors" element={<ProfessorsPage />} />
               <Route path="users" element={<AdminUsersPage />} />
+              <Route path="admin-requests" element={<AdminRequestsPage />} />
               <Route path="orientacoes" element={<OrientacoesPage />} />
               <Route
                 path="featured-productions"
