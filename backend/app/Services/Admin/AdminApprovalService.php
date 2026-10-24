@@ -26,10 +26,9 @@ class AdminApprovalService
     {
         $isAdmin = $status === User::STATUS_APPROVED;
 
-        $user->update([
-            'admin_status' => $status,
-            'is_admin' => $isAdmin,
-        ]);
+        $user->admin_status = $status;
+        $user->is_admin = $isAdmin;
+        $user->save();
 
         return [
             'message' => $isAdmin ? 'Usuário aprovado!' : 'Usuário rejeitado!',

@@ -52,6 +52,28 @@ test('it returns 400 if the user is not pending', function () {
         ->assertStatus(400);
 });
 
+test('approving an admin request grants admin access to the user', function () {
+    Mail::fake();
+
+    $admin = User::factory()->admin()->create(['is_approved' => true]);
+    $target = User::factory()->create([
+        'admin_status' => 'pending',
+        'is_admin' => false,
+    ]);
+
+    $this->actingAs($admin)
+        ->postJson("/api/admin/admin-request/{$target->id}", ['status' => 'approved'])
+        ->assertOk()
+        ->assertJsonPath('data.is_admin', true)
+        ->assertJsonPath('data.admin_status', 'approved');
+
+    $this->assertDatabaseHas('users', [
+        'id' => $target->id,
+        'is_admin' => true,
+        'admin_status' => 'approved',
+    ]);
+});
+
 test('admin can approve multiple pending requests with one request', function () {
     Mail::fake();
 
