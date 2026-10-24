@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { useAdminRequests } from '@/features/professors/hooks/useAdminRequests';
 import { AdminRequest } from '@/types/user';
-import { createColumnHelper } from '@tanstack/react-table';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { AlertCircle, Check, Loader2, X } from 'lucide-react';
 
 const columnHelper = createColumnHelper<AdminRequest>();
@@ -18,16 +18,17 @@ export default function AdminRequestsPage() {
   } = useAdminRequests();
   const isProcessing = approveMutation.isPending || rejectMutation.isPending;
 
-  const columns = [
+  const columns: ColumnDef<AdminRequest, string>[] = [
     columnHelper.accessor('name', {
       header: 'Solicitante',
       cell: (info) => <span className="font-medium">{info.getValue()}</span>,
     }),
-    columnHelper.accessor('email', {
+    columnHelper.accessor((request) => request.email || '—', {
+      id: 'email',
       header: 'E-mail',
-      cell: (info) => info.getValue() || '—',
+      cell: (info) => info.getValue(),
     }),
-    columnHelper.display({
+    columnHelper.accessor(() => '', {
       id: 'actions',
       header: 'Ações',
       cell: ({ row }) => {
