@@ -16,6 +16,9 @@ export function useAdminRequests() {
     queryKey: queryKey,
     queryFn: async () => {
       const response = await adminService.getAdminRequests({ status: 'pending' });
+      if (!Array.isArray(response.data)) {
+        throw new Error('A API retornou uma lista inválida de pedidos de acesso admin.');
+      }
       return response.data;
     },
   });
