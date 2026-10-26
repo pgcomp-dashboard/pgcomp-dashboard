@@ -9,6 +9,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import useAuth from "@/hooks/auth";
 import { useFormErrorToast } from "@/hooks/useFormErrorToast";
 import { parseApiError } from "@/services/http-client";
 import { authService } from "@/services/modules/auth.service";
@@ -99,6 +100,7 @@ const professorFormSchema = z
 type ProfessorFormValues = z.infer<typeof professorFormSchema>;
 
 export default function RegisterPage() {
+  const auth = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<RegistrationStep>("choose");
   const [studentDegree, setStudentDegree] = useState<StudentDegree>("mestrado");
@@ -158,7 +160,7 @@ export default function RegisterPage() {
           setStep("student-new");
           toast.info("Matrícula não encontrada", {
             description:
-              "Complete os dados para enviar seu cadastro à aprovação.",
+              "Complete os dados para criar sua conta e acessar o sistema.",
           });
         } catch (optionsError) {
           toast.error(parseApiError(optionsError));
@@ -192,7 +194,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       if (step === "student-new") {
-        await authService.registerStudent({
+        const response = await authService.registerStudent({
           name: values.name,
           registration: values.registration,
           email: values.email,
@@ -201,7 +203,9 @@ export default function RegisterPage() {
           degree: studentDegree,
           advisor_id: Number(values.advisor_id),
         });
-        navigate("/waiting-approval");
+        auth?.login(response.token, response);
+        toast.success("Cadastro realizado. Você já pode acessar o sistema.");
+        navigate("/admin");
         return;
       }
       navigate("/login");

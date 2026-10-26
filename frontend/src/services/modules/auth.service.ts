@@ -1,6 +1,15 @@
 import { RequestBodyType } from "@/types/common";
 import { apiClient } from "../http-client";
 
+interface StudentRegistrationResponse {
+  message: string;
+  token: string;
+  name: string;
+  role: string;
+  type: string;
+  is_approved: boolean;
+}
+
 export const authService = {
   async login(email: string, password: string) {
     return apiClient.post<{
@@ -47,13 +56,16 @@ export const authService = {
   },
 
   async registerStudent(body: RequestBodyType) {
-    return apiClient.post<{ message: string }>(
+    return apiClient.post<StudentRegistrationResponse>(
       "/api/student-registration",
       body,
     );
   },
 
   async confirmStudentRegistration(body: RequestBodyType) {
-    return apiClient.post("/api/student-registration/confirm", body);
+    return apiClient.post<StudentRegistrationResponse>(
+      "/api/student-registration/confirm",
+      body,
+    );
   },
 };

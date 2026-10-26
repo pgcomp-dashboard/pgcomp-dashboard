@@ -86,8 +86,8 @@ export function StudentDialogs({
       alert("O email é obrigatório.");
       return false;
     }
-    if (!/^[^@\s]+@ufba\.br$/i.test(s.email.trim())) {
-      alert("Informe um email institucional com o domínio @ufba.br.");
+    if (!/^\S+@\S+\.\S+$/.test(s.email.trim())) {
+      alert("Informe um email válido.");
       return false;
     }
     return true;
@@ -248,7 +248,7 @@ function StudentForm({
           type="email"
           value={student.email ?? ""}
           onChange={(e) => setStudent({ ...student, email: e.target.value })}
-          placeholder="nome@ufba.br"
+          placeholder="nome@exemplo.com"
         />
       </div>
       <div className="grid grid-cols-2 gap-4">

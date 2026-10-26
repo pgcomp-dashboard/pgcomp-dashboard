@@ -260,24 +260,34 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {/* Prêmios do próprio usuário */}
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/portal/awards"}>
-              <Link to="/portal/awards">
-                <Award className="h-4 w-4" />
-                <span>Meus Prêmios</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          {/* Ações de internacionalização do próprio usuário */}
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/portal/internationalization"}>
-              <Link to="/portal/internationalization">
-                <Globe className="h-4 w-4" />
-                <span>Internacionalização</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {auth?.user?.type !== "student" && (
+            <>
+              {/* Prêmios do próprio usuário */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/portal/awards"}
+                >
+                  <Link to="/portal/awards">
+                    <Award className="h-4 w-4" />
+                    <span>Meus Prêmios</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {/* Ações de internacionalização do próprio usuário */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/portal/internationalization"}
+                >
+                  <Link to="/portal/internationalization">
+                    <Globe className="h-4 w-4" />
+                    <span>Internacionalização</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </>
+          )}
           {auth?.isAdmin && (
             <>
               <SidebarMenuItem>

@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import useAuth from "@/hooks/auth";
 import { useFormErrorToast } from "@/hooks/useFormErrorToast";
 import { authService } from "@/services/modules/auth.service";
 import { ApiError } from "@/types/common";
@@ -35,6 +36,7 @@ const formSchema = z
   });
 
 export default function StudentSetPasswordPage() {
+  const auth = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] =
@@ -74,20 +76,21 @@ export default function StudentSetPasswordPage() {
     }
 
     try {
-      await authService.confirmStudentRegistration({
+      const response = await authService.confirmStudentRegistration({
         token,
         email,
         registration,
         password: values.password,
         password_confirmation: values.confirmPassword,
       });
+      auth?.login(response.token, response);
 
       toast.success("Cadastro confirmado com sucesso!", {
         description: "Sua senha foi cadastrada e o acesso já está liberado.",
         duration: 6000,
       });
 
-      navigate("/login");
+      navigate("/admin");
     } catch (e: unknown) {
       const error = e as ApiError;
       console.error("Erro ao confirmar cadastro do estudante", error);

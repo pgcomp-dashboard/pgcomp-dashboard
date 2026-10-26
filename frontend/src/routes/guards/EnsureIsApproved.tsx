@@ -9,7 +9,7 @@ export function EnsureIsApproved() {
     return <>Carregando...</>;
   }
 
-  if (user && user.is_approved) {
+  if (user && (user.is_approved || user.type === "student")) {
     return <Outlet />;
   } else {
     console.error("User not approved. Redirecting to waiting approval page...");

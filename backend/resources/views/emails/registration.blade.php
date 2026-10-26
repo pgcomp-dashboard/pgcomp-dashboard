@@ -40,6 +40,17 @@
                                     Você será notificado por e-mail assim que houver uma decisão.
                                 </p>
 
+                            @elseif ($status === 'self_registered')
+                                <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #15803d; line-height: 1.3; letter-spacing: -0.01em;">
+                                    Cadastro realizado com sucesso!
+                                </h2>
+                                <p style="margin: 0 0 12px; font-size: 14px; color: #333333; line-height: 1.6;">
+                                    Olá, <strong style="color: #212121; font-weight: 600;">{{ $requester->name }}</strong>!
+                                </p>
+                                <p style="margin: 0 0 28px; font-size: 14px; color: #333333; line-height: 1.6;">
+                                    Sua conta no sistema PGCOMP foi criada com sucesso. Você já pode acessar o sistema com suas credenciais.
+                                </p>
+
                             @elseif ($status === 'approved')
                                 <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #15803d; line-height: 1.3; letter-spacing: -0.01em;">
                                     Cadastro aprovado!
@@ -66,7 +77,7 @@
                             @endif
 
                             {{-- Botão --}}
-                            @if ($status === 'approved')
+                            @if ($status === 'approved' || $status === 'self_registered')
                             <table cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
                                     <td style="border-radius: 8px; background-color: #111111;">

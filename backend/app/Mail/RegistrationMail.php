@@ -22,6 +22,7 @@ class RegistrationMail extends Mailable
     {
         $subject = match ($this->status) {
             'new_registration' => 'Cadastro pendente de aprovação',
+            'self_registered'  => 'Cadastro realizado com sucesso!',
             'approved'         => 'Cadastro aprovado!',
             'rejected'         => 'Cadastro rejeitado',
         };

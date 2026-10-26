@@ -7,7 +7,6 @@ use App\Http\Requests\User\UpdateSelfRequest;
 use App\Mail\StudentRegistrationVerificationMail;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
-use App\Mail\AdminMail;
 use App\Mail\RegistrationMail;
 use App\Models\Course;
 use App\Models\User;
@@ -70,7 +69,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'registration' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc,dns', 'ends_with:@ufba.br'],
+            'email' => ['required', 'email:rfc'],
         ]);
 
         $user = User::where('registration', trim((string) $validated['registration']))
@@ -129,8 +128,8 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'registration' => ['required', 'integer', 'min:1', 'max:2147483647', Rule::unique('users', 'registration')],
-            'email' => ['required', 'string', 'email:rfc,dns', 'ends_with:@ufba.br'],
+            'registration' => ['required', 'integer', 'min:1', Rule::unique('users', 'registration')],
+            'email' => ['required', 'string', 'email:rfc'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'degree' => ['required', Rule::in(['mestrado', 'doutorado'])],
             'advisor_id' => ['required', Rule::exists('users', 'id')->where('type', UserType::PROFESSOR->value)],
@@ -160,8 +159,7 @@ class UserController extends Controller
                 'type' => UserType::STUDENT,
                 'course_id' => $course->id,
             ]);
-            $user->is_approved = false;
-            $user->registration_requested_at = now();
+            $user->is_approved = true;
             $user->save();
             $user->advisors()->attach($validated['advisor_id'], [
                 'relation_type' => UserRelationType::ADVISOR->value,
@@ -170,20 +168,20 @@ class UserController extends Controller
             return $user;
         });
 
-        Mail::to($user->email)->send(new RegistrationMail($user, 'new_registration'));
-        Mail::to(['pgcomp@ufba.br', 'fdurao@ufba.br', 'dashboardpgcomp@gmail.com'])
-            ->send(new AdminMail($user, 'new_registration'));
+        Mail::to($user->email)->send(new RegistrationMail($user, 'self_registered'));
 
-        return response()->json([
-            'message' => 'Solicitação de cadastro enviada para aprovação.',
-        ], 201);
+        return $this->studentRegistrationResponse(
+            $user,
+            'Cadastro realizado com sucesso. Você já pode acessar o sistema.',
+            201,
+        );
     }
 
     public function confirmStudentRegistration(Request $request)
     {
         $validated = $request->validate([
             'registration' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc,dns', 'ends_with:@ufba.br'],
+            'email' => ['required', 'email:rfc'],
             'token' => ['required', 'string'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
@@ -234,8 +232,21 @@ class UserController extends Controller
 
         Password::broker()->deleteToken($user);
 
+        return $this->studentRegistrationResponse(
+            $user,
+            'Cadastro confirmado com sucesso.',
+        );
+    }
+
+    private function studentRegistrationResponse(User $user, string $message, int $status = 200)
+    {
         return response()->json([
-            'message' => 'Cadastro confirmado com sucesso.',
-        ], 200);
+            'message' => $message,
+            'token' => $user->createToken('login')->plainTextToken,
+            'name' => $user->name,
+            'role' => $user->is_admin ? 'admin' : 'basic',
+            'type' => $user->type->value,
+            'is_approved' => $user->is_approved,
+        ], $status);
     }
 }

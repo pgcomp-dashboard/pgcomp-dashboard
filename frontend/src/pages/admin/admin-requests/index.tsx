@@ -8,9 +8,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -18,10 +18,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { useAdminRequests } from "@/features/professors/hooks/useAdminRequests";
-import { AdminRequest } from "@/types/user";
-import { AlertCircle, Check, Loader2, ShieldPlus, X } from "lucide-react";
+} from '@/components/ui/table';
+import { useAdminRequests } from '@/features/professors/hooks/useAdminRequests';
+import { AdminRequest } from '@/types/user';
+import { AlertCircle, Check, Loader2, ShieldPlus, X } from 'lucide-react';
 
 function RequestActions({
   request,
@@ -44,8 +44,8 @@ function RequestActions({
     <div
       className={
         mobile
-          ? "grid grid-cols-2 gap-2 border-t pt-3"
-          : "flex items-center justify-end gap-2"
+          ? 'grid grid-cols-2 gap-2 border-t pt-3'
+          : 'flex items-center justify-end gap-2'
       }
     >
       <Button
@@ -54,8 +54,8 @@ function RequestActions({
         onClick={onApprove}
         className={
           mobile
-            ? "h-10 w-full bg-green-600 hover:bg-green-700"
-            : "h-9 min-w-24 bg-green-600 hover:bg-green-700"
+            ? 'h-10 w-full bg-green-600 hover:bg-green-700'
+            : 'h-9 min-w-24 bg-green-600 hover:bg-green-700'
         }
       >
         {isApproving ? (
@@ -71,7 +71,7 @@ function RequestActions({
             variant="destructive"
             size="sm"
             disabled={isProcessing}
-            className={mobile ? "h-10 w-full" : "h-9 min-w-24"}
+            className={mobile ? 'h-10 w-full' : 'h-9 min-w-24'}
           >
             {isRejecting ? (
               <Loader2 className="mr-1 h-4 w-4 animate-spin" />
@@ -136,7 +136,7 @@ export default function AdminRequestsPage() {
           </div>
           <div className="min-w-0 rounded-lg bg-muted/50 px-3 py-2">
             <p className="text-xs font-medium text-muted-foreground">E-mail</p>
-            <p className="break-all text-sm">{request.email || "—"}</p>
+            <p className="break-all text-sm">{request.email || '—'}</p>
           </div>
           <RequestActions
             request={request}
@@ -213,7 +213,7 @@ export default function AdminRequestsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="py-4 text-muted-foreground">
-                    {request.email || "—"}
+                    {request.email || '—'}
                   </TableCell>
                   <TableCell className="py-4 pr-6">
                     <RequestActions
