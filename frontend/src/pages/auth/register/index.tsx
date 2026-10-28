@@ -119,6 +119,11 @@ export default function RegisterPage() {
     setValues((current) => ({ ...current, [field]: value }));
   }
 
+  function updateRegistration(value: string) {
+    const digits = value.replace(/\D/g, "");
+    updateValue("registration", digits.replace(/^0+/, ""));
+  }
+
   function startStudentFlow(degree: StudentDegree) {
     setStudentDegree(degree);
     setStep("student-lookup");
@@ -280,12 +285,11 @@ export default function RegisterPage() {
                 Matrícula
                 <Input
                   required
+                  type="text"
                   inputMode="numeric"
                   placeholder="Sua matrícula"
                   value={values.registration}
-                  onChange={(event) =>
-                    updateValue("registration", event.target.value)
-                  }
+                  onChange={(event) => updateRegistration(event.target.value)}
                 />
               </label>
             ) : null}
