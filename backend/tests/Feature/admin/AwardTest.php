@@ -505,5 +505,19 @@ class AwardTest extends TestCase
         $this->assertSame(1, $filtered->json('awards_by_professor.0.total'));
         $this->assertSame(2, $filtered->json('awards_by_student.0.total'));
         $this->assertSame(3, collect($filtered->json('per_category'))->sum('total'));
+
+        $selectedYears = $this->actingAs($admin)
+            ->getJson('/api/admin/awards-dashboard?years=2023%2C2024')
+            ->assertOk();
+        $selectedYears->assertJsonPath('total', 4)
+            ->assertJsonPath('per_year.0.year', 2023)
+            ->assertJsonPath('per_year.1.year', 2024);
+
+        $singleSelectedYear = $this->actingAs($admin)
+            ->getJson('/api/admin/awards-dashboard?years=2024')
+            ->assertOk();
+        $singleSelectedYear->assertJsonPath('total', 3)
+            ->assertJsonPath('per_year.0.year', 2024);
+        $this->assertCount(1, $singleSelectedYear->json('per_year'));
     }
 }

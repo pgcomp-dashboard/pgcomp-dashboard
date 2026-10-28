@@ -52,10 +52,10 @@ export function useAwards() {
   };
 }
 
-export function useAwardsDashboard(year: number | undefined) {
+export function useAwardsDashboard(years: number[] | undefined) {
   return useQuery({
-    queryKey: [...DASHBOARD_KEY, year ?? "all"],
-    queryFn: () => awardService.getDashboard(year),
+    queryKey: [...DASHBOARD_KEY, years ?? "all"],
+    queryFn: () => awardService.getDashboard(years),
     placeholderData: (previous) => previous,
   });
 }

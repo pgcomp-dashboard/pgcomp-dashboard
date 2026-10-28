@@ -1,13 +1,6 @@
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useAwardsDashboard } from "@/features/awards/hooks/useAwards";
-import { useState } from "react";
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { useAwardsDashboard } from '@/features/awards/hooks/useAwards';
 import {
   Bar,
   BarChart,
@@ -21,11 +14,22 @@ import {
 
 const BAR_COLOR = "#2563eb";
 
-export function AwardsDashboard() {
-  const [year, setYear] = useState<string>("all");
-  const { data, isLoading, isError } = useAwardsDashboard(
-    year === "all" ? undefined : Number(year),
-  );
+interface AwardsDashboardProps {
+  years: number[];
+  selectedYears: Set<number> | null;
+  onYearChange: (year: number, checked: boolean) => void;
+  onSelectAllYears: (checked: boolean) => void;
+}
+
+export function AwardsDashboard({
+  years,
+  selectedYears,
+  onYearChange,
+  onSelectAllYears,
+}: AwardsDashboardProps) {
+  const selectedYearsList =
+    selectedYears === null ? undefined : [ ...selectedYears ].sort();
+  const { data, isLoading, isError } = useAwardsDashboard(selectedYearsList);
 
   if (isLoading && !data) {
     return <p className="text-muted-foreground">Carregando dashboard de prêmios...</p>;
@@ -46,24 +50,43 @@ export function AwardsDashboard() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 items-end bg-muted/40 p-4 rounded-lg border">
-        <div className="flex flex-col gap-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-            Ano
-          </Label>
-          <Select value={year} onValueChange={setYear}>
-            <SelectTrigger className="w-40 bg-background" aria-label="Filtrar por ano">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os anos</SelectItem>
-              {data.years.map((y) => (
-                <SelectItem key={y} value={String(y)}>
-                  {y}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <fieldset className="flex flex-col gap-3">
+          <legend className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Filtrar prêmios por ano
+          </legend>
+          <div className="flex flex-wrap gap-x-5 gap-y-3">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="award-dashboard-year-all"
+                checked={selectedYears === null}
+                onCheckedChange={(checked) => onSelectAllYears(checked === true)}
+              />
+              <Label
+                htmlFor="award-dashboard-year-all"
+                className="cursor-pointer"
+              >
+                Todos
+              </Label>
+            </div>
+            {years.map((year) => (
+              <div key={year} className="flex items-center gap-2">
+                <Checkbox
+                  id={`award-dashboard-year-${year}`}
+                  checked={selectedYears === null || selectedYears.has(year)}
+                  onCheckedChange={(checked) =>
+                    onYearChange(year, checked === true)
+                  }
+                />
+                <Label
+                  htmlFor={`award-dashboard-year-${year}`}
+                  className="cursor-pointer"
+                >
+                  {year}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </fieldset>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">

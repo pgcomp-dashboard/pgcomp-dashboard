@@ -112,10 +112,10 @@ export const awardService = {
     );
   },
 
-  async getDashboard(year?: number) {
+  async getDashboard(years?: number[]) {
     return apiClient.get<AwardsDashboardSummary>(
       "/api/admin/awards-dashboard",
-      { year },
+      { years: years?.length === 0 ? "none" : years?.join(",") },
     );
   },
 };

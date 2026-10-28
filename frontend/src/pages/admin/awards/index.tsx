@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AwardFormDialog } from "@/features/awards/components/AwardFormDialog";
 import { AwardsDashboard } from "@/features/awards/components/AwardsDashboard";
@@ -17,10 +19,32 @@ export default function AwardsPage() {
     useAwards();
 
   const [tab, setTab] = useState("dashboard");
+  const [selectedAwardYears, setSelectedAwardYears] = useState<
+    Set<number> | null
+  >(null);
   const [awardForm, setAwardForm] = useState<{ open: boolean; editing: Award | null }>({ open: false, editing: null });
   const [categoryForm, setCategoryForm] = useState<{ open: boolean; editing: AwardCategory | null }>({ open: false, editing: null });
   const [awardToDelete, setAwardToDelete] = useState<Award | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<AwardCategory | null>(null);
+
+  const awardYears = [...new Set(awards.map((award) => award.year))].sort(
+    (first, second) => second - first,
+  );
+  const visibleAwards = selectedAwardYears
+    ? awards.filter((award) => selectedAwardYears.has(award.year))
+    : awards;
+
+  function setSelectedAwardYear(year: number, checked: boolean) {
+    const next = new Set(selectedAwardYears ?? awardYears);
+    if (checked) next.add(year);
+    else next.delete(year);
+
+    setSelectedAwardYears(next.size === awardYears.length ? null : next);
+  }
+
+  function selectAllAwardYears(checked: boolean) {
+    setSelectedAwardYears(checked ? null : new Set<number>());
+  }
 
   return (
     <div className="space-y-6">
@@ -49,11 +73,57 @@ export default function AwardsPage() {
         </TabsList>
 
         <TabsContent value="dashboard" className="pt-4">
-          <AwardsDashboard />
+          <AwardsDashboard
+            years={awardYears}
+            selectedYears={selectedAwardYears}
+            onYearChange={setSelectedAwardYear}
+            onSelectAllYears={selectAllAwardYears}
+          />
         </TabsContent>
         <TabsContent value="awards" className="pt-4">
+          {awardYears.length > 0 && (
+            <fieldset className="mb-4 rounded-lg border bg-muted/40 p-4">
+              <legend className="px-1 text-sm font-medium">
+                Filtrar prêmios por ano
+              </legend>
+              <div className="flex flex-wrap gap-x-5 gap-y-3">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="award-year-all"
+                    checked={selectedAwardYears === null}
+                    onCheckedChange={(checked) =>
+                      selectAllAwardYears(checked === true)
+                    }
+                  />
+                  <Label htmlFor="award-year-all" className="cursor-pointer">
+                    Todos
+                  </Label>
+                </div>
+                {awardYears.map((year) => (
+                  <div key={year} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`award-year-${year}`}
+                      checked={
+                        selectedAwardYears === null ||
+                        selectedAwardYears.has(year)
+                      }
+                      onCheckedChange={(checked) =>
+                        setSelectedAwardYear(year, checked === true)
+                      }
+                    />
+                    <Label
+                      htmlFor={`award-year-${year}`}
+                      className="cursor-pointer"
+                    >
+                      {year}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </fieldset>
+          )}
           <AwardsTable
-            awards={awards}
+            awards={visibleAwards}
             categories={categories}
             isLoading={isLoading}
             showSubmitter
