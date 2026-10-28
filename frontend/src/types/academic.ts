@@ -86,7 +86,7 @@ export type StudentRanking = {
   user_id: number;
   name: string;
   position: number;
-  registration: number | null;
+  lattes_xml_uploaded_at: string | null;
   course_name: string | null;
   area_name: string | null;
   productions_count: number;

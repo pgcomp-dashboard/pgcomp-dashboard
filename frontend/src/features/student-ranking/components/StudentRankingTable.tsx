@@ -32,6 +32,19 @@ interface StudentRankingTableProps {
 
 const columnHelper = createColumnHelper<StudentRanking>();
 
+const formatLattesUploadDate = (date: string | null) =>
+  date
+    ? new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+      .format(new Date(date))
+      .replace(',', ' às')
+    : 'Não enviado';
+
 export function StudentRankingTable({
   ranking,
   isLoading,
@@ -62,10 +75,10 @@ export function StudentRankingTable({
           <DataTableColumnHeader column={column} title="Nome" />
         ),
         cell: (info) => (
-          <div className="min-w-0 truncate font-medium">
+          <div className="min-w-[320px] font-medium">
             <Link
               to={`/portal/student/productions?student=${info.row.original.user_id}`}
-              className="block truncate text-primary hover:underline"
+              className="block whitespace-nowrap text-primary hover:underline"
               style={
                 blurNames
                   ? {
@@ -81,11 +94,14 @@ export function StudentRankingTable({
           </div>
         ),
       }),
-      columnHelper.accessor("registration", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Matrícula" />
+      columnHelper.display({
+        id: 'lattes_xml_uploaded_at',
+        header: 'Último envio Lattes',
+        cell: ({ row }) => (
+          <div className="whitespace-normal text-center">
+            {formatLattesUploadDate(row.original.lattes_xml_uploaded_at)}
+          </div>
         ),
-        cell: (info) => <div className="text-center">{info.getValue()}</div>,
       }),
       columnHelper.accessor("course_name", {
         header: ({ column }) => (
@@ -172,7 +188,7 @@ export function StudentRankingTable({
                 {student.name}
               </Link>
               <p className="text-sm text-muted-foreground">
-                {student.registration ?? "Matrícula não informada"}
+                Lattes: {formatLattesUploadDate(student.lattes_xml_uploaded_at)}
               </p>
             </div>
           </div>
@@ -266,7 +282,7 @@ export function StudentRankingTable({
         </div>
       </div>
       <DataTable
-        className="[&_[data-slot=table-container]]:overflow-x-hidden [&_[data-slot=table]]:table-fixed [&_[data-slot=table-head]]:px-1 [&_[data-slot=table-cell]]:px-1 [&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]_[data-slot=button]]:h-auto [&_[data-slot=table-head]_[data-slot=button]]:gap-0 [&_[data-slot=table-head]_[data-slot=button]]:whitespace-normal [&_[data-slot=table-head]_[data-slot=button]]:px-0 [&_[data-slot=table-head]_[data-slot=button]]:text-xs [&_[data-slot=table-head]_[data-slot=button]_svg]:ml-1 [&_[data-slot=table-head]_[data-slot=button]_svg]:size-3"
+        className="[&_[data-slot=table-container]]:overflow-x-auto [&_[data-slot=table]]:table-auto [&_[data-slot=table]]:min-w-[1700px] [&_[data-slot=table-head]]:px-3 [&_[data-slot=table-cell]]:px-3 [&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]_[data-slot=button]]:h-auto [&_[data-slot=table-head]_[data-slot=button]]:gap-0 [&_[data-slot=table-head]_[data-slot=button]]:whitespace-normal [&_[data-slot=table-head]_[data-slot=button]]:px-0 [&_[data-slot=table-head]_[data-slot=button]]:text-xs [&_[data-slot=table-head]_[data-slot=button]_svg]:ml-1 [&_[data-slot=table-head]_[data-slot=button]_svg]:size-3"
         desktopBreakpoint="lg"
         columns={columns}
         data={ranking}

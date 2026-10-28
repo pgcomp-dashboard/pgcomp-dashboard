@@ -28,7 +28,7 @@ class StudentRankingService
             ->select([
                 'users.id as user_id',
                 'users.name',
-                'users.registration',
+                'users.lattes_xml_uploaded_at',
                 'courses.name as course_name',
                 'areas.area as area_name',
                 DB::raw('COUNT(DISTINCT productions.id) as productions_count'),
@@ -91,7 +91,13 @@ class StudentRankingService
         }
 
         return $query
-            ->groupBy('users.id', 'users.name', 'users.registration', 'courses.name', 'areas.area')
+            ->groupBy(
+                'users.id',
+                'users.name',
+                'users.lattes_xml_uploaded_at',
+                'courses.name',
+                'areas.area'
+            )
             ->orderBy($sortColumn, $direction)
             ->orderBy('users.id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page)

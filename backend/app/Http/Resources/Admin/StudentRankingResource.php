@@ -11,7 +11,7 @@ class StudentRankingResource extends JsonResource
         return [
             'user_id' => $this->user_id,
             'name' => $this->name,
-            'registration' => $this->registration,
+            'lattes_xml_uploaded_at' => $this->lattes_xml_uploaded_at,
             'course_name' => $this->course_name,
             'area_name' => $this->area_name,
             'productions_count' => (int) $this->productions_count,
