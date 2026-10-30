@@ -53,15 +53,24 @@ class StudentProductionController extends Controller
 
     public function update(UpdateProductionRequest $request, $students, $productions)
     {
-        $this->productionController = $this->newInstance();
+        User::students()->findOrFail($students);
+        $production = $this->productionService->updateForUser(
+            (int) $students,
+            (int) $productions,
+            $request->validated()
+        );
 
-        return $this->productionController->update($request, $productions);
+        return new ProductionResource($production);
     }
 
     public function destroy($students, $productions)
     {
-        $this->productionController = $this->newInstance();
+        User::students()->findOrFail($students);
+        $this->productionService->deleteForUser((int) $students, (int) $productions);
 
-        return $this->productionController->destroy($productions);
+        return response()->json([
+            'status' => '200',
+            'message' => 'Deleted successfully'
+        ]);
     }
 }

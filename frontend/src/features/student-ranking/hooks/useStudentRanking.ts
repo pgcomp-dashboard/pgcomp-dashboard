@@ -11,10 +11,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+const MINIMUM_RANKING_YEAR = 2000;
+
 export function useStudentRanking() {
   const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
-  const [startYear, setStartYear] = useState(currentYear - 4);
+  const [startYear, setStartYear] = useState(MINIMUM_RANKING_YEAR);
   const [endYear, setEndYear] = useState(currentYear);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(50);
@@ -42,7 +44,6 @@ export function useStudentRanking() {
 
     if (!config?.casted_value) return;
 
-    setStartYear(config.casted_value.initial_year ?? currentYear - 4);
     setEndYear(config.casted_value.final_year ?? currentYear);
     setPage(1);
   }, [configurations, currentYear]);
@@ -90,7 +91,7 @@ export function useStudentRanking() {
   const years = useMemo(
     () =>
       Array.from(
-        { length: currentYear - 2000 + 1 },
+        { length: currentYear - MINIMUM_RANKING_YEAR + 1 },
         (_, index) => currentYear - index,
       ),
     [currentYear],

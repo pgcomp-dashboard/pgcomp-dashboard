@@ -14,6 +14,9 @@ export function useProductionCrud(selectedProfessorId: string) {
   const selectedUserId = selectedProfessorId.startsWith("professor:")
     ? Number(selectedProfessorId.replace("professor:", ""))
     : undefined;
+  const selectedStudentId = selectedProfessorId.startsWith("student:")
+    ? Number(selectedProfessorId.replace("student:", ""))
+    : undefined;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProduction, setSelectedProduction] = useState<Production>();
   const publisherSearch = usePublisherSearch();
@@ -61,6 +64,12 @@ export function useProductionCrud(selectedProfessorId: string) {
           selectedProduction.id,
           payload,
         );
+      } else if (selectedStudentId) {
+        await productionService.updateStudentProduction(
+          selectedStudentId,
+          selectedProduction.id,
+          payload,
+        );
       } else {
         await productionService.updateProduction(
           selectedProduction.id,
@@ -79,9 +88,11 @@ export function useProductionCrud(selectedProfessorId: string) {
 
   async function deleteProduction(id: number) {
     try {
-      const response = selectedUserId
-        ? await productionService.deleteUserProduction(selectedUserId, id)
-        : await productionService.deleteProduction(id);
+      const response = selectedStudentId
+        ? await productionService.deleteStudentProduction(selectedStudentId, id)
+        : selectedUserId
+          ? await productionService.deleteUserProduction(selectedUserId, id)
+          : await productionService.deleteProduction(id);
       console.log(response);
       if (Number(response.status) === 200) {
         toast.success("Produção deletada com sucesso.");

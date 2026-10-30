@@ -93,6 +93,7 @@ export default function ProductionsPage({
       : auth?.user;
 
   const lastXmlUpdate = (currentProf as any)?.lattes_xml_uploaded_at;
+  const readOnlyStudent = isViewingStudent && !auth?.isAdmin;
 
   return (
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto px-4 py-8">
@@ -143,7 +144,7 @@ export default function ProductionsPage({
               uniqueYears={uniqueYears}
               qualisList={qualisList}
               isAdmin={auth?.isAdmin}
-              readOnly={isViewingStudent}
+              readOnly={isViewingStudent || !auth?.isAdmin}
               onAdd={setChosenForm}
               onClearAll={crud.fullDelete}
             />
@@ -166,7 +167,7 @@ export default function ProductionsPage({
                   : undefined
               }
               isTogglingFeatured={featuredMutation.isPending}
-              readOnly={isViewingStudent}
+              readOnly={readOnlyStudent}
             />
           </div>
         ) : chosenForm === "xml" ? (

@@ -163,8 +163,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
         Route::apiResource('students', StudentController::class);
         Route::get('student-ranking', [StudentRankingController::class, 'index']);
-        Route::apiResource('students.productions', StudentProductionController::class)
-            ->except(['destroy']);
+        Route::apiResource('students.productions', StudentProductionController::class);
         Route::apiResource('professors', ProfessorController::class);
         Route::get('productions/featured', [UsersProductionsController::class, 'getFeatured']);
         Route::apiResource('professors.productions', ProfessorProductionController::class);

@@ -124,6 +124,24 @@ export const productionService = {
     return response.data;
   },
 
+  async updateStudentProduction(
+    studentId: number,
+    productionId: number,
+    body: RequestBodyType,
+  ) {
+    const response = await apiClient.put<{ data: Production }>(
+      `/api/admin/students/${studentId}/productions/${productionId}`,
+      body,
+    );
+    return response.data;
+  },
+
+  async deleteStudentProduction(studentId: number, productionId: number) {
+    return apiClient.delete<{ status: string; message: string }>(
+      `/api/admin/students/${studentId}/productions/${productionId}`,
+    );
+  },
+
   async updateUserProduction(
     professorId: number,
     productionId: number,
