@@ -41,6 +41,8 @@ export function parseApiError(error: unknown): string {
         : "Muitas tentativas. Aguarde um pouco e tente novamente.";
     }
 
+    if (typeof apiError.error === "string") return apiError.error;
+
     if (typeof apiError.code === "number" && apiError.code >= 500) {
       return "Erro interno do servidor. Tente novamente mais tarde.";
     }
@@ -160,7 +162,11 @@ export class HttpClient {
               )
             : undefined;
         const responseMessage =
-          typeof responseBody.message === "string" ? responseBody.message : "";
+          typeof responseBody.error === "string"
+            ? responseBody.error
+            : typeof responseBody.message === "string"
+              ? responseBody.message
+              : "";
         const hasRateLimitMessage = [responseMessage, ...details].some(
           isRateLimitError,
         );
@@ -187,6 +193,10 @@ export class HttpClient {
         const error: ApiError = {
           code: response.status,
           message,
+          error:
+            typeof responseBody.error === "string"
+              ? responseBody.error
+              : undefined,
           retryAfter,
           fieldErrors,
           errors:

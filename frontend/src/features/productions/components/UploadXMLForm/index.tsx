@@ -20,6 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { queryClient } from "@/lib/query-client";
+import { parseApiError } from "@/services/http-client";
 import { productionService } from "@/services/modules/production.service";
 import {
   FileText,
@@ -47,6 +48,7 @@ export default function UploadXMLForm({
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   function setSelectedFile(selectedFile?: File) {
     if (!selectedFile) return;
@@ -56,6 +58,7 @@ export default function UploadXMLForm({
     }
     setFile(selectedFile);
     setStatus("idle");
+    setUploadError("");
   }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -98,7 +101,9 @@ export default function UploadXMLForm({
       }
     } catch (err) {
       setStatus("error");
-      toast.error("Erro no cadastro das produções");
+      const message = parseApiError(err);
+      setUploadError(message);
+      toast.error(message);
       console.error("Erro ao criar produções:", err);
     }
   }
@@ -117,7 +122,8 @@ export default function UploadXMLForm({
           </h2>
           <div className="flex items-center justify-center gap-2 mt-1">
             <p className="text-sm text-muted-foreground">
-              Envie o arquivo ZIP ou XML do Lattes
+              Envie o XML exportado do Lattes ou o ZIP dessa exportação,
+              contendo somente um arquivo XML do currículo.
             </p>
             <Sheet>
               <SheetTrigger asChild>
@@ -205,7 +211,9 @@ export default function UploadXMLForm({
                       : "Clique ou arraste o arquivo"}
                   </span>
                 </p>
-                <p className="text-xs text-muted-foreground">.ZIP ou .XML</p>
+                <p className="text-xs text-muted-foreground">
+                  XML do Lattes ou ZIP com apenas um XML do currículo
+                </p>
               </div>
               <Input
                 type="file"
@@ -278,8 +286,8 @@ export default function UploadXMLForm({
             </div>
           )}
           {status === "error" && (
-            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 text-center">
-              Falha no envio. Tente novamente.
+            <div className="whitespace-pre-line p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 text-center">
+              {uploadError}
             </div>
           )}
         </div>

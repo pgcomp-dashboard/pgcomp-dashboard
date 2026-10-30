@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { queryClient } from "@/lib/query-client";
+import { parseApiError } from "@/services/http-client";
 import { projectService } from "@/services/modules/project.service";
 import { FileText, Loader2, Upload, X } from "lucide-react";
 import { ChangeEvent, DragEvent, useState } from "react";
@@ -32,6 +33,7 @@ export default function UploadProjectXMLForm({
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   function setSelectedFile(selectedFile?: File) {
     if (!selectedFile) return;
@@ -41,6 +43,7 @@ export default function UploadProjectXMLForm({
     }
     setFile(selectedFile);
     setStatus("idle");
+    setUploadError("");
   }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -76,7 +79,9 @@ export default function UploadProjectXMLForm({
       if (onSuccess) onSuccess();
     } catch (err) {
       setStatus("error");
-      toast.error("Erro no cadastro dos projetos");
+      const message = parseApiError(err);
+      setUploadError(message);
+      toast.error(message);
       console.error("Erro ao importar projetos:", err);
     }
   }
@@ -94,7 +99,8 @@ export default function UploadProjectXMLForm({
             Importar projetos com XML
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Envie o arquivo ZIP ou XML do Lattes
+            Envie o XML exportado do Lattes ou o ZIP dessa exportação,
+            contendo somente um arquivo XML do currículo.
           </p>
         </div>
 
@@ -124,7 +130,9 @@ export default function UploadProjectXMLForm({
                       : "Clique ou arraste o arquivo"}
                   </span>
                 </p>
-                <p className="text-xs text-muted-foreground">.ZIP ou .XML</p>
+                <p className="text-xs text-muted-foreground">
+                  XML do Lattes ou ZIP com apenas um XML do currículo
+                </p>
               </div>
               <Input
                 type="file"
@@ -195,8 +203,8 @@ export default function UploadProjectXMLForm({
             </div>
           )}
           {status === "error" && (
-            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 text-center">
-              Falha no envio. Tente novamente.
+            <div className="whitespace-pre-line p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 text-center">
+              {uploadError}
             </div>
           )}
         </div>

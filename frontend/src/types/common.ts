@@ -3,6 +3,7 @@ export interface ApiError {
   errors: { description: string }[];
   fieldErrors?: Record<string, string[]>;
   message?: string;
+  error?: string;
   retryAfter?: number;
 }
 
