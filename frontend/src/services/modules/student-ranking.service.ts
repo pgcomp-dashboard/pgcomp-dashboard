@@ -12,6 +12,7 @@ export const studentRankingService = {
     sort: string,
     direction: "asc" | "desc",
     isEligible: boolean | null = null,
+    onlyPositiveScore = false,
   ) {
     const response = await apiClient.get<PaginatedResponse<StudentRanking>>(
       "/api/admin/student-ranking",
@@ -24,6 +25,7 @@ export const studentRankingService = {
         sort,
         direction,
         is_eligible: isEligible ?? undefined,
+        only_positive_score: onlyPositiveScore,
       },
     );
 

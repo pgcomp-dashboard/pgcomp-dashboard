@@ -27,6 +27,7 @@ class StudentRankingController extends Controller
                 $request->has('is_eligible')
                     ? filter_var($request->query('is_eligible'), FILTER_VALIDATE_BOOLEAN)
                     : null,
+                filter_var($request->query('only_positive_score', false), FILTER_VALIDATE_BOOLEAN),
             )
         );
     }

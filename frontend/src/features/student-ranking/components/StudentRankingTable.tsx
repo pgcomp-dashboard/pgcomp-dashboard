@@ -75,7 +75,7 @@ export function StudentRankingTable({
           <DataTableColumnHeader column={column} title="Nome" />
         ),
         cell: (info) => (
-          <div className="min-w-[320px] font-medium">
+          <div className="font-medium">
             <Link
               to={`/portal/student/productions?student=${info.row.original.user_id}`}
               className="block whitespace-nowrap text-primary hover:underline"
@@ -94,12 +94,13 @@ export function StudentRankingTable({
           </div>
         ),
       }),
-      columnHelper.display({
-        id: 'lattes_xml_uploaded_at',
-        header: 'Último envio Lattes',
-        cell: ({ row }) => (
+      columnHelper.accessor("lattes_xml_uploaded_at", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Último envio Lattes" />
+        ),
+        cell: (info) => (
           <div className="whitespace-normal text-center">
-            {formatLattesUploadDate(row.original.lattes_xml_uploaded_at)}
+            {formatLattesUploadDate(info.getValue())}
           </div>
         ),
       }),
@@ -273,7 +274,7 @@ export function StudentRankingTable({
               setPage(1);
             }}
           >
-            {[50, 100, 300, 500].map((option) => (
+            {[5, 10, 50, 100, 300, 500].map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -282,7 +283,7 @@ export function StudentRankingTable({
         </div>
       </div>
       <DataTable
-        className="[&_[data-slot=table-container]]:overflow-x-auto [&_[data-slot=table]]:table-auto [&_[data-slot=table]]:min-w-[1700px] [&_[data-slot=table-head]]:px-3 [&_[data-slot=table-cell]]:px-3 [&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]_[data-slot=button]]:h-auto [&_[data-slot=table-head]_[data-slot=button]]:gap-0 [&_[data-slot=table-head]_[data-slot=button]]:whitespace-normal [&_[data-slot=table-head]_[data-slot=button]]:px-0 [&_[data-slot=table-head]_[data-slot=button]]:text-xs [&_[data-slot=table-head]_[data-slot=button]_svg]:ml-1 [&_[data-slot=table-head]_[data-slot=button]_svg]:size-3"
+        className="[&_[data-slot=table-container]]:overflow-x-auto [&_[data-slot=table]]:table-auto [&_[data-slot=table]]:min-w-[1700px] [&_[data-slot=table-head]]:px-3 [&_[data-slot=table-cell]]:px-3 [&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]:nth-child(2)]:w-px [&_[data-slot=table-cell]:nth-child(2)]:w-px [&_[data-slot=table-head]:nth-child(2)]:whitespace-nowrap [&_[data-slot=table-cell]:nth-child(2)]:whitespace-nowrap [&_[data-slot=table-head]_[data-slot=button]]:h-auto [&_[data-slot=table-head]_[data-slot=button]]:gap-0 [&_[data-slot=table-head]_[data-slot=button]]:whitespace-normal [&_[data-slot=table-head]_[data-slot=button]]:px-0 [&_[data-slot=table-head]_[data-slot=button]]:text-xs [&_[data-slot=table-head]_[data-slot=button]_svg]:ml-1 [&_[data-slot=table-head]_[data-slot=button]_svg]:size-3"
         desktopBreakpoint="lg"
         columns={columns}
         data={ranking}

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class StudentRankingService
 {
-    public function getRanking($year1 = null, $year2 = null, ?int $courseId = null, int $perPage = 15, int $page = 1, string $sort = 'position', string $direction = 'desc', ?bool $isEligible = null)
+    public function getRanking($year1 = null, $year2 = null, ?int $courseId = null, int $perPage = 15, int $page = 1, string $sort = 'position', string $direction = 'desc', ?bool $isEligible = null, bool $onlyPositiveScore = false)
     {
         $rules = Configuration::get('student_ranking', 'rules', [
             'initial_year' => date('Y') - 4,
@@ -64,6 +64,7 @@ class StudentRankingService
         $sortColumns = [
             'position' => 'total_score',
             'name' => 'users.name',
+            'lattes_xml_uploaded_at' => 'users.lattes_xml_uploaded_at',
             'registration' => 'users.registration',
             'course_name' => 'courses.name',
             'area_name' => 'areas.area',
@@ -88,6 +89,10 @@ class StudentRankingService
 
         if ($isEligible !== null) {
             $query->havingRaw("{$eligibilityExpression} = ?", [(int) $isEligible]);
+        }
+
+        if ($onlyPositiveScore) {
+            $query->havingRaw('SUM(COALESCE(stratum_qualis.score, 0)) > 0');
         }
 
         return $query

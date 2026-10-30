@@ -40,6 +40,8 @@ export default function StudentRankingPage() {
     setCourseId,
     isEligible,
     setIsEligible,
+    onlyPositiveScore,
+    setOnlyPositiveScore,
     courses,
     sorting,
     setSorting,
@@ -200,6 +202,23 @@ export default function StudentRankingPage() {
               <SelectItem value="ineligible">Fora dos critérios</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2">
+          <Label
+            htmlFor="student-ranking-positive-score"
+            className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            Pontuação maior que zero
+          </Label>
+          <Switch
+            id="student-ranking-positive-score"
+            checked={onlyPositiveScore}
+            onCheckedChange={(checked) => {
+              setOnlyPositiveScore(checked);
+              setPage(1);
+            }}
+          />
         </div>
 
         <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2">

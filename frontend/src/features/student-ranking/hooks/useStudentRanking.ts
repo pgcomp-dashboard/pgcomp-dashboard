@@ -20,6 +20,7 @@ export function useStudentRanking() {
   const [perPage, setPerPage] = useState(50);
   const [courseId, setCourseId] = useState<number | null>(null);
   const [isEligible, setIsEligible] = useState<boolean | null>(null);
+  const [onlyPositiveScore, setOnlyPositiveScore] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "position", desc: true },
   ]);
@@ -53,6 +54,7 @@ export function useStudentRanking() {
       endYear,
       courseId,
       isEligible,
+      onlyPositiveScore,
       page,
       perPage,
       sorting,
@@ -67,6 +69,7 @@ export function useStudentRanking() {
         sorting[0]?.id ?? "position",
         sorting[0]?.desc !== false ? "desc" : "asc",
         isEligible,
+        onlyPositiveScore,
       ),
     placeholderData: (previousData) => previousData,
   });
@@ -113,6 +116,8 @@ export function useStudentRanking() {
     setCourseId,
     isEligible,
     setIsEligible,
+    onlyPositiveScore,
+    setOnlyPositiveScore,
     courses,
     sorting,
     setSorting,
