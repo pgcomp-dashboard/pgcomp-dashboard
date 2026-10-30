@@ -14,9 +14,10 @@ import {
   Settings2,
   Trophy,
   UserCog,
+  UserPlus,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
@@ -43,8 +44,23 @@ export function AdminSidebar() {
   const { pathname } = useLocation();
   const isStudentArea =
     pathname === "/portal/student/productions" ||
-    pathname.startsWith("/admin/student/");
+    pathname === "/admin/student/requests" ||
+    pathname === "/admin/student/ranking" ||
+    pathname === "/admin/student/rules";
+  const isProfessorArea =
+    pathname.startsWith("/admin/professors") ||
+    pathname === "/admin/orientacoes";
+  const isAwardsArea =
+    pathname === "/portal/awards" || pathname === "/admin/awards";
   const [studentsOpen, setStudentsOpen] = useState(isStudentArea);
+  const [professorsOpen, setProfessorsOpen] = useState(isProfessorArea);
+  const [awardsOpen, setAwardsOpen] = useState(isAwardsArea);
+
+  useEffect(() => {
+    if (isStudentArea) setStudentsOpen(true);
+    if (isProfessorArea) setProfessorsOpen(true);
+    if (isAwardsArea) setAwardsOpen(true);
+  }, [isStudentArea, isProfessorArea, isAwardsArea]);
 
   return (
     <Sidebar>
@@ -55,8 +71,8 @@ export function AdminSidebar() {
           </Link>
         </div>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
+      <SidebarContent className="admin-sidebar-scroll">
+        <SidebarMenu className="gap-1.5 px-3 py-3 [&_[data-slot=sidebar-menu-button]]:h-10 [&_[data-slot=sidebar-menu-button]]:rounded-lg [&_[data-slot=sidebar-menu-button]]:px-3 [&_[data-slot=sidebar-menu-button]]:text-[13px]">
           {/* Início */}
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/"}>
@@ -66,29 +82,186 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {/* <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/admin/areas"}
-                >
-                  <Link to="/admin/areas" data-cy="link-areas">
-                    <Users className="h-4 w-4" />
-                    <span>Áreas</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem> */}
-          {/* Projetos Individuais */}
-          {auth?.user?.type !== "student" && (
+          {auth?.isAdmin && (
             <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === "/portal/projects"}
+              <Collapsible
+                open={professorsOpen}
+                onOpenChange={setProfessorsOpen}
               >
-                <Link to="/portal/projects">
-                  <File className="h-4 w-4" />
-                  <span>Projetos Individuais</span>
-                </Link>
-              </SidebarMenuButton>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton isActive={isProfessorArea}>
+                    <Users className="h-4 w-4" />
+                    <span>Docentes</span>
+                    <ChevronDown
+                      className={`ml-auto h-4 w-4 transition-transform ${professorsOpen ? "rotate-180" : ""}`}
+                    />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenu className="ml-4 mt-1 gap-1 border-l pl-2">
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/admin/professors"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/admin/professors">
+                          <Users className="h-4 w-4" />
+                          <span>Docentes</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/admin/professors/requests"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/admin/professors/requests">
+                          <UserPlus className="h-4 w-4" />
+                          <span>Solicitações</span>
+                          {summary.registrations > 0 && (
+                            <Badge variant="notification" className="ml-auto">
+                              {summary.registrations}
+                            </Badge>
+                          )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/admin/orientacoes"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/admin/orientacoes">
+                          <UserCog className="h-4 w-4" />
+                          <span>Orientações</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </CollapsibleContent>
+              </Collapsible>
+            </SidebarMenuItem>
+          )}
+          {(auth?.user?.type !== "student" || auth?.isAdmin) && (
+            <SidebarMenuItem>
+              <Collapsible open={awardsOpen} onOpenChange={setAwardsOpen}>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton isActive={isAwardsArea}>
+                    <Award className="h-4 w-4" />
+                    <span>Prêmios</span>
+                    <ChevronDown
+                      className={`ml-auto h-4 w-4 transition-transform ${awardsOpen ? "rotate-180" : ""}`}
+                    />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenu className="ml-4 mt-1 gap-1 border-l pl-2">
+                    {auth?.user?.type !== "student" && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={pathname === "/portal/awards"}
+                          className="h-9 text-[12px]"
+                        >
+                          <Link to="/portal/awards">
+                            <Award className="h-4 w-4" />
+                            <span>Meus Prêmios</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )}
+                    {auth?.isAdmin && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={pathname === "/admin/awards"}
+                          className="h-9 text-[12px]"
+                        >
+                          <Link to="/admin/awards">
+                            <ClipboardList className="h-4 w-4" />
+                            <span>Gestão de Prêmios</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )}
+                  </SidebarMenu>
+                </CollapsibleContent>
+              </Collapsible>
+            </SidebarMenuItem>
+          )}
+          {auth?.isAdmin && (
+            <SidebarMenuItem>
+              <Collapsible open={studentsOpen} onOpenChange={setStudentsOpen}>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton isActive={isStudentArea}>
+                    <GraduationCap className="h-4 w-4" />
+                    <span>Discentes</span>
+                    <ChevronDown
+                      className={`ml-auto h-4 w-4 transition-transform ${studentsOpen ? "rotate-180" : ""}`}
+                    />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenu className="ml-4 mt-1 gap-1 border-l pl-2">
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/admin/student/requests"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/admin/student/requests">
+                          <UserPlus className="h-4 w-4" />
+                          <span>Solicitações</span>
+                          {summary.student_registrations > 0 && (
+                            <Badge variant="notification" className="ml-auto">
+                              {summary.student_registrations}
+                            </Badge>
+                          )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/admin/student/ranking"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/admin/student/ranking">
+                          <Medal className="h-4 w-4" />
+                          <span>Ranking</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/portal/student/productions"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/portal/student/productions">
+                          <File className="h-4 w-4" />
+                          <span>Produções</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/admin/student/rules"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/admin/student/rules">
+                          <Settings2 className="h-4 w-4" />
+                          <span>Regras</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </CollapsibleContent>
+              </Collapsible>
             </SidebarMenuItem>
           )}
           {auth?.isAdmin && (
@@ -137,35 +310,6 @@ export function AdminSidebar() {
                   <Link to="/admin/publishers">
                     <BookOpen className="h-4 w-4" />
                     <span>Veículos</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {/* Docentes */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname.startsWith("/admin/professors")}
-                >
-                  <Link to="/admin/professors">
-                    <Users className="h-4 w-4" />
-                    <span>Docentes</span>
-                    {summary.registrations > 0 && (
-                      <Badge variant="notification" className="ml-auto">
-                        {summary.registrations}
-                      </Badge>
-                    )}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {/* Orientações */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/admin/orientacoes"}
-                >
-                  <Link to="/admin/orientacoes">
-                    <UserCog className="h-4 w-4" />
-                    <span>Orientações</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -262,18 +406,6 @@ export function AdminSidebar() {
           </SidebarMenuItem>
           {auth?.user?.type !== "student" && (
             <>
-              {/* Prêmios do próprio usuário */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/portal/awards"}
-                >
-                  <Link to="/portal/awards">
-                    <Award className="h-4 w-4" />
-                    <span>Meus Prêmios</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
               {/* Ações de internacionalização do próprio usuário */}
               <SidebarMenuItem>
                 <SidebarMenuButton
@@ -304,17 +436,6 @@ export function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === "/admin/awards"}
-                >
-                  <Link to="/admin/awards">
-                    <ClipboardList className="h-4 w-4" />
-                    <span>Gestão de Prêmios</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
                   isActive={pathname === "/admin/internationalization"}
                 >
                   <Link to="/admin/internationalization">
@@ -322,72 +443,6 @@ export function AdminSidebar() {
                     <span>Gestão de Internacionalização</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Collapsible open={studentsOpen} onOpenChange={setStudentsOpen}>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton isActive={isStudentArea}>
-                      <GraduationCap className="h-4 w-4" />
-                      <span>Discentes</span>
-                      <ChevronDown
-                        className={`ml-auto h-4 w-4 transition-transform ${studentsOpen ? "rotate-180" : ""}`}
-                      />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenu className="ml-4 border-l pl-2">
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === "/admin/student/requests"}
-                        >
-                          <Link to="/admin/student/requests">
-                            <Users className="h-4 w-4" />
-                            <span>Solicitações</span>
-                            {summary.student_registrations > 0 && (
-                              <Badge variant="notification" className="ml-auto">
-                                {summary.student_registrations}
-                              </Badge>
-                            )}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === "/admin/student/ranking"}
-                        >
-                          <Link to="/admin/student/ranking">
-                            <Medal className="h-4 w-4" />
-                            <span>Ranking</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === "/portal/student/productions"}
-                        >
-                          <Link to="/portal/student/productions">
-                            <File className="h-4 w-4" />
-                            <span>Produções</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === "/admin/student/rules"}
-                        >
-                          <Link to="/admin/student/rules">
-                            <Settings2 className="h-4 w-4" />
-                            <span>Regras</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </SidebarMenu>
-                  </CollapsibleContent>
-                </Collapsible>
               </SidebarMenuItem>
             </>
           )}
