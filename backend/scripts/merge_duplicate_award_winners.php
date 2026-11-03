@@ -48,7 +48,7 @@ $mappings = [
     [
         'recipient_type' => 'professor',
         'canonical' => 'Luciano Rebouças de Oliveira',
-        'aliases' => ['Luciano Rebouças'],
+        'aliases' => ['Luciano Rebouças', 'Luciano Oliveira'],
     ],
     [
         'recipient_type' => 'professor',
@@ -119,6 +119,11 @@ $mappings = [
         'recipient_type' => 'student',
         'canonical' => 'Nicolli Rios Alves',
         'aliases' => ['Nicolli Rios'],
+    ],
+    [
+        'recipient_type' => 'student',
+        'canonical' => 'Joselito Mota',
+        'aliases' => ['Joselito Mota Júnior'],
     ],
 ];
 
