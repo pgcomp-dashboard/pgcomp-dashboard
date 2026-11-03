@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\ProfessorController;
 use App\Http\Controllers\Admin\ProfessorProductionController;
 use App\Http\Controllers\Admin\PublisherController;
 use App\Http\Controllers\Admin\ScrapingExecutionController;
+use App\Http\Controllers\Admin\SystemFunctionController;
 use App\Http\Controllers\Admin\StratumQualisController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\StudentRankingController;
@@ -87,6 +88,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::put('user', [UserController::class, 'updateUserInfo']);
         Route::put('user/password', [UserController::class, 'changePassword']);
         Route::post('lattes-update', [ProductionController::class, 'importLattesFile']);
+        Route::get('system-functions/lattes-xml-upload', [SystemFunctionController::class, 'lattesXmlUploadStatus']);
         Route::get('productions', [ProductionController::class, 'userProductions']);
         Route::post('productions/{production}/featured', [UsersProductionsController::class, 'toggleFeatured']);
         Route::post('productions', [ProductionController::class, 'userCreateProduction']);
@@ -202,6 +204,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('admin-request/{user}', [AdminApprovalController::class, 'update'])->middleware('can:approve,user');
 
         Route::apiResource('configurations', ConfigurationController::class);
+        Route::get('system-functions', [SystemFunctionController::class, 'index']);
+        Route::put('system-functions/lattes-xml-upload', [SystemFunctionController::class, 'updateLattesXmlUpload']);
         Route::post('lattes-update/{user}', [ProductionAdminController::class, 'importLattesFile']);
 
         Route::group(['middleware' => ['is_manager']], function () {

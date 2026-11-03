@@ -22,6 +22,7 @@ import {
 import { queryClient } from "@/lib/query-client";
 import { parseApiError } from "@/services/http-client";
 import { productionService } from "@/services/modules/production.service";
+import { useLattesXmlUploadAvailability } from "@/features/system-functions/hooks/useLattesXmlUploadAvailability";
 import {
   FileText,
   HelpCircle,
@@ -44,6 +45,12 @@ export default function UploadXMLForm({
   onSuccess?: () => void;
 }) {
   const navigate = useNavigate();
+  const {
+    shouldCheck,
+    isLoading: isAvailabilityLoading,
+    isUnavailable,
+    hasError: availabilityError,
+  } = useLattesXmlUploadAvailability();
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -111,6 +118,24 @@ export default function UploadXMLForm({
   async function handleConfirm() {
     setShowConfirmDialog(false);
     await onSubmit();
+  }
+
+  if (shouldCheck && isAvailabilityLoading) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Verificando disponibilidade do envio de XML...
+      </p>
+    );
+  }
+
+  if (isUnavailable) {
+    return (
+      <p role="status" className="text-center text-sm text-muted-foreground">
+        {availabilityError
+          ? "Não foi possível verificar se o envio de XML está disponível."
+          : "Não é possível enviar o xml agora, a função foi desabilitada"}
+      </p>
+    );
   }
 
   return (

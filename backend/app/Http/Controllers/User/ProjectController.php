@@ -2,19 +2,25 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ImportLattesRequest;
 use App\Services\ProjectService;
+use App\Services\SystemFunctionService;
 use Exception;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
     private ProjectService $projectService;
+    private SystemFunctionService $systemFunctionService;
 
-    public function __construct(ProjectService $service)
-    {
+    public function __construct(
+        ProjectService $service,
+        SystemFunctionService $systemFunctionService,
+    ) {
         $this->projectService = $service;
+        $this->systemFunctionService = $systemFunctionService;
     }
 
     /**
@@ -23,6 +29,15 @@ class ProjectController extends Controller
     public function importLattesFile(ImportLattesRequest $request)
     {
         $user = $request->user();
+        if (
+            $user->type === UserType::STUDENT
+            && !$this->systemFunctionService->isLattesXmlUploadEnabled()
+        ) {
+            return response()->json([
+                'message' => SystemFunctionService::LATTES_XML_UPLOAD_DISABLED_MESSAGE,
+            ], 403);
+        }
+
         $path = $request->file('file')->store('lattes-files');
 
         try {

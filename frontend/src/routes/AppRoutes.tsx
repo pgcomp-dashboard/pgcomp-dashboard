@@ -20,6 +20,7 @@ import StudentRulesPage from "@/pages/admin/student/rules";
 import StudentsPage from "@/pages/admin/students";
 import AdminRequestsPage from "@/pages/admin/admin-requests";
 import SystemConfigPage from "@/pages/admin/system-config";
+import SystemFunctionsPage from "@/pages/admin/system-functions";
 import AdminUsersPage from "@/pages/admin/users";
 import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import LoginPage from "@/pages/auth/login";
@@ -127,6 +128,10 @@ export function AppRoutes() {
               <Route path="qualis" element={<QualisPage />} />
               <Route path="rules" element={<RulesPage />} />
               <Route path="system-config" element={<SystemConfigPage />} />
+              <Route
+                path="system-functions"
+                element={<SystemFunctionsPage />}
+              />
               <Route
                 path="dashboard"
                 element={

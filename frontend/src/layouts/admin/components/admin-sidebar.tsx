@@ -363,6 +363,17 @@ export function AdminSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/system-functions"}
+                >
+                  <Link to="/admin/system-functions">
+                    <Settings2 className="h-4 w-4" />
+                    <span>Funções do sistema</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               {/* Dashboard */}
               <SidebarMenuItem>
                 <SidebarMenuButton

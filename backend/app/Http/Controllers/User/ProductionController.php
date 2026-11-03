@@ -9,18 +9,24 @@ use App\Http\Requests\User\UpdateProductionRequest;
 use App\Http\Resources\ProductionResource;
 use App\Models\Production;
 use App\Services\ProductionService;
+use App\Services\SystemFunctionService;
 use Exception;
 use Illuminate\Http\Request;
 use App\Http\Requests\Admin\ImportLattesRequest;
+use App\Enums\UserType;
 
 
 class ProductionController extends Controller
 {
     protected ProductionService $productionService;
+    protected SystemFunctionService $systemFunctionService;
 
-    public function __construct(ProductionService $productionService)
-    {
+    public function __construct(
+        ProductionService $productionService,
+        SystemFunctionService $systemFunctionService,
+    ) {
         $this->productionService = $productionService;
+        $this->systemFunctionService = $systemFunctionService;
     }
 
     public function store(StoreProductionRequest $request)
@@ -115,9 +121,18 @@ class ProductionController extends Controller
 
     public function importLattesFile(ImportLattesRequest $request)
     {
+        $user = auth()->user();
+        if (
+            $user->type === UserType::STUDENT
+            && !$this->systemFunctionService->isLattesXmlUploadEnabled()
+        ) {
+            return response()->json([
+                'message' => SystemFunctionService::LATTES_XML_UPLOAD_DISABLED_MESSAGE,
+            ], 403);
+        }
+
         $file = $request->file('file');
         $path = $file->store('lattes-files');
-        $user = auth()->user();
 
         try {
              $data = $this->productionService->importFromLattes($user, $path);

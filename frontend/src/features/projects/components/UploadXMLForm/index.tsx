@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { queryClient } from "@/lib/query-client";
 import { parseApiError } from "@/services/http-client";
 import { projectService } from "@/services/modules/project.service";
+import { useLattesXmlUploadAvailability } from '@/features/system-functions/hooks/useLattesXmlUploadAvailability';
 import { FileText, Loader2, Upload, X } from "lucide-react";
 import { ChangeEvent, DragEvent, useState } from "react";
 import { toast } from "sonner";
@@ -29,6 +30,12 @@ export default function UploadProjectXMLForm({
   onSuccess?: () => void;
   portalMode?: boolean;
 }) {
+  const {
+    shouldCheck,
+    isLoading: isAvailabilityLoading,
+    isUnavailable,
+    hasError: availabilityError,
+  } = useLattesXmlUploadAvailability();
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -89,6 +96,24 @@ export default function UploadProjectXMLForm({
   async function handleConfirm() {
     setShowConfirmDialog(false);
     await onSubmit();
+  }
+
+  if (shouldCheck && isAvailabilityLoading) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Verificando disponibilidade do envio de XML...
+      </p>
+    );
+  }
+
+  if (isUnavailable) {
+    return (
+      <p role="status" className="text-center text-sm text-muted-foreground">
+        {availabilityError
+          ? 'Não foi possível verificar se o envio de XML está disponível.'
+          : 'Não é possível enviar o xml agora, a função foi desabilitada'}
+      </p>
+    );
   }
 
   return (
