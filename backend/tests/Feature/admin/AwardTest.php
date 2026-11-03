@@ -107,6 +107,63 @@ class AwardTest extends TestCase
         $this->actingAs($user)->getJson('/api/admin/awards-dashboard')->assertForbidden();
     }
 
+    public function test_awards_dashboard_returns_annual_scope_and_student_counts_filtered_by_year(): void
+    {
+        $category = AwardCategory::firstOrCreate(['name' => 'Análise anual']);
+        $admin = $this->admin();
+
+        $nationalStudentAward = Award::factory()->create([
+            'year' => 2022,
+            'scope' => 'national',
+            'award_category_id' => $category->id,
+        ]);
+        $nationalStudentAward->winners()->createMany([
+            ['name' => 'Discente premiada', 'recipient_type' => 'student'],
+            ['name' => 'Docente premiado', 'recipient_type' => 'professor'],
+        ]);
+
+        $internationalAward = Award::factory()->create([
+            'year' => 2022,
+            'scope' => 'international',
+            'award_category_id' => $category->id,
+        ]);
+        $internationalAward->winners()->create([
+            'name' => 'Docente internacional',
+            'recipient_type' => 'professor',
+        ]);
+
+        $studentAwardInNextYear = Award::factory()->create([
+            'year' => 2023,
+            'scope' => 'international',
+            'award_category_id' => $category->id,
+        ]);
+        $studentAwardInNextYear->winners()->create([
+            'name' => 'Discente do próximo ano',
+            'recipient_type' => 'student',
+        ]);
+
+        $this->actingAs($admin)
+            ->getJson('/api/admin/awards-dashboard?years=2022,2023')
+            ->assertOk()
+            ->assertJsonPath('analysis_per_year.0.year', 2022)
+            ->assertJsonPath('analysis_per_year.0.total', 2)
+            ->assertJsonPath('analysis_per_year.0.national', 1)
+            ->assertJsonPath('analysis_per_year.0.international', 1)
+            ->assertJsonPath('analysis_per_year.0.student_awards', 1)
+            ->assertJsonPath('analysis_per_year.1.year', 2023)
+            ->assertJsonPath('analysis_per_year.1.total', 1)
+            ->assertJsonPath('analysis_per_year.1.national', 0)
+            ->assertJsonPath('analysis_per_year.1.international', 1)
+            ->assertJsonPath('analysis_per_year.1.student_awards', 1);
+
+        $this->actingAs($admin)
+            ->getJson('/api/admin/awards-dashboard?years=2022')
+            ->assertOk()
+            ->assertJsonCount(1, 'analysis_per_year')
+            ->assertJsonPath('analysis_per_year.0.year', 2022)
+            ->assertJsonPath('analysis_per_year.0.total', 2);
+    }
+
     // ── Portal: prêmios do próprio usuário ────────────────────────────────────
 
     public function test_user_can_read_categories_from_portal(): void

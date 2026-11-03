@@ -57,6 +57,37 @@ class AwardDashboardController extends Controller
                 'year' => (int) $row->year,
                 'total' => (int) $row->total,
             ]);
+        $studentAwardSubquery = AwardWinner::query()
+            ->select('award_id')
+            ->where('recipient_type', AwardRecipientType::STUDENT->value)
+            ->groupBy('award_id');
+        $analysisPerYear = $filteredCharts()
+            ->leftJoinSub(
+                $studentAwardSubquery,
+                'student_awards',
+                fn ($join) => $join->on('student_awards.award_id', '=', 'awards.id'),
+            )
+            ->selectRaw('
+                awards.year as year,
+                COUNT(DISTINCT awards.id) as total,
+                SUM(CASE WHEN awards.scope = ? THEN 1 ELSE 0 END) as national,
+                SUM(CASE WHEN awards.scope = ? THEN 1 ELSE 0 END) as international,
+                SUM(CASE WHEN student_awards.award_id IS NOT NULL THEN 1 ELSE 0 END) as student_awards
+            ', [
+                AwardScope::NATIONAL->value,
+                AwardScope::INTERNATIONAL->value,
+            ])
+            ->groupBy('awards.year')
+            ->orderBy('awards.year')
+            ->get()
+            ->map(fn ($row) => [
+                'year' => (int) $row->year,
+                'total' => (int) $row->total,
+                'national' => (int) $row->national,
+                'international' => (int) $row->international,
+                'student_awards' => (int) $row->student_awards,
+            ])
+            ->values();
         $perYearByScope = $filteredCharts()
             ->selectRaw('year, scope, count(*) as total')
             ->groupBy('year', 'scope')
@@ -100,6 +131,7 @@ class AwardDashboardController extends Controller
             'per_category' => $perCategory->map(fn ($r) => ['name' => $r->name, 'total' => (int) $r->total]),
             'per_year' => $perYear,
             'per_year_by_scope' => $perYearByScope,
+            'analysis_per_year' => $analysisPerYear,
             'awards_by_professor' => $awardsByRecipient(AwardRecipientType::PROFESSOR->value),
             'awards_by_student' => $awardsByRecipient(AwardRecipientType::STUDENT->value),
         ]);

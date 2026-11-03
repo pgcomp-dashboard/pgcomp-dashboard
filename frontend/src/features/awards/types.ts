@@ -74,6 +74,13 @@ export interface AwardsDashboardSummary {
     national: number;
     international: number;
   }[];
+  analysis_per_year: {
+    year: number;
+    total: number;
+    national: number;
+    international: number;
+    student_awards: number;
+  }[];
   awards_by_professor: { name: string; total: number }[];
   awards_by_student: { name: string; total: number }[];
 }

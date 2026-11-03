@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AwardFormDialog } from "@/features/awards/components/AwardFormDialog";
 import { AwardsDashboard } from "@/features/awards/components/AwardsDashboard";
+import { AwardsAnnualAnalysis } from "@/features/awards/components/AwardsAnnualAnalysis";
 import { AwardsTable } from "@/features/awards/components/AwardsTable";
 import { CategoriesTable } from "@/features/awards/components/CategoriesTable";
 import { CategoryFormDialog } from "@/features/awards/components/CategoryFormDialog";
@@ -68,12 +69,21 @@ export default function AwardsPage() {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="annual-analysis">Análise anual</TabsTrigger>
           <TabsTrigger value="awards">Todos os prêmios</TabsTrigger>
           <TabsTrigger value="categories">Categorias</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="pt-4">
           <AwardsDashboard
+            years={awardYears}
+            selectedYears={selectedAwardYears}
+            onYearChange={setSelectedAwardYear}
+            onSelectAllYears={selectAllAwardYears}
+          />
+        </TabsContent>
+        <TabsContent value="annual-analysis" className="pt-4">
+          <AwardsAnnualAnalysis
             years={awardYears}
             selectedYears={selectedAwardYears}
             onYearChange={setSelectedAwardYear}
