@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\DB;
 
-$applyChanges = false;
+$applyChanges = true;
 
 $mappings = [
     [
