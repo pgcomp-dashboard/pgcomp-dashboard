@@ -163,6 +163,21 @@ export function AwardsAnnualAnalysis({
     }),
     { total: 0, national: 0, international: 0, studentAwards: 0 },
   );
+  const topProfessor = data.awards_by_professor[0] ?? null;
+  const topStudent = data.awards_by_student[0] ?? null;
+  const topCategory = data.per_category[0] ?? null;
+  const topAwardWinner = [
+    ...data.awards_by_professor.map((winner) => ({
+      name: winner.name,
+      total: winner.total,
+      recipientType: 'Docente',
+    })),
+    ...data.awards_by_student.map((winner) => ({
+      name: winner.name,
+      total: winner.total,
+      recipientType: 'Discente',
+    })),
+  ].sort((left, right) => right.total - left.total || left.name.localeCompare(right.name))[0] ?? null;
   const regression = calculateRegression(rows);
 
   return (
@@ -308,6 +323,68 @@ export function AwardsAnnualAnalysis({
             </Table>
           </div>
         )}
+      </section>
+
+      <section className="space-y-3 rounded-lg border p-4">
+        <div>
+          <h2 className="text-lg font-semibold">Análise por docente e discente</h2>
+          <p className="text-sm text-muted-foreground">
+            Comparativo dos vencedores com maior número de prêmios no período
+            selecionado e identificação do participante com mais premiações.
+          </p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-lg border bg-muted/30 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Docente com mais prêmios
+            </p>
+            <p className="mt-2 text-lg font-semibold">
+              {topProfessor ? topProfessor.name : 'Nenhum docente premiado'}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {topProfessor ? `${topProfessor.total} prêmio(s)` : '—'}
+            </p>
+          </div>
+
+          <div className="rounded-lg border bg-muted/30 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Discente com mais prêmios
+            </p>
+            <p className="mt-2 text-lg font-semibold">
+              {topStudent ? topStudent.name : 'Nenhum discente premiado'}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {topStudent ? `${topStudent.total} prêmio(s)` : '—'}
+            </p>
+          </div>
+
+          <div className="rounded-lg border bg-muted/30 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Quem tem mais prêmios
+            </p>
+            <p className="mt-2 text-lg font-semibold">
+              {topAwardWinner
+                ? `${topAwardWinner.recipientType}: ${topAwardWinner.name}`
+                : 'Nenhum vencedor no período'}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {topAwardWinner ? `${topAwardWinner.total} prêmio(s)` : '—'}
+            </p>
+          </div>
+
+          <div className="rounded-lg border bg-muted/30 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Tipo de prêmio mais frequente
+            </p>
+            <p className="mt-2 text-lg font-semibold">
+              {topCategory ? topCategory.name : 'Nenhum tipo registrado'}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {topCategory ? `${topCategory.total} prêmio(s)` : '—'}
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="space-y-3 rounded-lg border p-4">
