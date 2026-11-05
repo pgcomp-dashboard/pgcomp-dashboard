@@ -14,6 +14,70 @@ import {
 
 const BAR_COLOR = "#2563eb";
 
+function normalizeCategoryName(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function groupSimilarCategories(
+  categories: { name: string; total: number }[],
+): { name: string; total: number; groupedNames: string[] }[] {
+  const grouped = new Map<
+    string,
+    { name: string; total: number; groupedNames: string[] }
+  >();
+
+  categories.forEach(({ name, total }) => {
+    const baseName = name.replace(
+      /^\s*\d+(?:st|nd|rd|th|º|ª)\s+(?:lugar\s+)?/i,
+      '',
+    );
+    const normalizedName = normalizeCategoryName(baseName);
+    let key = normalizedName;
+    let label = baseName.trim();
+
+    if (normalizedName.includes('ctd')) {
+      key = 'ctd';
+      label = 'CTD';
+    } else if (
+      normalizedName.includes('concurso') &&
+      normalizedName.includes('iniciacao cientifica')
+    ) {
+      key = 'concurso-iniciacao-cientifica';
+      label = 'Concurso de Iniciação Científica';
+    } else if (
+      [ 'melhor revisor', 'revisor destaque', 'outstand reviwer' ].includes(
+        normalizedName,
+      )
+    ) {
+      key = 'revisor';
+      label = 'Revisor';
+    } else if (
+      [ 'keynote speaker', 'palestrante convidado' ].includes(normalizedName)
+    ) {
+      key = 'palestrante-convidado';
+      label = 'Palestrante convidado';
+    }
+
+    const current = grouped.get(key);
+    if (current) {
+      current.total += total;
+      current.groupedNames.push(name);
+    } else {
+      grouped.set(key, { name: label, total, groupedNames: [ name ] });
+    }
+  });
+
+  return [ ...grouped.values() ].sort(
+    (left, right) =>
+      right.total - left.total || left.name.localeCompare(right.name),
+  );
+}
+
 interface AwardsDashboardProps {
   years: number[];
   selectedYears: Set<number> | null;
@@ -46,6 +110,7 @@ export function AwardsDashboard({
     { label: "Nacionais", value: data.by_scope.national },
     { label: "Internacionais", value: data.by_scope.international },
   ];
+  const categories = groupSimilarCategories(data.per_category);
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,16 +173,20 @@ export function AwardsDashboard({
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <section className="border rounded-lg p-4">
           <h2 className="font-semibold mb-4">Prêmios por categoria</h2>
-          {data.per_category.length === 0 ? (
+          {categories.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum prêmio no período.</p>
           ) : (
-            <div style={{ height: Math.max(288, data.per_category.length * 36 + 40) }}>
+            <div style={{ height: Math.max(288, categories.length * 36 + 40) }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.per_category} layout="vertical" margin={{ left: 8 }}>
+                <BarChart data={categories} layout="vertical" margin={{ left: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                   <XAxis type="number" allowDecimals={false} />
                   <YAxis type="category" dataKey="name" width={190} tick={{ fontSize: 12 }} interval={0} />
-                  <Tooltip />
+                  <Tooltip
+                    labelFormatter={(_, payload) =>
+                      payload[0]?.payload?.groupedNames?.join(', ') ?? ''
+                    }
+                  />
                   <Bar dataKey="total" name="Prêmios" fill={BAR_COLOR} radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
