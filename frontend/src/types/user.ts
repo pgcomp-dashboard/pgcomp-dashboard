@@ -2,6 +2,7 @@ export type UserBase = {
   id: number;
   name: string;
   is_approved: boolean;
+  secondary_email?: string | null;
 };
 
 export type Professor = UserBase & {
@@ -57,6 +58,7 @@ export type AdminUser = UserBase & {
   type: "student" | "professor" | "manager";
   name: string;
   email: string | null;
+  secondary_email: string | null;
   category: string | null;
   is_admin: boolean;
   is_approved: boolean;

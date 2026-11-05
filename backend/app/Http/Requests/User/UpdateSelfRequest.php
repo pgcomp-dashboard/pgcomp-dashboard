@@ -4,13 +4,24 @@ namespace App\Http\Requests\User;
 
 use App\Models\Area;
 use App\Models\Course;
-use App\Models\User;
 use App\Enums\UserType;
+use App\Rules\UniqueUserEmail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateSelfRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $normalized = [];
+        foreach (['email', 'secondary_email'] as $field) {
+            if ($this->has($field)) {
+                $normalized[$field] = strtolower(trim((string) $this->input($field)));
+            }
+        }
+        $this->merge($normalized);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,6 +40,7 @@ class UpdateSelfRequest extends FormRequest
     public function rules()
     {
         $user = $this->user();
+        $isStudent = $user->type === UserType::STUDENT;
 
         $courseIdRules = [
             'int',
@@ -40,13 +52,32 @@ class UpdateSelfRequest extends FormRequest
 
         return [
             'name' => 'string|max:255',
-            'email' => [
-                'nullable',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($user->id),
-            ],
+            'email' => $isStudent
+                ? [
+                    'required',
+                    'string',
+                    'email:rfc',
+                    'max:255',
+                    'regex:/^[^@\s]+@ufba\.br$/i',
+                    new UniqueUserEmail($user->id),
+                ]
+                : [
+                    'nullable',
+                    'string',
+                    'email:rfc',
+                    'max:255',
+                    new UniqueUserEmail($user->id),
+                ],
+            'secondary_email' => $isStudent
+                ? [
+                    'required',
+                    'string',
+                    'email:rfc',
+                    'max:255',
+                    'different:email',
+                    new UniqueUserEmail($user->id),
+                ]
+                : ['sometimes', 'nullable', 'email:rfc', 'max:255'],
             'area_id' => [
                 'nullable',
                 'int',

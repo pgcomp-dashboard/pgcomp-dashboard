@@ -41,6 +41,7 @@ interface StudentDialogsProps {
 const initialStudent: Omit<Student, "id"> = {
   name: "",
   email: "",
+  secondary_email: "",
   registration: 0,
   type: "student",
   area_id: 0,
@@ -88,6 +89,18 @@ export function StudentDialogs({
     }
     if (!/^\S+@\S+\.\S+$/.test(s.email.trim())) {
       alert("Informe um email válido.");
+      return false;
+    }
+    if (!s.email.trim().toLowerCase().endsWith("@ufba.br")) {
+      alert("O email principal do discente deve ser @ufba.br.");
+      return false;
+    }
+    if (!s.secondary_email?.trim() || !/^\S+@\S+\.\S+$/.test(s.secondary_email.trim())) {
+      alert("Informe um email alternativo válido.");
+      return false;
+    }
+    if (s.email.trim().toLowerCase() === s.secondary_email.trim().toLowerCase()) {
+      alert("O email alternativo deve ser diferente do email principal.");
       return false;
     }
     return true;
@@ -243,12 +256,23 @@ function StudentForm({
         />
       </div>
       <div className="grid gap-2">
-        <Label>Email</Label>
+        <Label>Email principal (UFBA / login)</Label>
         <Input
           type="email"
           value={student.email ?? ""}
           onChange={(e) => setStudent({ ...student, email: e.target.value })}
-          placeholder="nome@exemplo.com"
+          placeholder="nome@ufba.br"
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label>Email alternativo</Label>
+        <Input
+          type="email"
+          value={student.secondary_email ?? ""}
+          onChange={(e) =>
+            setStudent({ ...student, secondary_email: e.target.value })
+          }
+          placeholder="nome@email.com"
         />
       </div>
       <div className="grid grid-cols-2 gap-4">

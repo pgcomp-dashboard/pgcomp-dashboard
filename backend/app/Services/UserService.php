@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\UserType;
 use App\Models\User;
 use App\Models\Production;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -18,7 +19,7 @@ class UserService
      */
     public function listAll()
     {
-        return QueryBuilder::for(User::class)
+        return QueryBuilder::for(User::with('secondaryEmail'))
             ->allowedFilters([AllowedFilter::partial('name'), 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved', 'course_id', 'area_id'])
             ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin', 'is_approved'])
             ->paginate(request()->input('per_page', 15));
@@ -59,7 +60,7 @@ class UserService
      */
     public function find(int $id): User
     {
-        return User::findOrFail($id);
+        return User::with('secondaryEmail')->findOrFail($id);
     }
 
     /**
@@ -81,6 +82,10 @@ class UserService
      */
     public function update(User $user, array $data): User
     {
+        $secondaryEmail = $data['secondary_email'] ?? null;
+        $hasSecondaryEmail = array_key_exists('secondary_email', $data);
+        unset($data['secondary_email']);
+
         if (isset($data['password']) && !empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
@@ -101,9 +106,21 @@ class UserService
             unset($data['is_admin'], $data['admin_status']);
         }
 
-        $user->fill($data)->save();
+        DB::transaction(function () use ($user, $data, $hasSecondaryEmail, $secondaryEmail) {
+            $user->fill($data)->save();
+            if ($hasSecondaryEmail) {
+                if ($secondaryEmail === null || $secondaryEmail === '') {
+                    $user->secondaryEmail()->delete();
+                } else {
+                    $user->secondaryEmail()->updateOrCreate(
+                        [],
+                        ['email' => strtolower(trim($secondaryEmail))],
+                    );
+                }
+            }
+        });
 
-        return $user;
+        return $user->load('secondaryEmail');
     }
 
     /**
@@ -126,21 +143,32 @@ class UserService
      */
     public function createOrUpdateStudent(array $data): User
     {
-        $user = User::where('registration', $data['registration'])->first();
+        return DB::transaction(function () use ($data) {
+            $secondaryEmail = $data['secondary_email'] ?? null;
+            unset($data['secondary_email']);
+            $user = User::where('registration', $data['registration'])->first();
 
-        if ($user) {
-            $user->update($data);
-        } else {
-            $data['type'] = UserType::STUDENT;
-            $data['password'] = Hash::make(Str::random(12));
-            $user = User::create($data);
-        }
+            if ($user) {
+                $user->update($data);
+            } else {
+                $data['type'] = UserType::STUDENT;
+                $data['password'] = Hash::make(Str::random(12));
+                $user = User::create($data);
+            }
 
-        if (isset($data['advisor_id'])) {
-            $user->advisors()->sync($data['advisor_id']);
-        }
+            if ($secondaryEmail !== null && $secondaryEmail !== '') {
+                $user->secondaryEmail()->updateOrCreate(
+                    [],
+                    ['email' => strtolower(trim($secondaryEmail))],
+                );
+            }
 
-        return $user;
+            if (isset($data['advisor_id'])) {
+                $user->advisors()->sync($data['advisor_id']);
+            }
+
+            return $user->load('secondaryEmail');
+        });
     }
 
     /**
@@ -190,7 +218,7 @@ class UserService
      */
     public function listStudents(array $params = [])
     {
-        $query = QueryBuilder::for(User::students())
+        $query = QueryBuilder::for(User::students()->with('secondaryEmail'))
             ->allowedFilters(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin'])
             ->allowedSorts(['name', 'type', 'email', 'siape', 'registration', 'category', 'admin_status', 'is_admin']);
 
@@ -206,7 +234,7 @@ class UserService
      */
     public function findStudent(int $id): User
     {
-        return User::students()->findOrFail($id);
+        return User::students()->with('secondaryEmail')->findOrFail($id);
     }
 
     /**

@@ -40,6 +40,7 @@ type StudentDegree = "mestrado" | "doutorado";
 interface RegistrationValues {
   name: string;
   email: string;
+  secondary_email: string;
   password: string;
   password_confirmation: string;
   registration: string;
@@ -53,6 +54,7 @@ interface StudentOptions {
 const initialValues: RegistrationValues = {
   name: "",
   email: "",
+  secondary_email: "",
   password: "",
   password_confirmation: "",
   registration: "",
@@ -139,6 +141,21 @@ export default function RegisterPage() {
     }
 
     if (step === "student-lookup") {
+      if (!values.email.trim().toLowerCase().endsWith("@ufba.br")) {
+        toast.error("O email principal do discente deve ser @ufba.br.");
+        return;
+      }
+      if (!/^\S+@\S+\.\S+$/.test(values.secondary_email.trim())) {
+        toast.error("Informe um email alternativo válido.");
+        return;
+      }
+      if (
+        values.secondary_email.trim().toLowerCase() ===
+        values.email.trim().toLowerCase()
+      ) {
+        toast.error("O email alternativo deve ser diferente do principal.");
+        return;
+      }
       if (!values.registration.trim()) {
         toast.error("Informe sua matrícula.");
         return;
@@ -149,6 +166,7 @@ export default function RegisterPage() {
         await authService.requestStudentRegistration({
           registration: values.registration,
           email: values.email,
+          secondary_email: values.secondary_email,
         });
         navigate("/student-registration-sent", {
           state: { email: values.email },
@@ -195,6 +213,23 @@ export default function RegisterPage() {
       toast.error("Selecione seu orientador.");
       return;
     }
+    if (step === "student-new") {
+      if (!values.email.trim().toLowerCase().endsWith("@ufba.br")) {
+        toast.error("O email principal do discente deve ser @ufba.br.");
+        return;
+      }
+      if (!/^\S+@\S+\.\S+$/.test(values.secondary_email.trim())) {
+        toast.error("Informe um email alternativo válido.");
+        return;
+      }
+      if (
+        values.secondary_email.trim().toLowerCase() ===
+        values.email.trim().toLowerCase()
+      ) {
+        toast.error("O email alternativo deve ser diferente do principal.");
+        return;
+      }
+    }
 
     setIsSubmitting(true);
     try {
@@ -203,6 +238,7 @@ export default function RegisterPage() {
           name: values.name,
           registration: values.registration,
           email: values.email,
+          secondary_email: values.secondary_email,
           password: values.password,
           password_confirmation: values.password_confirmation,
           degree: studentDegree,
@@ -308,17 +344,37 @@ export default function RegisterPage() {
             )}
 
             <label className="grid gap-2 text-sm font-medium">
-              E-mail
+              {step === "student-lookup" || step === "student-new"
+                ? "E-mail principal (UFBA / login)"
+                : "E-mail"}
               <Input
                 required
                 type="email"
                 autoComplete="email"
-                placeholder="example@example.com"
+                placeholder={
+                  step === "student-lookup" || step === "student-new"
+                    ? "nome@ufba.br"
+                    : "example@example.com"
+                }
                 value={values.email}
                 onChange={(event) => updateValue("email", event.target.value)}
               />
             </label>
 
+            {(step === "student-lookup" || step === "student-new") && (
+              <label className="grid gap-2 text-sm font-medium">
+                E-mail alternativo
+                <Input
+                  required
+                  type="email"
+                  placeholder="voce@email.com"
+                  value={values.secondary_email}
+                  onChange={(event) =>
+                    updateValue("secondary_email", event.target.value)
+                  }
+                />
+              </label>
+            )}
             {step === "student-new" && (
               <>
                 <label className="grid gap-2 text-sm font-medium">

@@ -15,6 +15,7 @@ import {
   updatePasswordFormSchema,
   UpdatePasswordFormValues,
   userConfigFormSchema,
+  studentUserConfigFormSchema,
   UserConfigFormValues,
 } from '../types';
 
@@ -36,10 +37,15 @@ export function useUserConfig() {
   }, []);
 
   const generalForm = useForm<UserConfigFormValues>({
-    resolver: zodResolver(userConfigFormSchema),
+    resolver: zodResolver(
+      userInfo?.type === 'student'
+        ? studentUserConfigFormSchema
+        : userConfigFormSchema,
+    ),
     defaultValues: {
       name: '',
       email: '',
+      secondary_email: '',
       registration: '',
       siape: 0,
       lattes_url: '',
@@ -50,12 +56,13 @@ export function useUserConfig() {
       ? {
         name: userInfo.name,
         email: userInfo.email ?? '',
+        secondary_email: userInfo.secondary_email ?? '',
         registration: userInfo.type === 'student' ? String(userInfo.registration) : '',
-        siape: userInfo.type === 'professor' ? (userInfo as any).siape : 0,
+        siape: userInfo.type === 'professor' ? userInfo.siape : 0,
         lattes_url: userInfo.type !== 'manager' ? (userInfo.lattes_url ?? '') : '',
-        pq: userInfo.type === 'professor' ? (userInfo as any).pq : false,
-        orcid: userInfo.type === 'professor' ? (userInfo as any).orcid ?? '' : '',
-      } as any
+        pq: userInfo.type === 'professor' ? userInfo.pq : false,
+        orcid: userInfo.type === 'professor' ? userInfo.orcid ?? '' : '',
+      }
       : undefined,
     resetOptions: {
       keepDirtyValues: true,
@@ -73,10 +80,19 @@ export function useUserConfig() {
   const onGeneralSubmit = async (values: UserConfigFormValues) => {
     try {
       await userService.updateUser(values);
+      setUserInfo((current) =>
+        current
+          ? {
+            ...current,
+            email: values.email,
+            secondary_email: values.secondary_email ?? null,
+          }
+          : current,
+      );
+      queryClient.invalidateQueries({ queryKey: [ 'auth-user' ] });
       toast.success('Informações atualizadas com sucesso!');
     } catch (err) {
-      console.error('Erro ao atualizar usuário:', err);
-      toast.error('Erro ao atualizar usuário.');
+      toast.error(parseApiError(err));
     }
   };
 

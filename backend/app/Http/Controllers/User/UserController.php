@@ -10,6 +10,7 @@ use App\Enums\UserType;
 use App\Mail\RegistrationMail;
 use App\Models\Course;
 use App\Models\User;
+use App\Rules\UniqueUserEmail;
 use App\Services\ProductionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,21 +31,40 @@ class UserController extends Controller
     public function userInfo(Request $request)
     {
         $user = auth()->user();
-        $user->loadCount('writerOf');
+        $user->loadCount('writerOf')->load('secondaryEmail');
 
         return response()->json([
-                'data' => $user
-            ]);
+            'data' => [
+                ...$user->toArray(),
+                'secondary_email' => $user->secondaryEmail?->email,
+            ],
+        ]);
     }
 
     public function updateUserInfo(UpdateSelfRequest $request)
     {
         $user = auth()->user();
-        $user->update($request->validated());
+        $validated = $request->validated();
+        $secondaryEmail = $validated['secondary_email'] ?? null;
+        unset($validated['secondary_email']);
+
+        DB::transaction(function () use ($user, $validated, $secondaryEmail) {
+            $user->update($validated);
+            if ($user->type === UserType::STUDENT) {
+                $user->secondaryEmail()->updateOrCreate(
+                    [],
+                    ['email' => strtolower(trim($secondaryEmail))],
+                );
+            }
+        });
+        $user->load('secondaryEmail');
 
         return response()->json([
             'message' => 'Usuário atualizado com sucesso!',
-            'data' => $user,
+            'data' => [
+                ...$user->toArray(),
+                'secondary_email' => $user->secondaryEmail?->email,
+            ],
         ], 200);
     }
 
@@ -67,12 +87,10 @@ class UserController extends Controller
 
     public function requestStudentRegistration(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'registration' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc'],
         ]);
-
-        $user = User::where('registration', trim((string) $validated['registration']))
+        $user = User::where('registration', trim((string) $request->input('registration')))
             ->where('type', UserType::STUDENT)
             ->first();
 
@@ -81,6 +99,27 @@ class UserController extends Controller
                 'message' => 'Matrícula não encontrada no sistema.',
             ], 404);
         }
+
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+            'secondary_email' => strtolower(trim((string) $request->input('secondary_email'))),
+        ]);
+        $validated = $request->validate([
+            'email' => [
+                'required',
+                'email:rfc',
+                'max:255',
+                'regex:/^[^@\s]+@ufba\.br$/i',
+                new UniqueUserEmail($user->id),
+            ],
+            'secondary_email' => [
+                'required',
+                'email:rfc',
+                'max:255',
+                'different:email',
+                new UniqueUserEmail($user->id),
+            ],
+        ]);
 
         $email = strtolower(trim($validated['email']));
 
@@ -93,7 +132,6 @@ class UserController extends Controller
                 'message' => 'Este e-mail já está cadastrado para outra matrícula.',
             ], 422);
         }
-
         $originalEmail = $user->email;
 
         $user->email = $email;
@@ -104,6 +142,7 @@ class UserController extends Controller
         $verificationUrl = config('app.front_url') . '/student-set-password?' . http_build_query([
             'token' => $token,
             'email' => $email,
+            'secondary_email' => $validated['secondary_email'],
             'registration' => $user->registration,
         ]);
 
@@ -126,21 +165,35 @@ class UserController extends Controller
 
     public function registerStudent(Request $request)
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+            'secondary_email' => strtolower(trim((string) $request->input('secondary_email'))),
+        ]);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'registration' => ['required', 'integer', 'min:1', Rule::unique('users', 'registration')],
-            'email' => ['required', 'string', 'email:rfc'],
+            'email' => [
+                'required',
+                'string',
+                'email:rfc',
+                'max:255',
+                'regex:/^[^@\s]+@ufba\.br$/i',
+                new UniqueUserEmail(),
+            ],
+            'secondary_email' => [
+                'required',
+                'string',
+                'email:rfc',
+                'max:255',
+                'different:email',
+                new UniqueUserEmail(),
+            ],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'degree' => ['required', Rule::in(['mestrado', 'doutorado'])],
             'advisor_id' => ['required', Rule::exists('users', 'id')->where('type', UserType::PROFESSOR->value)],
         ]);
 
         $email = strtolower(trim($validated['email']));
-        if (User::whereRaw('LOWER(email) = ?', [$email])->exists()) {
-            return response()->json([
-                'message' => 'Este e-mail já está cadastrado.',
-            ], 422);
-        }
 
         $courseName = $validated['degree'] === 'mestrado' ? 'Mestrado' : 'Doutorado';
         $course = Course::where('name', $courseName)->first();
@@ -164,8 +217,12 @@ class UserController extends Controller
             $user->advisors()->attach($validated['advisor_id'], [
                 'relation_type' => UserRelationType::ADVISOR->value,
             ]);
+            $user->secondaryEmail()->updateOrCreate(
+                [],
+                ['email' => strtolower(trim($validated['secondary_email']))],
+            );
 
-            return $user;
+            return $user->load('secondaryEmail');
         });
 
         Mail::to($user->email)->send(new RegistrationMail($user, 'self_registered'));
@@ -179,20 +236,38 @@ class UserController extends Controller
 
     public function confirmStudentRegistration(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'registration' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc'],
-            'token' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
-
-        $user = User::where('registration', trim((string) $validated['registration']))->first();
-
+        $user = User::where('registration', trim((string) $request->input('registration')))->first();
         if (! $user) {
             return response()->json([
                 'message' => 'Matrícula não encontrada no sistema.',
             ], 404);
         }
+
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+            'secondary_email' => strtolower(trim((string) $request->input('secondary_email'))),
+        ]);
+        $validated = $request->validate([
+            'email' => [
+                'required',
+                'email:rfc',
+                'max:255',
+                'regex:/^[^@\s]+@ufba\.br$/i',
+                new UniqueUserEmail($user->id),
+            ],
+            'secondary_email' => [
+                'required',
+                'email:rfc',
+                'max:255',
+                'different:email',
+                new UniqueUserEmail($user->id),
+            ],
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
 
         $email = strtolower(trim($validated['email']));
         $originalEmail = $user->email;
@@ -223,12 +298,17 @@ class UserController extends Controller
             ], 422);
         }
 
-        $user->forceFill([
-            'email' => $email,
-            'password' => Hash::make($validated['password']),
-            'email_verified_at' => now(),
-            'is_approved' => true,
-        ])->save();
+        DB::transaction(function () use ($user, $email, $validated) {
+            $user->forceFill([
+                'email' => $email,
+                'password' => Hash::make($validated['password']),
+                'email_verified_at' => now(),
+                'is_approved' => true,
+            ])->save();
+            $user->secondaryEmail()->create([
+                'email' => strtolower(trim($validated['secondary_email'])),
+            ]);
+        });
 
         Password::broker()->deleteToken($user);
 

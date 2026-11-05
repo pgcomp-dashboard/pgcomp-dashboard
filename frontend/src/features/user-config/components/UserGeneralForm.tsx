@@ -15,9 +15,14 @@ import { UserConfigFormValues } from '../types';
 interface UserGeneralFormProps {
   form: UseFormReturn<UserConfigFormValues>;
   onSubmit: (values: UserConfigFormValues) => Promise<void>;
+  isStudent?: boolean;
 }
 
-export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
+export function UserGeneralForm({
+  form,
+  onSubmit,
+  isStudent = false,
+}: UserGeneralFormProps) {
   useFormErrorToast(form.formState.errors);
 
   return (
@@ -47,10 +52,13 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email:</FormLabel>
+              <FormLabel>
+                {isStudent ? 'Email principal (UFBA / login):' : 'Email:'}
+              </FormLabel>
               <FormControl>
                 <Input
                   {...field}
+                  type="email"
                   className={
                     !form.formState.dirtyFields.email
                       ? 'text-muted-foreground/60'
@@ -61,6 +69,25 @@ export function UserGeneralForm({ form, onSubmit }: UserGeneralFormProps) {
             </FormItem>
           )}
         />
+        {isStudent && (
+          <FormField
+            control={form.control}
+            name="secondary_email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email alternativo:</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="email"
+                    value={field.value ?? ''}
+                    placeholder="voce@email.com"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        )}
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}

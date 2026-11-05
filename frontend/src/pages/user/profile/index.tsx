@@ -8,6 +8,7 @@ import { useUserConfig } from "@/features/user-config/hooks/useUserConfig";
 export default function ProfilePage() {
   const {
     auth,
+    userInfo,
     generalForm,
     passwordForm,
     onGeneralSubmit,
@@ -35,6 +36,7 @@ export default function ProfilePage() {
             <UserGeneralForm
               form={generalForm}
               onSubmit={onGeneralSubmit}
+              isStudent={userInfo?.type === "student"}
             />
           </div>
         </section>

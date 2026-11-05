@@ -74,7 +74,11 @@ Route::post('student-registration', [UserController::class, 'registerStudent']);
 
 // Middleware
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    $user = $request->user()->load('secondaryEmail');
+    return [
+        ...$user->toArray(),
+        'secondary_email' => $user->secondaryEmail?->email,
+    ];
 });
 
 // Logged group routes

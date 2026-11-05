@@ -24,6 +24,7 @@ class UserResource extends JsonResource
             'type' => $this->type,
             'category' => $this->category,
             'email' => $this->email,
+            'secondary_email' => $this->secondaryEmail?->email,
             'is_admin' => $this->is_admin,
             'is_approved' => $this->is_approved,
                         'admin_status' => $this->admin_status,

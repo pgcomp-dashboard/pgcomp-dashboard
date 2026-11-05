@@ -16,6 +16,8 @@ export const normalizeUser = (data: any): User => {
           ? "manager"
         : "user",
     type: data.type,
+    email: data.email ?? null,
+    secondary_email: data.secondary_email ?? null,
     is_approved: data.is_approved === true || data.is_approved === 1,
     productions_count: data.writer_of_count,
   };

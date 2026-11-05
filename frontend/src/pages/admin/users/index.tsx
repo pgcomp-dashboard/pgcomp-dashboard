@@ -167,6 +167,10 @@ export default function AdminUsersPage() {
         header: "E-mail",
         cell: (info) => <div>{info.getValue() || "—"}</div>,
       }),
+      columnHelper.accessor("secondary_email", {
+        header: "E-mail alternativo",
+        cell: (info) => <div>{info.getValue() || "—"}</div>,
+      }),
       columnHelper.accessor("type", {
         header: "Tipo",
         cell: (info) => <div>{userTypeLabel(info.getValue())}</div>,
@@ -210,6 +214,9 @@ export default function AdminUsersPage() {
         <div>
           <h2 className="font-semibold">{user.name}</h2>
           <p className="text-sm text-muted-foreground">{user.email || "—"}</p>
+          <p className="text-sm text-muted-foreground">
+            Alternativo: {user.secondary_email || "—"}
+          </p>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
           <span>{userTypeLabel(user.type)}</span>

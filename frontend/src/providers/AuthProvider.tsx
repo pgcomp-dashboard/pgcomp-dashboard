@@ -13,6 +13,8 @@ export interface User {
   role: string;
   is_approved: boolean;
   type?: string;
+  email?: string | null;
+  secondary_email?: string | null;
   productions_count?: number;
 }
 

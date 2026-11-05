@@ -67,10 +67,11 @@ export default function StudentSetPasswordPage() {
   const urlParams = new URLSearchParams(queryString);
   const token = urlParams.get("token");
   const email = urlParams.get("email");
+  const secondaryEmail = urlParams.get("secondary_email");
   const registration = urlParams.get("registration");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!token || !email || !registration) {
+    if (!token || !email || !secondaryEmail || !registration) {
       toast.error("Link de confirmação inválido.");
       return;
     }
@@ -79,6 +80,7 @@ export default function StudentSetPasswordPage() {
       const response = await authService.confirmStudentRegistration({
         token,
         email,
+        secondary_email: secondaryEmail,
         registration,
         password: values.password,
         password_confirmation: values.confirmPassword,

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\UserCategory;
+use App\Rules\UniqueUserEmail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -23,7 +24,7 @@ class UpdateProfessorRequest extends FormRequest
             'email' => [
                 'sometimes',
                 'email',
-                Rule::unique('users', 'email')->ignore($userId),
+                new UniqueUserEmail((int) $userId),
             ],
             'siape' => [
                 'sometimes',

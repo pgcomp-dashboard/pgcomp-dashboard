@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin;
 use App\Enums\UserCategory;
 use App\Models\User;
 use App\Enums\UserType;
+use App\Rules\UniqueUserEmail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -30,7 +31,7 @@ class StoreProfessorRequest extends FormRequest
             'email' => [
                 'sometimes',
                 'email',
-                Rule::unique('users', 'email'),
+                new UniqueUserEmail(),
             ],
             'siape' => [
                 'sometimes',

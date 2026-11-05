@@ -7,6 +7,7 @@ use App\Mail\AdminMail;
 use App\Mail\RegistrationMail;
 use App\Enums\UserType;
 use App\Models\User;
+use App\Rules\UniqueUserEmail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -31,7 +32,7 @@ class CreateNewUser implements CreatesNewUsers
                 'string',
                 'email',
                 'max:255',
-                Rule::unique(User::class),
+                new UniqueUserEmail(),
             ],
             'password' => $this->passwordRules(),
             'type' => ['required', Rule::in([UserType::PROFESSOR->value])],
@@ -41,7 +42,7 @@ class CreateNewUser implements CreatesNewUsers
 
         $user = new User([
             'name' => $input['name'],
-            'email' => $input['email'],
+            'email' => strtolower(trim($input['email'])),
             'password' => Hash::make($input['password']),
             'type' => UserType::PROFESSOR,
         ]);

@@ -41,7 +41,7 @@ class StudentController extends Controller
     public function update(UpdateStudentRequest $request, int $id)
     {
         $student = $this->userService->findStudent($id);
-        $updated = $this->userService->update($student, $request->all());
+        $updated = $this->userService->update($student, $request->validated());
 
         return new UserResource($updated);
     }

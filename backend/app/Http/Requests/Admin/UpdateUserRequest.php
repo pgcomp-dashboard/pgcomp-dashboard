@@ -2,13 +2,26 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\User;
 use App\Enums\UserCategory;
+use App\Rules\UniqueUserEmail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class UpdateUserRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $normalized = [];
+        foreach (['email', 'secondary_email'] as $field) {
+            if ($this->has($field)) {
+                $normalized[$field] = strtolower(trim((string) $this->input($field)));
+            }
+        }
+        $this->merge($normalized);
+    }
+
     public function authorize(): bool
     {
         return true;
@@ -16,18 +29,49 @@ class UpdateUserRequest extends FormRequest
 
     public function rules(): array
     {
+        $user = User::find($this->route('user') ?? $this->route('id'));
+        $isStudent = $this->input('type', $user?->type?->value) === 'student';
+        $emailRules = $isStudent
+            ? [
+                'required',
+                'string',
+                'email:rfc',
+                'max:255',
+                'regex:/^[^@\s]+@ufba\.br$/i',
+                new UniqueUserEmail($user?->id),
+            ]
+            : [
+                'sometimes',
+                'nullable',
+                'string',
+                'email:rfc',
+                'max:255',
+                new UniqueUserEmail($user?->id),
+            ];
+        $secondaryEmailRules = $isStudent
+            ? [
+                'required',
+                'string',
+                'email:rfc',
+                'max:255',
+                'different:email',
+                new UniqueUserEmail($user?->id),
+            ]
+            : [
+                'sometimes',
+                'nullable',
+                'string',
+                'email:rfc',
+                'max:255',
+                new UniqueUserEmail($user?->id),
+            ];
+
         return [
             'name' => 'sometimes|string|max:255',
             'type' => ['sometimes', 'string', Rule::in(['student', 'professor', 'manager'])],
             'category' => ['sometimes', new Enum(UserCategory::class)],
-            'email' => [
-                'sometimes',
-                'nullable',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($this->route('user') ?? $this->route('id')),
-            ],
+            'email' => $emailRules,
+            'secondary_email' => $secondaryEmailRules,
             'password' => 'sometimes|string|min:8',
             'is_admin' => 'sometimes|boolean',
             'registration' => [

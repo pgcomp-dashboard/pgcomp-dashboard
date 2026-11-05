@@ -51,6 +51,7 @@ export function AdminUserEditor({
 }: AdminUserEditorProps) {
   const [draft, setDraft] = useState<AdminUserUpdate>({});
   const [emailError, setEmailError] = useState<string>();
+  const [secondaryEmailError, setSecondaryEmailError] = useState<string>();
 
   useEffect(() => {
     if (!user) return;
@@ -58,6 +59,7 @@ export function AdminUserEditor({
       name: user.name,
       type: user.type,
       email: user.email,
+      secondary_email: user.secondary_email ?? "",
       category:
         user.type === "professor" ? (user.category ?? "permanente") : undefined,
       registration: user.registration,
@@ -73,6 +75,7 @@ export function AdminUserEditor({
       password: "",
     });
     setEmailError(undefined);
+    setSecondaryEmailError(undefined);
   }, [user]);
 
   const validateEmail = (email: string | null | undefined) => {
@@ -86,6 +89,24 @@ export function AdminUserEditor({
     const invalidEmail = validateEmail(draft.email);
     setEmailError(invalidEmail);
     if (invalidEmail) return;
+    if (
+      draft.type === "student" &&
+      !draft.email?.trim().toLowerCase().endsWith("@ufba.br")
+    ) {
+      setEmailError("O email principal do discente deve ser @ufba.br.");
+      return;
+    }
+    if (draft.type === "student") {
+      const secondaryEmail = draft.secondary_email?.trim() ?? "";
+      const invalidSecondaryEmail =
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(secondaryEmail)
+          ? "Informe um email alternativo válido."
+          : secondaryEmail.toLowerCase() === draft.email?.trim().toLowerCase()
+            ? "O email alternativo deve ser diferente do principal."
+            : undefined;
+      setSecondaryEmailError(invalidSecondaryEmail);
+      if (invalidSecondaryEmail) return;
+    }
 
     const data = { ...draft };
     if (!data.password) delete data.password;
@@ -120,7 +141,11 @@ export function AdminUserEditor({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="admin-user-email">E-mail</Label>
+                <Label htmlFor="admin-user-email">
+                  {draft.type === "student"
+                    ? "E-mail principal (UFBA / login)"
+                    : "E-mail"}
+                </Label>
                 <Input
                   id="admin-user-email"
                   type="email"
@@ -146,6 +171,29 @@ export function AdminUserEditor({
                   </p>
                 )}
               </div>
+              {draft.type === "student" && (
+                <div className="space-y-2">
+                  <Label htmlFor="admin-user-secondary-email">
+                    E-mail alternativo
+                  </Label>
+                  <Input
+                    id="admin-user-secondary-email"
+                    type="email"
+                    value={draft.secondary_email ?? ""}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        secondary_email: event.target.value,
+                      }))
+                    }
+                  />
+                  {secondaryEmailError && (
+                    <p className="text-sm text-destructive" role="alert">
+                      {secondaryEmailError}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label>Tipo de usuário</Label>
