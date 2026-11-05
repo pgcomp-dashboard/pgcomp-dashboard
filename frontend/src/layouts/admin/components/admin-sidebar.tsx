@@ -2,6 +2,7 @@ import {
   Award,
   BarChart2,
   BookOpen,
+  CalendarCheck,
   ChevronDown,
   ClipboardList,
   File,
@@ -403,6 +404,18 @@ export function AdminSidebar() {
             </SidebarMenuItem>
           )}
 
+          {/* POC: solicitação de banca (discente abre, orientador revisa e envia) */}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/portal/defense-requests"}
+            >
+              <Link to="/portal/defense-requests">
+                <CalendarCheck className="h-4 w-4" />
+                <span>Solicitação de Banca</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           {/* Produções */}
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -433,6 +446,17 @@ export function AdminSidebar() {
           )}
           {auth?.isAdmin && (
             <>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/defense-requests"}
+                >
+                  <Link to="/admin/defense-requests">
+                    <CalendarCheck className="h-4 w-4" />
+                    <span>Solicitações de Banca</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
