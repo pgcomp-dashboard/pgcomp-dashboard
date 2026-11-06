@@ -12,7 +12,7 @@ interface StudentPickerProps {
   onChange: (student: StudentOption) => void;
 }
 
-/** Orientador escolhe o discente: abre já com os orientandos dele; a busca acha os demais. */
+/** Orientador escolhe o discente entre os orientandos dele (a API só aceita orientando). */
 export function StudentPicker({ value, onChange }: StudentPickerProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -20,7 +20,14 @@ export function StudentPicker({ value, onChange }: StudentPickerProps) {
   const students = lookup.data ?? [];
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        // Ao fechar sem escolher, a próxima abertura começa sem a busca antiga.
+        if (!next) setQuery("");
+      }}
+    >
       <PopoverTrigger asChild>
         <Button id="defense-student" type="button" variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between font-normal sm:max-w-md">
           {value ? value.name : <span className="text-muted-foreground">Escolha o orientando…</span>}
@@ -29,11 +36,19 @@ export function StudentPicker({ value, onChange }: StudentPickerProps) {
       </PopoverTrigger>
       <PopoverContent className="w-(--radix-popover-trigger-width) min-w-[320px] p-0" align="start">
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Buscar discente pelo nome…" value={query} onValueChange={setQuery} />
+          <CommandInput placeholder="Buscar entre seus orientandos…" value={query} onValueChange={setQuery} />
           <CommandList>
-            <CommandEmpty>{lookup.isFetching ? "Buscando…" : "Nenhum discente encontrado."}</CommandEmpty>
+            <CommandEmpty>
+              {lookup.isFetching ? (
+                "Buscando…"
+              ) : lookup.isError ? (
+                <LookupFailed onRetry={() => lookup.refetch()} />
+              ) : (
+                "Nenhum orientando encontrado."
+              )}
+            </CommandEmpty>
             {students.length > 0 && (
-              <CommandGroup heading={query.trim() ? "Discentes" : "Seus orientandos"}>
+              <CommandGroup heading="Seus orientandos">
                 {students.map((s) => (
                   <CommandItem
                     key={s.id}
@@ -46,10 +61,11 @@ export function StudentPicker({ value, onChange }: StudentPickerProps) {
                   >
                     <GraduationCap className="h-4 w-4 text-muted-foreground" />
                     <span className="truncate">{s.name}</span>
-                    <span className="ml-auto flex shrink-0 gap-1">
-                      {s.level && <Badge variant="secondary" className="text-[11px] font-normal">{LEVEL_LABEL[s.level]}</Badge>}
-                      {s.is_mine && <Badge variant="outline" className="text-[11px] font-normal">Orientando</Badge>}
-                    </span>
+                    {s.level && (
+                      <Badge variant="secondary" className="ml-auto shrink-0 text-[11px] font-normal">
+                        {LEVEL_LABEL[s.level]}
+                      </Badge>
+                    )}
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -58,5 +74,17 @@ export function StudentPicker({ value, onChange }: StudentPickerProps) {
         </Command>
       </PopoverContent>
     </Popover>
+  );
+}
+
+/** Falha de rede na busca não é "ninguém encontrado": diz o que houve e oferece tentar de novo. */
+export function LookupFailed({ onRetry }: { onRetry: () => void }) {
+  return (
+    <span className="text-destructive">
+      Não foi possível buscar.{" "}
+      <button type="button" className="font-medium text-primary hover:underline" onClick={onRetry}>
+        Tentar de novo
+      </button>
+    </span>
   );
 }

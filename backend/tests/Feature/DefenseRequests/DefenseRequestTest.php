@@ -3,6 +3,7 @@
 namespace Tests\Feature\DefenseRequests;
 
 use App\Domain\DefenseRequests\DefenseRequestForms;
+use App\Enums\DefenseRequestStatus;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use App\Models\Course;
@@ -18,6 +19,15 @@ class DefenseRequestTest extends TestCase
     private function professor(): User
     {
         return User::factory()->create(['is_approved' => true, 'type' => UserType::PROFESSOR]);
+    }
+
+    /** Orientando do docente (sem curso: qualquer nível vale). */
+    private function advisee(User $professor, array $attrs = []): User
+    {
+        $student = User::factory()->create(['is_approved' => true, 'type' => UserType::STUDENT] + $attrs);
+        $professor->advisedes()->attach($student->id, ['relation_type' => UserRelationType::ADVISOR->value]);
+
+        return $student;
     }
 
     /** Respostas válidas para todos os campos obrigatórios (e alguns opcionais) de um tipo. */
@@ -59,15 +69,19 @@ class DefenseRequestTest extends TestCase
     public function test_professor_submits_each_of_the_four_types(): void
     {
         $professor = $this->professor();
+        $student = $this->advisee($professor);
 
         foreach (DefenseRequestForms::types() as $type) {
             $this->actingAs($professor)->postJson('/api/portal/defense-requests', [
                 'type' => $type,
+                'student_user_id' => $student->id,
                 'data' => $this->validData($type),
             ])->assertCreated()
                 ->assertJsonPath('data.type', $type)
                 ->assertJsonPath('data.status', 'submitted')
-                ->assertJsonPath('data.answers.student_name', 'Valor de student_name')
+                // Nomes vêm do cadastro, não do texto enviado.
+                ->assertJsonPath('data.answers.student_name', $student->name)
+                ->assertJsonPath('data.answers.advisor', $professor->name)
                 ->assertJsonPath('data.answers.member_1.affiliation', 'UFPE');
         }
 
@@ -78,23 +92,25 @@ class DefenseRequestTest extends TestCase
     public function test_required_fields_depend_on_the_selected_type(): void
     {
         $professor = $this->professor();
+        $student = $this->advisee($professor);
 
         // "impacts" é obrigatório na defesa de mestrado...
         $data = $this->validData('masters_defense');
         unset($data['impacts']);
-        $this->actingAs($professor)->postJson('/api/portal/defense-requests', ['type' => 'masters_defense', 'data' => $data])
+        $this->actingAs($professor)->postJson('/api/portal/defense-requests', ['type' => 'masters_defense', 'student_user_id' => $student->id, 'data' => $data])
             ->assertStatus(422);
 
         // ...e não existe na qualificação de mestrado, onde o co-orientador é opcional.
         $data = $this->validData('masters_qualification');
         unset($data['co_advisor']);
-        $this->actingAs($professor)->postJson('/api/portal/defense-requests', ['type' => 'masters_qualification', 'data' => $data])
+        $this->actingAs($professor)->postJson('/api/portal/defense-requests', ['type' => 'masters_qualification', 'student_user_id' => $student->id, 'data' => $data])
             ->assertCreated();
     }
 
     public function test_validation_rejects_bad_values(): void
     {
         $professor = $this->professor();
+        $student = $this->advisee($professor);
         $cases = [
             'tipo inexistente' => ['type' => 'pos_doc', 'data' => ['x' => 1]],
             'sem dados' => ['type' => 'masters_qualification'],
@@ -102,12 +118,13 @@ class DefenseRequestTest extends TestCase
             'hora inválida' => ['type' => 'masters_qualification', 'data' => ['time' => '25:99'] + $this->validData('masters_qualification')],
             'confirmação não marcada' => ['type' => 'masters_qualification', 'data' => ['confirm_aware' => false] + $this->validData('masters_qualification')],
             'membro sem afiliação' => ['type' => 'masters_qualification', 'data' => ['member_1' => ['name' => 'X', 'lattes' => 'http://lattes.cnpq.br/1']] + $this->validData('masters_qualification')],
+            'docente sem discente' => ['type' => 'masters_qualification', 'student_user_id' => null, 'data' => $this->validData('masters_qualification')],
             'Lattes que não é URL' => ['type' => 'masters_qualification', 'data' => ['member_1' => ['name' => 'X', 'affiliation' => 'UFPE', 'lattes' => 'lattes']] + $this->validData('masters_qualification')],
             'suplente opcional sem afiliação' => ['type' => 'masters_qualification', 'data' => ['substitute_1' => ['name' => 'X']] + $this->validData('masters_qualification')],
         ];
 
         foreach ($cases as $case => $payload) {
-            $this->actingAs($professor)->postJson('/api/portal/defense-requests', $payload)
+            $this->actingAs($professor)->postJson('/api/portal/defense-requests', $payload + ['student_user_id' => $student->id])
                 ->assertStatus(422, "esperava 422 para: {$case}");
         }
         $this->assertDatabaseCount('defense_requests', 0);
@@ -115,14 +132,16 @@ class DefenseRequestTest extends TestCase
 
     public function test_only_schema_fields_are_stored(): void
     {
-        $this->actingAs($this->professor())->postJson('/api/portal/defense-requests', [
+        $professor = $this->professor();
+        $this->actingAs($professor)->postJson('/api/portal/defense-requests', [
             'type' => 'doctoral_qualification',
+            'student_user_id' => $this->advisee($professor)->id,
             'data' => $this->validData('doctoral_qualification') + ['hacker' => 'x', 'status' => 'approved'],
         ])->assertCreated();
 
         $stored = DefenseRequest::firstOrFail();
         $this->assertArrayNotHasKey('hacker', $stored->data);
-        $this->assertSame('submitted', $stored->status);
+        $this->assertSame(DefenseRequestStatus::SUBMITTED, $stored->status);
         // O MySQL reordena as chaves de colunas JSON; o que importa é o conjunto.
         $this->assertEqualsCanonicalizing(array_column(DefenseRequestForms::get('doctoral_qualification')['fields'], 'key'), array_keys($stored->data));
     }
@@ -181,15 +200,18 @@ class DefenseRequestTest extends TestCase
             ->assertJsonPath('data.0.advisor.id', $advisor->id)
             ->assertJsonPath('data.0.co_advisor.name', 'Zélia Coorientadora')
             ->assertJsonPath('data.0.is_mine', true);
+        // A busca do docente fica entre os orientandos dele.
         $this->actingAs($advisor)->getJson('/api/portal/defense-requests/lookup/students?q=Outro')->assertOk()
-            ->assertJsonCount(1, 'data')->assertJsonPath('data.0.is_mine', false);
+            ->assertJsonCount(0, 'data');
+        $this->actingAs($advisor)->getJson('/api/portal/defense-requests/lookup/students?q=Orientanda')->assertOk()
+            ->assertJsonCount(1, 'data');
 
         // O discente só recebe a si mesmo.
         $this->actingAs($student)->getJson('/api/portal/defense-requests/lookup/students?q=Outro')->assertOk()
             ->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $student->id);
 
         // Membros: docentes do PGCOMP com Lattes do cadastro + externos de bancas anteriores.
-        DefenseRequest::create(['user_id' => $advisor->id, 'type' => 'masters_defense', 'data' => [
+        DefenseRequest::create(['user_id' => $advisor->id, 'status' => DefenseRequestStatus::SUBMITTED, 'submitted_at' => now(), 'type' => 'masters_defense', 'data' => [
             'member_1' => ['user_id' => null, 'name' => 'Externa Zeferina', 'affiliation' => 'UFPE', 'lattes' => 'http://lattes.cnpq.br/7'],
         ]]);
         $this->actingAs($advisor)->getJson('/api/portal/defense-requests/lookup/members?q=Z')->assertOk()
@@ -207,8 +229,8 @@ class DefenseRequestTest extends TestCase
     {
         $me = $this->professor();
         $other = $this->professor();
-        DefenseRequest::create(['user_id' => $me->id, 'type' => 'masters_defense', 'data' => ['student_name' => 'A']]);
-        DefenseRequest::create(['user_id' => $other->id, 'type' => 'doctoral_defense', 'data' => ['student_name' => 'B']]);
+        DefenseRequest::create(['user_id' => $me->id, 'status' => DefenseRequestStatus::SUBMITTED, 'submitted_at' => now(), 'type' => 'masters_defense', 'data' => ['student_name' => 'A']]);
+        DefenseRequest::create(['user_id' => $other->id, 'status' => DefenseRequestStatus::SUBMITTED, 'submitted_at' => now(), 'type' => 'doctoral_defense', 'data' => ['student_name' => 'B']]);
 
         $this->actingAs($me)->getJson('/api/portal/defense-requests')->assertOk()
             ->assertJsonCount(1, 'data')

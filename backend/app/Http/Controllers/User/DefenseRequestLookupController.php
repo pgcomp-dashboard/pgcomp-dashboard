@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Domain\DefenseRequests\DefenseRequestForms;
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Models\DefenseRequest;
@@ -10,7 +11,8 @@ use Illuminate\Http\Request;
 
 /**
  * POC: buscas que deixam o wizard de banca quase sem digitação.
- * - students: discente com curso (nível), orientador e coorientador já vinculados.
+ * - students: o próprio discente, ou os orientandos do docente, com nível (pelo curso),
+ *   orientador e coorientador já vinculados.
  * - members: docentes do PGCOMP (afiliação e Lattes do cadastro) e membros externos
  *   que já participaram de outras bancas no portal.
  */
@@ -27,22 +29,16 @@ class DefenseRequestLookupController extends Controller
             return response()->json(['data' => [$this->studentPayload($me->load(['course', 'advisors', 'coadvisors']), $me)]]);
         }
 
+        // O docente só abre para os próprios orientandos; a busca filtra entre eles.
         $q = trim((string) $request->query('q', ''));
-        $mine = $me->advisedes()->pluck('users.id')->all();
-
-        $students = User::query()
-            ->where('type', UserType::STUDENT)
-            ->whereNull('defended_at')
+        $students = $me->advisedes()
+            ->where('users.type', UserType::STUDENT)
+            ->whereNull('users.defended_at')
             ->with(['course', 'advisors', 'coadvisors'])
-            // Sem busca, mostra só os meus orientandos.
-            ->when($q === '', fn ($query) => $query->whereIn('id', $mine))
-            ->when($q !== '', fn ($query) => $query->where('name', 'like', "%{$q}%"))
-            ->orderBy('name')
+            ->when($q !== '', fn ($query) => $query->where('users.name', 'like', '%'.addcslashes($q, '%_\\').'%'))
+            ->orderBy('users.name')
             ->limit(50)
-            ->get()
-            ->sortBy(fn (User $s) => in_array($s->id, $mine, true) ? 0 : 1, SORT_REGULAR)
-            ->take(20)
-            ->values();
+            ->get();
 
         return response()->json(['data' => $students->map(fn (User $s) => $this->studentPayload($s, $me))]);
     }
@@ -90,17 +86,11 @@ class DefenseRequestLookupController extends Controller
     private function studentPayload(User $student, User $me): array
     {
         $person = fn (?User $u) => $u ? ['id' => $u->id, 'name' => $u->name] : null;
-        $course = mb_strtolower((string) $student->course?->name);
-
         return [
             'id' => $student->id,
             'name' => $student->name,
             'registration' => $student->registration,
-            'level' => match (true) {
-                str_contains($course, 'doutorado') => 'doutorado',
-                str_contains($course, 'mestrado') => 'mestrado',
-                default => null,
-            },
+            'level' => DefenseRequestForms::levelOf($student),
             'advisor' => $person($student->advisors->first()),
             'co_advisor' => $person($student->coadvisors->first()),
             'is_mine' => $student->advisors->contains('id', $me->id),

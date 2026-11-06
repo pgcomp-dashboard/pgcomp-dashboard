@@ -12,7 +12,7 @@ class DefenseRequestController extends Controller
     public function index()
     {
         return DefenseRequestResource::collection(
-            DefenseRequest::with(['user', 'advisor'])->orderByDesc('id')->get()
+            DefenseRequest::with(['user', 'advisor', 'student.advisors'])->orderByDesc('id')->get()
         );
     }
 }

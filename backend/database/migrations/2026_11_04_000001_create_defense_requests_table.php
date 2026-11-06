@@ -23,9 +23,13 @@ return new class extends Migration
             $table->foreignId('advisor_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('type', 40)->index();
             $table->json('data');
-            $table->string('status', 20)->default('submitted');
+            // Sem padrão: todo registro nasce por uma transição (App\Enums\DefenseRequestStatus).
+            $table->string('status', 20);
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
+
+            // Regra "uma em andamento por discente e tipo" (DefenseRequestWorkflow).
+            $table->index(['student_user_id', 'type', 'status']);
         });
     }
 

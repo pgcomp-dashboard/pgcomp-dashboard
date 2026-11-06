@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AnswersSummary } from "@/features/defense-requests/components/AnswersSummary";
+import { ErrorNotice } from "@/features/defense-requests/components/ErrorNotice";
 import { MemberSlot } from "@/features/defense-requests/components/MemberSlot";
 import { StudentPicker } from "@/features/defense-requests/components/StudentPicker";
 import {
@@ -18,12 +19,16 @@ import {
   MemberValue,
   PersonRef,
   STAGE_LABEL,
+  STATUS_LABEL,
   StudentOption,
 } from "@/features/defense-requests/types";
+import { clearDraft, DefenseDraft, draftTime, loadDraft, saveDraft } from "@/features/defense-requests/draft";
 import { cn } from "@/lib/utils";
+import { parseApiError } from "@/services/http-client";
 import { DefenseRequestInput } from "@/services/modules/defense-request.service";
+import { ApiError } from "@/types/common";
 import { Check, ChevronLeft, ChevronRight, Info, Plus, Send } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /** Quem preenche: o discente abre para si; o orientador abre para um orientando ou revisa. */
 export type DefensePersona = "student" | "advisor";
@@ -39,6 +44,19 @@ interface DefenseRequestWizardProps {
   isSubmitting: boolean;
   onSubmit: (input: DefenseRequestInput) => Promise<unknown>;
   onCancel: () => void;
+  /** Solicitações que a pessoa já vê (para avisar da duplicata antes do envio). */
+  existing: DefenseRequest[];
+  onViewExisting: (request: DefenseRequest) => void;
+  /** 409/403: a solicitação mudou por fora (já enviada, outro orientador). A página recarrega e fecha. */
+  onStale: (message: string) => void;
+  /** Descartar o rascunho recuperado e recomeçar do zero. */
+  onDiscardDraft: () => void;
+}
+
+/** Erro que a API devolveu no envio: onde está e o que diz. */
+interface ServerNotice {
+  kind: "invalid" | "failed";
+  items: { text: string; key?: string; step?: number }[];
 }
 
 const SECTION = {
@@ -64,12 +82,29 @@ const LATTES = /^https?:\/\/\S+$/i;
  * o portal já sabe (discente, nível pelo curso, orientador, coorientador, afiliação
  * e Lattes dos docentes) chega preenchido.
  */
-export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSubmitting, onSubmit, onCancel }: DefenseRequestWizardProps) {
+export function DefenseRequestWizard({
+  forms,
+  persona,
+  me,
+  self,
+  reviewing,
+  isSubmitting,
+  onSubmit,
+  onCancel,
+  existing,
+  onViewExisting,
+  onStale,
+  onDiscardDraft,
+}: DefenseRequestWizardProps) {
   const reviewForm = reviewing ? forms.find((f) => f.type === reviewing.type) : undefined;
+  // Rascunho de uma sessão anterior (ex.: a sessão expirou no meio): retoma de onde parou.
+  const [restored] = useState<DefenseDraft | null>(() => loadDraft(me.id, reviewing?.id));
 
   const [student, setStudent] = useState<StudentOption | null>(() => {
+    if (restored) return restored.student;
     if (reviewing) {
       return {
+        // Só para exibir: na revisão o discente não é reenviado (ver submit).
         id: reviewing.student_user_id ?? 0,
         name: (reviewing.answers.student_name as string) ?? "",
         registration: null,
@@ -81,29 +116,72 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
     }
     return persona === "student" ? (self ?? null) : null;
   });
-  const [level, setLevel] = useState<DefenseLevel | null>(reviewForm?.level ?? self?.level ?? null);
-  const [stage, setStage] = useState<DefenseStage | null>(reviewForm?.stage ?? null);
-  const [answers, setAnswers] = useState<DefenseAnswers>(() => (reviewing ? { ...reviewing.answers } : initialAnswers(persona, me, self)));
-  const [step, setStep] = useState(reviewing ? STEPS.length - 1 : 0);
-  const [reached, setReached] = useState(reviewing ? STEPS.length - 1 : 0);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [openOptional, setOpenOptional] = useState<string[]>([]);
-  const [editLevel, setEditLevel] = useState(false);
+  const [level, setLevel] = useState<DefenseLevel | null>(restored ? restored.level : (reviewForm?.level ?? self?.level ?? null));
+  const [stage, setStage] = useState<DefenseStage | null>(restored ? restored.stage : (reviewForm?.stage ?? null));
+  const [answers, setAnswers] = useState<DefenseAnswers>(() =>
+    restored ? restored.answers : reviewing ? { ...reviewing.answers } : initialAnswers(persona, me, self),
+  );
+  const [step, setStep] = useState(restored ? restored.step : reviewing ? STEPS.length - 1 : 0);
+  const [reached, setReached] = useState(restored ? restored.step : reviewing ? STEPS.length - 1 : 0);
+  const [localErrors, setErrors] = useState<Record<string, string>>({});
+  // Erros da API por campo: ficam até a pessoa mexer no campo (o "Próximo" não apaga).
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
+  const [notice, setNotice] = useState<ServerNotice | null>(null);
+  const errors = { ...serverErrors, ...localErrors };
+  const [openOptional, setOpenOptional] = useState<string[]>(restored?.openOptional ?? []);
+  // Só guarda rascunho depois que a pessoa mexeu em algo (abrir e fechar não deixa rascunho).
+  const dirty = useRef(!!restored);
   const [editCoAdvisor, setEditCoAdvisor] = useState(false);
 
   const form = useMemo(() => forms.find((f) => f.level === level && f.stage === stage), [forms, level, stage]);
   const fieldsOf = (section: string) => form?.fields.filter((f) => f.section === section) ?? [];
+  const dropServerError = (...keys: string[]) =>
+    setServerErrors((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => !keys.includes(k))));
+
   const set = (key: string, value: DefenseAnswers[string]) => {
+    dirty.current = true;
     setAnswers((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => {
       const { [key]: _drop, ...rest } = prev;
       return rest;
     });
+    dropServerError(key);
+  };
+
+  useEffect(() => {
+    if (dirty.current) saveDraft(me.id, reviewing?.id, { level, stage, student, answers, step, openOptional });
+  }, [me.id, reviewing?.id, level, stage, student, answers, step, openOptional]);
+
+  // Mesmo discente + mesmo tipo já em andamento: a API recusa, então avisa já na escolha.
+  const duplicate = useMemo(
+    () =>
+      form && student
+        ? existing.find((r) => r.type === form.type && r.student_user_id === student.id && r.id !== reviewing?.id)
+        : undefined,
+    [existing, form, student, reviewing?.id],
+  );
+
+  /*
+   * Trocar nível/etapa troca o formulário: as etapas seguintes passam a ser outras, então o
+   * que já tinha sido "alcançado" e as vagas opcionais abertas deixam de valer. As respostas
+   * ficam (voltar ao tipo anterior não perde o que foi digitado); o envio filtra pelo schema.
+   */
+  const changeForm = (nextLevel: DefenseLevel | null, nextStage: DefenseStage | null) => {
+    if (nextLevel === level && nextStage === stage) return;
+    dirty.current = true;
+    dropServerError("level", "stage");
+    setLevel(nextLevel);
+    setStage(nextStage);
+    setReached(step);
+    setOpenOptional([]);
+    setErrors(({ level: _l, stage: _s, ...rest }) => rest);
   };
 
   const chooseStudent = (s: StudentOption) => {
+    dirty.current = true;
+    setServerErrors({});
     setStudent(s);
-    if (s.level) setLevel(s.level);
+    if (s.level) changeForm(s.level, stage);
     setAnswers((prev) => ({
       ...prev,
       student_name: s.name,
@@ -123,12 +201,14 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
       if (!level) next.level = "Escolha o nível.";
       if (!stage) next.stage = "Escolha entre qualificação e defesa.";
       if (student && !answers.advisor) next.advisor = "Seu cadastro não tem orientador vinculado. Peça à secretaria para vincular.";
+      if (duplicate) next.stage = "Já existe uma solicitação deste tipo em andamento.";
     } else {
       for (const field of fieldsOf(stepDef.section)) {
         if (field.type === "confirm" && persona === "student") continue;
         const message = fieldError(field, answers[field.key], openOptional.includes(field.key));
         if (message) next[field.key] = message;
       }
+      if (stepDef.id === "committee") Object.assign(next, committeeConflicts(fieldsOf(SECTION.committee), answers, next));
     }
 
     setErrors(next);
@@ -136,11 +216,11 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
   };
 
   const goTo = (index: number) => {
-    if (index <= reached) {
+    if (index <= step) {
       setStep(index);
       return;
     }
-    // Avançar: valida cada etapa até o destino.
+    // Avançar (mesmo para etapa já visitada): valida cada etapa até o destino.
     for (let i = step; i < index; i++) {
       if (!validate(i)) {
         setStep(i);
@@ -165,8 +245,62 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
       const value = answers[field.key];
       data[field.key] = field.type === "confirm" ? value === true : field.type === "member" ? (isMember(value) && value.name ? value : null) : (value ?? null);
     }
-    await onSubmit({ type: form.type, data, student_user_id: student?.id || null });
+    setNotice(null);
+    try {
+      // Na revisão o discente já está na solicitação (a API ignora o campo); ao abrir, vai o escolhido.
+      await onSubmit({ type: form.type, data, student_user_id: reviewing ? null : (student?.id ?? null) });
+      clearDraft(me.id, reviewing?.id);
+    } catch (e) {
+      showServerError(e as ApiError);
+    }
   };
+
+  /** Campo da API → campo do wizard ("data.member_1.lattes" → "member_1"; "type" → etapa). */
+  const fieldKey = (apiField: string): string | undefined => {
+    if (apiField === "type") return "stage";
+    if (apiField === "student_user_id") return persona === "advisor" && !reviewing ? "student" : "advisor";
+    const [root, key] = apiField.split(".");
+    return root === "data" && key && form?.fields.some((f) => f.key === key) ? key : undefined;
+  };
+  const stepOf = (key: string): number => {
+    if (["student", "advisor", "level", "stage"].includes(key)) return 0;
+    const section = form?.fields.find((f) => f.key === key)?.section;
+    const index = STEPS.findIndex((s) => s.section === section);
+    return index >= 0 ? index : STEPS.length - 1;
+  };
+
+  const showServerError = (error: ApiError) => {
+    if (error.code === 401) return; // o AuthProvider avisa e leva ao login; o rascunho fica salvo
+    if (error.code === 403 || error.code === 409) {
+      clearDraft(me.id, reviewing?.id);
+      onStale(parseApiError(error));
+      return;
+    }
+    if (error.code !== 422) {
+      setNotice({ kind: "failed", items: [{ text: parseApiError(error) }] });
+      return;
+    }
+    const byField: Record<string, string> = {};
+    const items: ServerNotice["items"] = [];
+    const placed = new Set<string>();
+    for (const [apiField, messages] of Object.entries(error.fieldErrors ?? {})) {
+      const key = fieldKey(apiField);
+      for (const text of messages) {
+        placed.add(text);
+        if (key && !byField[key]) byField[key] = text;
+        items.push({ text, key, step: key ? stepOf(key) : undefined });
+      }
+    }
+    for (const { description } of error.errors ?? []) if (!placed.has(description)) items.push({ text: description });
+    setServerErrors(byField);
+    setNotice({ kind: "invalid", items });
+    const steps = items.map((i) => i.step).filter((i): i is number => i !== undefined);
+    if (steps.length > 0) setStep(Math.min(...steps));
+  };
+
+  const jumpTo = (index: number) => (index <= step ? setStep(index) : goTo(index));
+  // Itens cujo campo já foi corrigido saem da lista; os sem campo ficam até o próximo envio.
+  const openItems = notice?.items.filter((i) => !i.key || serverErrors[i.key]) ?? [];
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -174,6 +308,45 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
   return (
     <div className="space-y-6">
       <Stepper step={step} reached={reached} onGo={goTo} />
+
+      {restored && (
+        <ErrorNotice
+          tone="warning"
+          title={`Recuperamos o que você tinha preenchido (salvo às ${draftTime(restored)}).`}
+          actions={
+            <Button type="button" size="sm" variant="outline" onClick={onDiscardDraft}>
+              Descartar e recomeçar
+            </Button>
+          }
+        />
+      )}
+
+      {notice && openItems.length > 0 && (
+        <ErrorNotice
+          title={notice.kind === "invalid" ? "A solicitação não foi enviada. Corrija o que está abaixo:" : "A solicitação não foi enviada."}
+          actions={
+            notice.kind === "failed" && (
+              <Button type="button" size="sm" variant="outline" onClick={submit} disabled={isSubmitting}>
+                Tentar enviar de novo
+              </Button>
+            )
+          }
+        >
+          <ul className="space-y-1" aria-label="Erros do envio">
+            {openItems.map((item, i) => (
+              <li key={i} className="flex flex-wrap items-baseline gap-x-2">
+                <span>{item.text}</span>
+                {item.step !== undefined && item.step !== step && (
+                  <button type="button" className="text-xs font-medium text-primary hover:underline" onClick={() => jumpTo(item.step!)}>
+                    Corrigir em {STEPS[item.step].title}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+          {notice.kind === "failed" && <p className="text-muted-foreground">O que você preencheu continua aqui.</p>}
+        </ErrorNotice>
+      )}
 
       <div className="min-h-[280px] space-y-5">
         <div>
@@ -219,23 +392,18 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
             {student && (
               <div className="space-y-2">
                 <Label>Nível *</Label>
-                {level && !editLevel ? (
+                {student.level && level ? (
+                  // O nível vem do curso e a API confere: não dá para trocar aqui.
                   <p className="text-sm">
                     <span className="font-medium">{LEVEL_LABEL[level]}</span>
-                    <span className="text-muted-foreground"> (pelo curso do discente) </span>
-                    <button type="button" className="text-xs text-primary hover:underline" onClick={() => setEditLevel(true)}>
-                      alterar
-                    </button>
+                    <span className="text-muted-foreground"> (pelo curso do discente)</span>
                   </p>
                 ) : (
                   <ChoiceRow
                     name="Nível"
                     options={(["mestrado", "doutorado"] as const).map((v) => ({ value: v, label: LEVEL_LABEL[v] }))}
                     value={level}
-                    onChange={(v) => {
-                      setLevel(v);
-                      setEditLevel(false);
-                    }}
+                    onChange={(v) => changeForm(v, stage)}
                   />
                 )}
                 {errors.level && <p className="text-xs font-medium text-destructive">{errors.level}</p>}
@@ -254,10 +422,7 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
                         type="button"
                         role="radio"
                         aria-checked={stage === v}
-                        onClick={() => {
-                          setStage(v);
-                          setErrors((e) => ({ ...e, stage: "" }));
-                        }}
+                        onClick={() => changeForm(level, v)}
                         className={cn(
                           "rounded-lg border p-4 text-left transition-colors hover:bg-muted/50",
                           stage === v && "border-primary bg-primary/5 ring-1 ring-primary",
@@ -272,7 +437,21 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
                     );
                   })}
                 </div>
-                {errors.stage && <p className="text-xs font-medium text-destructive">{errors.stage}</p>}
+                {duplicate ? (
+                  <ErrorNotice
+                    tone={errors.stage ? "error" : "warning"}
+                    title={`Já existe uma ${form?.label ?? "solicitação deste tipo"} ${persona === "student" ? "sua" : "para este discente"} (${STATUS_LABEL[duplicate.status]}).`}
+                    actions={
+                      <Button type="button" size="sm" variant="outline" onClick={() => onViewExisting(duplicate)}>
+                        Ver solicitação existente
+                      </Button>
+                    }
+                  >
+                    <p className="text-muted-foreground">Só pode haver uma de cada tipo em andamento. Acompanhe a existente ou escolha a outra etapa.</p>
+                  </ErrorNotice>
+                ) : (
+                  errors.stage && <p className="text-xs font-medium text-destructive">{errors.stage}</p>
+                )}
               </div>
             )}
           </div>
@@ -343,7 +522,18 @@ export function DefenseRequestWizard({ forms, persona, me, self, reviewing, isSu
       </div>
 
       <div className="flex items-center justify-between border-t pt-4">
-        <Button type="button" variant="ghost" onClick={step === 0 ? onCancel : () => setStep(step - 1)}>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={
+            step === 0
+              ? () => {
+                  clearDraft(me.id, reviewing?.id);
+                  onCancel();
+                }
+              : () => setStep(step - 1)
+          }
+        >
           <ChevronLeft className="h-4 w-4" /> {step === 0 ? "Cancelar" : "Voltar"}
         </Button>
         {isLast ? (
@@ -382,21 +572,38 @@ function fieldError(field: DefenseFormField, value: DefenseAnswers[string] | und
   return field.required && !text ? "Campo obrigatório" : null;
 }
 
+/** Mesma pessoa em duas vagas, ou orientador/coorientador como membro (a API confere igual). */
+function committeeConflicts(fields: DefenseFormField[], answers: DefenseAnswers, current: Record<string, string>): Record<string, string> {
+  const norm = (name: string) => name.trim().replace(/\s+/g, " ").toLowerCase();
+  const advisors = [answers.advisor, answers.co_advisor].filter((n): n is string => typeof n === "string" && !!n.trim()).map(norm);
+  const seen = new Map<string, string>();
+  const errors: Record<string, string> = {};
+  for (const field of fields) {
+    const value = answers[field.key];
+    if (current[field.key] || !isMember(value) || !value.name.trim()) continue;
+    const name = norm(value.name);
+    if (advisors.includes(name)) errors[field.key] = "Orientador e coorientador já participam; escolha outra pessoa.";
+    else if (seen.has(name)) errors[field.key] = `Esta pessoa já está em ${seen.get(name)}.`;
+    else seen.set(name, field.label);
+  }
+  return errors;
+}
+
 // ---- partes da tela ---------------------------------------------------------
 
 function Stepper({ step, reached, onGo }: { step: number; reached: number; onGo: (i: number) => void }) {
   return (
-    <ol className="flex flex-wrap items-center gap-x-2 gap-y-2" aria-label="Etapas">
+    <ol className="flex items-center gap-2" aria-label="Etapas">
       {STEPS.map((s, i) => {
         const done = i < step || (i <= reached && i !== step);
         return (
-          <li key={s.id} className="flex items-center gap-2">
+          <li key={s.id} className={cn("flex items-center gap-2", i < STEPS.length - 1 && "min-w-0 flex-1")}>
             <button
               type="button"
               onClick={() => onGo(i)}
               aria-current={i === step ? "step" : undefined}
               className={cn(
-                "flex items-center gap-2 rounded-full px-1 py-0.5 text-sm transition-colors",
+                "flex shrink-0 items-center gap-2 rounded-full px-1 py-0.5 text-sm transition-colors",
                 i === step ? "font-semibold text-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -411,7 +618,7 @@ function Stepper({ step, reached, onGo }: { step: number; reached: number; onGo:
               </span>
               <span className="hidden sm:inline">{s.title}</span>
             </button>
-            {i < STEPS.length - 1 && <span className="h-px w-4 bg-border sm:w-8" />}
+            {i < STEPS.length - 1 && <span className="h-px min-w-2 flex-1 bg-border" />}
           </li>
         );
       })}

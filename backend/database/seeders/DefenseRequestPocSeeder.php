@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\DefenseRequestStatus;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
 use App\Models\Course;
@@ -83,7 +84,7 @@ class DefenseRequestPocSeeder extends Seeder
                 'user_id' => $carlos->id,
                 'advisor_user_id' => $carlos->id,
                 'type' => 'masters_defense',
-                'status' => DefenseRequest::SUBMITTED,
+                'status' => DefenseRequestStatus::SUBMITTED,
                 'submitted_at' => now()->subMonths(3),
                 'data' => [
                     'student_name' => 'Egresso de exemplo',

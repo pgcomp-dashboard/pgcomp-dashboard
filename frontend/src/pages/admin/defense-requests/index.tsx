@@ -7,7 +7,7 @@ import { useState } from "react";
 /** POC: a coordenação vê todas as solicitações de banca (somente leitura). */
 export default function DefenseRequestsAdminPage() {
   const forms = useDefenseRequestForms();
-  const { requests, isLoading } = useAllDefenseRequests();
+  const { requests, isLoading, isError, refetch } = useAllDefenseRequests();
   const [viewing, setViewing] = useState<DefenseRequest | null>(null);
 
   return (
@@ -21,6 +21,8 @@ export default function DefenseRequestsAdminPage() {
         isLoading={isLoading}
         onView={setViewing}
         showSubmitter
+        isError={isError}
+        onRetry={() => refetch()}
         emptyMessage="Nenhuma solicitação enviada ainda."
       />
       <DefenseRequestDetailsDialog request={viewing} forms={forms.data ?? []} onOpenChange={(open) => !open && setViewing(null)} />

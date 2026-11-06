@@ -2,6 +2,8 @@
 
 namespace App\Domain\DefenseRequests;
 
+use App\Models\User;
+
 /**
  * POC: os 4 formulários de solicitação de banca do PGCOMP (Google Forms linkados em
  * pgcomp.ufba.br/apoio), com os mesmos campos e a mesma obrigatoriedade.
@@ -205,7 +207,8 @@ class DefenseRequestForms
                 $rules["$key.lattes"] = $field['lattes_required']
                     ? [$field['required'] ? 'required' : 'nullable', "required_with:$key.name", 'url', 'max:500']
                     : ['nullable', 'url', 'max:500'];
-                $rules["$key.user_id"] = ['nullable', 'integer', 'exists:users,id'];
+                // Só docente do cadastro (conferido em StoreDefenseRequest::after com mensagem por vaga).
+                $rules["$key.user_id"] = ['nullable', 'integer'];
 
                 continue;
             }
@@ -238,14 +241,29 @@ class DefenseRequestForms
         return $names;
     }
 
-    /** Mantém só as chaves do schema (descarta qualquer campo extra enviado). */
-    public static function only(string $type, array $data): array
+    /** Nível do discente pelo nome do curso ("Mestrado"/"Doutorado"); null se não der para saber. */
+    public static function levelOf(User $student): ?string
+    {
+        $course = mb_strtolower((string) $student->course?->name);
+
+        return match (true) {
+            str_contains($course, 'doutorado') => 'doutorado',
+            str_contains($course, 'mestrado') => 'mestrado',
+            default => null,
+        };
+    }
+
+    /**
+     * Mantém só as chaves do schema (descarta qualquer campo extra enviado).
+     * Sem $withConfirmations (discente), as confirmações ficam desmarcadas: são do orientador.
+     */
+    public static function only(string $type, array $data, bool $withConfirmations = true): array
     {
         $result = [];
         foreach (self::get($type)['fields'] ?? [] as $field) {
             $value = $data[$field['key']] ?? null;
             $result[$field['key']] = match ($field['type']) {
-                'confirm' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+                'confirm' => $withConfirmations && filter_var($value, FILTER_VALIDATE_BOOLEAN),
                 'member' => is_array($value) && trim((string) ($value['name'] ?? '')) !== ''
                     ? [
                         'user_id' => isset($value['user_id']) ? (int) $value['user_id'] : null,

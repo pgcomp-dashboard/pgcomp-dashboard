@@ -1,7 +1,8 @@
+import { ErrorNotice } from "@/features/defense-requests/components/ErrorNotice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { DefenseRequest, formatDate, STATUS_LABEL } from "@/features/defense-requests/types";
+import { DefenseRequest, formatDate, STATUS_LABEL, STATUS_TONE } from "@/features/defense-requests/types";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { Eye } from "lucide-react";
 
@@ -14,9 +15,12 @@ interface DefenseRequestsTableProps {
   /** Coluna "Solicitado por" (visão da coordenação). */
   showSubmitter?: boolean;
   emptyMessage: string;
+  /** Falha ao carregar: mostra o erro com "Tentar de novo" em vez de "nenhuma solicitação". */
+  isError?: boolean;
+  onRetry?: () => void;
 }
 
-export function DefenseRequestsTable({ requests, isLoading, onView, showSubmitter = false, emptyMessage }: DefenseRequestsTableProps) {
+export function DefenseRequestsTable({ requests, isLoading, onView, showSubmitter = false, emptyMessage, isError, onRetry }: DefenseRequestsTableProps) {
   const columns: ColumnDef<DefenseRequest, any>[] = [
     columnHelper.accessor("type_label", { header: "Tipo", cell: (info) => <span className="font-medium">{info.getValue()}</span> }),
     columnHelper.display({ id: "student", header: "Aluno", cell: (info) => (info.row.original.answers.student_name as string) ?? "—" }),
@@ -38,7 +42,7 @@ export function DefenseRequestsTable({ requests, isLoading, onView, showSubmitte
       cell: (info) => {
         const status = info.getValue() as DefenseRequest["status"];
         return (
-          <Badge variant="outline" className={status === "awaiting_advisor" ? "border-amber-500/50 text-amber-700 dark:text-amber-400" : "border-emerald-500/50 text-emerald-700 dark:text-emerald-400"}>
+          <Badge variant="outline" className={STATUS_TONE[status]}>
             {STATUS_LABEL[status]}
           </Badge>
         );
@@ -55,5 +59,21 @@ export function DefenseRequestsTable({ requests, isLoading, onView, showSubmitte
     }),
   ];
 
+  if (isError && requests.length === 0) {
+    return (
+      <ErrorNotice
+        title="Não foi possível carregar as solicitações."
+        actions={
+          onRetry && (
+            <Button type="button" size="sm" variant="outline" onClick={onRetry}>
+              Tentar de novo
+            </Button>
+          )
+        }
+      >
+        <p className="text-muted-foreground">Verifique sua conexão. Se continuar, avise a secretaria do PGCOMP.</p>
+      </ErrorNotice>
+    );
+  }
   return <DataTable columns={columns} data={requests} isLoading={isLoading} emptyMessage={emptyMessage} />;
 }

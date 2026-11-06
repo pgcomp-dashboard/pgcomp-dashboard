@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useMemberLookup } from "@/features/defense-requests/hooks/useDefenseRequests";
+import { LookupFailed } from "@/features/defense-requests/components/StudentPicker";
 import { DefenseFormField, KIND_LABEL, MemberOption, MemberValue } from "@/features/defense-requests/types";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, ExternalLink, History, Pencil, Search, UserPlus, X } from "lucide-react";
@@ -30,6 +31,8 @@ export function MemberSlot({ field, value, onChange, error, takenNames, onRemove
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [manual, setManual] = useState(false);
+  // "Editando" só existe com valor: se a vaga for limpa por fora (remover/trocar), volta a "vazia".
+  if (manual && !value) setManual(false);
   const lookup = useMemberLookup(query, open);
 
   const id = `member-${field.key}`;
@@ -119,7 +122,16 @@ export function MemberSlot({ field, value, onChange, error, takenNames, onRemove
         </div>
       ) : manual ? (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          <Input aria-label={`${field.label}: nome`} placeholder="Nome completo" value={value?.name ?? ""} onChange={(e) => set({ name: e.target.value })} />
+          {/* Docente do cadastro: o nome vem do cadastro (para trocar a pessoa, use "Trocar"). */}
+          <Input
+            aria-label={`${field.label}: nome`}
+            placeholder="Nome completo"
+            value={value?.name ?? ""}
+            readOnly={!!value?.user_id}
+            title={value?.user_id ? "Docente do cadastro: para trocar a pessoa, use Trocar" : undefined}
+            className={cn(value?.user_id && "bg-muted text-muted-foreground")}
+            onChange={(e) => set({ name: e.target.value })}
+          />
           <Input aria-label={`${field.label}: afiliação`} placeholder="Afiliação (ex.: UFPE)" value={value?.affiliation ?? ""} onChange={(e) => set({ affiliation: e.target.value })} />
           <Input
             aria-label={`${field.label}: Lattes`}
@@ -134,7 +146,14 @@ export function MemberSlot({ field, value, onChange, error, takenNames, onRemove
           </div>
         </div>
       ) : (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover
+          open={open}
+          onOpenChange={(next) => {
+            setOpen(next);
+            // Ao fechar sem escolher, a próxima abertura começa sem a busca antiga.
+            if (!next) setQuery("");
+          }}
+        >
           <PopoverTrigger asChild>
             <Button id={id} type="button" variant="outline" className="w-full justify-start gap-2 font-normal text-muted-foreground">
               <Search className="h-4 w-4" />
@@ -145,6 +164,12 @@ export function MemberSlot({ field, value, onChange, error, takenNames, onRemove
             <Command shouldFilter={false}>
               <CommandInput placeholder="Digite um nome…" value={query} onValueChange={setQuery} />
               <CommandList>
+                {/* "Cadastrar externo" está sempre na lista, então o CommandEmpty nunca aparece: o erro vem à parte. */}
+                {lookup.isError && !lookup.isFetching && (
+                  <div className="px-3 py-2 text-sm">
+                    <LookupFailed onRetry={() => lookup.refetch()} />
+                  </div>
+                )}
                 <CommandEmpty>{lookup.isFetching ? "Buscando…" : "Ninguém encontrado."}</CommandEmpty>
                 {groups.map(([heading, items]) =>
                   items.length ? (

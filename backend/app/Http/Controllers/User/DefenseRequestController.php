@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Domain\DefenseRequests\DefenseRequestForms;
-use App\Enums\UserType;
+use App\Domain\DefenseRequests\DefenseRequestWorkflow;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DefenseRequests\StoreDefenseRequest;
 use App\Http\Resources\DefenseRequestResource;
 use App\Models\DefenseRequest;
-use Illuminate\Http\JsonResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 /**
@@ -16,10 +16,13 @@ use Illuminate\Http\Request;
  *
  * Personas:
  * - Discente: abre a solicitação para si mesmo. Ela vai para o orientador dele
- *   (status awaiting_advisor), sem as confirmações, que são declarações do orientador.
+ *   (awaiting_advisor), sem as confirmações, que são declarações do orientador.
  * - Orientador (docente): revisa o que o orientando abriu, marca as confirmações e
  *   envia (submitted). Também pode abrir direto para um orientando.
- * - Coordenação (admin): vê todas em /admin, só leitura.
+ * - Coordenação (manager): vê todas em /admin, só leitura.
+ *
+ * Estados e transições: DefenseRequestStatus + DefenseRequestWorkflow.
+ * Permissões: DefenseRequestPolicy.
  */
 class DefenseRequestController extends Controller
 {
@@ -33,76 +36,67 @@ class DefenseRequestController extends Controller
         ]);
     }
 
-    /** As que eu abri, as dos meus orientandos e as minhas como discente. */
+    /** As que eu abri, as minhas como discente e as dos meus orientandos atuais. */
     public function index(Request $request)
     {
-        $me = $request->user()->id;
-        $requests = DefenseRequest::with(['user', 'advisor'])
-            ->where(fn ($q) => $q->where('user_id', $me)
-                ->orWhere('advisor_user_id', $me)
-                ->orWhere('student_user_id', $me))
+        $me = $request->user();
+        $advisees = $me->advisedes()->pluck('users.id');
+        $requests = DefenseRequest::with(['user', 'advisor', 'student.advisors'])
+            ->where(fn ($q) => $q->where('user_id', $me->id)
+                ->orWhere('advisor_user_id', $me->id)
+                ->orWhere('student_user_id', $me->id)
+                ->orWhereIn('student_user_id', $advisees))
             ->orderByDesc('id')
             ->get();
 
         return DefenseRequestResource::collection($requests);
     }
 
-    public function store(StoreDefenseRequest $request)
+    public function store(StoreDefenseRequest $request, DefenseRequestWorkflow $workflow)
     {
         $user = $request->user();
         $type = $request->validated()['type'];
-        $data = DefenseRequestForms::only($type, $request->input('data', []));
+        $student = $request->student();
+        // Discente: vai para o orientador do cadastro. Docente: é o orientador (conferido no request).
+        $advisor = $request->isStudent() ? $student->advisors()->first() : $user;
 
-        if ($user->type === UserType::STUDENT) {
-            // O discente só abre para si mesmo; vai para o orientador vinculado a ele.
-            $data['student_name'] = $user->name;
-            $attributes = [
-                'student_user_id' => $user->id,
-                'advisor_user_id' => $user->advisors()->value('users.id'),
-                'status' => DefenseRequest::AWAITING_ADVISOR,
-            ];
-        } else {
-            $attributes = [
-                'student_user_id' => $request->validated()['student_user_id'] ?? null,
-                'advisor_user_id' => $user->id,
-                'status' => DefenseRequest::SUBMITTED,
-                'submitted_at' => now(),
-            ];
-        }
+        $defenseRequest = $workflow->open($user, $student, $advisor, $type, $this->answers($request, $type, $student, $advisor));
 
-        $defenseRequest = DefenseRequest::create($attributes + [
-            'user_id' => $user->id,
-            'type' => $type,
-            'data' => $data,
-        ]);
-
-        return (new DefenseRequestResource($defenseRequest->load(['user', 'advisor'])))
+        return (new DefenseRequestResource($defenseRequest->load(['user', 'advisor', 'student.advisors'])))
             ->response()
             ->setStatusCode(201);
     }
 
-    /** O orientador revisa a solicitação aberta pelo orientando, confirma e envia. */
-    public function update(StoreDefenseRequest $request, DefenseRequest $defenseRequest)
+    /** O orientador revisa a solicitação aberta pelo orientando, confirma e envia (policy no request). */
+    public function update(StoreDefenseRequest $request, DefenseRequest $defenseRequest, DefenseRequestWorkflow $workflow)
     {
-        $user = $request->user();
-        if ($defenseRequest->advisor_user_id !== $user->id || $defenseRequest->status !== DefenseRequest::AWAITING_ADVISOR) {
-            return $this->forbidden('Só o orientador pode revisar e enviar esta solicitação.');
-        }
-
         $type = $request->validated()['type'];
-        $defenseRequest->update([
-            'type' => $type,
-            'data' => DefenseRequestForms::only($type, $request->input('data', [])),
-            'status' => DefenseRequest::SUBMITTED,
-            'submitted_at' => now(),
-        ]);
+        $advisor = $request->user();
+        $defenseRequest = $workflow->submit($defenseRequest, $advisor, $type, $this->answers($request, $type, $defenseRequest->student, $advisor));
 
-        return new DefenseRequestResource($defenseRequest->load(['user', 'advisor']));
+        return new DefenseRequestResource($defenseRequest->load(['user', 'advisor', 'student.advisors']));
     }
 
-    /** Responde 403 no formato de erro da API (o Handler global converte exceções em 500). */
-    private function forbidden(string $message): JsonResponse
+    /**
+     * Respostas gravadas: só as chaves do schema, e o que o portal sabe vem do cadastro
+     * (nome do discente, do orientador e dos docentes escolhidos), não do texto enviado.
+     */
+    private function answers(StoreDefenseRequest $request, string $type, ?User $student, User $advisor): array
     {
-        return response()->json(['errors' => [['description' => $message]]], 403);
+        $data = DefenseRequestForms::only($type, $request->input('data', []), withConfirmations: ! $request->isStudent());
+        if ($student) {
+            $data['student_name'] = $student->name;
+        }
+        $data['advisor'] = $advisor->name;
+
+        $memberIds = collect($data)->map(fn ($v) => is_array($v) ? ($v['user_id'] ?? null) : null)->filter()->all();
+        $professors = User::whereIn('id', $memberIds)->get()->keyBy('id');
+        foreach ($data as $key => $value) {
+            if (is_array($value) && ($professor = $professors->get($value['user_id'] ?? 0))) {
+                $data[$key]['name'] = $professor->name;
+            }
+        }
+
+        return $data;
     }
 }

@@ -36,6 +36,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { defenseRole } from "@/features/defense-requests/types";
 import useAuth from "@/hooks/auth";
 import { usePendingSummary } from "@/hooks/usePendingSummary";
 
@@ -404,18 +405,20 @@ export function AdminSidebar() {
             </SidebarMenuItem>
           )}
 
-          {/* POC: solicitação de banca (discente abre, orientador revisa e envia) */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/portal/defense-requests"}
-            >
-              <Link to="/portal/defense-requests">
-                <CalendarCheck className="h-4 w-4" />
-                <span>Solicitação de Banca</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {/* POC: solicitação de banca (discente abre, orientador revisa e envia; a coordenação acompanha pelo /admin) */}
+          {defenseRole(auth?.user?.type) !== "coordination" && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/portal/defense-requests"}
+              >
+                <Link to="/portal/defense-requests">
+                  <CalendarCheck className="h-4 w-4" />
+                  <span>Solicitação de Banca</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {/* Produções */}
           <SidebarMenuItem>
             <SidebarMenuButton

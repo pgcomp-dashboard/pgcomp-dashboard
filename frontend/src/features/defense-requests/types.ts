@@ -81,10 +81,31 @@ export interface MemberOption extends MemberValue {
   source: "pgcomp" | "previous";
 }
 
+/*
+ * Status espelha App\Enums\DefenseRequestStatus. Os mapas abaixo são Record<DefenseStatus, …>:
+ * um status novo no tipo faz o TypeScript cobrar rótulo, cor e mensagem (nada cai num "else").
+ */
 export const STATUS_LABEL: Record<DefenseStatus, string> = {
   awaiting_advisor: "Aguardando orientador",
   submitted: "Enviada à coordenação",
 };
+
+export const STATUS_TONE: Record<DefenseStatus, string> = {
+  awaiting_advisor: "border-amber-500/50 text-amber-700 dark:text-amber-400",
+  submitted: "border-emerald-500/50 text-emerald-700 dark:text-emerald-400",
+};
+
+/** Mensagem depois de abrir a solicitação, conforme o estado em que ela nasceu. */
+export const STATUS_CREATED_MESSAGE: Record<DefenseStatus, (request: DefenseRequest) => string> = {
+  awaiting_advisor: (r) => `Solicitação enviada para ${r.advisor?.name ?? "seu orientador"} revisar.`,
+  submitted: () => "Solicitação de banca enviada à coordenação!",
+};
+
+/** Papel no fluxo de banca (espelha DefenseRequestPolicy::create). A coordenação só acompanha pelo /admin. */
+export type DefenseRole = "student" | "advisor" | "coordination";
+
+export const defenseRole = (userType: string | undefined): DefenseRole =>
+  userType === "student" ? "student" : userType === "manager" ? "coordination" : "advisor";
 
 export const LEVEL_LABEL: Record<DefenseLevel, string> = { mestrado: "Mestrado", doutorado: "Doutorado" };
 export const STAGE_LABEL: Record<DefenseStage, string> = { qualification: "Qualificação", defense: "Defesa" };

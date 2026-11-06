@@ -1,8 +1,9 @@
 import useAuth from "@/hooks/auth";
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 
 export function EnsureAuthenticated() {
   const auth = useAuth();
+  const location = useLocation();
 
   if (auth?.isLoading) {
     return <>Carregando...</>;
@@ -12,6 +13,8 @@ export function EnsureAuthenticated() {
     return <Outlet />;
   } else {
     console.error("User not authenticated. Redirecting back to login page...");
-    return <Navigate to="/login" replace />;
+    // Volta para onde estava depois de entrar (ex.: sessão expirou no meio do formulário).
+    const redirect = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?redirect=${redirect}`} replace />;
   }
 }

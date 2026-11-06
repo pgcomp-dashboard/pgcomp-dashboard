@@ -52,15 +52,11 @@ class AdvisorStudentsTest extends TestCase
 
     public function test_unknown_professor_fails_consistently_with_other_dashboard_endpoints()
     {
-        // Este app não possui tratamento dedicado para ModelNotFoundException (ver
-        // app/Exceptions/Handler.php): qualquer Throwable não listado explicitamente cai no
-        // renderable genérico e vira 500. Mantém o mesmo comportamento dos demais endpoints do
-        // DashboardController (ex: professor/{id}/productions) em vez de criar um 404 isolado
-        // só para esta rota.
+        // O Handler converte registro inexistente em 404 para todo o app (antes era o 500 genérico).
         $response = $this->actingAs($this->admin())
             ->getJson('/api/admin/dashboard/advisor/999999/students');
 
-        $response->assertStatus(500);
+        $response->assertNotFound();
     }
 
     public function test_lists_active_students_by_default()

@@ -3,7 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Domain\DefenseRequests\DefenseRequestForms;
-use App\Models\DefenseRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DefenseRequestResource extends JsonResource
@@ -27,9 +27,8 @@ class DefenseRequestResource extends JsonResource
                 'email' => $this->user->email,
             ] : null),
             'advisor' => $this->whenLoaded('advisor', fn () => $person($this->advisor)),
-            // O orientador revisa e envia o que o discente abriu.
-            'can_review' => $this->status === DefenseRequest::AWAITING_ADVISOR
-                && $request->user()?->id === $this->advisor_user_id,
+            // Mesma regra do PUT (DefenseRequestPolicy::review).
+            'can_review' => $request->user() !== null && Gate::forUser($request->user())->allows('review', $this->resource),
             'submitted_at' => $this->submitted_at,
             'created_at' => $this->created_at,
         ];

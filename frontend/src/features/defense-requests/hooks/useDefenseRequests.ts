@@ -1,5 +1,5 @@
 import { queryClient } from "@/lib/query-client";
-import { parseApiError } from "@/services/http-client";
+import { STATUS_CREATED_MESSAGE } from "@/features/defense-requests/types";
 import { defenseRequestService } from "@/services/modules/defense-request.service";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -19,24 +19,23 @@ export function useDefenseRequestForms() {
 
 export function useMyDefenseRequests() {
   const list = useQuery({ queryKey: MINE_KEY, queryFn: defenseRequestService.listMine });
-  const onError = (error: unknown) => toast.error(parseApiError(error));
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["defense-requests"] });
+  // O wizard mostra o erro no lugar certo; aqui só atualiza a lista (pode ter mudado por fora).
+  const onError = () => refresh();
 
   const create = useMutation({
     mutationFn: defenseRequestService.create,
+    meta: { skipGlobalErrorToast: true },
     onSuccess: (request) => {
       refresh();
-      toast.success(
-        request.status === "awaiting_advisor"
-          ? `Solicitação enviada para ${request.advisor?.name ?? "seu orientador"} revisar.`
-          : "Solicitação de banca enviada à coordenação!",
-      );
+      toast.success(STATUS_CREATED_MESSAGE[request.status](request));
     },
     onError,
   });
 
   const review = useMutation({
     mutationFn: defenseRequestService.review,
+    meta: { skipGlobalErrorToast: true },
     onSuccess: () => {
       refresh();
       toast.success("Solicitação revisada e enviada à coordenação!");
@@ -44,12 +43,12 @@ export function useMyDefenseRequests() {
     onError,
   });
 
-  return { requests: list.data ?? [], isLoading: list.isLoading, create, review };
+  return { requests: list.data ?? [], isLoading: list.isLoading, isError: list.isError, refetch: list.refetch, create, review, refresh };
 }
 
 export function useAllDefenseRequests() {
   const list = useQuery({ queryKey: ALL_KEY, queryFn: defenseRequestService.listAll });
-  return { requests: list.data ?? [], isLoading: list.isLoading };
+  return { requests: list.data ?? [], isLoading: list.isLoading, isError: list.isError, refetch: list.refetch };
 }
 
 function useDebounced<T>(value: T, delay = 250) {

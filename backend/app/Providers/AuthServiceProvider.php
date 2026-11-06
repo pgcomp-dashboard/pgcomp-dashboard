@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Models\DefenseRequest;
 use App\Models\Production;
+use App\Policies\DefenseRequestPolicy;
 use App\Policies\ProductionPolicy;
 
 class AuthServiceProvider extends ServiceProvider
@@ -15,6 +17,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Production::class => ProductionPolicy::class,
+        DefenseRequest::class => DefenseRequestPolicy::class,
     ];
 
     /**

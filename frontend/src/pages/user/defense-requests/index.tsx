@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ErrorNotice } from "@/features/defense-requests/components/ErrorNotice";
 import { DefenseRequestDetailsDialog } from "@/features/defense-requests/components/DefenseRequestDetailsDialog";
 import { DefensePersona, DefenseRequestWizard } from "@/features/defense-requests/components/DefenseRequestWizard";
 import { DefenseRequestsTable } from "@/features/defense-requests/components/DefenseRequestsTable";
@@ -7,10 +8,13 @@ import {
   useMyDefenseRequests,
   useStudentLookup,
 } from "@/features/defense-requests/hooks/useDefenseRequests";
-import { DefenseRequest } from "@/features/defense-requests/types";
+import { clearDraft, draftTime, loadDraft } from "@/features/defense-requests/draft";
+import { DefenseRequest, defenseRole } from "@/features/defense-requests/types";
 import useAuth from "@/hooks/auth";
 import { ClipboardCheck, Plus } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
+import { toast } from "sonner";
 
 /**
  * POC: solicitação de banca.
@@ -19,19 +23,28 @@ import { useState } from "react";
  */
 export default function DefenseRequestsPage() {
   const auth = useAuth();
-  const persona: DefensePersona = auth?.user?.type === "student" ? "student" : "advisor";
+  // A coordenação só acompanha (pelo /admin); quem abre é o discente ou o orientador.
+  const role = defenseRole(auth?.user?.type);
+  const isCoordination = role === "coordination";
+  const persona: DefensePersona = role === "student" ? "student" : "advisor";
   const me = { id: auth?.user?.id ?? 0, name: auth?.user?.name ?? "" };
 
   const forms = useDefenseRequestForms();
-  const { requests, isLoading, create, review } = useMyDefenseRequests();
+  const { requests, isLoading, isError, refetch, create, review, refresh } = useMyDefenseRequests();
   // O discente recebe só a si mesmo, com curso e orientador do cadastro.
   const self = useStudentLookup("", persona === "student");
 
-  const [wizard, setWizard] = useState<{ reviewing: DefenseRequest | null } | null>(null);
+  // nonce: "Descartar e recomeçar" remonta o wizard limpo.
+  const [wizard, setWizard] = useState<{ reviewing: DefenseRequest | null; nonce: number } | null>(null);
   const [viewing, setViewing] = useState<DefenseRequest | null>(null);
+  const [, setDraftTick] = useState(0);
+  const openWizard = (reviewing: DefenseRequest | null) => setWizard({ reviewing, nonce: 0 });
 
   const pending = requests.filter((r) => r.can_review);
-  const ready = !!forms.data && (persona === "advisor" || !!self.data);
+  const selfMissing = persona === "student" && self.isSuccess && (self.data?.length ?? 0) === 0;
+  const ready = !!forms.data && (persona === "advisor" || !!self.data?.length);
+  // Abertura que ficou pela metade (ex.: a sessão expirou): oferece continuar.
+  const newDraft = !wizard && !isCoordination && me.id ? loadDraft(me.id, null) : null;
 
   return (
     <div className="space-y-8">
@@ -58,7 +71,7 @@ export default function DefenseRequestsPage() {
                   </p>
                   <p className="text-muted-foreground">{(r.answers.title as string) || "Sem título"}</p>
                 </div>
-                <Button size="sm" onClick={() => setWizard({ reviewing: r })}>
+                <Button size="sm" onClick={() => openWizard(r)}>
                   Revisar e enviar
                 </Button>
               </li>
@@ -67,38 +80,108 @@ export default function DefenseRequestsPage() {
         </section>
       )}
 
-      <section className="rounded-lg border p-4 sm:p-6">
-        {wizard && forms.data ? (
-          <DefenseRequestWizard
-            key={wizard.reviewing?.id ?? "new"}
-            forms={forms.data}
-            persona={persona}
-            me={me}
-            self={self.data?.[0] ?? null}
-            reviewing={wizard.reviewing}
-            isSubmitting={create.isPending || review.isPending}
-            onCancel={() => setWizard(null)}
-            onSubmit={async (input) => {
-              if (wizard.reviewing) await review.mutateAsync({ id: wizard.reviewing.id, ...input });
-              else await create.mutateAsync(input);
-              setWizard(null);
-            }}
-          />
-        ) : (
-          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-semibold">Nova solicitação</h2>
-              <p className="text-sm text-muted-foreground">
-                Cinco etapas curtas. Discente, orientação, nível e membros do PGCOMP já vêm do cadastro.
-              </p>
+      {isCoordination ? (
+        <section className="rounded-lg border p-4 text-sm sm:p-6">
+          A coordenação acompanha todas as solicitações em{" "}
+          <Link to="/admin/defense-requests" className="font-medium text-primary hover:underline">
+            Solicitações de Banca
+          </Link>
+          . Quem abre é o discente ou o orientador.
+        </section>
+      ) : (
+        <section className="rounded-lg border p-4 sm:p-6">
+          {wizard && forms.data ? (
+            <DefenseRequestWizard
+              key={`${wizard.reviewing?.id ?? "new"}:${wizard.nonce}`}
+              forms={forms.data}
+              persona={persona}
+              me={me}
+              self={self.data?.[0] ?? null}
+              reviewing={wizard.reviewing}
+              isSubmitting={create.isPending || review.isPending}
+              onCancel={() => setWizard(null)}
+              existing={requests}
+              onViewExisting={(r) => {
+                setWizard(null);
+                setViewing(r);
+              }}
+              onStale={(message) => {
+                setWizard(null);
+                refresh();
+                toast.error(message, { description: "A lista foi atualizada com a situação atual." });
+              }}
+              onDiscardDraft={() => {
+                clearDraft(me.id, wizard.reviewing?.id);
+                setWizard({ ...wizard, nonce: wizard.nonce + 1 });
+              }}
+              onSubmit={async (input) => {
+                if (wizard.reviewing) await review.mutateAsync({ id: wizard.reviewing.id, ...input });
+                else await create.mutateAsync(input);
+                setWizard(null);
+              }}
+            />
+          ) : newDraft ? (
+            <ErrorNotice
+              tone="warning"
+              title={`Você tem uma solicitação não enviada (salva às ${draftTime(newDraft)}).`}
+              actions={
+                <>
+                  <Button size="sm" onClick={() => openWizard(null)} disabled={!ready}>
+                    Continuar preenchendo
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      clearDraft(me.id, null);
+                      setDraftTick((t) => t + 1);
+                    }}
+                  >
+                    Descartar
+                  </Button>
+                </>
+              }
+            />
+          ) : (
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="font-semibold">Nova solicitação</h2>
+                <p className="text-sm text-muted-foreground">
+                  Cinco etapas curtas. Discente, orientação, nível e membros do PGCOMP já vêm do cadastro.
+                </p>
+              </div>
+              <Button onClick={() => openWizard(null)} disabled={!ready}>
+                <Plus className="h-4 w-4" /> Nova solicitação de banca
+              </Button>
             </div>
-            <Button onClick={() => setWizard({ reviewing: null })} disabled={!ready}>
-              <Plus className="h-4 w-4" /> Nova solicitação de banca
-            </Button>
-          </div>
-        )}
-        {forms.isError && <p className="mt-2 text-sm text-destructive">Não foi possível carregar os formulários.</p>}
-      </section>
+          )}
+          {(forms.isError || (persona === "student" && self.isError)) && (
+            <ErrorNotice
+              className="mt-4"
+              title={forms.isError ? "Não foi possível carregar os formulários." : "Não foi possível carregar o seu cadastro."}
+              actions={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (forms.isError) forms.refetch();
+                    if (self.isError) self.refetch();
+                  }}
+                >
+                  Tentar de novo
+                </Button>
+              }
+            >
+              <p className="text-muted-foreground">Sem isso não dá para abrir a solicitação. Verifique sua conexão.</p>
+            </ErrorNotice>
+          )}
+          {selfMissing && (
+            <ErrorNotice className="mt-4" title="Seu cadastro de discente não foi encontrado.">
+              <p className="text-muted-foreground">Peça à secretaria do PGCOMP para conferir o seu cadastro (curso e orientador) antes de abrir a solicitação.</p>
+            </ErrorNotice>
+          )}
+        </section>
+      )}
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">{persona === "student" ? "Minhas solicitações" : "Solicitações minhas e dos meus orientandos"}</h2>
@@ -107,6 +190,8 @@ export default function DefenseRequestsPage() {
           isLoading={isLoading}
           onView={setViewing}
           emptyMessage="Nenhuma solicitação ainda."
+          isError={isError}
+          onRetry={() => refetch()}
         />
       </section>
 
