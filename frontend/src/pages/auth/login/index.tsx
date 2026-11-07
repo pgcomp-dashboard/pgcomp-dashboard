@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -36,6 +36,10 @@ const formSchema = z.object({
 export default function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // Só caminhos internos ("/x"; nunca "//host", "/\host" ou URL absoluta).
+  const redirectParam = searchParams.get("redirect");
+  const redirectTo = redirectParam && /^\/(?![/\\])/.test(redirectParam) ? redirectParam : "/admin";
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -60,7 +64,7 @@ export default function LoginPage() {
 
       auth?.login(response.token, user);
 
-      navigate("/admin");
+      navigate(redirectTo, { replace: true });
     } catch (e: unknown) {
       const error = e as ApiError;
       console.error("Failed to login", error);

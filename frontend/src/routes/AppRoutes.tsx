@@ -7,6 +7,7 @@ import CredenciamentoPage from "@/pages/admin/accreditation";
 import AreasPage from "@/pages/admin/areas";
 import AwardsPage from "@/pages/admin/awards";
 import FeaturedProductionsPage from "@/pages/admin/featured-productions";
+import DefenseRequestsAdminPage from "@/pages/admin/defense-requests";
 import InternationalizationAdminPage from "@/pages/admin/internationalization";
 import LattesUploadsPage from "@/pages/admin/lattes-uploads";
 import OrientacoesPage from "@/pages/admin/orientacoes";
@@ -31,6 +32,7 @@ import StudentSetPasswordPage from "@/pages/auth/student-set-password";
 import WaitingApprovalPage from "@/pages/auth/waiting-approval";
 import NotFoundPage from "@/pages/not-found";
 import MyAwardsPage from "@/pages/user/awards";
+import DefenseRequestsPage from "@/pages/user/defense-requests";
 import MyInternationalizationPage from "@/pages/user/internationalization";
 import PublicAwardsPage from "@/pages/public/awards";
 import PublicInternationalizationPage from "@/pages/public/internationalization";
@@ -85,6 +87,7 @@ export function AppRoutes() {
               </Route>
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="awards" element={<MyAwardsPage />} />
+              <Route path="defense-requests" element={<DefenseRequestsPage />} />
               <Route
                 path="internationalization"
                 element={<MyInternationalizationPage />}
@@ -103,6 +106,7 @@ export function AppRoutes() {
               <Route path="student/ranking" element={<StudentRankingPage />} />
               <Route path="student/rules" element={<StudentRulesPage />} />
               <Route path="awards" element={<AwardsPage />} />
+              <Route path="defense-requests" element={<DefenseRequestsAdminPage />} />
               <Route
                 path="internationalization"
                 element={<InternationalizationAdminPage />}

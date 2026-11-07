@@ -2,6 +2,7 @@ import {
   Award,
   BarChart2,
   BookOpen,
+  CalendarCheck,
   ChevronDown,
   ClipboardList,
   File,
@@ -35,6 +36,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { defenseRole } from "@/features/defense-requests/types";
 import useAuth from "@/hooks/auth";
 import { usePendingSummary } from "@/hooks/usePendingSummary";
 
@@ -403,6 +405,20 @@ export function AdminSidebar() {
             </SidebarMenuItem>
           )}
 
+          {/* Solicitação de banca (discente abre, orientador revisa e envia; a coordenação acompanha pelo /admin) */}
+          {defenseRole(auth?.user?.type) !== "coordination" && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/portal/defense-requests"}
+              >
+                <Link to="/portal/defense-requests">
+                  <CalendarCheck className="h-4 w-4" />
+                  <span>Solicitação de Banca</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {/* Produções */}
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -433,6 +449,17 @@ export function AdminSidebar() {
           )}
           {auth?.isAdmin && (
             <>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/admin/defense-requests"}
+                >
+                  <Link to="/admin/defense-requests">
+                    <CalendarCheck className="h-4 w-4" />
+                    <span>Solicitações de Banca</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild

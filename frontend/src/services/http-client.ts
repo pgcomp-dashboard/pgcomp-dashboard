@@ -19,6 +19,19 @@ function flattenErrorMessages(value: unknown): string[] {
   return [];
 }
 
+/** Formato do Handler: errors = [{ description, field? }]. Agrupa as mensagens por campo. */
+function fieldErrorsFromList(value: unknown): Record<string, string[]> | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const out: Record<string, string[]> = {};
+  for (const item of value) {
+    const entry = item as { description?: unknown; field?: unknown } | null;
+    if (entry && typeof entry.field === "string" && typeof entry.description === "string") {
+      (out[entry.field] ??= []).push(entry.description);
+    }
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 function isRateLimitError(message: string): boolean {
   return /too many attempts|too many requests|rate limit|throttl/i.test(
     message,
@@ -63,8 +76,15 @@ export class HttpClient {
     this.baseUrl = baseUrl;
   }
 
+  protected unauthorizedHandler?: () => void;
+
   setAuthToken(token?: string) {
     this.authToken = token;
+  }
+
+  /** Chamado quando uma requisição autenticada volta 401 (o AuthProvider faz o logout). */
+  onUnauthorized(handler?: () => void) {
+    this.unauthorizedHandler = handler;
   }
 
   getAuthToken() {
@@ -160,7 +180,7 @@ export class HttpClient {
                   flattenErrorMessages(value),
                 ]),
               )
-            : undefined;
+            : fieldErrorsFromList(responseErrors);
         const responseMessage =
           typeof responseBody.error === "string"
             ? responseBody.error
@@ -188,6 +208,11 @@ export class HttpClient {
             response.status === 408
               ? "Falha de conexão com o servidor."
               : "Erro ao se comunicar com a API.";
+        }
+
+        // Sessão que existia e deixou de valer (token expirado ou revogado).
+        if (response.status === 401 && this.authToken) {
+          this.unauthorizedHandler?.();
         }
 
         const error: ApiError = {

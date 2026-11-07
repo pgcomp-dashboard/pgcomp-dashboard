@@ -33,4 +33,9 @@ return [
     'mini_extrator' => [
         'url' => env('MINI_EXTRATOR_URL', 'http://scriptlattes:8000'),
     ],
+    // E-mail da coordenação que recebe as solicitações de banca enviadas (vazio = ninguém).
+    'pgcomp' => [
+        'coordination_email' => env('PGCOMP_COORDINATION_EMAIL'),
+    ],
+
 ];
