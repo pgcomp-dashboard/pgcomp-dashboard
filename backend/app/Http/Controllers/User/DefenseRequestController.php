@@ -12,21 +12,22 @@ use App\Models\User;
 use Illuminate\Http\Request;
 
 /**
- * POC: solicitação de banca (qualificação/defesa de mestrado e doutorado).
+ * Solicitação de banca (qualificação/defesa de mestrado e doutorado) no portal.
  *
  * Personas:
  * - Discente: abre a solicitação para si mesmo. Ela vai para o orientador dele
  *   (awaiting_advisor), sem as confirmações, que são declarações do orientador.
  * - Orientador (docente): revisa o que o orientando abriu, marca as confirmações e
  *   envia (submitted). Também pode abrir direto para um orientando.
- * - Coordenação (manager): vê todas em /admin, só leitura.
+ * - Coordenação (is_admin): acompanha em /admin (Admin\DefenseRequestController).
  *
- * Estados e transições: DefenseRequestStatus + DefenseRequestWorkflow.
- * Permissões: DefenseRequestPolicy.
+ * Quem abriu e o orientador atual também arquivam e restauram; quem abriu apaga de vez
+ * enquanto aguarda o orientador. Estados e transições: DefenseRequestStatus + DefenseRequestWorkflow.
  */
 class DefenseRequestController extends Controller
 {
-    /** Schema dos 4 formulários, para o front montar o wizard de cada tipo. */
+    public function __construct(private DefenseRequestWorkflow $workflow) {}
+
     public function forms()
     {
         return response()->json([
@@ -36,14 +37,14 @@ class DefenseRequestController extends Controller
         ]);
     }
 
-    /** As que eu abri, as minhas como discente e as dos meus orientandos atuais. */
+    /** As minhas (abri ou sou o discente) e as dos meus orientandos atuais. ?archived=1 = arquivadas. */
     public function index(Request $request)
     {
         $me = $request->user();
         $advisees = $me->advisedes()->pluck('users.id');
-        $requests = DefenseRequest::with(['user', 'advisor', 'student.advisors'])
+        $requests = DefenseRequest::with(['user', 'advisor', 'archivedBy', 'student.advisors'])
+            ->when($request->boolean('archived'), fn ($q) => $q->onlyTrashed())
             ->where(fn ($q) => $q->where('user_id', $me->id)
-                ->orWhere('advisor_user_id', $me->id)
                 ->orWhere('student_user_id', $me->id)
                 ->orWhereIn('student_user_id', $advisees))
             ->orderByDesc('id')
@@ -52,35 +53,54 @@ class DefenseRequestController extends Controller
         return DefenseRequestResource::collection($requests);
     }
 
-    public function store(StoreDefenseRequest $request, DefenseRequestWorkflow $workflow)
+    public function store(StoreDefenseRequest $request)
     {
-        $user = $request->user();
         $type = $request->validated()['type'];
         $student = $request->student();
-        // Discente: vai para o orientador do cadastro. Docente: é o orientador (conferido no request).
-        $advisor = $request->isStudent() ? $student->advisors()->first() : $user;
+        $defenseRequest = $this->workflow->open(
+            $request->user(), $student, $type,
+            fn (User $advisor) => $this->answers($request, $type, $student, $advisor),
+            (array) $request->input('data', []),
+        );
 
-        $defenseRequest = $workflow->open($user, $student, $advisor, $type, $this->answers($request, $type, $student, $advisor));
-
-        return (new DefenseRequestResource($defenseRequest->load(['user', 'advisor', 'student.advisors'])))
-            ->response()
-            ->setStatusCode(201);
+        return (new DefenseRequestResource($this->loaded($defenseRequest)))->response()->setStatusCode(201);
     }
 
-    /** O orientador revisa a solicitação aberta pelo orientando, confirma e envia (policy no request). */
-    public function update(StoreDefenseRequest $request, DefenseRequest $defenseRequest, DefenseRequestWorkflow $workflow)
+    public function update(StoreDefenseRequest $request, DefenseRequest $defenseRequest)
     {
         $type = $request->validated()['type'];
-        $advisor = $request->user();
-        $defenseRequest = $workflow->submit($defenseRequest, $advisor, $type, $this->answers($request, $type, $defenseRequest->student, $advisor));
+        $defenseRequest = $this->workflow->submit(
+            $defenseRequest, $request->user(), $type,
+            fn (User $advisor) => $this->answers($request, $type, $defenseRequest->student, $advisor),
+            (array) $request->input('data', []),
+        );
 
-        return new DefenseRequestResource($defenseRequest->load(['user', 'advisor', 'student.advisors']));
+        return new DefenseRequestResource($this->loaded($defenseRequest));
     }
 
-    /**
-     * Respostas gravadas: só as chaves do schema, e o que o portal sabe vem do cadastro
-     * (nome do discente, do orientador e dos docentes escolhidos), não do texto enviado.
-     */
+    /** DELETE: arquiva (soft delete). */
+    public function destroy(Request $request, DefenseRequest $defenseRequest)
+    {
+        return new DefenseRequestResource($this->loaded($this->workflow->archive($defenseRequest, $request->user())));
+    }
+
+    public function restore(Request $request, DefenseRequest $defenseRequest)
+    {
+        return new DefenseRequestResource($this->loaded($this->workflow->restore($defenseRequest, $request->user())));
+    }
+
+    public function forceDestroy(Request $request, DefenseRequest $defenseRequest)
+    {
+        $this->workflow->destroy($defenseRequest, $request->user());
+
+        return response()->noContent();
+    }
+
+    private function loaded(DefenseRequest $request): DefenseRequest
+    {
+        return $request->load(['user', 'advisor', 'archivedBy', 'student.advisors']);
+    }
+
     private function answers(StoreDefenseRequest $request, string $type, ?User $student, User $advisor): array
     {
         $data = DefenseRequestForms::only($type, $request->input('data', []), withConfirmations: ! $request->isStudent());

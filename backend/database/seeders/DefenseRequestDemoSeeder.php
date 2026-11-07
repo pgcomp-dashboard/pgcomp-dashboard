@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Domain\DefenseRequests\DefenseRequestForms;
 use App\Enums\DefenseRequestStatus;
 use App\Enums\UserRelationType;
 use App\Enums\UserType;
@@ -12,15 +13,21 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * POC: dados fictícios para demonstrar a solicitação de banca (só para o ambiente
- * de verificação). Senha de todos: "password".
+ * Dados fictícios para demonstrar a solicitação de banca. Nunca roda em produção.
+ * Senha de todos: "password".
  *
- *   php artisan db:seed --class=DefenseRequestPocSeeder
+ *   php artisan db:seed --class=DefenseRequestDemoSeeder
  */
-class DefenseRequestPocSeeder extends Seeder
+class DefenseRequestDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->isProduction()) {
+            $this->command?->warn('DefenseRequestDemoSeeder não roda em produção.');
+
+            return;
+        }
+
         $mestrado = Course::firstOrCreate(['name' => 'Mestrado']);
         $doutorado = Course::firstOrCreate(['name' => 'Doutorado']);
 
@@ -84,6 +91,7 @@ class DefenseRequestPocSeeder extends Seeder
                 'user_id' => $carlos->id,
                 'advisor_user_id' => $carlos->id,
                 'type' => 'masters_defense',
+                'schema_version' => DefenseRequestForms::VERSION,
                 'status' => DefenseRequestStatus::SUBMITTED,
                 'submitted_at' => now()->subMonths(3),
                 'data' => [

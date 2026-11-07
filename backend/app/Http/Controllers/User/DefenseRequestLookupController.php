@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 
 /**
- * POC: buscas que deixam o wizard de banca quase sem digitação.
+ * Buscas que deixam o wizard de banca quase sem digitação.
  * - students: o próprio discente, ou os orientandos do docente, com nível (pelo curso),
  *   orientador e coorientador já vinculados.
  * - members: docentes do PGCOMP (afiliação e Lattes do cadastro) e membros externos

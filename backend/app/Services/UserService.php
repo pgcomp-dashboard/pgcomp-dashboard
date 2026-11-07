@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Domain\DefenseRequests\AdvisorLinkGuard;
 use App\Enums\UserType;
 use App\Models\User;
 use App\Models\Production;
@@ -128,14 +129,19 @@ class UserService
      */
     public function delete(User $user): bool
     {
-        $user->writerOf()->each(fn($production) => $production->delete());
+        return DB::transaction(function () use ($user) {
+            // Sem deixar solicitação de banca aguardando sem orientador.
+            AdvisorLinkGuard::assertProfessorCanLeave($user);
 
-        $user->advisors()->detach();
-        $user->advisedes()->detach();
-        $user->coadvisors()->detach();
-        $user->coadviseees()->detach();
+            $user->writerOf()->each(fn($production) => $production->delete());
 
-        return $user->delete();
+            $user->advisors()->detach();
+            $user->advisedes()->detach();
+            $user->coadvisors()->detach();
+            $user->coadviseees()->detach();
+
+            return $user->delete();
+        });
     }
 
     /**
@@ -164,6 +170,8 @@ class UserService
             }
 
             if (isset($data['advisor_id'])) {
+                // Trava a linha do discente (a mesma das transições da solicitação de banca).
+                AdvisorLinkGuard::assertStudentKeepsAdvisor($user, array_filter((array) $data['advisor_id']));
                 $user->advisors()->sync($data['advisor_id']);
             }
 

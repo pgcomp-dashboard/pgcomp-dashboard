@@ -3,6 +3,7 @@
 namespace App\Http\Requests\DefenseRequests;
 
 use App\Domain\DefenseRequests\DefenseRequestForms;
+use App\Domain\DefenseRequests\DefenseRequestRules;
 use App\Enums\UserType;
 use App\Models\DefenseRequest;
 use App\Models\User;
@@ -73,28 +74,20 @@ class StoreDefenseRequest extends FormRequest
     public function after(): array
     {
         return [function (Validator $validator) {
-            if ($validator->errors()->isNotEmpty()) {
+            if ($validator->errors()->isNotEmpty() || ! ($student = $this->student())) {
                 return;
             }
 
-            $student = $this->student();
+            // Resposta rápida; o DefenseRequestWorkflow confere de novo dentro do lock.
             $type = (string) $this->input('type');
-
-            if ($this->isStudent() && ! $student->advisors()->exists()) {
-                $validator->errors()->add('student_user_id', 'Seu cadastro não tem orientador vinculado. Peça à secretaria para vincular antes de abrir a solicitação.');
-
-                return;
+            $data = (array) $this->input('data', []);
+            $errors = $this->reviewing()
+                ? DefenseRequestRules::forReview($student, $type, $data)
+                : DefenseRequestRules::forOpen($this->user(), $student, $type, $data);
+            foreach ($errors as [$attribute, $message]) {
+                $validator->errors()->add($attribute, $message);
             }
-
-            if (! $this->isStudent() && ! $this->reviewing() && ! $student->advisors()->whereKey($this->user()->id)->exists()) {
-                $validator->errors()->add('student_user_id', 'Você só pode abrir solicitação para os seus orientandos.');
-
-                return;
-            }
-
-            $this->checkLevel($validator, $student, $type);
-            $this->checkCommittee($validator, $student, $type);
-            // A duplicata é conferida em DefenseRequestWorkflow, dentro da transação com lock.
+            // A duplicata é conferida só no workflow, dentro da transação com lock.
         }];
     }
 
@@ -122,68 +115,5 @@ class StoreDefenseRequest extends FormRequest
         $id = $this->reviewing() ? $this->reviewing()->student_user_id : $this->input('student_user_id');
 
         return $id ? User::find($id) : null;
-    }
-
-    // ---- regras -----------------------------------------------------------------
-
-    private function checkLevel(Validator $validator, ?User $student, string $type): void
-    {
-        $level = $student ? DefenseRequestForms::levelOf($student) : null;
-        if ($level && DefenseRequestForms::TYPE_MATRIX[$type]['level'] !== $level) {
-            $validator->errors()->add('type', "O discente é do {$level}; escolha uma banca de {$level}.");
-        }
-    }
-
-    /** Ninguém em duas vagas; orientador e coorientador fora; user_id só de docente. */
-    private function checkCommittee(Validator $validator, ?User $student, string $type): void
-    {
-        $data = (array) $this->input('data', []);
-        $advisors = $student ? $student->advisors()->get()->concat($student->coadvisors()->get()) : collect();
-        $advisorIds = $advisors->pluck('id')->all();
-        $advisorNames = $advisors->map(fn (User $u) => self::normalize($u->name))->all();
-
-        $members = collect(DefenseRequestForms::get($type)['fields'])
-            ->where('type', 'member')
-            ->filter(fn ($f) => is_array($data[$f['key']] ?? null) && trim((string) ($data[$f['key']]['name'] ?? '')) !== '');
-
-        $professors = User::query()
-            ->whereIn('id', $members->map(fn ($f) => $data[$f['key']]['user_id'] ?? null)->filter()->all())
-            ->get()->keyBy('id');
-
-        $seen = [];
-        foreach ($members as $field) {
-            $value = $data[$field['key']];
-            $userId = isset($value['user_id']) ? (int) $value['user_id'] : null;
-            $person = $userId ? $professors->get($userId) : null;
-            $attribute = "data.{$field['key']}";
-
-            if ($userId && $person?->type !== UserType::PROFESSOR) {
-                $validator->errors()->add($attribute, "{$field['label']}: só docentes do cadastro podem ser escolhidos.");
-
-                continue;
-            }
-
-            $name = self::normalize($person?->name ?? $value['name']);
-            if (($userId && in_array($userId, $advisorIds, true)) || in_array($name, $advisorNames, true)) {
-                $validator->errors()->add($attribute, "{$field['label']}: orientador e coorientador já participam e não ocupam vaga da banca.");
-
-                continue;
-            }
-
-            $identity = $userId ? "id:{$userId}" : "nome:{$name}";
-            $other = $seen[$identity] ?? $seen["nome:{$name}"] ?? null;
-            if ($other) {
-                $validator->errors()->add($attribute, "{$field['label']}: esta pessoa já está em outra vaga ({$other}).");
-
-                continue;
-            }
-            $seen[$identity] = $field['label'];
-            $seen["nome:{$name}"] = $field['label'];
-        }
-    }
-
-    private static function normalize(string $name): string
-    {
-        return mb_strtolower(preg_replace('/\s+/', ' ', trim($name)));
     }
 }

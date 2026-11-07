@@ -5,7 +5,7 @@ namespace App\Domain\DefenseRequests;
 use App\Models\User;
 
 /**
- * POC: os 4 formulários de solicitação de banca do PGCOMP (Google Forms linkados em
+ * Os 4 formulários de solicitação de banca do PGCOMP (Google Forms linkados em
  * pgcomp.ufba.br/apoio), com os mesmos campos e a mesma obrigatoriedade.
  *
  * É a única fonte da estrutura: a API devolve este schema, o front monta o wizard
@@ -23,6 +23,12 @@ use App\Models\User;
  */
 class DefenseRequestForms
 {
+    /**
+     * Versão do schema abaixo, gravada em cada solicitação (`schema_version`).
+     * Suba ao mudar campos: as respostas antigas continuam ligadas à versão em que foram feitas.
+     */
+    public const VERSION = 1;
+
     public const STUDENT = 'Discente e orientação';
 
     public const WORK = 'Trabalho';

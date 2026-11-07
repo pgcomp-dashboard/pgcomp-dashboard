@@ -119,10 +119,11 @@ class DefenseRequestLifecycleTest extends TestCase
         $stale = DefenseRequest::findOrFail($id);
         $workflow = app(DefenseRequestWorkflow::class);
 
-        $workflow->submit(DefenseRequest::findOrFail($id), $advisor, 'masters_qualification', $this->answers());
+        $answers = fn () => $this->answers();
+        $workflow->submit(DefenseRequest::findOrFail($id), $advisor, 'masters_qualification', $answers, $this->answers());
 
         try {
-            $workflow->submit($stale, $advisor, 'masters_qualification', $this->answers());
+            $workflow->submit($stale, $advisor, 'masters_qualification', $answers, $this->answers());
             $this->fail('segundo envio passou');
         } catch (DefenseRequestConflict $e) {
             $this->assertSame(409, $e->render()->getStatusCode());

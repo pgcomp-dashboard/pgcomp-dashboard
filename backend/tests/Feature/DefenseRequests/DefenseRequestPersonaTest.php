@@ -13,7 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Contrato da POC de banca, por persona.
+ * Contrato da solicitação de banca, por persona.
  *
  * flow_*  = caminhos que precisam funcionar (discente → orientador → coordenação).
  * rule_*  = invariantes de lógica que cruzam o formulário com o cadastro.

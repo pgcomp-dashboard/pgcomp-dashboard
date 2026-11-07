@@ -21,6 +21,9 @@ class Handler extends ExceptionHandler
         ValidationException::class,
         AuthorizationException::class,
         AuthenticationException::class,
+        // Respostas esperadas da solicitação de banca (403/409 com o motivo), não falhas.
+        \App\Domain\DefenseRequests\DefenseRequestDenied::class,
+        \App\Domain\DefenseRequests\DefenseRequestConflict::class,
     ];
 
     /**

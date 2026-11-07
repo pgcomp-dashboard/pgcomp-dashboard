@@ -109,11 +109,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('publishers', [UserPublisherController::class, 'store']);
 
         // Prêmios do próprio usuário
-        // POC: solicitação de banca (os 4 formulários de qualificação/defesa)
+        // Solicitação de banca (os 4 formulários de qualificação/defesa)
         Route::get('defense-request-forms', [UserDefenseRequestController::class, 'forms']);
         Route::get('defense-requests/lookup/students', [DefenseRequestLookupController::class, 'students']);
         Route::get('defense-requests/lookup/members', [DefenseRequestLookupController::class, 'members']);
-        Route::apiResource('defense-requests', UserDefenseRequestController::class)->only(['index', 'store', 'update']);
+        Route::apiResource('defense-requests', UserDefenseRequestController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::post('defense-requests/{defense_request}/restore', [UserDefenseRequestController::class, 'restore'])->withTrashed();
+        Route::delete('defense-requests/{defense_request}/permanent', [UserDefenseRequestController::class, 'forceDestroy'])->withTrashed();
         Route::get('award-categories', [UserAwardController::class, 'categories']);
         Route::get('awards/{award}/attachment', [UserAwardController::class, 'attachment']);
         Route::post('awards/import', [UserAwardController::class, 'import']);
@@ -162,6 +164,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Prêmios
         Route::apiResource('award-categories', AwardCategoryController::class)->except(['show']);
         Route::get('defense-requests', [DefenseRequestController::class, 'index']);
+        Route::delete('defense-requests/{defense_request}', [DefenseRequestController::class, 'destroy']);
+        Route::post('defense-requests/{defense_request}/restore', [DefenseRequestController::class, 'restore'])->withTrashed();
+        Route::delete('defense-requests/{defense_request}/permanent', [DefenseRequestController::class, 'forceDestroy'])->withTrashed();
         Route::get('awards-dashboard', [AwardDashboardController::class, 'summary']);
         Route::get('awards/{award}/attachment', [AwardController::class, 'attachment']);
         // Atualização via POST: multipart não é lido em PUT.

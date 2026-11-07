@@ -5,13 +5,24 @@ namespace App\Enums;
 use App\Enums\Traits\EnumHelper;
 
 /**
- * Ciclo de vida da solicitação de banca (POC).
+ * Ciclo de vida da solicitação de banca.
  *
  *   (nova) ──discente abre──► awaiting_advisor ──orientador envia──► submitted
  *   (nova) ──orientador abre direto───────────────────────────────► submitted
  *
- * Sem estados finais por enquanto: cancelar, devolver ao discente e a decisão do
- * colegiado dependem do professor. Para incluir, acrescente o caso e a transição.
+ * Arquivar é ortogonal ao status (soft delete, deleted_at): qualquer estado pode ser
+ * arquivado e restaurado; arquivada não conta para a regra de duplicata. Apagar de vez
+ * remove o registro. Não há "indeferida": quem abre sabe o que está fazendo, e um pedido
+ * aberto por engano é arquivado.
+ *
+ * Transições e avisos (DefenseRequestWorkflow + DefenseRequestNotifier):
+ *
+ *   transição                 quem pode                               avisa
+ *   abrir → awaiting_advisor  discente com orientador                 orientadores atuais
+ *   abrir → submitted         orientador do discente                  discente + coordenação
+ *   awaiting → submitted      orientador atual                        discente + coordenação
+ *   arquivar / restaurar      quem abriu, orientador atual, coord.    quem abriu, discente, orientadores
+ *   apagar de vez             coord.; quem abriu, se aguardando       quem abriu, discente, orientadores
  */
 enum DefenseRequestStatus: string
 {
