@@ -44,7 +44,7 @@ class StudentScraping extends BaseScraping
         $registration = $item->find('td')->eq(0)->text();
         $registration = (int) trim($registration);
 
-        $course = $item->parent('div#listagem_tabela')->children('div#group_lt')->text();
+        $course = $item->closest('table')->prev('div#group_lt')->text();
         $course = Str::of($course)->before('(')->trim()->title()->value();
         $course_id = $this->getCourseId($course);
 
