@@ -405,7 +405,7 @@ export function AdminSidebar() {
             </SidebarMenuItem>
           )}
 
-          {/* POC: solicitação de banca (discente abre, orientador revisa e envia; a coordenação acompanha pelo /admin) */}
+          {/* Solicitação de banca (discente abre, orientador revisa e envia; a coordenação acompanha pelo /admin) */}
           {defenseRole(auth?.user?.type) !== "coordination" && (
             <SidebarMenuItem>
               <SidebarMenuButton

@@ -1,4 +1,4 @@
-/** POC: tipos de solicitação de banca. O schema vem da API (DefenseRequestForms no backend). */
+/** Tipos da solicitação de banca. O schema vem da API (DefenseRequestForms no backend). */
 export type DefenseRequestType =
   | "masters_qualification"
   | "masters_defense"
@@ -60,7 +60,16 @@ export interface DefenseRequest {
   advisor_user_id: number | null;
   submitted_by?: { id: number; name: string; email: string } | null;
   advisor?: PersonRef | null;
+  /** Versão do formulário com que as respostas foram gravadas. */
+  schema_version: number;
+  /** Arquivada (soft delete): fora da lista e da regra de duplicata; pode ser restaurada. */
+  archived_at: string | null;
+  archived_by?: PersonRef | null;
   can_review: boolean;
+  can_archive: boolean;
+  can_restore: boolean;
+  /** Apagar de vez (sem volta). */
+  can_delete: boolean;
   submitted_at: string | null;
   created_at: string;
 }

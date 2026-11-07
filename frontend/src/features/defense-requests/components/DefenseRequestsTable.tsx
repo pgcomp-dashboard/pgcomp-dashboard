@@ -36,15 +36,27 @@ export function DefenseRequestsTable({ requests, isLoading, onView, showSubmitte
     ...(showSubmitter
       ? [columnHelper.display({ id: "submitter", header: "Aberta por", cell: (info) => info.row.original.submitted_by?.name ?? "—" })]
       : []),
-    columnHelper.display({ id: "advisor", header: "Orientador", cell: (info) => (info.row.original.answers.advisor as string) || "—" }),
+    // Aguardando: o orientador atual do cadastro (a API resolve); enviada: quem enviou.
+    columnHelper.display({
+      id: "advisor",
+      header: "Orientador",
+      cell: (info) => info.row.original.advisor?.name ?? ((info.row.original.answers.advisor as string) || "—"),
+    }),
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => {
         const status = info.getValue() as DefenseRequest["status"];
         return (
-          <Badge variant="outline" className={STATUS_TONE[status]}>
-            {STATUS_LABEL[status]}
-          </Badge>
+          <span className="flex flex-wrap gap-1">
+            <Badge variant="outline" className={STATUS_TONE[status]}>
+              {STATUS_LABEL[status]}
+            </Badge>
+            {info.row.original.archived_at && (
+              <Badge variant="outline" className="border-muted-foreground/40 text-muted-foreground">
+                Arquivada
+              </Badge>
+            )}
+          </span>
         );
       },
     }),

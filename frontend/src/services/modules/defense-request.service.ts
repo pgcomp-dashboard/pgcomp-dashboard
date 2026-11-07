@@ -14,15 +14,35 @@ export interface DefenseRequestInput {
   student_user_id?: number | null;
 }
 
+/** Portal (discente/orientador) ou admin (coordenação): mesmas ações, rotas diferentes. */
+export type DefenseScope = "portal" | "admin";
+const base = (scope: DefenseScope) => `/api/${scope}/defense-requests`;
+
 export const defenseRequestService = {
   async listForms() {
     const response = await apiClient.get<{ data: DefenseForm[] }>("/api/portal/defense-request-forms");
     return response.data;
   },
 
-  async listMine() {
-    const response = await apiClient.get<{ data: DefenseRequest[] }>("/api/portal/defense-requests");
+  async listMine(archived = false) {
+    const response = await apiClient.get<{ data: DefenseRequest[] }>(base("portal"), archived ? { archived: 1 } : {});
     return response.data;
+  },
+
+  /** Arquivar (soft delete): sai da lista e da regra de duplicata; pode ser restaurada. */
+  async archive(scope: DefenseScope, id: number) {
+    const response = await apiClient.delete<{ data: DefenseRequest }>(`${base(scope)}/${id}`);
+    return response.data;
+  },
+
+  async restore(scope: DefenseScope, id: number) {
+    const response = await apiClient.post<{ data: DefenseRequest }>(`${base(scope)}/${id}/restore`, {});
+    return response.data;
+  },
+
+  /** Apagar de vez (sem volta). */
+  async destroy(scope: DefenseScope, id: number) {
+    await apiClient.delete(`${base(scope)}/${id}/permanent`);
   },
 
   async create(input: DefenseRequestInput) {
@@ -51,8 +71,8 @@ export const defenseRequestService = {
   },
 
   /** Coordenação: todas as solicitações. */
-  async listAll() {
-    const response = await apiClient.get<{ data: DefenseRequest[] }>("/api/admin/defense-requests");
+  async listAll(archived = false) {
+    const response = await apiClient.get<{ data: DefenseRequest[] }>(base("admin"), archived ? { archived: 1 } : {});
     return response.data;
   },
 };

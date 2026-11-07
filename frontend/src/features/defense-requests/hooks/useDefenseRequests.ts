@@ -1,6 +1,7 @@
 import { queryClient } from "@/lib/query-client";
 import { STATUS_CREATED_MESSAGE } from "@/features/defense-requests/types";
-import { defenseRequestService } from "@/services/modules/defense-request.service";
+import { parseApiError } from "@/services/http-client";
+import { DefenseScope, defenseRequestService } from "@/services/modules/defense-request.service";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -17,8 +18,8 @@ export function useDefenseRequestForms() {
   });
 }
 
-export function useMyDefenseRequests() {
-  const list = useQuery({ queryKey: MINE_KEY, queryFn: defenseRequestService.listMine });
+export function useMyDefenseRequests(archived = false) {
+  const list = useQuery({ queryKey: [...MINE_KEY, archived], queryFn: () => defenseRequestService.listMine(archived) });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["defense-requests"] });
   // O wizard mostra o erro no lugar certo; aqui só atualiza a lista (pode ter mudado por fora).
   const onError = () => refresh();
@@ -46,9 +47,64 @@ export function useMyDefenseRequests() {
   return { requests: list.data ?? [], isLoading: list.isLoading, isError: list.isError, refetch: list.refetch, create, review, refresh };
 }
 
-export function useAllDefenseRequests() {
-  const list = useQuery({ queryKey: ALL_KEY, queryFn: defenseRequestService.listAll });
+export function useAllDefenseRequests(archived = false) {
+  const list = useQuery({ queryKey: [...ALL_KEY, archived], queryFn: () => defenseRequestService.listAll(archived) });
   return { requests: list.data ?? [], isLoading: list.isLoading, isError: list.isError, refetch: list.refetch };
+}
+
+/** Arquivadas (só a lista), carregadas quando a aba abre. */
+export function useArchivedDefenseRequests(scope: DefenseScope, enabled: boolean) {
+  const list = useQuery({
+    queryKey: [...(scope === "admin" ? ALL_KEY : MINE_KEY), true],
+    queryFn: () => (scope === "admin" ? defenseRequestService.listAll(true) : defenseRequestService.listMine(true)),
+    enabled,
+  });
+  return { requests: list.data ?? [], isLoading: list.isLoading, isError: list.isError, refetch: list.refetch };
+}
+
+/** Arquivar, restaurar e apagar de vez (DefenseRequestPolicy decide quem pode). */
+export function useDefenseRequestActions(scope: DefenseScope) {
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["defense-requests"] });
+  const onError = (error: unknown) => {
+    refresh(); // pode ter mudado por fora (outra pessoa arquivou, apagou…)
+    toast.error(parseApiError(error));
+  };
+  const meta = { skipGlobalErrorToast: true };
+
+  const restore = useMutation({
+    mutationFn: (id: number) => defenseRequestService.restore(scope, id),
+    meta,
+    onSuccess: () => {
+      refresh();
+      toast.success("Solicitação restaurada.");
+    },
+    onError,
+  });
+
+  const archive = useMutation({
+    mutationFn: (id: number) => defenseRequestService.archive(scope, id),
+    meta,
+    onSuccess: (request) => {
+      refresh();
+      toast.success("Solicitação arquivada.", {
+        description: "Ela fica em Arquivadas e pode ser restaurada.",
+        action: { label: "Desfazer", onClick: () => restore.mutate(request.id) },
+      });
+    },
+    onError,
+  });
+
+  const destroy = useMutation({
+    mutationFn: (id: number) => defenseRequestService.destroy(scope, id),
+    meta,
+    onSuccess: () => {
+      refresh();
+      toast.success("Solicitação apagada.");
+    },
+    onError,
+  });
+
+  return { archive, restore, destroy };
 }
 
 function useDebounced<T>(value: T, delay = 250) {

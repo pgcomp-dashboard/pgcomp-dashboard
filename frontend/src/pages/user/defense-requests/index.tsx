@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ErrorNotice } from "@/features/defense-requests/components/ErrorNotice";
 import { DefenseRequestDetailsDialog } from "@/features/defense-requests/components/DefenseRequestDetailsDialog";
 import { DefensePersona, DefenseRequestWizard } from "@/features/defense-requests/components/DefenseRequestWizard";
 import { DefenseRequestsTable } from "@/features/defense-requests/components/DefenseRequestsTable";
 import {
+  useArchivedDefenseRequests,
   useDefenseRequestForms,
   useMyDefenseRequests,
   useStudentLookup,
@@ -17,7 +19,7 @@ import { Link } from "react-router";
 import { toast } from "sonner";
 
 /**
- * POC: solicitação de banca.
+ * Solicitação de banca.
  * - Discente: abre para si; vai para o orientador revisar.
  * - Orientador: revisa o que os orientandos abriram, ou abre direto para um deles.
  */
@@ -37,6 +39,8 @@ export default function DefenseRequestsPage() {
   // nonce: "Descartar e recomeçar" remonta o wizard limpo.
   const [wizard, setWizard] = useState<{ reviewing: DefenseRequest | null; nonce: number } | null>(null);
   const [viewing, setViewing] = useState<DefenseRequest | null>(null);
+  const [tab, setTab] = useState<"active" | "archived">("active");
+  const archived = useArchivedDefenseRequests("portal", tab === "archived");
   const [, setDraftTick] = useState(0);
   const openWizard = (reviewing: DefenseRequest | null) => setWizard({ reviewing, nonce: 0 });
 
@@ -184,15 +188,34 @@ export default function DefenseRequestsPage() {
       )}
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">{persona === "student" ? "Minhas solicitações" : "Solicitações minhas e dos meus orientandos"}</h2>
-        <DefenseRequestsTable
-          requests={requests}
-          isLoading={isLoading}
-          onView={setViewing}
-          emptyMessage="Nenhuma solicitação ainda."
-          isError={isError}
-          onRetry={() => refetch()}
-        />
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "active" | "archived")}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">{persona === "student" ? "Minhas solicitações" : "Solicitações minhas e dos meus orientandos"}</h2>
+            <TabsList>
+              <TabsTrigger value="active">Ativas</TabsTrigger>
+              <TabsTrigger value="archived">Arquivadas</TabsTrigger>
+            </TabsList>
+          </div>
+        </Tabs>
+        {tab === "active" ? (
+          <DefenseRequestsTable
+            requests={requests}
+            isLoading={isLoading}
+            onView={setViewing}
+            emptyMessage="Nenhuma solicitação ainda."
+            isError={isError}
+            onRetry={() => refetch()}
+          />
+        ) : (
+          <DefenseRequestsTable
+            requests={archived.requests}
+            isLoading={archived.isLoading}
+            onView={setViewing}
+            emptyMessage="Nenhuma solicitação arquivada."
+            isError={archived.isError}
+            onRetry={() => archived.refetch()}
+          />
+        )}
       </section>
 
       <DefenseRequestDetailsDialog request={viewing} forms={forms.data ?? []} onOpenChange={(open) => !open && setViewing(null)} />
