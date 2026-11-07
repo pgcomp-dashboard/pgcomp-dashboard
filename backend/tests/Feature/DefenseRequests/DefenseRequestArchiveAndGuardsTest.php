@@ -289,6 +289,19 @@ class DefenseRequestArchiveAndGuardsTest extends TestCase
         Mail::assertNotSent(DefenseRequestMail::class, fn ($m) => $m->event === 'archived' && $m->hasTo($student->email));
     }
 
+    /** Docente que abre direto já envia: discente e coordenação recebem "enviada", não "para revisar". */
+    public function test_advisor_opening_directly_announces_submitted(): void
+    {
+        config(['services.pgcomp.coordination_email' => 'coordenacao@pgcomp.example']);
+        $advisor = $this->professor();
+        $student = $this->advisee($advisor);
+
+        $this->actingAs($advisor)->postJson(self::URL, ['type' => 'masters_qualification', 'data' => $this->answers(), 'student_user_id' => $student->id])->assertCreated();
+        Mail::assertSent(DefenseRequestMail::class, fn ($m) => $m->event === 'submitted' && $m->hasTo($student->email));
+        Mail::assertSent(DefenseRequestMail::class, fn ($m) => $m->event === 'submitted' && $m->hasTo('coordenacao@pgcomp.example'));
+        Mail::assertNotSent(DefenseRequestMail::class, fn ($m) => $m->event === 'opened');
+    }
+
     public function test_refused_transition_sends_nothing(): void
     {
         $advisor = $this->professor();

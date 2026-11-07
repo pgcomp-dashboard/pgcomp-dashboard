@@ -47,7 +47,8 @@ class DefenseRequestWorkflow
                 'status' => $submitted ? DefenseRequestStatus::SUBMITTED : DefenseRequestStatus::AWAITING_ADVISOR,
                 'submitted_at' => $submitted ? now() : null,
             ]);
-            $notify(DefenseRequestNotifier::OPENED, $request, $actor);
+            // Docente que abre direto já envia: o aviso é o de "enviada", não o de "para revisar".
+            $notify($submitted ? DefenseRequestNotifier::SUBMITTED : DefenseRequestNotifier::OPENED, $request, $actor);
 
             return $request;
         });

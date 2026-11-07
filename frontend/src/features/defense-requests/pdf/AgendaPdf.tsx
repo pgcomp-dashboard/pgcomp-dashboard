@@ -42,12 +42,10 @@ export function AgendaPdf({
   requests: DefenseRequest[];
   generatedAt?: Date;
 }) {
+  // Por data e horário da banca; sem data vai para o fim da pauta.
+  const when = (r: DefenseRequest) => (r.answers.date ? `${r.answers.date}${r.answers.time ?? ""}` : "~");
   const rows: Row[] = [...requests]
-    .sort((a, b) =>
-      `${a.answers.date ?? ""}${a.answers.time ?? ""}`.localeCompare(
-        `${b.answers.date ?? ""}${b.answers.time ?? ""}`,
-      ),
-    )
+    .sort((a, b) => when(a).localeCompare(when(b)))
     .map((r) => ({
       when: `${formatDate(r.answers.date as string)} ${r.answers.time ?? ""}`.trim(),
       type: r.type_label,

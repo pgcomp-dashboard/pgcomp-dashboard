@@ -2,7 +2,6 @@
 
 namespace App\Domain\DefenseRequests;
 
-use App\Enums\DefenseRequestStatus;
 use App\Mail\DefenseRequestMail;
 use App\Models\DefenseRequest;
 use App\Models\User;
@@ -59,14 +58,13 @@ class DefenseRequestNotifier
         $student = $request->student;
         $advisors = $student ? $student->advisors()->get() : collect();
         $people = match ($event) {
-            self::OPENED => $request->status === DefenseRequestStatus::AWAITING_ADVISOR ? $advisors : collect([$student]),
+            self::OPENED => $advisors,
             self::SUBMITTED => collect([$student]),
             default => collect([$request->user, $student])->concat($advisors),
         };
 
         $emails = $people->filter()->reject(fn (User $u) => $u->id === $actor->id)->pluck('email');
-        $opensSubmitted = $event === self::OPENED && $request->status === DefenseRequestStatus::SUBMITTED;
-        if (($event === self::SUBMITTED || $opensSubmitted) && ($coordination = config('services.pgcomp.coordination_email'))) {
+        if ($event === self::SUBMITTED && ($coordination = config('services.pgcomp.coordination_email'))) {
             $emails->push($coordination);
         }
 
