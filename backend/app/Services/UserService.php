@@ -170,12 +170,25 @@ class UserService
             }
 
             if (isset($data['advisor_id'])) {
-                // Trava a linha do discente (a mesma das transições da solicitação de banca).
-                AdvisorLinkGuard::assertStudentKeepsAdvisor($user, array_filter((array) $data['advisor_id']));
-                $user->advisors()->sync($data['advisor_id']);
+                $this->syncAdvisors($user, array_values(array_filter((array) $data['advisor_id'])));
             }
 
             return $user->load('secondaryEmail');
+        });
+    }
+
+    /**
+     * Único caminho para trocar os orientadores de um discente (cadastro e importação do SIGAA).
+     * Recusa deixar sem orientador quem tem solicitação de banca aguardando (AdvisorLinkGuard).
+     *
+     * @param  array<int, int>|array<int, array>  $advisors  ids, ou [id => atributos do pivô]
+     */
+    public function syncAdvisors(User $student, array $advisors): void
+    {
+        DB::transaction(function () use ($student, $advisors) {
+            $ids = collect($advisors)->map(fn ($v, $k) => is_array($v) ? $k : $v)->values()->all();
+            AdvisorLinkGuard::assertStudentKeepsAdvisor($student, $ids);
+            $student->advisors()->sync($advisors);
         });
     }
 
