@@ -20,17 +20,24 @@ export function useStudentRanking() {
   const [endYear, setEndYear] = useState(currentYear);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(50);
-  const [courseId, setCourseId] = useState<number | null>(null);
+  const [courseId, setCourseId] = useState<number | null | undefined>(undefined);
   const [isEligible, setIsEligible] = useState<boolean | null>(null);
   const [onlyPositiveScore, setOnlyPositiveScore] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "position", desc: true },
   ]);
 
-  const { data: courses = [] } = useQuery<Course[]>({
+  const { data: courses = [], isLoading: isLoadingCourses } = useQuery<Course[]>({
     queryKey: ["student-ranking-courses"],
     queryFn: () => courseService.fetchCourses({ per_page: 100 }),
   });
+
+  const selectedCourseId =
+    courseId === undefined
+      ? (courses.find(
+          (course) => course.name.trim().toLowerCase() === "mestrado",
+        )?.id ?? null)
+      : courseId;
 
   const { data: configurations } = useQuery({
     queryKey: ["student-ranking-rules"],
@@ -53,7 +60,7 @@ export function useStudentRanking() {
       "student-ranking",
       startYear,
       endYear,
-      courseId,
+      selectedCourseId,
       isEligible,
       onlyPositiveScore,
       page,
@@ -64,7 +71,7 @@ export function useStudentRanking() {
       studentRankingService.getRanking(
         startYear,
         endYear,
-        courseId,
+        selectedCourseId,
         page,
         perPage,
         sorting[0]?.id ?? "position",
@@ -73,6 +80,7 @@ export function useStudentRanking() {
         onlyPositiveScore,
       ),
     placeholderData: (previousData) => previousData,
+    enabled: !isLoadingCourses,
   });
 
   const deleteMutation = useMutation({
@@ -113,7 +121,7 @@ export function useStudentRanking() {
     setPage,
     perPage,
     setPerPage,
-    courseId,
+    courseId: selectedCourseId,
     setCourseId,
     isEligible,
     setIsEligible,
