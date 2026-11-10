@@ -2,6 +2,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useAwardsDashboard } from '@/features/awards/hooks/useAwards';
 import {
+  CartesianGrid,
+  ResponsiveContainer,
+  Scatter,
+  ScatterChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
   Table,
   TableBody,
   TableCell,
@@ -24,6 +33,40 @@ interface RegressionResult {
   internationalCoefficient: number;
   rSquared: number | null;
   observations: number;
+}
+
+interface CorrelationPoint {
+  year: number;
+  internationalShare: number;
+  studentShare: number;
+}
+
+function calculateCorrelation(
+  points: CorrelationPoint[],
+): number | null {
+  if (points.length < 3) return null;
+
+  const mean = (values: number[]) =>
+    values.reduce((sum, value) => sum + value, 0) / values.length;
+  const xMean = mean(points.map((point) => point.internationalShare));
+  const yMean = mean(points.map((point) => point.studentShare));
+  const covariance = points.reduce(
+    (sum, point) =>
+      sum +
+      (point.internationalShare - xMean) * (point.studentShare - yMean),
+    0,
+  );
+  const xVariance = points.reduce(
+    (sum, point) => sum + (point.internationalShare - xMean) ** 2,
+    0,
+  );
+  const yVariance = points.reduce(
+    (sum, point) => sum + (point.studentShare - yMean) ** 2,
+    0,
+  );
+
+  if (xVariance === 0 || yVariance === 0) return null;
+  return covariance / Math.sqrt(xVariance * yVariance);
 }
 
 function calculateRegression(
@@ -179,6 +222,14 @@ export function AwardsAnnualAnalysis({
     })),
   ].sort((left, right) => right.total - left.total || left.name.localeCompare(right.name))[0] ?? null;
   const regression = calculateRegression(rows);
+  const correlationPoints = rows
+    .filter((row) => row.total > 0)
+    .map((row) => ({
+      year: row.year,
+      internationalShare: (row.international / row.total) * 100,
+      studentShare: (row.student_awards / row.total) * 100,
+    }));
+  const correlation = calculateCorrelation(correlationPoints);
 
   return (
     <div className="flex flex-col gap-6">
@@ -321,6 +372,89 @@ export function AwardsAnnualAnalysis({
                 </TableRow>
               </TableFooter>
             </Table>
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-3 rounded-lg border p-4">
+        <div>
+          <h2 className="text-lg font-semibold">
+            Correlação entre participação internacional e discente
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Cada ponto representa um ano. No eixo horizontal está o percentual
+            de prêmios internacionais; no vertical, o percentual de prêmios
+            com pelo menos um discente vencedor. Usar percentuais ajuda a
+            comparar anos com volumes diferentes de prêmios.
+          </p>
+        </div>
+        {correlationPoints.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Selecione ao menos um ano com prêmios para exibir a correlação.
+          </p>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
+            <div className="h-80 min-w-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <ScatterChart margin={{ top: 16, right: 16, bottom: 20, left: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    dataKey="internationalShare"
+                    name="Prêmios internacionais"
+                    domain={[ 0, 100 ]}
+                    tickFormatter={(value: number) => `${value}%`}
+                    label={{
+                      value: 'Prêmios internacionais (%)',
+                      position: 'insideBottom',
+                      offset: -12,
+                    }}
+                  />
+                  <YAxis
+                    type="number"
+                    dataKey="studentShare"
+                    name="Prêmios com discentes"
+                    domain={[ 0, 100 ]}
+                    tickFormatter={(value: number) => `${value}%`}
+                  />
+                  <Tooltip
+                    labelFormatter={(_, payload) =>
+                      payload[0]?.payload?.year
+                        ? `Ano ${payload[0].payload.year}`
+                        : ''
+                    }
+                    formatter={(value, name) => [
+                      `${numberFormat.format(Number(value))}%`,
+                      name,
+                    ]}
+                  />
+                  <Scatter
+                    data={correlationPoints}
+                    dataKey="studentShare"
+                    name="Prêmios com discentes"
+                    fill="#7c3aed"
+                  />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="rounded-lg bg-muted/40 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Correlação de Pearson
+              </p>
+              <p className="mt-1 text-2xl font-bold">
+                {correlation === null ? 'Indefinida' : numberFormat.format(correlation)}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {correlation === null
+                  ? correlationPoints.length < 3
+                    ? 'São necessários ao menos três anos selecionados para calcular a correlação.'
+                    : 'Não há variação suficiente nos percentuais selecionados para calcular a correlação.'
+                  : `Calculada com ${correlationPoints.length} anos. Valores próximos de +1 indicam associação positiva; próximos de -1, negativa; próximos de 0, pouca associação linear.`}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                A correlação descreve associação entre os dados, não causalidade.
+              </p>
+            </div>
           </div>
         )}
       </section>
