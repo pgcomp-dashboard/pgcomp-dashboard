@@ -145,53 +145,49 @@ export function AdminSidebar() {
               </Collapsible>
             </SidebarMenuItem>
           )}
-          {(auth?.user?.type !== "student" || auth?.isAdmin) && (
-            <SidebarMenuItem>
-              <Collapsible open={awardsOpen} onOpenChange={setAwardsOpen}>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton isActive={isAwardsArea}>
-                    <Award className="h-4 w-4" />
-                    <span>Prêmios</span>
-                    <ChevronDown
-                      className={`ml-auto h-4 w-4 transition-transform ${awardsOpen ? "rotate-180" : ""}`}
-                    />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenu className="ml-4 mt-1 gap-1 border-l pl-2">
-                    {auth?.user?.type !== "student" && (
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === "/portal/awards"}
-                          className="h-9 text-[12px]"
-                        >
-                          <Link to="/portal/awards">
-                            <Award className="h-4 w-4" />
-                            <span>Meus Prêmios</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )}
-                    {auth?.isAdmin && (
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === "/admin/awards"}
-                          className="h-9 text-[12px]"
-                        >
-                          <Link to="/admin/awards">
-                            <ClipboardList className="h-4 w-4" />
-                            <span>Gestão de Prêmios</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )}
-                  </SidebarMenu>
-                </CollapsibleContent>
-              </Collapsible>
-            </SidebarMenuItem>
-          )}
+          <SidebarMenuItem>
+            <Collapsible open={awardsOpen} onOpenChange={setAwardsOpen}>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton isActive={isAwardsArea}>
+                  <Award className="h-4 w-4" />
+                  <span>Prêmios</span>
+                  <ChevronDown
+                    className={`ml-auto h-4 w-4 transition-transform ${awardsOpen ? "rotate-180" : ""}`}
+                  />
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenu className="ml-4 mt-1 gap-1 border-l pl-2">
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/portal/awards"}
+                      className="h-9 text-[12px]"
+                    >
+                      <Link to="/portal/awards">
+                        <Award className="h-4 w-4" />
+                        <span>Meus Prêmios</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {auth?.isAdmin && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/admin/awards"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/admin/awards">
+                          <ClipboardList className="h-4 w-4" />
+                          <span>Gestão de Prêmios</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
+                </SidebarMenu>
+              </CollapsibleContent>
+            </Collapsible>
+          </SidebarMenuItem>
           {auth?.isAdmin && (
             <SidebarMenuItem>
               <Collapsible open={studentsOpen} onOpenChange={setStudentsOpen}>
