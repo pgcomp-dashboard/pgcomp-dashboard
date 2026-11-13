@@ -80,6 +80,7 @@ export interface AwardsDashboardSummary {
     national: number;
     international: number;
     student_awards: number;
+    professor_awards: number;
   }[];
   awards_by_professor: { name: string; total: number }[];
   awards_by_student: { name: string; total: number }[];

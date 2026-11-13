@@ -3,6 +3,9 @@ import { Label } from '@/components/ui/label';
 import { useAwardsDashboard } from '@/features/awards/hooks/useAwards';
 import {
   CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Scatter,
   ScatterChart,
@@ -37,31 +40,36 @@ interface RegressionResult {
 
 interface CorrelationPoint {
   year: number;
-  internationalShare: number;
+  total: number;
+  recipientAwards: number;
+}
+
+interface ParticipationPoint {
+  year: number;
   studentShare: number;
+  professorShare: number;
 }
 
 function calculateCorrelation(
-  points: CorrelationPoint[],
+  points: { x: number; y: number }[],
 ): number | null {
   if (points.length < 3) return null;
 
   const mean = (values: number[]) =>
     values.reduce((sum, value) => sum + value, 0) / values.length;
-  const xMean = mean(points.map((point) => point.internationalShare));
-  const yMean = mean(points.map((point) => point.studentShare));
+  const xMean = mean(points.map((point) => point.x));
+  const yMean = mean(points.map((point) => point.y));
   const covariance = points.reduce(
     (sum, point) =>
-      sum +
-      (point.internationalShare - xMean) * (point.studentShare - yMean),
+      sum + (point.x - xMean) * (point.y - yMean),
     0,
   );
   const xVariance = points.reduce(
-    (sum, point) => sum + (point.internationalShare - xMean) ** 2,
+    (sum, point) => sum + (point.x - xMean) ** 2,
     0,
   );
   const yVariance = points.reduce(
-    (sum, point) => sum + (point.studentShare - yMean) ** 2,
+    (sum, point) => sum + (point.y - yMean) ** 2,
     0,
   );
 
@@ -171,6 +179,98 @@ function percentage(value: number, total: number): string {
   return `${percentFormat.format(total === 0 ? 0 : (value / total) * 100)}%`;
 }
 
+function AwardsCorrelationChart({
+  title,
+  recipientLabel,
+  points,
+  correlation,
+  color,
+}: {
+  title: string;
+  recipientLabel: string;
+  points: CorrelationPoint[];
+  correlation: number | null;
+  color: string;
+}) {
+  return (
+    <section className="space-y-3 rounded-lg border p-4">
+      <div>
+        <h3 className="font-semibold">{title}</h3>
+        <p className="text-sm text-muted-foreground">
+          Cada ponto representa um ano. X = total de prêmios; Y = prêmios com
+          pelo menos um {recipientLabel} vencedor.
+        </p>
+      </div>
+      {points.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Selecione ao menos um ano com prêmios para exibir o gráfico.
+        </p>
+      ) : (
+        <>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart margin={{ top: 16, right: 20, bottom: 20, left: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  type="number"
+                  dataKey="total"
+                  name="Total de prêmios"
+                  allowDecimals={false}
+                  label={{
+                    value: 'Total de prêmios no ano',
+                    position: 'insideBottom',
+                    offset: -12,
+                  }}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="recipientAwards"
+                  name={`Prêmios com ${recipientLabel}`}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  labelFormatter={(_, payload) =>
+                    payload[0]?.payload?.year
+                      ? `Ano ${payload[0].payload.year}`
+                      : ''
+                  }
+                  formatter={(value, name) => [Number(value), name]}
+                />
+                <Scatter
+                  data={points}
+                  dataKey="recipientAwards"
+                  name={`Prêmios com ${recipientLabel}`}
+                  fill={color}
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="rounded-md bg-muted/40 p-3">
+            <p className="text-sm font-semibold">
+              Correlação de Pearson:{' '}
+              {correlation === null
+                ? 'indefinida'
+                : numberFormat.format(correlation)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {correlation === null
+                ? points.length < 3
+                  ? 'São necessários ao menos três anos com prêmios para calcular a correlação.'
+                  : 'Não há variação suficiente nos dados para calcular a correlação.'
+                : `Calculada com ${points.length} anos. De -1 a +1: valores positivos indicam associação crescente; negativos, associação decrescente; próximos de zero, pouca associação linear.`}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              A quantidade de prêmios com {recipientLabel} faz parte do total
+              anual. Portanto, essa relação pode ser positiva por construção e
+              não demonstra causalidade.
+            </p>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
 export function AwardsAnnualAnalysis({
   years,
   selectedYears,
@@ -222,14 +322,39 @@ export function AwardsAnnualAnalysis({
     })),
   ].sort((left, right) => right.total - left.total || left.name.localeCompare(right.name))[0] ?? null;
   const regression = calculateRegression(rows);
-  const correlationPoints = rows
+  const studentCorrelationPoints: CorrelationPoint[] = rows
     .filter((row) => row.total > 0)
     .map((row) => ({
       year: row.year,
-      internationalShare: (row.international / row.total) * 100,
-      studentShare: (row.student_awards / row.total) * 100,
+      total: row.total,
+      recipientAwards: row.student_awards,
     }));
-  const correlation = calculateCorrelation(correlationPoints);
+  const professorCorrelationPoints: CorrelationPoint[] = rows
+    .filter((row) => row.total > 0)
+    .map((row) => ({
+      year: row.year,
+      total: row.total,
+      recipientAwards: row.professor_awards,
+    }));
+  const participationPoints: ParticipationPoint[] = rows
+    .filter((row) => row.total > 0)
+    .map((row) => ({
+      year: row.year,
+      studentShare: (row.student_awards / row.total) * 100,
+      professorShare: (row.professor_awards / row.total) * 100,
+    }));
+  const studentCorrelation = calculateCorrelation(
+    studentCorrelationPoints.map((point) => ({
+      x: point.total,
+      y: point.recipientAwards,
+    })),
+  );
+  const professorCorrelation = calculateCorrelation(
+    professorCorrelationPoints.map((point) => ({
+      x: point.total,
+      y: point.recipientAwards,
+    })),
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -379,82 +504,110 @@ export function AwardsAnnualAnalysis({
       <section className="space-y-3 rounded-lg border p-4">
         <div>
           <h2 className="text-lg font-semibold">
-            Correlação entre participação internacional e discente
+            Correlação entre volume de prêmios e participação
           </h2>
           <p className="text-sm text-muted-foreground">
-            Cada ponto representa um ano. No eixo horizontal está o percentual
-            de prêmios internacionais; no vertical, o percentual de prêmios
-            com pelo menos um discente vencedor. Usar percentuais ajuda a
-            comparar anos com volumes diferentes de prêmios.
+            Os gráficos mostram se anos com mais prêmios também registraram
+            mais prêmios com discentes ou docentes. Passe o cursor sobre um
+            ponto para ver o ano e os valores.
           </p>
         </div>
-        {correlationPoints.length === 0 ? (
+        <div className="grid gap-4 xl:grid-cols-2">
+          <AwardsCorrelationChart
+            title="Total anual × prêmios com discentes"
+            recipientLabel="discentes"
+            points={studentCorrelationPoints}
+            correlation={studentCorrelation}
+            color="#7c3aed"
+          />
+          <AwardsCorrelationChart
+            title="Total anual × prêmios com docentes"
+            recipientLabel="docentes"
+            points={professorCorrelationPoints}
+            correlation={professorCorrelation}
+            color="#2563eb"
+          />
+        </div>
+        <aside className="rounded-lg border border-dashed p-4">
+          <h3 className="font-semibold">Como interpretar</h3>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+            <li>
+              Cada ponto é um ano; os eixos mostram o total de prêmios e a
+              quantidade que teve ao menos um vencedor do grupo indicado.
+            </li>
+            <li>
+              Correlação de Pearson varia de -1 a +1: sinal positivo indica
+              tendência crescente; negativo, tendência decrescente; perto de
+              zero, pouca associação linear.
+            </li>
+            <li>
+              Os prêmios com discentes/docentes já estão incluídos no total
+              anual. Essa relação entre parte e total pode elevar a correlação
+              e não significa que uma quantidade cause a outra.
+            </li>
+          </ul>
+        </aside>
+      </section>
+
+      <section className="space-y-3 rounded-lg border p-4">
+        <div>
+          <h2 className="text-lg font-semibold">
+            Participação discente e docente por ano
+          </h2>
           <p className="text-sm text-muted-foreground">
-            Selecione ao menos um ano com prêmios para exibir a correlação.
+            Percentual do total anual de prêmios que teve pelo menos um
+            vencedor discente ou docente. Como um prêmio pode ter ambos os
+            perfis, as porcentagens podem se sobrepor e não precisam somar 100%.
+          </p>
+        </div>
+        {participationPoints.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Selecione ao menos um ano com prêmios para exibir a participação.
           </p>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
-            <div className="h-80 min-w-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 16, right: 16, bottom: 20, left: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    type="number"
-                    dataKey="internationalShare"
-                    name="Prêmios internacionais"
-                    domain={[ 0, 100 ]}
-                    tickFormatter={(value: number) => `${value}%`}
-                    label={{
-                      value: 'Prêmios internacionais (%)',
-                      position: 'insideBottom',
-                      offset: -12,
-                    }}
-                  />
-                  <YAxis
-                    type="number"
-                    dataKey="studentShare"
-                    name="Prêmios com discentes"
-                    domain={[ 0, 100 ]}
-                    tickFormatter={(value: number) => `${value}%`}
-                  />
-                  <Tooltip
-                    labelFormatter={(_, payload) =>
-                      payload[0]?.payload?.year
-                        ? `Ano ${payload[0].payload.year}`
-                        : ''
-                    }
-                    formatter={(value, name) => [
-                      `${numberFormat.format(Number(value))}%`,
-                      name,
-                    ]}
-                  />
-                  <Scatter
-                    data={correlationPoints}
-                    dataKey="studentShare"
-                    name="Prêmios com discentes"
-                    fill="#7c3aed"
-                  />
-                </ScatterChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="rounded-lg bg-muted/40 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Correlação de Pearson
-              </p>
-              <p className="mt-1 text-2xl font-bold">
-                {correlation === null ? 'Indefinida' : numberFormat.format(correlation)}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {correlation === null
-                  ? correlationPoints.length < 3
-                    ? 'São necessários ao menos três anos selecionados para calcular a correlação.'
-                    : 'Não há variação suficiente nos percentuais selecionados para calcular a correlação.'
-                  : `Calculada com ${correlationPoints.length} anos. Valores próximos de +1 indicam associação positiva; próximos de -1, negativa; próximos de 0, pouca associação linear.`}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                A correlação descreve associação entre os dados, não causalidade.
-              </p>
-            </div>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={participationPoints} margin={{ top: 20, right: 24, bottom: 8, left: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="year" />
+                <YAxis
+                  domain={[ 0, 100 ]}
+                  tickFormatter={(value: number) => `${value}%`}
+                />
+                <Tooltip
+                  labelFormatter={(year) => `Ano ${year}`}
+                  formatter={(value, name) => [
+                    `${numberFormat.format(Number(value))}%`,
+                    name,
+                  ]}
+                />
+                <Legend
+                  formatter={(value) =>
+                    value === 'studentShare'
+                      ? 'Prêmios com discentes'
+                      : 'Prêmios com docentes'
+                  }
+                />
+                <Line
+                  type="monotone"
+                  dataKey="studentShare"
+                  name="studentShare"
+                  stroke="#7c3aed"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="professorShare"
+                  name="professorShare"
+                  stroke="#2563eb"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         )}
       </section>

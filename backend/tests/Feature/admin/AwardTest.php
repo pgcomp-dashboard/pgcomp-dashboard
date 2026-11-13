@@ -150,11 +150,13 @@ class AwardTest extends TestCase
             ->assertJsonPath('analysis_per_year.0.national', 1)
             ->assertJsonPath('analysis_per_year.0.international', 1)
             ->assertJsonPath('analysis_per_year.0.student_awards', 1)
+            ->assertJsonPath('analysis_per_year.0.professor_awards', 2)
             ->assertJsonPath('analysis_per_year.1.year', 2023)
             ->assertJsonPath('analysis_per_year.1.total', 1)
             ->assertJsonPath('analysis_per_year.1.national', 0)
             ->assertJsonPath('analysis_per_year.1.international', 1)
-            ->assertJsonPath('analysis_per_year.1.student_awards', 1);
+            ->assertJsonPath('analysis_per_year.1.student_awards', 1)
+            ->assertJsonPath('analysis_per_year.1.professor_awards', 0);
 
         $this->actingAs($admin)
             ->getJson('/api/admin/awards-dashboard?years=2022')

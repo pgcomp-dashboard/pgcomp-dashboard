@@ -61,18 +61,28 @@ class AwardDashboardController extends Controller
             ->select('award_id')
             ->where('recipient_type', AwardRecipientType::STUDENT->value)
             ->groupBy('award_id');
+        $professorAwardSubquery = AwardWinner::query()
+            ->select('award_id')
+            ->where('recipient_type', AwardRecipientType::PROFESSOR->value)
+            ->groupBy('award_id');
         $analysisPerYear = $filteredCharts()
             ->leftJoinSub(
                 $studentAwardSubquery,
                 'student_awards',
                 fn ($join) => $join->on('student_awards.award_id', '=', 'awards.id'),
             )
+            ->leftJoinSub(
+                $professorAwardSubquery,
+                'professor_awards',
+                fn ($join) => $join->on('professor_awards.award_id', '=', 'awards.id'),
+            )
             ->selectRaw('
                 awards.year as year,
                 COUNT(DISTINCT awards.id) as total,
                 SUM(CASE WHEN awards.scope = ? THEN 1 ELSE 0 END) as national,
                 SUM(CASE WHEN awards.scope = ? THEN 1 ELSE 0 END) as international,
-                SUM(CASE WHEN student_awards.award_id IS NOT NULL THEN 1 ELSE 0 END) as student_awards
+                SUM(CASE WHEN student_awards.award_id IS NOT NULL THEN 1 ELSE 0 END) as student_awards,
+                SUM(CASE WHEN professor_awards.award_id IS NOT NULL THEN 1 ELSE 0 END) as professor_awards
             ', [
                 AwardScope::NATIONAL->value,
                 AwardScope::INTERNATIONAL->value,
@@ -86,6 +96,7 @@ class AwardDashboardController extends Controller
                 'national' => (int) $row->national,
                 'international' => (int) $row->international,
                 'student_awards' => (int) $row->student_awards,
+                'professor_awards' => (int) $row->professor_awards,
             ])
             ->values();
         $perYearByScope = $filteredCharts()
