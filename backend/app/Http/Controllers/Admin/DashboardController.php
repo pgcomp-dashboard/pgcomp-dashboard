@@ -156,6 +156,95 @@ class DashboardController extends Controller
         );
     }
 
+    public function productionStatistics()
+    {
+        $faculty = User::query()
+            ->where('type', UserType::PROFESSOR)
+            ->withCount('writerOf')
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (User $professor) => [
+                'id' => $professor->id,
+                'name' => $professor->name,
+                'total' => (int) $professor->writer_of_count,
+            ])
+            ->values();
+
+        $facultyTotals = $faculty->pluck('total')->sort()->values();
+        $facultyCount = $facultyTotals->count();
+        $facultyWithProductionsCount = $faculty->where('total', '>', 0)->count();
+        $mean = $facultyCount > 0 ? $facultyTotals->avg() : null;
+        $middle = intdiv($facultyCount, 2);
+        $median = $facultyCount === 0
+            ? null
+            : ($facultyCount % 2 === 1
+                ? $facultyTotals[$middle]
+                : ($facultyTotals[$middle - 1] + $facultyTotals[$middle]) / 2);
+        $standardDeviation = $facultyCount > 0
+            ? sqrt($facultyTotals->sum(fn ($value) => ($value - $mean) ** 2) / $facultyCount)
+            : null;
+
+        $qualisOrder = ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C', 'NI'];
+        $qualisCodes = StratumQualis::query()
+            ->distinct()
+            ->orderBy('code')
+            ->pluck('code')
+            ->push('NI')
+            ->unique()
+            ->sortBy(fn ($code) => ($index = array_search($code, $qualisOrder, true)) === false
+                ? count($qualisOrder)
+                : $index)
+            ->values();
+
+        $qualisCounts = Production::query()
+            ->leftJoin('stratum_qualis', 'stratum_qualis.id', '=', 'productions.stratum_qualis_id')
+            ->whereIn('productions.publisher_type', ['conference', 'journal'])
+            ->selectRaw("productions.publisher_type, COALESCE(stratum_qualis.code, 'NI') as qualis, COUNT(DISTINCT productions.id) as total")
+            ->groupBy('productions.publisher_type', 'qualis')
+            ->get()
+            ->groupBy('publisher_type');
+
+        $byQualis = function (string $publisherType) use ($qualisCounts, $qualisCodes) {
+            $counts = $qualisCounts->get($publisherType, collect())->pluck('total', 'qualis');
+            $total = (int) $counts->sum();
+
+            return $qualisCodes->map(fn ($code) => [
+                'qualis' => $code,
+                'total' => (int) ($counts[$code] ?? 0),
+                'percentage' => $total > 0
+                    ? round(((int) ($counts[$code] ?? 0) / $total) * 100, 2)
+                    : 0,
+            ])->all();
+        };
+
+        $productionsPerYear = Production::query()
+            ->selectRaw('year, COUNT(DISTINCT id) as total')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->get()
+            ->map(fn ($row) => [
+                'year' => (int) $row->year,
+                'total' => (int) $row->total,
+            ])
+            ->values();
+
+        return response()->json([
+            'faculty' => $faculty,
+            'faculty_summary' => [
+                'faculty_count' => $facultyCount,
+                'faculty_with_productions_count' => $facultyWithProductionsCount,
+                'mean' => $mean === null ? null : round($mean, 2),
+                'median' => $median,
+                'standard_deviation' => $standardDeviation === null ? null : round($standardDeviation, 2),
+                'minimum' => $facultyCount > 0 ? $facultyTotals->first() : null,
+                'maximum' => $facultyCount > 0 ? $facultyTotals->last() : null,
+            ],
+            'conferences_by_qualis' => $byQualis('conference'),
+            'journals_by_qualis' => $byQualis('journal'),
+            'productions_per_year' => $productionsPerYear,
+        ]);
+    }
+
     public function studentCountPerArea(Request $request): array
     {
         // return ['fields' => ['CG', 'Análise de Dados', 'I.A',],

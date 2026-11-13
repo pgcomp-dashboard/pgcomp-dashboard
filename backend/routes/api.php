@@ -130,6 +130,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             Route::get('all_production', [DashboardController::class, 'totalProductionsPerYear']);
             Route::get('students_production', [DashboardController::class, 'studentsProductions']);
             Route::get('production_per_qualis', [DashboardController::class, 'productionPerQualis']);
+            Route::get('production-statistics', [DashboardController::class, 'productionStatistics']);
             Route::get('fields', [DashboardController::class, 'studentCountPerArea']);
             Route::get('students', [DashboardController::class, 'studentCountPerCourse']);
             Route::get('total_students_per_advisor', [DashboardController::class, 'advisors']);

@@ -6,6 +6,7 @@ import { ProductionDOIForm } from "@/features/productions/components/forms/Produ
 import { ProductionDialogs } from "@/features/productions/components/ProductionDialogs";
 import { ProductionHeader } from "@/features/productions/components/ProductionHeader";
 import { ProductionTable } from "@/features/productions/components/ProductionTable";
+import { ProductionStatistics } from "@/features/productions/components/ProductionStatistics";
 import { ProductionToolbar } from "@/features/productions/components/ProductionToolbar";
 import UploadXMLForm from "@/features/productions/components/UploadXMLForm";
 import { useProductionCrud } from "@/features/productions/hooks/useProductionCrud";
@@ -13,6 +14,7 @@ import { useProductionData } from "@/features/productions/hooks/useProductionDat
 import { useProductionFilters } from "@/features/productions/hooks/useProductionFilters";
 import { FormType } from "@/features/productions/types";
 import { productionService } from "@/services/modules/production.service";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -133,43 +135,56 @@ export default function ProductionsPage({
         </div>
 
         {chosenForm === "none" ? (
-          <div className="space-y-4">
-            <ProductionToolbar
-              showFilters={filterState.showFilters}
-              setShowFilters={filterState.setShowFilters}
-              filters={filterState.filters}
-              setFilters={filterState.setFilters}
-              clearFilters={filterState.clearFilters}
-              hasActiveFilters={filterState.hasActiveFilters}
-              uniqueYears={uniqueYears}
-              qualisList={qualisList}
-              isAdmin={auth?.isAdmin}
-              readOnly={isViewingStudent || !auth?.isAdmin}
-              onAdd={setChosenForm}
-              onClearAll={crud.fullDelete}
-            />
+          <Tabs defaultValue="productions" className="space-y-4">
+            {auth?.isAdmin && (
+              <TabsList>
+                <TabsTrigger value="productions">Produções</TabsTrigger>
+                <TabsTrigger value="statistics">Estatísticas</TabsTrigger>
+              </TabsList>
+            )}
+            <TabsContent value="productions" className="space-y-4">
+              <ProductionToolbar
+                showFilters={filterState.showFilters}
+                setShowFilters={filterState.setShowFilters}
+                filters={filterState.filters}
+                setFilters={filterState.setFilters}
+                clearFilters={filterState.clearFilters}
+                hasActiveFilters={filterState.hasActiveFilters}
+                uniqueYears={uniqueYears}
+                qualisList={qualisList}
+                isAdmin={auth?.isAdmin}
+                readOnly={isViewingStudent || !auth?.isAdmin}
+                onAdd={setChosenForm}
+                onClearAll={crud.fullDelete}
+              />
 
-            <ProductionTable
-              isLoading={isLoading}
-              hasActiveFilters={filterState.hasActiveFilters}
-              productions={filteredAndSortedProductions}
-              sortConfig={filterState.sortConfig}
-              onSort={filterState.handleSort}
-              onEdit={crud.openEdit}
-              onDelete={crud.setSelectedProduction}
-              confirmDelete={crud.deleteProduction}
-              selectedProduction={crud.selectedProduction}
-              setProductionToDelete={crud.setSelectedProduction}
-              podeFavoritar={podeFavoritar}
-              onToggleFeatured={
-                selectedProfessorId === "own"
-                  ? (production) => featuredMutation.mutate(production.id)
-                  : undefined
-              }
-              isTogglingFeatured={featuredMutation.isPending}
-              readOnly={readOnlyStudent}
-            />
-          </div>
+              <ProductionTable
+                isLoading={isLoading}
+                hasActiveFilters={filterState.hasActiveFilters}
+                productions={filteredAndSortedProductions}
+                sortConfig={filterState.sortConfig}
+                onSort={filterState.handleSort}
+                onEdit={crud.openEdit}
+                onDelete={crud.setSelectedProduction}
+                confirmDelete={crud.deleteProduction}
+                selectedProduction={crud.selectedProduction}
+                setProductionToDelete={crud.setSelectedProduction}
+                podeFavoritar={podeFavoritar}
+                onToggleFeatured={
+                  selectedProfessorId === "own"
+                    ? (production) => featuredMutation.mutate(production.id)
+                    : undefined
+                }
+                isTogglingFeatured={featuredMutation.isPending}
+                readOnly={readOnlyStudent}
+              />
+            </TabsContent>
+            {auth?.isAdmin && (
+              <TabsContent value="statistics">
+                <ProductionStatistics />
+              </TabsContent>
+            )}
+          </Tabs>
         ) : chosenForm === "xml" ? (
           <UploadXMLForm
             professorId={selectedAdminUserId}

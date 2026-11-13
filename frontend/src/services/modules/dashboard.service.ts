@@ -1,7 +1,35 @@
 import { apiClient } from "@/services/http-client";
 import { Advisor, AdvisorStudent } from "@/types/user";
 
+export interface ProductionStatistics {
+  faculty: { id: number; name: string; total: number }[];
+  faculty_summary: {
+    faculty_count: number;
+    faculty_with_productions_count: number;
+    mean: number | null;
+    median: number | null;
+    standard_deviation: number | null;
+    minimum: number | null;
+    maximum: number | null;
+  };
+  conferences_by_qualis: QualisProductionStatistics[];
+  journals_by_qualis: QualisProductionStatistics[];
+  productions_per_year: { year: number; total: number }[];
+}
+
+export interface QualisProductionStatistics {
+  qualis: string;
+  total: number;
+  percentage: number;
+}
+
 export const dashboardService = {
+  async productionStatistics() {
+    return apiClient.get<ProductionStatistics>(
+      "/api/admin/dashboard/production-statistics",
+    );
+  },
+
   async totalStudentsPerAdvisor(
     filter?: "mestrando" | "doutorando" | "completed",
   ) {
