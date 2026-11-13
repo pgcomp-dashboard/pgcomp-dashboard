@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserType;
+use App\Enums\ProductionSource;
 use App\Http\Controllers\Controller;
 use App\Models\Production;
 use App\Models\StratumQualis;
@@ -10,6 +11,7 @@ use App\Models\User;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -228,6 +230,41 @@ class DashboardController extends Controller
             ])
             ->values();
 
+        $productionSources = array_map(
+            fn (ProductionSource $source) => $source->value,
+            ProductionSource::cases(),
+        );
+        $productionSources[] = 'unknown';
+
+        $sourceTotals = Production::query()
+            ->selectRaw("COALESCE(source, 'unknown') as source, COUNT(*) as total")
+            ->groupByRaw("COALESCE(source, 'unknown')")
+            ->pluck('total', 'source');
+
+        $facultySourceCounts = DB::table('users_productions as up')
+            ->join('productions as p', 'p.id', '=', 'up.productions_id')
+            ->join('users as u', 'u.id', '=', 'up.users_id')
+            ->where('u.type', UserType::PROFESSOR->value)
+            ->selectRaw("u.id as user_id, COALESCE(p.source, 'unknown') as source, COUNT(DISTINCT p.id) as total")
+            ->groupBy('u.id')
+            ->groupByRaw("COALESCE(p.source, 'unknown')")
+            ->get()
+            ->groupBy('user_id');
+
+        $facultyProductionsBySource = $faculty->map(function (array $professor) use ($facultySourceCounts, $productionSources) {
+            $counts = $facultySourceCounts->get($professor['id'], collect())->pluck('total', 'source');
+            $row = [
+                'id' => $professor['id'],
+                'name' => $professor['name'],
+                'productions_by_source' => [],
+            ];
+            foreach ($productionSources as $source) {
+                $row['productions_by_source'][$source] = (int) ($counts[$source] ?? 0);
+            }
+
+            return $row;
+        })->values();
+
         return response()->json([
             'faculty' => $faculty,
             'faculty_summary' => [
@@ -242,6 +279,13 @@ class DashboardController extends Controller
             'conferences_by_qualis' => $byQualis('conference'),
             'journals_by_qualis' => $byQualis('journal'),
             'productions_per_year' => $productionsPerYear,
+            'productions_by_source' => collect($productionSources)
+                ->map(fn (string $source) => [
+                    'source' => $source,
+                    'total' => (int) ($sourceTotals[$source] ?? 0),
+                ])
+                ->all(),
+            'faculty_productions_by_source' => $facultyProductionsBySource,
         ]);
     }
 

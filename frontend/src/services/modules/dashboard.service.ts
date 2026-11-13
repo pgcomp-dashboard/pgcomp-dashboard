@@ -15,6 +15,12 @@ export interface ProductionStatistics {
   conferences_by_qualis: QualisProductionStatistics[];
   journals_by_qualis: QualisProductionStatistics[];
   productions_per_year: { year: number; total: number }[];
+  productions_by_source: { source: string; total: number }[];
+  faculty_productions_by_source: {
+    id: number;
+    name: string;
+    productions_by_source: Record<string, number>;
+  }[];
 }
 
 export interface QualisProductionStatistics {

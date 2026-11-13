@@ -25,6 +25,14 @@ const numberFormatter = new Intl.NumberFormat('pt-BR', {
   maximumFractionDigits: 2,
 });
 
+const productionSourceLabels: Record<string, string> = {
+  script: 'Importação automatizada Lattes',
+  xml: 'Arquivo XML do Lattes',
+  manual: 'Cadastro manual',
+  doi: 'DOI (Crossref)',
+  unknown: 'Não informado',
+};
+
 function formatNumber(value: number | null) {
   return value === null ? '—' : numberFormatter.format(value);
 }
@@ -233,6 +241,117 @@ export function ProductionStatistics() {
                   {data.faculty.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={2} className="py-6 text-center text-muted-foreground">
+                        Nenhum docente cadastrado.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CollapsibleContent>
+        </section>
+      </Collapsible>
+
+      <StatisticsTable
+        title="Produções por origem"
+        description="Cada registro de produção é contado uma única vez."
+      >
+        <TableHeader>
+          <TableRow>
+            <TableHead className="h-11 text-left text-xs uppercase tracking-wide text-muted-foreground">Origem</TableHead>
+            <TableHead className="h-11 text-right text-xs uppercase tracking-wide text-muted-foreground">Produções</TableHead>
+            <TableHead className="h-11 text-right text-xs uppercase tracking-wide text-muted-foreground">Percentual</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.productions_by_source.map((row) => {
+            const totalProductions = data.productions_by_source.reduce(
+              (total, source) => total + source.total,
+              0,
+            );
+            const percentage = totalProductions > 0
+              ? (row.total / totalProductions) * 100
+              : 0;
+
+            return (
+              <TableRow key={row.source} className="odd:bg-muted/20">
+                <TableCell className="text-left font-medium">
+                  {productionSourceLabels[row.source] ?? row.source}
+                </TableCell>
+                <TableCell className="text-right font-medium tabular-nums">
+                  {numberFormatter.format(row.total)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {formatNumber(percentage)}%
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </StatisticsTable>
+
+      <Collapsible>
+        <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+          <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-base font-semibold tracking-tight">Produções por origem e docente</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Cada coautoria é contabilizada para o respectivo docente. A lista inclui {numberFormatter.format(data.faculty_productions_by_source.length)} docentes.
+              </p>
+            </div>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="group shrink-0">
+                <span>Ver tabela</span>
+                <ChevronDown
+                  className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180"
+                  aria-hidden="true"
+                />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent>
+            <div className="max-h-[32rem] overflow-auto border-t">
+              <Table>
+                <TableHeader className="sticky top-0 z-10 bg-background">
+                  <TableRow>
+                    <TableHead className="sticky left-0 z-20 h-11 min-w-48 bg-background text-left text-xs uppercase tracking-wide text-muted-foreground">Docente</TableHead>
+                    {data.productions_by_source.map((source) => (
+                      <TableHead key={source.source} className="h-11 min-w-36 text-right text-xs uppercase tracking-wide text-muted-foreground">
+                        {productionSourceLabels[source.source] ?? source.source}
+                      </TableHead>
+                    ))}
+                    <TableHead className="h-11 min-w-28 text-right text-xs uppercase tracking-wide text-muted-foreground">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.faculty_productions_by_source.map((professor) => {
+                    const total = data.productions_by_source.reduce(
+                      (sum, source) => sum + (professor.productions_by_source[source.source] ?? 0),
+                      0,
+                    );
+
+                    return (
+                      <TableRow key={professor.id} className="odd:bg-muted/20">
+                        <TableCell className="sticky left-0 z-10 bg-background text-left font-medium">
+                          {professor.name}
+                        </TableCell>
+                        {data.productions_by_source.map((source) => (
+                          <TableCell key={source.source} className="text-right tabular-nums">
+                            {numberFormatter.format(professor.productions_by_source[source.source] ?? 0)}
+                          </TableCell>
+                        ))}
+                        <TableCell className="text-right font-semibold tabular-nums">
+                          {numberFormatter.format(total)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {data.faculty_productions_by_source.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={data.productions_by_source.length + 2}
+                        className="py-6 text-center text-muted-foreground"
+                      >
                         Nenhum docente cadastrado.
                       </TableCell>
                     </TableRow>
