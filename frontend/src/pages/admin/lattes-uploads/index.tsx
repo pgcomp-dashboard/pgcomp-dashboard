@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -7,19 +7,32 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { useLattesUploads } from "@/features/admin-lattes/hooks/useLattesUploads";
-import { Download, RefreshCw, Search } from "lucide-react";
+} from '@/components/ui/table';
+import { useLattesUploads } from '@/features/admin-lattes/hooks/useLattesUploads';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ChevronLeft, ChevronRight, Download, RefreshCw, Search } from 'lucide-react';
 
 export default function LattesUploadsPage() {
   const {
     uploads,
     isLoading,
+    isFetching,
     isError,
+    page,
+    setPage,
+    perPage,
+    setPerPage,
     searchTerm,
     setSearchTerm,
     handleDownload,
     refresh,
+    meta,
   } = useLattesUploads();
 
   if (isError) {
@@ -55,14 +68,38 @@ export default function LattesUploadsPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => refresh()}
-          disabled={isLoading}
-        >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-        </Button>
+        <div className="flex items-center gap-2">
+          <span className="whitespace-nowrap text-sm text-muted-foreground">
+            Por página
+          </span>
+          <Select
+            value={String(perPage)}
+            onValueChange={(value) => {
+              setPerPage(Number(value));
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[ 15, 30, 50, 100 ].map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refresh()}
+            disabled={isFetching}
+            aria-label="Atualizar lista"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-md border bg-card">
@@ -104,15 +141,15 @@ export default function LattesUploadsPage() {
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>
                     {user.lattes_xml_uploaded_at ? (
-                      new Intl.DateTimeFormat("pt-BR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
+                      new Intl.DateTimeFormat('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })
                         .format(new Date(user.lattes_xml_uploaded_at))
-                        .replace(",", " às")
+                        .replace(',', ' às')
                     ) : (
                       <span className="text-muted-foreground">-</span>
                     )}
@@ -133,6 +170,43 @@ export default function LattesUploadsPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          {meta?.total
+            ? `Exibindo ${meta.from}–${meta.to} de ${meta.total} docente${meta.total === 1 ? '' : 's'}${searchTerm.trim() ? ' encontrado(s)' : ' com arquivo enviado'}`
+            : searchTerm.trim()
+              ? 'Nenhum docente encontrado para esta busca.'
+              : 'Nenhum docente com arquivo enviado.'}
+        </p>
+        {meta && meta.last_page > 1 && (
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setPage((value) => value - 1)}
+              disabled={page <= 1 || isFetching}
+              title="Página anterior"
+              aria-label="Página anterior"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="whitespace-nowrap text-sm font-medium">
+              Página {meta.current_page} de {meta.last_page}
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setPage((value) => value + 1)}
+              disabled={page >= meta.last_page || isFetching}
+              title="Próxima página"
+              aria-label="Próxima página"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

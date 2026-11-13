@@ -1,5 +1,5 @@
-import { RequestBodyType } from '@/types/common';
-import { AdminRequest } from '@/types/user';
+import { PaginatedResponse, RequestBodyType } from '@/types/common';
+import { AdminRequest, ApprovalRequest, Professor } from '@/types/user';
 import { apiClient } from '../http-client';
 
 export const adminService = {
@@ -12,17 +12,17 @@ export const adminService = {
     return apiClient.get<{ data: string, status: string }>('/api/portal/admin-status');
   },
 
-  async getAdminRequests(params: { status?: "pending" } = {}) {
+  async getAdminRequests(params: { status?: 'pending' } = {}) {
     return await apiClient.get<{ data: AdminRequest[], status: string }>('/api/admin/admin-request', params);
   },
 
   async avaliateAdminRequest(id: number, body: RequestBodyType) {
-    return await apiClient.post<{ data: AdminRequest, message: string }>(`/api/admin/admin-request/${id}`, body)
+    return await apiClient.post<{ data: AdminRequest, message: string }>(`/api/admin/admin-request/${id}`, body);
   },
 
   // Unified Approval Requests
   async getUnifiedRequests() {
-    return await apiClient.get<{ data: any[] }>('/api/admin/approval-requests');
+    return apiClient.get<{ data: ApprovalRequest[] }>('/api/admin/approval-requests');
   },
 
   async approveRequest(id: number, requestType: string) {
@@ -41,8 +41,13 @@ export const adminService = {
   },
 
   // Lattes XML Uploads
-  async getLattesUploads(params: { page?: number; per_page?: number } = {}) {
-    return await apiClient.get<{ data: any[]; meta: any }>('/api/admin/lattes-uploads', params);
+  async getLattesUploads(
+    params: { page?: number; per_page?: number; search?: string } = {},
+  ) {
+    return apiClient.get<PaginatedResponse<Professor>>(
+      '/api/admin/lattes-uploads',
+      params,
+    );
   },
 
   async downloadLattesXml(userId: number, userName: string) {

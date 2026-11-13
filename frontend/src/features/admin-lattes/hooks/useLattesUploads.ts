@@ -1,48 +1,51 @@
-import { adminService } from "@/services/modules/admin.service";
-import { Professor } from "@/types/user";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
+import { adminService } from '@/services/modules/admin.service';
+import { PaginatedResponse } from '@/types/common';
+import { Professor } from '@/types/user';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export function useLattesUploads() {
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(15);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [ page, setPage ] = useState(1);
+  const [ perPage, setPerPage ] = useState(15);
+  const [ searchTerm, setSearchTerm ] = useState('');
 
-  const { data, isLoading, isError, refetch } = useQuery<{ data: Professor[]; meta: any }, Error>({
-    queryKey: ["lattes-uploads", page, perPage],
-    queryFn: () => adminService.getLattesUploads({ page, per_page: perPage }),
+  const { data, isLoading, isFetching, isError, refetch } = useQuery<PaginatedResponse<Professor>, Error>({
+    queryKey: [ 'lattes-uploads', page, perPage, searchTerm ],
+    queryFn: () =>
+      adminService.getLattesUploads({
+        page,
+        per_page: perPage,
+        search: searchTerm.trim() || undefined,
+      }),
     placeholderData: (previousData) => previousData,
   });
 
-  const uploads = useMemo<Professor[]>(() => {
-    let list = data?.data || [];
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      list = list.filter((u) => u.name.toLowerCase().includes(term));
-    }
-    return list;
-  }, [data, searchTerm]);
+  const updateSearchTerm = (value: string) => {
+    setSearchTerm(value);
+    setPage(1);
+  };
 
   const handleDownload = async (userId: number, userName: string) => {
     try {
       await adminService.downloadLattesXml(userId, userName);
-      toast.success("Download iniciado com sucesso!");
-    } catch (error) {
-      toast.error("Erro ao baixar arquivo XML.");
+      toast.success('Download iniciado com sucesso!');
+    } catch {
+      toast.error('Erro ao baixar arquivo XML.');
     }
   };
 
   return {
-    uploads,
-    isLoading,
+    uploads: data?.data ?? [],
+    isLoading: isLoading || (isFetching && !data),
+    isFetching,
     isError,
     page,
     setPage,
     perPage,
     setPerPage,
     searchTerm,
-    setSearchTerm,
+    setSearchTerm: updateSearchTerm,
     meta: data?.meta,
     handleDownload,
     refresh: refetch,

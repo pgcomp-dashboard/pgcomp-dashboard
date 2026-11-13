@@ -18,10 +18,22 @@ class AdminLattesController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::whereNotNull('lattes_xml_path')
-            ->professors() // Using existing scope
+        $validated = $request->validate([
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $users = User::query()
+            ->whereNotNull('lattes_xml_path')
+            ->professors()
+            ->when(
+                filled($validated['search'] ?? null),
+                fn ($query) => $query->where('name', 'like', '%' . trim($validated['search']) . '%'),
+            )
             ->orderBy('lattes_xml_uploaded_at', 'desc')
-            ->paginate($request->input('per_page', 15));
+            ->paginate($validated['per_page'] ?? 15)
+            ->appends($request->query());
 
         return UserResource::collection($users);
     }
