@@ -512,7 +512,7 @@ export function AwardsAnnualAnalysis({
             ponto para ver o ano e os valores.
           </p>
         </div>
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4">
           <AwardsCorrelationChart
             title="Total anual × prêmios com discentes"
             recipientLabel="discentes"

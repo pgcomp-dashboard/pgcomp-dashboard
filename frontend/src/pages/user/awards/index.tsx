@@ -65,6 +65,7 @@ export default function MyAwardsPage() {
         open={importOpen}
         onOpenChange={setImportOpen}
         isImporting={actions.import.isPending}
+        categories={categories}
         onImport={(records) => actions.import.mutateAsync(records)}
       />
       <DeleteConfirmDialog

@@ -205,7 +205,7 @@ export function AwardsDashboard({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <section className="border rounded-lg p-4">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-semibold">Prêmios por categoria</h2>
@@ -337,27 +337,56 @@ export function AwardsDashboard({
               {chart.data.length === 0 ? (
                 <p className="text-sm text-muted-foreground">{chart.emptyMessage}</p>
               ) : (
-                <div className="overflow-x-auto">
-                  <div style={{ width: Math.max(640, displayedData.length * 80), height: 380 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={displayedData} margin={{ bottom: 72, left: -16, top: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                        <XAxis
-                          dataKey="name"
-                          interval={0}
-                          angle={-40}
-                          textAnchor="end"
-                          height={100}
-                          tick={{ fontSize: 11 }}
+                <div
+                  className="w-full min-w-0"
+                  style={{ height: Math.max(440, displayedData.length * 48 + 72) }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={displayedData}
+                      layout="vertical"
+                      margin={{ top: 12, right: 48, bottom: 12, left: 8 }}
+                      barCategoryGap="24%"
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                      <XAxis
+                        type="number"
+                        allowDecimals={false}
+                        tick={{ fontSize: 13 }}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="name"
+                        width={320}
+                        interval={0}
+                        tick={{ fontSize: 14, fontWeight: 500 }}
+                        tickLine={false}
+                      />
+                      <Tooltip
+                        formatter={(value) => [value, 'Quantidade de prêmios']}
+                        labelFormatter={(label, payload) => {
+                          const entry = payload[0]?.payload as ChartEntry | undefined;
+                          return entry?.groupedCount
+                            ? `${label}: ${entry.groupedNames?.join(', ') ?? ''}`
+                            : label;
+                        }}
+                      />
+                      <Bar
+                        dataKey="total"
+                        name="Quantidade de prêmios"
+                        fill={chart.color}
+                        radius={[0, 6, 6, 0]}
+                      >
+                        <LabelList
+                          dataKey="total"
+                          position="right"
+                          offset={10}
+                          style={{ fontSize: 14, fontWeight: 700, fill: 'currentColor' }}
                         />
-                        <YAxis allowDecimals={false} />
-                        <Tooltip />
-                        <Bar dataKey="total" name="Quantidade de prêmios" fill={chart.color}>
-                          <LabelList dataKey="total" position="top" />
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               )}
             </section>
