@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Log;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -20,6 +21,9 @@ class Handler extends ExceptionHandler
         ValidationException::class,
         AuthorizationException::class,
         AuthenticationException::class,
+        // Respostas esperadas da solicitação de banca (403/409 com o motivo), não falhas.
+        \App\Domain\DefenseRequests\DefenseRequestDenied::class,
+        \App\Domain\DefenseRequests\DefenseRequestConflict::class,
     ];
 
     /**
@@ -49,17 +53,34 @@ class Handler extends ExceptionHandler
             }
         });
 
+        // Cada mensagem leva o campo de origem: o front marca o campo certo em vez de só listar.
         $this->renderable(function (ValidationException $e) {
+            $errors = [];
+            foreach ($e->validator->errors()->messages() as $field => $messages) {
+                foreach ($messages as $message) {
+                    $errors[] = ['description' => $message, 'field' => $field];
+                }
+            }
+
+            return response()->json(['errors' => $errors], 422);
+        });
+
+        // Registro ou rota inexistente: 404 com mensagem útil (antes caía no 500 genérico).
+        $this->renderable(function (NotFoundHttpException $e, $request) {
+            if (! $request->expectsJson()) {
+                return null;
+            }
+
             return response()->json(
-                ['errors' => array_map(fn ($e) => ['description' => $e], $e->validator->errors()->all())],
-                422,
+                ['errors' => [['description' => 'Registro não encontrado. Ele pode ter sido removido; atualize a página.']]],
+                404,
             );
         });
 
         $this->renderable(function (AuthenticationException $e) {
             return response()->json(
                 ['errors' => [
-                    ['description' => $e->getMessage()],
+                    ['description' => 'Sua sessão expirou. Entre novamente para continuar.'],
                 ]],
                 401,
             );

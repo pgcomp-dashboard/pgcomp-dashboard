@@ -3,6 +3,7 @@ import { queryClient } from "@/lib/query-client";
 import { apiClient } from "@/services/http-client";
 import { normalizeUser } from "@/utils/auth-utils";
 import React, { createContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const AUTH_TOKEN_STORAGE_KEY = "auth-token";
 const USER_INFO_STORAGE_KEY = "user-info";
@@ -55,6 +56,16 @@ export const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
       logout();
     }
   }, [error]);
+
+  // Token que expirou no meio do uso: avisa uma vez e manda para o login
+  // (o EnsureAuthenticated guarda a página para voltar depois).
+  useEffect(() => {
+    apiClient.onUnauthorized(() => {
+      toast.error("Sua sessão expirou. Entre novamente para continuar.", { id: "session-expired" });
+      logout();
+    });
+    return () => apiClient.onUnauthorized(undefined);
+  }, []);
 
   function login(newToken: string, userData: User) {
     const cleanUser = normalizeUser(userData);

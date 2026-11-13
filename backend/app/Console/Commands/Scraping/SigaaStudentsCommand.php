@@ -72,7 +72,7 @@ class SigaaStudentsCommand extends Command
                     $advisors = Arr::where($allTeachers, function ($i) {
                         return $i['relation_type'] === UserRelationType::ADVISOR->value;
                     });
-                    $user->advisors()->sync($advisors);
+                    $service->syncAdvisors($user, $advisors);
 
                     $advisor = $user->advisors()->first();
                     if ($advisor) {

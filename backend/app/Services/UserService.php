@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Domain\DefenseRequests\AdvisorLinkGuard;
 use App\Enums\UserType;
 use App\Models\User;
 use App\Models\Production;
@@ -128,14 +129,19 @@ class UserService
      */
     public function delete(User $user): bool
     {
-        $user->writerOf()->each(fn($production) => $production->delete());
+        return DB::transaction(function () use ($user) {
+            // Sem deixar solicitação de banca aguardando sem orientador.
+            AdvisorLinkGuard::assertProfessorCanLeave($user);
 
-        $user->advisors()->detach();
-        $user->advisedes()->detach();
-        $user->coadvisors()->detach();
-        $user->coadviseees()->detach();
+            $user->writerOf()->each(fn($production) => $production->delete());
 
-        return $user->delete();
+            $user->advisors()->detach();
+            $user->advisedes()->detach();
+            $user->coadvisors()->detach();
+            $user->coadviseees()->detach();
+
+            return $user->delete();
+        });
     }
 
     /**
@@ -164,10 +170,25 @@ class UserService
             }
 
             if (isset($data['advisor_id'])) {
-                $user->advisors()->sync($data['advisor_id']);
+                $this->syncAdvisors($user, array_values(array_filter((array) $data['advisor_id'])));
             }
 
             return $user->load('secondaryEmail');
+        });
+    }
+
+    /**
+     * Único caminho para trocar os orientadores de um discente (cadastro e importação do SIGAA).
+     * Recusa deixar sem orientador quem tem solicitação de banca aguardando (AdvisorLinkGuard).
+     *
+     * @param  array<int, int>|array<int, array>  $advisors  ids, ou [id => atributos do pivô]
+     */
+    public function syncAdvisors(User $student, array $advisors): void
+    {
+        DB::transaction(function () use ($student, $advisors) {
+            $ids = collect($advisors)->map(fn ($v, $k) => is_array($v) ? $k : $v)->values()->all();
+            AdvisorLinkGuard::assertStudentKeepsAdvisor($student, $ids);
+            $student->advisors()->sync($advisors);
         });
     }
 

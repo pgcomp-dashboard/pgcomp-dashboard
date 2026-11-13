@@ -9,8 +9,10 @@ export const queryClient = new QueryClient({
     },
   }),
   mutationCache: new MutationCache({
-    onError: (error) => {
+    onError: (error, _variables, _context, mutation) => {
       console.error("Global Mutation Error:", error);
+      // Mutations que já mostram a mensagem da API pedem para pular o aviso genérico.
+      if (mutation.meta?.skipGlobalErrorToast) return;
       toast.error("Erro ao processar a operação.");
     },
   }),
