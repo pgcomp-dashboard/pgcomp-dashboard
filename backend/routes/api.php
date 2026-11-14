@@ -83,6 +83,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Logged group routes
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    // Ações de internacionalização do próprio usuário, disponíveis a qualquer usuário autenticado.
+    Route::group(['as' => 'portal.', 'prefix' => 'portal'], function () {
+        Route::get('internationalization-categories', [UserInternationalizationActionController::class, 'categories']);
+        Route::get('internationalization-actions/{internationalization_action}/files/{slot}', [UserInternationalizationActionController::class, 'file']);
+        // Atualização via POST: multipart não é lido em PUT.
+        Route::post('internationalization-actions/{internationalization_action}', [UserInternationalizationActionController::class, 'update']);
+        Route::apiResource('internationalization-actions', UserInternationalizationActionController::class)->only(['index', 'store', 'destroy']);
+    });
+
     // Login general access routes
     Route::group(['as' => 'portal.', 'prefix' => 'portal', 'middleware' => ['approved']], function () {
         Route::get('journal', [PublisherController::class, 'journalByIssn']);
@@ -113,12 +122,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('awards/{award}', [UserAwardController::class, 'update']);
         Route::apiResource('awards', UserAwardController::class)->only(['index', 'store', 'destroy']);
 
-        // Ações de internacionalização do próprio usuário
-        Route::get('internationalization-categories', [UserInternationalizationActionController::class, 'categories']);
-        Route::get('internationalization-actions/{internationalization_action}/files/{slot}', [UserInternationalizationActionController::class, 'file']);
-        // Atualização via POST: multipart não é lido em PUT.
-        Route::post('internationalization-actions/{internationalization_action}', [UserInternationalizationActionController::class, 'update']);
-        Route::apiResource('internationalization-actions', UserInternationalizationActionController::class)->only(['index', 'store', 'destroy']);
     });
 
     // Admin group routes

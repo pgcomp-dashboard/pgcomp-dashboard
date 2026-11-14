@@ -65,6 +65,14 @@ export function AppRoutes() {
       <Route path="waiting-approval" element={<WaitingApprovalPage />} />
       {/* Rotas Protegidas (Geral) */}
       <Route element={<EnsureAuthenticated />}>
+        <Route
+          path="portal/internationalization"
+          element={
+            <AdminLayout>
+              <MyInternationalizationPage />
+            </AdminLayout>
+          }
+        />
         <Route element={<EnsureIsApproved />}>
           <Route
             element={
@@ -85,10 +93,6 @@ export function AppRoutes() {
               </Route>
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="awards" element={<MyAwardsPage />} />
-              <Route
-                path="internationalization"
-                element={<MyInternationalizationPage />}
-              />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
             {/* Rotas restritas apenas para ADMIN */}

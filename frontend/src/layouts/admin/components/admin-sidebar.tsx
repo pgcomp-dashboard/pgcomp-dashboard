@@ -411,22 +411,17 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {auth?.user?.type !== "student" && (
-            <>
-              {/* Ações de internacionalização do próprio usuário */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/portal/internationalization"}
-                >
-                  <Link to="/portal/internationalization">
-                    <Globe className="h-4 w-4" />
-                    <span>Internacionalização</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </>
-          )}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/portal/internationalization"}
+            >
+              <Link to="/portal/internationalization">
+                <Globe className="h-4 w-4" />
+                <span>Internacionalização</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           {auth?.isAdmin && (
             <>
               <SidebarMenuItem>

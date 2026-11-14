@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\UserType;
 use App\Models\InternationalizationAction;
 use App\Models\InternationalizationCategory;
 use App\Models\User;
@@ -206,11 +207,26 @@ class InternationalizationTest extends TestCase
         Storage::assertExists($path);
     }
 
-    public function test_unapproved_user_cannot_use_the_portal(): void
+    public function test_unapproved_registered_user_can_manage_own_internationalization_actions(): void
     {
-        $pending = User::factory()->create(['is_approved' => false]);
+        $pending = User::factory()->create([
+            'type' => UserType::PROFESSOR,
+            'is_approved' => false,
+        ]);
 
-        $this->actingAs($pending)->getJson('/api/portal/internationalization-actions')->assertStatus(403);
+        $this->actingAs($pending)
+            ->getJson('/api/portal/internationalization-categories')
+            ->assertOk()
+            ->assertJsonCount(23, 'data');
+
+        $this->actingAs($pending)
+            ->postJson('/api/portal/internationalization-actions', $this->payload())
+            ->assertCreated();
+
+        $this->assertDatabaseHas('internationalization_actions', [
+            'user_id' => $pending->id,
+            'full_name' => 'Ana Souza',
+        ]);
     }
 
     public function test_owner_replaces_removes_downloads_and_deletes_files(): void

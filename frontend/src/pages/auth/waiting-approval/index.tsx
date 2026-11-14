@@ -38,6 +38,13 @@ export default function WaitingApprovalPage() {
           </div>
 
           <div className="grid gap-4">
+            {auth?.isAuthenticated && (
+              <Button asChild className="w-full">
+                <Link to="/portal/internationalization">
+                  Cadastrar ação de internacionalização
+                </Link>
+              </Button>
+            )}
             {auth?.isAuthenticated ? (
               <Button
                 variant="outline"
