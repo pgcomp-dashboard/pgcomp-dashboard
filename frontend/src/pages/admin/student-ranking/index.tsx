@@ -38,10 +38,10 @@ export default function StudentRankingPage() {
     setPerPage,
     courseId,
     setCourseId,
-    isEligible,
-    setIsEligible,
     onlyPositiveScore,
     setOnlyPositiveScore,
+    includeIneligible,
+    setIncludeIneligible,
     courses,
     sorting,
     setSorting,
@@ -172,38 +172,6 @@ export default function StudentRankingPage() {
           </Select>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label
-            htmlFor="student-ranking-eligibility"
-            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-          >
-            Situação
-          </Label>
-          <Select
-            value={
-              isEligible === null ? "all" : isEligible ? "eligible" : "ineligible"
-            }
-            onValueChange={(value) => {
-              setIsEligible(
-                value === "all" ? null : value === "eligible",
-              );
-              setPage(1);
-            }}
-          >
-            <SelectTrigger
-              id="student-ranking-eligibility"
-              className="w-56 bg-background"
-            >
-              <SelectValue placeholder="Todas as situações" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as situações</SelectItem>
-              <SelectItem value="eligible">Aptos</SelectItem>
-              <SelectItem value="ineligible">Fora dos critérios</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2">
           <Label
             htmlFor="student-ranking-positive-score"
@@ -216,6 +184,23 @@ export default function StudentRankingPage() {
             checked={onlyPositiveScore}
             onCheckedChange={(checked) => {
               setOnlyPositiveScore(checked);
+              setPage(1);
+            }}
+          />
+        </div>
+
+        <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2">
+          <Label
+            htmlFor="student-ranking-include-ineligible"
+            className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            Incluir discentes inaptos
+          </Label>
+          <Switch
+            id="student-ranking-include-ineligible"
+            checked={includeIneligible}
+            onCheckedChange={(checked) => {
+              setIncludeIneligible(checked);
               setPage(1);
             }}
           />

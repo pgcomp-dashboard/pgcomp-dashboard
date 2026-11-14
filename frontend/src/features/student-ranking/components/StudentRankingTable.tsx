@@ -139,6 +139,23 @@ export function StudentRankingTable({
           </div>
         ),
       }),
+      columnHelper.accessor("is_eligible", {
+        id: "status",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Situação" />
+        ),
+        cell: (info) => (
+          <div
+            className={
+              info.getValue()
+                ? "text-center font-medium text-green-700"
+                : "text-center font-medium text-red-700"
+            }
+          >
+            {info.getValue() ? "Apto" : "Inapto"}
+          </div>
+        ),
+      }),
       columnHelper.display({
         id: "actions",
         header: "Ações",

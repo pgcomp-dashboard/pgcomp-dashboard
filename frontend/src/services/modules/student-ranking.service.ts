@@ -11,8 +11,8 @@ export const studentRankingService = {
     perPage: number,
     sort: string,
     direction: "asc" | "desc",
-    isEligible: boolean | null = null,
     onlyPositiveScore = false,
+    includeIneligible = false,
   ) {
     const response = await apiClient.get<PaginatedResponse<StudentRanking>>(
       "/api/admin/student-ranking",
@@ -24,8 +24,8 @@ export const studentRankingService = {
         per_page: perPage,
         sort,
         direction,
-        is_eligible: isEligible ?? undefined,
         only_positive_score: onlyPositiveScore,
+        include_ineligible: includeIneligible,
       },
     );
 

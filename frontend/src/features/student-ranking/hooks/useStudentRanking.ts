@@ -8,7 +8,7 @@ import { StudentRanking } from "@/types/academic";
 import { PaginatedResponse } from "@/types/common";
 import { SortingState } from "@tanstack/react-table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const MINIMUM_RANKING_YEAR = 2000;
@@ -16,13 +16,13 @@ const MINIMUM_RANKING_YEAR = 2000;
 export function useStudentRanking() {
   const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
-  const [startYear, setStartYear] = useState(MINIMUM_RANKING_YEAR);
-  const [endYear, setEndYear] = useState(currentYear);
+  const [startYear, setStartYear] = useState<number | null>(null);
+  const [endYear, setEndYear] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(50);
   const [courseId, setCourseId] = useState<number | null | undefined>(undefined);
-  const [isEligible, setIsEligible] = useState<boolean | null>(null);
   const [onlyPositiveScore, setOnlyPositiveScore] = useState(true);
+  const [includeIneligible, setIncludeIneligible] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "position", desc: true },
   ]);
@@ -39,48 +39,55 @@ export function useStudentRanking() {
         )?.id ?? null)
       : courseId;
 
-  const { data: configurations } = useQuery({
-    queryKey: ["student-ranking-rules"],
+  const {
+    data: configurations,
+    isLoading: isLoadingConfigurations,
+    error: configurationsError,
+  } = useQuery({
+    queryKey: [ 'configurations' ],
     queryFn: () => configurationService.getAll(),
   });
 
-  useEffect(() => {
-    const config = configurations?.find(
-      (item) => item.group === "student_ranking" && item.key === "rules",
-    );
+  const rules = configurations?.find(
+    (item) => item.group === 'student_ranking' && item.key === 'rules',
+  )?.casted_value;
+  const configuredStartYear =
+    startYear ?? rules?.initial_year ?? currentYear - 4;
+  const configuredEndYear = endYear ?? rules?.final_year ?? currentYear;
 
-    if (!config?.casted_value) return;
-
-    setEndYear(config.casted_value.final_year ?? currentYear);
-    setPage(1);
-  }, [configurations, currentYear]);
+  const selectedStartYear = configuredStartYear;
+  const selectedEndYear = configuredEndYear;
 
   const query = useQuery<PaginatedResponse<StudentRanking>, Error>({
     queryKey: [
       "student-ranking",
-      startYear,
-      endYear,
+      selectedStartYear,
+      selectedEndYear,
+      rules ?? null,
       selectedCourseId,
-      isEligible,
       onlyPositiveScore,
+      includeIneligible,
       page,
       perPage,
       sorting,
     ],
     queryFn: () =>
       studentRankingService.getRanking(
-        startYear,
-        endYear,
+        selectedStartYear,
+        selectedEndYear,
         selectedCourseId,
         page,
         perPage,
         sorting[0]?.id ?? "position",
         sorting[0]?.desc !== false ? "desc" : "asc",
-        isEligible,
         onlyPositiveScore,
+        includeIneligible,
       ),
     placeholderData: (previousData) => previousData,
-    enabled: !isLoadingCourses,
+    enabled:
+      !isLoadingCourses &&
+      !isLoadingConfigurations &&
+      !configurationsError,
   });
 
   const deleteMutation = useMutation({
@@ -97,24 +104,37 @@ export function useStudentRanking() {
   });
 
   const years = useMemo(
-    () =>
-      Array.from(
-        { length: currentYear - MINIMUM_RANKING_YEAR + 1 },
-        (_, index) => currentYear - index,
-      ),
-    [currentYear],
+    () => {
+      const firstYear = Math.min(
+        MINIMUM_RANKING_YEAR,
+        configuredStartYear,
+        configuredEndYear,
+      );
+      const lastYear = Math.max(
+        currentYear,
+        configuredStartYear,
+        configuredEndYear,
+      );
+
+      return Array.from(
+        { length: lastYear - firstYear + 1 },
+        (_, index) => lastYear - index,
+      );
+    },
+    [ currentYear, configuredStartYear, configuredEndYear ],
   );
 
   return {
     ranking: query.data?.data ?? [],
     pagination: query.data ?? null,
-    isLoading: query.isLoading,
+    isLoading:
+      query.isLoading || isLoadingCourses || isLoadingConfigurations,
     isFetching: query.isFetching,
-    error: query.error,
+    error: query.error ?? configurationsError,
     refetch: query.refetch,
-    startYear,
+    startYear: selectedStartYear,
     setStartYear,
-    endYear,
+    endYear: selectedEndYear,
     setEndYear,
     years,
     page,
@@ -123,10 +143,10 @@ export function useStudentRanking() {
     setPerPage,
     courseId: selectedCourseId,
     setCourseId,
-    isEligible,
-    setIsEligible,
     onlyPositiveScore,
     setOnlyPositiveScore,
+    includeIneligible,
+    setIncludeIneligible,
     courses,
     sorting,
     setSorting,
