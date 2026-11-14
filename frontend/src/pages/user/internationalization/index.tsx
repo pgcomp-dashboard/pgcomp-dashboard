@@ -19,10 +19,13 @@ export default function MyInternationalizationPage() {
     <div className="space-y-6">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Internacionalização</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Minhas ações de internacionalização
+          </h1>
           <p className="text-muted-foreground">
-            Registre as suas ações de internacionalização (intercâmbios, doutorado sanduíche, palestras no exterior e outras).
-            Elas são usadas nos relatórios do programa.
+            Cadastre e acompanhe suas experiências internacionais, como
+            intercâmbios, doutorado-sanduíche, cooperação e palestras no
+            exterior. Esses registros contribuem para os relatórios do programa.
           </p>
         </div>
         <Button className="flex gap-2" onClick={() => setForm({ open: true, editing: null })}>

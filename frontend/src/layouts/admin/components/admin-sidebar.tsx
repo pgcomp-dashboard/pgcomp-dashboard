@@ -52,15 +52,27 @@ export function AdminSidebar() {
     pathname === "/admin/orientacoes";
   const isAwardsArea =
     pathname === "/portal/awards" || pathname === "/admin/awards";
+  const isInternationalizationArea =
+    pathname === "/portal/internationalization" ||
+    pathname === "/admin/internationalization";
   const [studentsOpen, setStudentsOpen] = useState(isStudentArea);
   const [professorsOpen, setProfessorsOpen] = useState(isProfessorArea);
   const [awardsOpen, setAwardsOpen] = useState(isAwardsArea);
+  const [internationalizationOpen, setInternationalizationOpen] = useState(
+    isInternationalizationArea,
+  );
 
   useEffect(() => {
     if (isStudentArea) setStudentsOpen(true);
     if (isProfessorArea) setProfessorsOpen(true);
     if (isAwardsArea) setAwardsOpen(true);
-  }, [isStudentArea, isProfessorArea, isAwardsArea]);
+    if (isInternationalizationArea) setInternationalizationOpen(true);
+  }, [
+    isStudentArea,
+    isProfessorArea,
+    isAwardsArea,
+    isInternationalizationArea,
+  ]);
 
   return (
     <Sidebar>
@@ -180,6 +192,52 @@ export function AdminSidebar() {
                         <Link to="/admin/awards">
                           <ClipboardList className="h-4 w-4" />
                           <span>Gestão de Prêmios</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
+                </SidebarMenu>
+              </CollapsibleContent>
+            </Collapsible>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <Collapsible
+              open={internationalizationOpen}
+              onOpenChange={setInternationalizationOpen}
+            >
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton isActive={isInternationalizationArea}>
+                  <Globe className="h-4 w-4" />
+                  <span>Internacionalização</span>
+                  <ChevronDown
+                    className={`ml-auto h-4 w-4 transition-transform ${internationalizationOpen ? "rotate-180" : ""}`}
+                  />
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenu className="ml-4 mt-1 gap-1 border-l pl-2">
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/portal/internationalization"}
+                      className="h-9 text-[12px]"
+                    >
+                      <Link to="/portal/internationalization">
+                        <Globe className="h-4 w-4" />
+                        <span>Minhas ações</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {auth?.isAdmin && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/admin/internationalization"}
+                        className="h-9 text-[12px]"
+                      >
+                        <Link to="/admin/internationalization">
+                          <Plane className="h-4 w-4" />
+                          <span>Gestão</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -411,17 +469,6 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/portal/internationalization"}
-            >
-              <Link to="/portal/internationalization">
-                <Globe className="h-4 w-4" />
-                <span>Internacionalização</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           {auth?.isAdmin && (
             <>
               <SidebarMenuItem>
@@ -432,17 +479,6 @@ export function AdminSidebar() {
                   <Link to="/admin/credenciamento">
                     <Trophy className="h-4 w-4" />
                     <span>Credenciamento</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/admin/internationalization"}
-                >
-                  <Link to="/admin/internationalization">
-                    <Plane className="h-4 w-4" />
-                    <span>Gestão de Internacionalização</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
