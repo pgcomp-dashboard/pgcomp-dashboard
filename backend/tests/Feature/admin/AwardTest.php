@@ -519,6 +519,43 @@ class AwardTest extends TestCase
             ->assertJsonPath('by_scope.national', 1);
     }
 
+    public function test_dashboard_groups_same_recipient_name_across_linked_and_unlinked_rows(): void
+    {
+        $admin = $this->admin();
+        $professor = User::factory()->create([
+            'name' => 'Docente Iguais',
+            'type' => 'professor',
+            'is_approved' => true,
+        ]);
+
+        $firstAward = Award::factory()->create(['year' => 2024]);
+        $firstAward->winners()->create([
+            'name' => 'Docente Iguais',
+            'recipient_type' => 'professor',
+            'user_id' => null,
+        ]);
+        $firstAward->winners()->create([
+            'name' => 'Docente Iguais',
+            'recipient_type' => 'professor',
+            'user_id' => $professor->id,
+        ]);
+
+        $secondAward = Award::factory()->create(['year' => 2024]);
+        $secondAward->winners()->create([
+            'name' => 'Docente Iguais',
+            'recipient_type' => 'professor',
+            'user_id' => $professor->id,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->getJson('/api/admin/awards-dashboard')
+            ->assertOk();
+
+        $response->assertJsonCount(1, 'awards_by_professor');
+        $response->assertJsonPath('awards_by_professor.0.name', 'Docente Iguais');
+        $response->assertJsonPath('awards_by_professor.0.total', 2);
+    }
+
     public function test_dashboard_summary_filters_by_year(): void
     {
         $admin = $this->admin();

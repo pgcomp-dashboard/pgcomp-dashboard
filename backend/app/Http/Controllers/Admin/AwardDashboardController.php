@@ -116,8 +116,7 @@ class AwardDashboardController extends Controller
                 $selectedYears !== null,
                 fn ($query) => $query->whereIn('awards.year', $selectedYears)
             )
-            ->selectRaw('COALESCE(users.name, award_winners.name) as name, COUNT(*) as total')
-            ->groupBy('award_winners.user_id')
+            ->selectRaw('COALESCE(users.name, award_winners.name) as name, COUNT(DISTINCT awards.id) as total')
             ->groupByRaw('COALESCE(users.name, award_winners.name)')
             ->orderByDesc('total')
             ->orderBy('name')
