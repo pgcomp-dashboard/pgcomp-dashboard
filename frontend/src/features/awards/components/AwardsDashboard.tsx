@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useAwardsDashboard } from "@/features/awards/hooks/useAwards";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import {
   Bar,
@@ -132,6 +133,7 @@ export function AwardsDashboard({
   const [expandedRecipients, setExpandedRecipients] = useState<
     Record<string, boolean>
   >({});
+  const isMobile = useIsMobile();
 
   if (isLoading && !data) {
     return (
@@ -443,30 +445,43 @@ export function AwardsDashboard({
                 <div
                   className="w-full min-w-0"
                   style={{
-                    height: Math.max(440, displayedData.length * 48 + 72),
+                    height: Math.max(
+                      isMobile ? 360 : 440,
+                      displayedData.length * (isMobile ? 44 : 48) + 72,
+                    ),
                   }}
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={displayedData}
                       layout="vertical"
-                      margin={{ top: 12, right: 48, bottom: 12, left: 8 }}
+                      margin={{
+                        top: 12,
+                        right: isMobile ? 28 : 48,
+                        bottom: 12,
+                        left: isMobile ? 0 : 8,
+                      }}
                       barCategoryGap="24%"
                     >
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                       <XAxis
                         type="number"
                         allowDecimals={false}
-                        tick={{ fontSize: 13 }}
+                        tick={{ fontSize: isMobile ? 11 : 13 }}
                         tickLine={false}
                       />
                       <YAxis
                         type="category"
                         dataKey="name"
-                        width={320}
+                        width={isMobile ? 150 : 320}
                         interval={0}
-                        tick={{ fontSize: 14, fontWeight: 500 }}
+                        tick={{ fontSize: isMobile ? 11 : 14, fontWeight: 500 }}
                         tickLine={false}
+                        tickFormatter={(name: string) =>
+                          isMobile && name.length > 18
+                            ? `${name.slice(0, 17)}...`
+                            : name
+                        }
                       />
                       <Tooltip
                         formatter={(value) => [value, "Quantidade de prêmios"]}
@@ -490,7 +505,7 @@ export function AwardsDashboard({
                           position="right"
                           offset={10}
                           style={{
-                            fontSize: 14,
+                            fontSize: isMobile ? 12 : 14,
                             fontWeight: 700,
                             fill: "currentColor",
                           }}
