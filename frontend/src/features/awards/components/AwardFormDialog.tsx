@@ -29,13 +29,15 @@ import {
   Award,
   AwardCategory,
   AwardInput,
-  RECIPIENT_TYPE_LABEL,
   SCOPE_LABEL,
 } from "@/features/awards/types";
+import { professorService } from "@/services/modules/professor.service";
+import { studentService } from "@/services/modules/student.service";
 import { useFormErrorToast } from "@/hooks/useFormErrorToast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -45,8 +47,10 @@ const awardSchema = z.object({
   winners: z
     .array(
       z.object({
-        name: z.string().min(2, "Informe o nome completo da pessoa premiada"),
-        recipient_type: z.enum(["professor", "student", "staff"]),
+        recipient_type: z.enum(["professor", "student"]),
+        person_id: z.string(),
+        name: z.string(),
+        is_other: z.boolean(),
       }),
     )
     .min(1, "Informe pelo menos uma pessoa premiada")
@@ -76,12 +80,35 @@ const awardSchema = z.object({
       (f) => !f || f.type === "application/pdf" || f.type.startsWith("image/"),
       { message: "Envie um PDF ou uma imagem" },
     ),
+}).superRefine((values, ctx) => {
+  values.winners.forEach((winner, index) => {
+    if (winner.is_other) {
+      if (winner.name.trim().length < 2) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["winners", index, "name"],
+          message: "Informe o nome completo da pessoa premiada",
+        });
+      }
+    } else if (!winner.person_id) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["winners", index, "person_id"],
+        message: "Selecione a pessoa premiada",
+      });
+    }
+  });
 });
 
 type AwardFormValues = z.infer<typeof awardSchema>;
 
 const emptyValues: AwardFormValues = {
-  winners: [{ name: "", recipient_type: "student" }],
+  winners: [{
+    recipient_type: "professor",
+    person_id: "",
+    name: "",
+    is_other: false,
+  }],
   year: String(currentYear),
   scope: "national",
   category_id: "",
@@ -106,6 +133,23 @@ export function AwardFormDialog({
   categories,
   onSave,
 }: AwardFormDialogProps) {
+  const { data: professorsData } = useQuery({
+    queryKey: ["award-winners", "professors"],
+    queryFn: () => professorService.fetchProfessors({ paginate: "false" }),
+  });
+  const { data: studentsData } = useQuery({
+    queryKey: ["award-winners", "students"],
+    queryFn: () => studentService.fetchStudents({ paginate: "false" }),
+  });
+  const professors = useMemo(
+    () => professorsData?.data ?? [],
+    [professorsData],
+  );
+  const students = useMemo(
+    () => studentsData?.data ?? [],
+    [studentsData],
+  );
+
   const form = useForm<AwardFormValues>({
     resolver: zodResolver(awardSchema),
     defaultValues: emptyValues,
@@ -117,25 +161,69 @@ export function AwardFormDialog({
 
   useEffect(() => {
     if (!open) return;
-    form.reset(
-      editing
-        ? {
-            winners: editing.winners.map((w) => ({ ...w })),
-            year: String(editing.year),
-            scope: editing.scope,
-            category_id: String(editing.category_id),
-            description: editing.description,
-            url: editing.url ?? "",
-            remove_attachment: false,
-            attachment: null,
-          }
-        : emptyValues,
-    );
-  }, [editing, open, form]);
+    if (editing) {
+      const winnerValues = editing.winners.map((winner) => {
+        const person = winner.recipient_type === "professor"
+          ? professors.find((professor) => professor.name === winner.name)
+          : winner.recipient_type === "student"
+            ? students.find((student) => student.name === winner.name)
+            : undefined;
+
+        if (person) {
+          return {
+            recipient_type: winner.recipient_type as "professor" | "student",
+            person_id: String(person.id),
+            name: person.name,
+            is_other: false,
+          };
+        }
+
+        return {
+          recipient_type: winner.recipient_type === "student"
+            ? "student" as const
+            : "professor" as const,
+          person_id: "",
+          name: winner.name,
+          is_other: true,
+        };
+      });
+
+      form.reset({
+        winners: winnerValues,
+        year: String(editing.year),
+        scope: editing.scope,
+        category_id: String(editing.category_id),
+        description: editing.description,
+        url: editing.url ?? "",
+        remove_attachment: false,
+        attachment: null,
+      });
+    } else {
+      form.reset(emptyValues);
+    }
+  }, [editing, open, form, professors, students]);
 
   const handleSubmit = async (values: AwardFormValues) => {
+    const submittedWinners = values.winners.map((winner) => {
+      if (winner.is_other) {
+        return {
+          name: winner.name.trim(),
+          recipient_type: winner.recipient_type,
+        };
+      }
+
+      const person = winner.recipient_type === "professor"
+        ? professors.find((professor) => professor.id === Number(winner.person_id))
+        : students.find((student) => student.id === Number(winner.person_id));
+
+      return {
+        name: person?.name ?? "",
+        recipient_type: winner.recipient_type,
+      };
+    }).filter((winner) => winner.name.length >= 2);
+
     await onSave({
-      winners: values.winners,
+      winners: submittedWinners,
       year: Number(values.year),
       scope: values.scope,
       category_id: Number(values.category_id),
@@ -162,63 +250,138 @@ export function AwardFormDialog({
             className="space-y-4 pt-2"
           >
             <div className="space-y-2">
-              <FormLabel>Vencedor(es) do prêmio</FormLabel>
+              <FormLabel>Vencedores do prêmio</FormLabel>
               {winners.fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_13rem_auto] gap-2 items-start"
-                >
+                <div key={field.id} className="space-y-2 rounded-md border p-3">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name={`winners.${index}.recipient_type`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Vínculo</FormLabel>
+                          <Select
+                            value={field.value}
+                            onValueChange={(value: "professor" | "student") => {
+                              field.onChange(value);
+                              form.setValue(`winners.${index}.person_id`, "");
+                              form.setValue(`winners.${index}.name`, "");
+                              form.setValue(`winners.${index}.is_other`, false);
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="professor">Docente</SelectItem>
+                              <SelectItem value="student">Discente</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+
+                    {form.watch(`winners.${index}.is_other`) ? (
+                      <FormField
+                        control={form.control}
+                        name={`winners.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nome completo</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Informe o nome" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    ) : (
+                      <FormField
+                        control={form.control}
+                        name={`winners.${index}.person_id`}
+                        render={({ field }) => {
+                          const recipientType = form.watch(
+                            `winners.${index}.recipient_type`,
+                          );
+                          const options =
+                            recipientType === "professor" ? professors : students;
+
+                          return (
+                            <FormItem>
+                              <FormLabel>
+                                {recipientType === "professor"
+                                  ? "Docente"
+                                  : "Discente"}
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue
+                                      placeholder={
+                                        recipientType === "professor"
+                                          ? "Selecione um docente"
+                                          : "Selecione um discente"
+                                      }
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="max-h-72">
+                                  {options.map((person) => (
+                                    <SelectItem
+                                      key={person.id}
+                                      value={String(person.id)}
+                                    >
+                                      {person.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    )}
+                  </div>
+
                   <FormField
                     control={form.control}
-                    name={`winners.${index}.name`}
+                    name={`winners.${index}.is_other`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex items-center gap-2">
                         <FormControl>
-                          <Input
-                            placeholder="Nome completo"
-                            aria-label={`Nome da pessoa ${index + 1}`}
-                            {...field}
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked === true);
+                              if (checked === true) {
+                                form.setValue(`winners.${index}.person_id`, "");
+                              }
+                            }}
                           />
                         </FormControl>
+                        <FormLabel className="cursor-pointer font-normal">
+                          Outro
+                        </FormLabel>
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name={`winners.${index}.recipient_type`}
-                    render={({ field }) => (
-                      <FormItem className="order-3 sm:order-none col-span-1">
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <FormControl>
-                            <SelectTrigger
-                              className="w-full"
-                              aria-label={`Vínculo da pessoa ${index + 1}`}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.entries(RECIPIENT_TYPE_LABEL).map(([value, label]) => (
-                              <SelectItem key={value} value={value}>
-                                {label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    aria-label={`Remover pessoa ${index + 1}`}
-                    disabled={winners.fields.length === 1}
-                    onClick={() => winners.remove(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+
+                  {winners.fields.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => winners.remove(index)}
+                    >
+                      <Trash2 className="mr-1 h-4 w-4" />
+                      Remover vencedor
+                    </Button>
+                  )}
                 </div>
               ))}
               <Button
@@ -227,10 +390,17 @@ export function AwardFormDialog({
                 size="sm"
                 className="gap-2"
                 disabled={winners.fields.length >= 20}
-                onClick={() => winners.append({ name: "", recipient_type: "student" })}
+                onClick={() =>
+                  winners.append({
+                    recipient_type: "professor",
+                    person_id: "",
+                    name: "",
+                    is_other: false,
+                  })
+                }
               >
                 <Plus className="h-4 w-4" />
-                Adicionar pessoa
+                Adicionar vencedor
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
