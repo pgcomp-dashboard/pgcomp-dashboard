@@ -182,12 +182,12 @@ export default function ComparativeConferenceAnalysis() {
     A2: pgcompQualisTotals.find((row) => row.qualis === "A2")?.total ?? 0,
     A3: pgcompQualisTotals.find((row) => row.qualis === "A3")?.total ?? 0,
     A4: pgcompQualisTotals.find((row) => row.qualis === "A4")?.total ?? 0,
-    B1: pgcompQualisTotals.find((row) => row.qualis === "B1")?.total ?? 0,
-    B2: pgcompQualisTotals.find((row) => row.qualis === "B2")?.total ?? 0,
-    B3: pgcompQualisTotals.find((row) => row.qualis === "B3")?.total ?? 0,
-    B4: pgcompQualisTotals.find((row) => row.qualis === "B4")?.total ?? 0,
-    C: pgcompQualisTotals.find((row) => row.qualis === "C")?.total ?? 0,
-    NA: pgcompQualisTotals.find((row) => row.qualis === "NA")?.total ?? 0,
+    B1: null,
+    B2: null,
+    B3: null,
+    B4: null,
+    C: null,
+    NA: null,
   };
   const qualisChartData = [...SUCUPIRA_QUALIS_2021, pgcompQualisRow].sort(
     (left, right) => {
@@ -589,6 +589,7 @@ export default function ComparativeConferenceAnalysis() {
               <thead>
                 <tr className="border-b">
                   <th className="p-3 text-left">Programa / Universidade</th>
+                  <th className="p-3 text-right">Total (A1–A4)</th>
                   {QUALIS_ORDER.map((qualis) => (
                     <th key={qualis} className="p-3 text-right">{qualis}</th>
                   ))}
@@ -598,6 +599,7 @@ export default function ComparativeConferenceAnalysis() {
                 {qualisChartData.map((row) => (
                   <tr key={row.university} className="border-b last:border-0">
                     <th className="p-3 text-left font-medium">{row.university}</th>
+                    <td className="p-3 text-right font-bold">{row.total}</td>
                     {QUALIS_ORDER.map((qualis) => (
                       <td key={qualis} className="p-3 text-right">
                         {row[qualis] === null || row[qualis] === 0
