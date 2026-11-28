@@ -91,6 +91,19 @@ const QUALIS_COLORS = {
   NA: "#fb7185",
 };
 
+const QUALIS_ORDER = [
+  "A1",
+  "A2",
+  "A3",
+  "A4",
+  "B1",
+  "B2",
+  "B3",
+  "B4",
+  "C",
+  "NA",
+] as const;
+
 export default function ComparativeConferenceAnalysis() {
   const auth = useAuth();
   const isMobile = useIsMobile();
@@ -145,10 +158,11 @@ export default function ComparativeConferenceAnalysis() {
       : 0,
   };
   const doctoratesChartData = [...APOEMA_DOCTORATES, pgcompDoctorateRow];
-  const pgcompQualisTotals = (
-    ["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C", "NI"] as const
-  ).map((qualis) => {
-    const series = pgcompQualis?.data.find((entry) => entry.label === qualis);
+  const pgcompQualisTotals = QUALIS_ORDER.map((qualis) => {
+    const sourceQualis = qualis === "NA" ? "NI" : qualis;
+    const series = pgcompQualis?.data.find(
+      (entry) => entry.label === sourceQualis,
+    );
     const total = series?.data
       .filter((_, index) => {
         const year = pgcompQualis?.years[index];
@@ -156,7 +170,7 @@ export default function ComparativeConferenceAnalysis() {
       })
       .reduce((sum, value) => sum + value, 0) ?? 0;
 
-    return { qualis: qualis === "NI" ? "NA" : qualis, total };
+    return { qualis, total };
   });
 
   const pgcompQualisRow: UniversityQualis = {
@@ -172,7 +186,23 @@ export default function ComparativeConferenceAnalysis() {
     C: pgcompQualisTotals.find((row) => row.qualis === "C")?.total ?? 0,
     NA: pgcompQualisTotals.find((row) => row.qualis === "NA")?.total ?? 0,
   };
-  const qualisChartData = [...SUCUPIRA_QUALIS_2021, pgcompQualisRow];
+  const qualisChartData = [...SUCUPIRA_QUALIS_2021, pgcompQualisRow].sort(
+    (left, right) => {
+      const totalLeft = QUALIS_ORDER.reduce(
+        (sum, qualis) => sum + (left[qualis] ?? 0),
+        0,
+      );
+      const totalRight = QUALIS_ORDER.reduce(
+        (sum, qualis) => sum + (right[qualis] ?? 0),
+        0,
+      );
+
+      return (
+        totalLeft - totalRight ||
+        left.university.localeCompare(right.university, "pt-BR")
+      );
+    },
+  );
 
   return (
     <div className="space-y-6">
@@ -416,13 +446,13 @@ export default function ComparativeConferenceAnalysis() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="h-[620px] w-full overflow-x-auto">
-            <div className="h-full min-w-[980px]">
+          <div className="h-[720px] w-full overflow-x-auto">
+            <div className="h-full min-w-[1280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={qualisChartData}
-                  margin={{ top: 44, right: 24, bottom: 112, left: 16 }}
-                  barCategoryGap="10%"
+                  margin={{ top: 48, right: 32, bottom: 128, left: 24 }}
+                  barCategoryGap="14%"
                   barGap={0}
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -453,20 +483,21 @@ export default function ComparativeConferenceAnalysis() {
                     align="center"
                     wrapperStyle={{ paddingBottom: 18, fontSize: 13 }}
                   />
-                  {(["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C", "NA"] as const).map((qualis) => (
+                  {QUALIS_ORDER.map((qualis) => (
                     <Bar
                       key={qualis}
                       dataKey={qualis}
                       name={qualis}
                       stackId="qualis"
                       fill={QUALIS_COLORS[qualis]}
-                      maxBarSize={78}
+                      maxBarSize={108}
                     >
                       <LabelList
                         dataKey={qualis}
                         position="inside"
                         content={({ x, y, width, height, value }) => {
                           if (!value || Number(value) === 0) return null;
+                          if (Number(value) < 15) return null;
                           return (
                             <text
                               x={Number(x) + Number(width) / 2}
@@ -495,7 +526,7 @@ export default function ComparativeConferenceAnalysis() {
               <thead>
                 <tr className="border-b">
                   <th className="p-3 text-left">Programa / Universidade</th>
-                  {(["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C", "NA"] as const).map((qualis) => (
+                  {QUALIS_ORDER.map((qualis) => (
                     <th key={qualis} className="p-3 text-right">{qualis}</th>
                   ))}
                 </tr>
@@ -504,7 +535,7 @@ export default function ComparativeConferenceAnalysis() {
                 {qualisChartData.map((row) => (
                   <tr key={row.university} className="border-b last:border-0">
                     <th className="p-3 text-left font-medium">{row.university}</th>
-                    {(["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C", "NA"] as const).map((qualis) => (
+                    {QUALIS_ORDER.map((qualis) => (
                       <td key={qualis} className="p-3 text-right">
                         {row[qualis] === null || row[qualis] === 0 ? "—" : row[qualis]}
                       </td>
