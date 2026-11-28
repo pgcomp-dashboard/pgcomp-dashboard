@@ -19,6 +19,11 @@ import {
 const BAR_COLOR = "#2563eb";
 const MAX_VISIBLE_BARS = 12;
 
+function awardCountDomain(dataMax: number): number {
+  if (!Number.isFinite(dataMax) || dataMax <= 0) return 1;
+  return Math.max(1, Math.ceil(dataMax * 1.12));
+}
+
 interface ChartEntry {
   name: string;
   total: number;
@@ -252,10 +257,14 @@ export function AwardsDashboard({
                 <BarChart
                   data={displayedCategories}
                   layout="vertical"
-                  margin={{ left: 8, right: 32 }}
+                  margin={{ top: 12, right: isMobile ? 48 : 56, bottom: 12, left: 8 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" allowDecimals={false} />
+                  <XAxis
+                    type="number"
+                    allowDecimals={false}
+                    domain={[0, awardCountDomain]}
+                  />
                   <YAxis
                     type="category"
                     dataKey="name"
@@ -280,7 +289,15 @@ export function AwardsDashboard({
                     fill={BAR_COLOR}
                     radius={[0, 4, 4, 0]}
                   >
-                    <LabelList dataKey="total" position="right" />
+                    <LabelList
+                      dataKey="total"
+                      position="right"
+                      offset={8}
+                      style={{
+                        fontSize: isMobile ? 12 : 14,
+                        fontWeight: 700,
+                      }}
+                    />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -297,10 +314,13 @@ export function AwardsDashboard({
           ) : (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.per_year} margin={{ left: -16 }}>
+                <BarChart
+                  data={data.per_year}
+                  margin={{ top: 28, right: 16, bottom: 8, left: -16 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="year" />
-                  <YAxis allowDecimals={false} />
+                  <YAxis allowDecimals={false} domain={[0, awardCountDomain]} />
                   <Tooltip />
                   <Bar
                     dataKey="total"
@@ -308,7 +328,12 @@ export function AwardsDashboard({
                     fill={BAR_COLOR}
                     radius={[4, 4, 0, 0]}
                   >
-                    <LabelList dataKey="total" position="top" />
+                    <LabelList
+                      dataKey="total"
+                      position="top"
+                      offset={6}
+                      style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700 }}
+                    />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -327,21 +352,34 @@ export function AwardsDashboard({
           ) : (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.per_year_by_scope} margin={{ left: -16 }}>
+                <BarChart
+                  data={data.per_year_by_scope}
+                  margin={{ top: 28, right: 16, bottom: 8, left: -16 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="year" />
-                  <YAxis allowDecimals={false} />
+                  <YAxis allowDecimals={false} domain={[0, awardCountDomain]} />
                   <Tooltip />
                   <Legend />
                   <Bar dataKey="national" name="Nacionais" fill="#2563eb">
-                    <LabelList dataKey="national" position="top" />
+                    <LabelList
+                      dataKey="national"
+                      position="top"
+                      offset={6}
+                      style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700 }}
+                    />
                   </Bar>
                   <Bar
                     dataKey="international"
                     name="Internacionais"
                     fill="#16a34a"
                   >
-                    <LabelList dataKey="international" position="top" />
+                    <LabelList
+                      dataKey="international"
+                      position="top"
+                      offset={6}
+                      style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700 }}
+                    />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -374,11 +412,11 @@ export function AwardsDashboard({
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={data.analysis_per_year}
-                    margin={{ left: -16, right: 8 }}
+                    margin={{ top: 28, right: 16, bottom: 8, left: -16 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="year" />
-                    <YAxis allowDecimals={false} />
+                    <YAxis allowDecimals={false} domain={[0, awardCountDomain]} />
                     <Tooltip
                       labelFormatter={(year) => `Ano ${year}`}
                       formatter={(value) => [value, chart.name]}
@@ -389,7 +427,12 @@ export function AwardsDashboard({
                       fill={chart.color}
                       radius={[4, 4, 0, 0]}
                     >
-                      <LabelList dataKey={chart.dataKey} position="top" />
+                      <LabelList
+                        dataKey={chart.dataKey}
+                        position="top"
+                        offset={6}
+                        style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700 }}
+                      />
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -467,6 +510,7 @@ export function AwardsDashboard({
                       <XAxis
                         type="number"
                         allowDecimals={false}
+                        domain={[0, awardCountDomain]}
                         tick={{ fontSize: isMobile ? 11 : 13 }}
                         tickLine={false}
                       />
