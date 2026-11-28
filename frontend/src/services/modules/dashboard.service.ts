@@ -88,7 +88,10 @@ export const dashboardService = {
   },
 
   async defensesPerYear(filter?: "mestrado" | "doutorado") {
-    return apiClient.get<{ [key: string]: number }>(
+    return apiClient.get<
+      | { [key: string]: number }
+      | Array<{ year: number; mestrado: number; doutorado: number }>
+    >(
       "/api/admin/dashboard/defenses_per_year",
       { filter },
     );

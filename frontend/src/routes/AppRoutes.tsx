@@ -46,6 +46,9 @@ import { EnsureIsApproved } from "./guards/EnsureIsApproved";
 import { EnsureManager } from "./guards/EnsureManager";
 
 const DashboardPage = lazy(() => import("@/pages/admin/dashboard"));
+const ComparativeAnalysisPage = lazy(
+  () => import("@/pages/admin/comparative-analysis"),
+);
 
 export function AppRoutes() {
   return (
@@ -141,6 +144,14 @@ export function AppRoutes() {
                 element={
                   <Suspense fallback={<LoadingSpinner />}>
                     <DashboardPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="comparative-analysis"
+                element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <ComparativeAnalysisPage />
                   </Suspense>
                 }
               />
