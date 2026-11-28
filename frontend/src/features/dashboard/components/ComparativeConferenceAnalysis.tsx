@@ -105,6 +105,8 @@ const QUALIS_ORDER = [
   "NA",
 ] as const;
 
+const COMPARABLE_QUALIS = ["A1", "A2", "A3", "A4"] as const;
+
 export default function ComparativeConferenceAnalysis() {
   const auth = useAuth();
   const isMobile = useIsMobile();
@@ -189,13 +191,11 @@ export default function ComparativeConferenceAnalysis() {
   };
   const qualisChartData = [...SUCUPIRA_QUALIS_2021, pgcompQualisRow].sort(
     (left, right) => {
-      const totalLeft =
-        QUALIS_ORDER.reduce(
+      const totalLeft = COMPARABLE_QUALIS.reduce(
           (sum, qualis) => sum + (left[qualis] ?? 0),
           0,
         );
-      const totalRight =
-        QUALIS_ORDER.reduce(
+      const totalRight = COMPARABLE_QUALIS.reduce(
           (sum, qualis) => sum + (right[qualis] ?? 0),
           0,
         );
@@ -207,7 +207,7 @@ export default function ComparativeConferenceAnalysis() {
     },
   ).map((row) => ({
     ...row,
-    total: QUALIS_ORDER.reduce(
+    total: COMPARABLE_QUALIS.reduce(
       (sum, qualis) => sum + (row[qualis] ?? 0),
       0,
     ),
@@ -451,7 +451,8 @@ export default function ComparativeConferenceAnalysis() {
           <p className="text-sm text-muted-foreground">
             Comparação com dados externos do Sucupira classificados pelo
             Qualis divulgado em 2021. NA indica publicação em periódico não
-            listado na classificação.
+            listado na classificação. O total comparável soma apenas A1–A4,
+            os estratos confirmados em todas as séries.
           </p>
         </CardHeader>
         <CardContent>
