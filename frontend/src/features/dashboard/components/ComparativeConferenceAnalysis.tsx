@@ -26,6 +26,7 @@ type UniversityYear = {
 
 type UniversityQualis = {
   university: string;
+  total?: number;
   A1: number | null;
   A2: number | null;
   A3: number | null;
@@ -68,14 +69,14 @@ const YEAR_COLORS = {
 };
 
 const SUCUPIRA_QUALIS_2021: UniversityQualis[] = [
-  { university: "PUCRS", A1: 27, A2: 37, A3: 31, A4: 26, B1: null, B2: null, B3: null, B4: null, C: null, NA: 12 },
-  { university: "PUC-Rio", A1: 64, A2: 31, A3: 73, A4: 7, B1: null, B2: null, B3: null, B4: null, C: null, NA: 12 },
-  { university: "UFRGS", A1: 113, A2: 90, A3: 39, A4: 34, B1: null, B2: null, B3: null, B4: null, C: null, NA: 17 },
-  { university: "UNICAMP", A1: 146, A2: 86, A3: 45, A4: 26, B1: null, B2: null, B3: null, B4: null, C: null, NA: 38 },
-  { university: "UFF", A1: 101, A2: 112, A3: 55, A4: 28, B1: null, B2: null, B3: null, B4: null, C: null, NA: 15 },
-  { university: "UFPE", A1: 177, A2: 113, A3: 56, A4: 64, B1: null, B2: null, B3: null, B4: null, C: null, NA: 64 },
-  { university: "UFMG", A1: 234, A2: 109, A3: 50, A4: 38, B1: null, B2: null, B3: null, B4: null, C: null, NA: 54 },
-  { university: "USP-SC", A1: 300, A2: 120, A3: 59, A4: 54, B1: null, B2: null, B3: null, B4: null, C: null, NA: 54 },
+  { university: "PUCRS", A1: 27, A2: 37, A3: 31, A4: 26, B1: null, B2: null, B3: null, B4: null, C: null, NA: null },
+  { university: "PUC-Rio", A1: 64, A2: 31, A3: 73, A4: 7, B1: null, B2: null, B3: null, B4: null, C: null, NA: null },
+  { university: "UFRGS", A1: 113, A2: 90, A3: 39, A4: 34, B1: null, B2: null, B3: null, B4: null, C: null, NA: null },
+  { university: "UNICAMP", A1: 146, A2: 86, A3: 45, A4: 26, B1: null, B2: null, B3: null, B4: null, C: null, NA: null },
+  { university: "UFF", A1: 101, A2: 112, A3: 55, A4: 28, B1: null, B2: null, B3: null, B4: null, C: null, NA: null },
+  { university: "UFPE", A1: 177, A2: 113, A3: 56, A4: 64, B1: null, B2: null, B3: null, B4: null, C: null, NA: null },
+  { university: "UFMG", A1: 234, A2: 109, A3: 50, A4: 38, B1: null, B2: null, B3: null, B4: null, C: null, NA: null },
+  { university: "USP-SC", A1: 300, A2: 120, A3: 59, A4: 54, B1: null, B2: null, B3: null, B4: null, C: null, NA: null },
 ];
 
 const QUALIS_COLORS = {
@@ -188,21 +189,29 @@ export default function ComparativeConferenceAnalysis() {
   };
   const qualisChartData = [...SUCUPIRA_QUALIS_2021, pgcompQualisRow].sort(
     (left, right) => {
-      const totalLeft = QUALIS_ORDER.reduce(
-        (sum, qualis) => sum + (left[qualis] ?? 0),
-        0,
-      );
-      const totalRight = QUALIS_ORDER.reduce(
-        (sum, qualis) => sum + (right[qualis] ?? 0),
-        0,
-      );
+      const totalLeft =
+        QUALIS_ORDER.reduce(
+          (sum, qualis) => sum + (left[qualis] ?? 0),
+          0,
+        );
+      const totalRight =
+        QUALIS_ORDER.reduce(
+          (sum, qualis) => sum + (right[qualis] ?? 0),
+          0,
+        );
 
       return (
         totalLeft - totalRight ||
         left.university.localeCompare(right.university, "pt-BR")
       );
     },
-  );
+  ).map((row) => ({
+    ...row,
+    total: QUALIS_ORDER.reduce(
+      (sum, qualis) => sum + (row[qualis] ?? 0),
+      0,
+    ),
+  }));
 
   return (
     <div className="space-y-6">
@@ -452,7 +461,7 @@ export default function ComparativeConferenceAnalysis() {
                 <BarChart
                   data={qualisChartData}
                   margin={{ top: 48, right: 32, bottom: 128, left: 24 }}
-                  barCategoryGap="14%"
+                  barCategoryGap="18%"
                   barGap={0}
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -497,7 +506,23 @@ export default function ComparativeConferenceAnalysis() {
                         position="inside"
                         content={({ x, y, width, height, value }) => {
                           if (!value || Number(value) === 0) return null;
-                          if (Number(value) < 15) return null;
+                          if (
+                            !["A1", "A2", "A3", "A4"].includes(qualis) &&
+                            !(
+                              qualis === "B1" &&
+                              (Number(value) === 56 || Number(value) === 54)
+                            ) &&
+                            !(
+                              qualis === "B2" &&
+                              (Number(value) === 64)
+                            ) &&
+                            !(
+                              qualis === "NA" &&
+                              (Number(value) === 54 || Number(value) === 64)
+                            )
+                          ) {
+                            return null;
+                          }
                           return (
                             <text
                               x={Number(x) + Number(width) / 2}
@@ -514,6 +539,43 @@ export default function ComparativeConferenceAnalysis() {
                         }}
                         style={{ fontSize: 10, fontWeight: 700 }}
                       />
+                      {qualis === "NA" && (
+                        <LabelList
+                          dataKey="total"
+                          position="top"
+                          offset={12}
+                          content={({ x, y, width, value }) => {
+                            if (!value) return null;
+                            const label = String(value);
+                            const boxWidth = label.length * 9 + 18;
+                            const centerX = Number(x) + Number(width) / 2;
+                            return (
+                              <g>
+                                <rect
+                                  x={centerX - boxWidth / 2}
+                                  y={Number(y) - 30}
+                                  width={boxWidth}
+                                  height={24}
+                                  rx={8}
+                                  fill="#ffffff"
+                                  stroke="#d1d5db"
+                                  strokeWidth={1}
+                                />
+                                <text
+                                  x={centerX}
+                                  y={Number(y) - 13}
+                                  fill="#111827"
+                                  fontSize={13}
+                                  fontWeight="bold"
+                                  textAnchor="middle"
+                                >
+                                  {label}
+                                </text>
+                              </g>
+                            );
+                          }}
+                        />
+                      )}
                     </Bar>
                   ))}
                 </BarChart>
@@ -537,7 +599,13 @@ export default function ComparativeConferenceAnalysis() {
                     <th className="p-3 text-left font-medium">{row.university}</th>
                     {QUALIS_ORDER.map((qualis) => (
                       <td key={qualis} className="p-3 text-right">
-                        {row[qualis] === null || row[qualis] === 0 ? "—" : row[qualis]}
+                        {row[qualis] === null || row[qualis] === 0
+                          ? "—"
+                          : row.university === "PGCOMP/UFBA"
+                            ? row[qualis]
+                            : ["B1", "B2", "B3", "B4", "C", "NA"].includes(qualis)
+                              ? `~${row[qualis]}`
+                              : row[qualis]}
                       </td>
                     ))}
                   </tr>
